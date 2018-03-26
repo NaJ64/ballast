@@ -57,4 +57,4 @@ var TriangleProgram = /** @class */ (function (_super) {
     return TriangleProgram;
 }(util_1.ProgramApiBase));
 exports.TriangleProgram = TriangleProgram;
-//# sourceMappingURL=triangle-program.js.map
+//# sourceMappingURL=triangle.js.map

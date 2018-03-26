@@ -27,13 +27,26 @@ export abstract class ProgramApiBase {
         return this.gl.getAttribLocation(this.program, attribute);
     }
 
+    protected getUniform(uniform: string): WebGLUniformLocation {
+        var location = this.gl.getUniformLocation(this.program, uniform);
+        if (!location) {
+            throw new Error('Error retrieving uniform location');
+        }
+        return location;
+    }
+
+    public clearAndResize() {
+        this.clearCanvasTransparent();
+        this.resizeViewportWithCanvas();
+    }
+
     protected resizeViewportWithCanvas() {
         resizeCanvas(this.gl.canvas);
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     }
 
     protected clearCanvasTransparent() {
-        // Clear the canvas
+        // Clear the canvas by setting the clear color to "transparent" then calling "gl.clear()"
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     }
@@ -52,17 +65,26 @@ export abstract class ProgramApiBase {
         return buffer;
     }
 
-    protected setBufferForAttribute(buffer: WebGLBuffer, attribute: number, instruction: BufferAttributeInstruction) {
+    protected assign4fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number, f3: number, f4: number) {
+        // set the resolution
+        this.gl.uniform4f(uniform, f1, f2, f3, f4);
+    }
+    protected assign2fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number) {
+        // set the resolution
+        this.gl.uniform2f(uniform, f1, f2);
+    }
+
+    protected assignBufferToAttribute(buffer: WebGLBuffer, attribute: number, instruction: BufferAttributeInstruction) {
         // activate the attribute
         this.gl.enableVertexAttribArray(attribute);  
-        // // Bind the position buffer
-        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-        // Instructions on how to 
-        var size = instruction.size;          // 2 components per iteration
-        var type = instruction.type;   // the data is 32bit floats
-        var normalize = instruction.normalize; // don't normalize the data
-        var stride = instruction.stride;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-        var offset = instruction.offset;        // start at the beginning of the buffer
+        // Bind the position buffer
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+        // Instructions on how to read in attribute value(s) from the buffer
+        var size = instruction.size;            // components per iteration
+        var type = instruction.type;            // data type (32bit float / etc)
+        var normalize = instruction.normalize;  // normalize data flag (scale to 1)
+        var stride = instruction.stride;        // 0 = move forward (size * sizeof(type)) each iteration to get the next position
+        var offset = instruction.offset;        // start position within the buffer
         // Bind the attribute to the current buffer
         this.gl.vertexAttribPointer(attribute, size, type, normalize, stride, offset)
     }
