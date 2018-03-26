@@ -1,1 +1,1 @@
-export * from './test-program';
+export * from './triangle-program';

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "WebGL graphics rendering system for Ballast",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc",

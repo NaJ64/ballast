@@ -13,24 +13,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var util_1 = require("../util");
 var vs = "\n    attribute vec4 a_position;\n    void main() {\n        gl_Position = a_position;\n    }\n";
 var fs = "\n    precision mediump float;\n    void main() {\n        gl_FragColor = vec4(1, 0, 0.5, 1);\n    }\n";
-var TriangleProgramApi = /** @class */ (function (_super) {
-    __extends(TriangleProgramApi, _super);
-    function TriangleProgramApi(gl) {
+var TriangleProgram = /** @class */ (function (_super) {
+    __extends(TriangleProgram, _super);
+    function TriangleProgram(gl) {
         return _super.call(this, gl, vs, fs) || this;
     }
-    TriangleProgramApi.prototype.render = function (triangleData) {
-        var positions = [
-            triangleData.ax,
-            triangleData.ay,
-            triangleData.bx,
-            triangleData.by,
-            triangleData.cx,
-            triangleData.cy
-        ];
+    TriangleProgram.prototype.init = function () {
+        this.clear();
+        this.resizeViewportWithCanvas();
+    };
+    TriangleProgram.prototype.clear = function () {
         // clear canvas
         this.clearCanvasTransparent();
-        // resize canvas
-        this.resizeViewportWithCanvas();
+    };
+    TriangleProgram.prototype.rerender = function (a, b, c) {
+        this.clear();
+        this.render(a, b, c);
+    };
+    TriangleProgram.prototype.render = function (a, b, c) {
+        // Convert vertices to array
+        var positions = [
+            a.x, a.y,
+            b.x, b.y,
+            c.x, c.y
+        ];
         // set the current program for the gl context
         this.useCurrentProgram();
         // create new buffer in which to place our point data
@@ -52,17 +58,17 @@ var TriangleProgramApi = /** @class */ (function (_super) {
         // draw using mode "TRIANGLES"
         this.drawArrays(this.gl.TRIANGLES, 0, count);
     };
-    TriangleProgramApi.prototype.loadPositionDataIntoCurrentBuffer = function (positions) {
+    TriangleProgram.prototype.loadPositionDataIntoCurrentBuffer = function (positions) {
         // create new floating point array from position data
         var data = new Float32Array(positions);
         // load data into the current buffer (positionBuffer) with static draw usage
         this.gl.bufferData(this.gl.ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
     };
-    TriangleProgramApi.prototype.getPositionAttribute = function () {
+    TriangleProgram.prototype.getPositionAttribute = function () {
         // locate using name of attribute
         return this.getAttribute('a_position');
     };
-    return TriangleProgramApi;
+    return TriangleProgram;
 }(util_1.ProgramApiBase));
-exports.TriangleProgramApi = TriangleProgramApi;
-//# sourceMappingURL=test-program.js.map
+exports.TriangleProgram = TriangleProgram;
+//# sourceMappingURL=triangle-program.js.map

@@ -5,5 +5,6 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./create-shader"));
 __export(require("./create-program"));
-__export(require("./program-factory-base"));
+__export(require("./program-api-base"));
+__export(require("./resize-canvas"));
 //# sourceMappingURL=index.js.map
