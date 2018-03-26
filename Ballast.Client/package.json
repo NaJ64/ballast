@@ -1,0 +1,36 @@
+{
+  "name": "ballast-client",
+  "version": "1.0.0",
+  "description": "Packaged services for javascript-based Ballast clients",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ballast",
+    "signalr"
+  ],
+  "author": "NaJ64 <njudice@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/jest": "^22.2.2",
+    "jest": "^22.4.3",
+    "ts-jest": "^22.4.2",
+    "typescript": "^2.7.2"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testPathIgnorePatterns": [ "/node_modules/", "/dist/" ],
+    "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
+  }
+}

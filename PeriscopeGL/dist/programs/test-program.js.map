@@ -1,0 +1,1 @@
+{"version":3,"file":"test-program.js","sourceRoot":"","sources":["../../src/programs/test-program.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,gCAA6C;AAE7C,IAAM,EAAE,GAAW,iGAKlB,CAAC;AAEF,IAAM,EAAE,GAAW,wGAKlB,CAAC;AAEF;IAAwC,sCAAkB;IACtD,4BAAmB,EAAyB;eACxC,kBAAM,EAAE,EAAE,EAAE,EAAE,EAAE,CAAC;IACrB,CAAC;IACL,yBAAC;AAAD,CAAC,AAJD,CAAwC,yBAAkB,GAIzD;AAJY,gDAAkB"}
