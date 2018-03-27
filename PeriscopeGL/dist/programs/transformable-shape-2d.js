@@ -10,21 +10,18 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = require("../util");
-var vs = "\n    attribute vec2 a_position;\n    uniform vec2 u_resolution;\n\n    void main() {\n\n        // convert the position from pixels to 0.0 to 1.0\n        vec2 zeroToOne = a_position / u_resolution;\n     \n        // convert from 0->1 to 0->2\n        vec2 zeroToTwo = zeroToOne * 2.0;\n     \n        // convert from 0->2 to -1->+1 (clipspace)\n        vec2 clipSpace = zeroToTwo - 1.0;\n     \n        gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);\n    }\n";
-var fs = "\n    precision mediump float;\n    uniform vec4 u_color;\n\n    void main() {\n        gl_FragColor = u_color;\n    }\n";
+var program_base_1 = require("./program-base");
+var vs = "\n\n    attribute vec2 a_position;\n    uniform vec2 u_resolution;\n\n    void main() {\n\n        // convert the position from pixels to 0.0 to 1.0\n        vec2 zeroToOne = a_position / u_resolution;\n     \n        // convert from 0->1 to 0->2\n        vec2 zeroToTwo = zeroToOne * 2.0;\n     \n        // convert from 0->2 to -1->+1 (clipspace)\n        vec2 clipSpace = zeroToTwo - 1.0;\n     \n        gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);\n    }\n\n";
+var fs = "\n\n    precision mediump float;\n    uniform vec4 u_color;\n\n    void main() {\n        gl_FragColor = u_color;\n    }\n    \n";
 var TransformableShape2D = /** @class */ (function (_super) {
     __extends(TransformableShape2D, _super);
-    function TransformableShape2D(gl, shape, initialPosition, initialTranslation, initialRotation, initialScale) {
+    function TransformableShape2D(gl, shape, initialTranslation, initialRotation, initialScale) {
         var _this = _super.call(this, gl, vs, fs) || this;
-        _this.init(shape, initialPosition, initialTranslation, initialRotation, initialScale);
+        _this.init(shape, initialTranslation, initialRotation, initialScale);
         return _this;
     }
-    TransformableShape2D.prototype.init = function (shape, initialPosition, initialTranslation, initialRotation, initialScale) {
+    TransformableShape2D.prototype.init = function (shape, initialTranslation, initialRotation, initialScale) {
         // Defaults
-        if (!initialPosition) {
-            initialPosition = { x: 0, y: 0 };
-        }
         if (!initialTranslation) {
             initialTranslation = { x: 0, y: 0 };
         }
@@ -36,7 +33,6 @@ var TransformableShape2D = /** @class */ (function (_super) {
         }
         // Store initial state
         this.shape = shape;
-        this.initialPosition = initialPosition;
         this.translation = this.initialTranslation = initialTranslation;
         this.rotation = this.initialRotation = initialRotation;
         this.scale = this.initialScale = initialScale;
@@ -58,19 +54,10 @@ var TransformableShape2D = /** @class */ (function (_super) {
         this.scale.y += scale.y;
     };
     TransformableShape2D.prototype.render = function () {
-        var data = [];
-        for (var i = 0; i < this.shape.triangles.length; i++) {
-            var triangle = this.shape.triangles[i];
-            for (var j = 0; j < triangle.vertices.length; j++) {
-                var vertex = triangle.vertices[j];
-                var x = vertex.x;
-                var y = vertex.y;
-                data.push(x);
-                data.push(y);
-            }
-        }
-        // apply currently set transformations using matrices
-        this.applyTransformations(data);
+        // apply current transformations to shape(s) using matrices
+        var transformedShape = this.applyTransformations(this.shape);
+        // Flatten vertices
+        var vertices = this.getVertices(transformedShape);
         // set the current program for the gl context
         this.useCurrentProgram();
         // set uniform value(s) for color
@@ -82,7 +69,7 @@ var TransformableShape2D = /** @class */ (function (_super) {
         // create new buffer in which to place our point data
         var buffer = this.useNewCurrentBuffer();
         // load point data into the current buffer
-        this.loadDataIntoCurrentBuffer(data);
+        this.loadDataIntoCurrentBuffer(vertices);
         // get location of our vertex attribute
         var positionAttribute = this.getPositionAttribute();
         // map our buffer (data) to the position attribute on the shader (with instruction)
@@ -94,12 +81,27 @@ var TransformableShape2D = /** @class */ (function (_super) {
             offset: 0 // start at the beginning of the buffer
         });
         // determine the number of times to draw (based on number of points)
-        var count = Math.floor(data.length / 2);
+        var count = Math.floor(vertices.length / 2);
         // draw using mode "TRIANGLES"
         this.drawArrays(this.gl.TRIANGLES, 0, count);
     };
-    TransformableShape2D.prototype.applyTransformations = function (data) {
-        return data;
+    TransformableShape2D.prototype.applyTransformations = function (shape) {
+        return shape;
+    };
+    TransformableShape2D.prototype.getVertices = function (shape) {
+        // Flatten vertices
+        var vertices = [];
+        for (var i = 0; i < shape.triangles.length; i++) {
+            var triangle = shape.triangles[i];
+            for (var j = 0; j < triangle.vertices.length; j++) {
+                var vertex = triangle.vertices[j];
+                var x = vertex.x;
+                var y = vertex.y;
+                vertices.push(x);
+                vertices.push(y);
+            }
+        }
+        return vertices;
     };
     TransformableShape2D.prototype.getPositionAttribute = function () {
         return this.getAttribute("a_position");
@@ -115,6 +117,6 @@ var TransformableShape2D = /** @class */ (function (_super) {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(data), this.gl.STATIC_DRAW);
     };
     return TransformableShape2D;
-}(util_1.ProgramApiBase));
+}(program_base_1.ProgramBase));
 exports.TransformableShape2D = TransformableShape2D;
 //# sourceMappingURL=transformable-shape-2d.js.map

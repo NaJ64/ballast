@@ -1,17 +1,5 @@
-import { ProgramApiBase } from '../util';
-export declare class RectangleProgram extends ProgramApiBase {
-    constructor(gl: WebGLRenderingContext);
-    render(topLeft: {
-        xPixels: number;
-        yPixels: number;
-    }, widthPixels: number, heightPixels: number, color?: {
-        r: number;
-        g: number;
-        b: number;
-        a?: number;
-    }): void;
-    private loadDataIntoCurrentBuffer(data);
-    private getPositionAttribute();
-    private getResolutionUniform();
-    private getColorUniform();
+import { Vertex2D, Translation2D, Rotation2D, Scaling2D } from '../models';
+import { Shape2DProgram } from './shape-2d-program';
+export declare class RectangleProgram extends Shape2DProgram {
+    constructor(gl: WebGLRenderingContext, height: number, width: number, topLeftVertex?: Vertex2D, initialTranslation?: Translation2D, initialRotation?: Rotation2D, initialScaling?: Scaling2D);
 }

@@ -80,13 +80,19 @@ export abstract class ProgramBase {
         this.gl.vertexAttribPointer(attribute, size, type, normalize, stride, offset)
     }
 
+    protected assign2fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number) {
+        // set the resolution
+        this.gl.uniform2f(uniform, f1, f2);
+    }
+
     protected assign4fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number, f3: number, f4: number) {
         // set the resolution
         this.gl.uniform4f(uniform, f1, f2, f3, f4);
     }
-    protected assign2fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number) {
-        // set the resolution
-        this.gl.uniform2f(uniform, f1, f2);
+    
+    protected assignMat3fToUniform(uniform: WebGLUniformLocation, matrix: number[]) {
+        // transpose = false
+        this.gl.uniformMatrix3fv(uniform, false, matrix);
     }
 
     protected drawArrays(mode: number, offset: number, count: number) {

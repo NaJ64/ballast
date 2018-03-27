@@ -1,3 +1,4 @@
-export * from './rectangle';
-export * from './transformable-shape-2d';
-export * from './triangle';
+export * from './program-base';
+export * from './rectangle-program';
+export * from './shape-2d-program';
+export * from './triangle-program';

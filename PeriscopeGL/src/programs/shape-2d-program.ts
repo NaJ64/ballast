@@ -1,23 +1,18 @@
-import { Position2D, Shape2D, Translation2D, Rotation2D, Scale2D } from '../models';
+import { Shape2D, Translation2D, Rotation2D, Scaling2D } from '../models';
+import * as m3 from '../utilities/matrix-3x3';
 import { ProgramBase } from './program-base';
 
 const vs: string = `
 
     attribute vec2 a_position;
-    uniform vec2 u_resolution;
+
+    uniform mat3 u_matrix;
 
     void main() {
 
-        // convert the position from pixels to 0.0 to 1.0
-        vec2 zeroToOne = a_position / u_resolution;
-     
-        // convert from 0->1 to 0->2
-        vec2 zeroToTwo = zeroToOne * 2.0;
-     
-        // convert from 0->2 to -1->+1 (clipspace)
-        vec2 clipSpace = zeroToTwo - 1.0;
-     
-        gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+        // Multiply the position by the matrix.
+        gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
+    
     }
 
 `;
@@ -33,110 +28,93 @@ const fs: string = `
     
 `;
 
-export class TransformableShape2D extends ProgramBase {
+export class Shape2DProgram extends ProgramBase {
 
     private shape!: Shape2D;
-    private initialPosition!: Position2D;
     private initialTranslation!: Translation2D;
     private initialRotation!: Rotation2D;
-    private initialScale!: Scale2D;
+    private initialScaling!: Scaling2D;
     private translation!: Translation2D;
     private rotation!: Rotation2D;
-    private scale!: Scale2D;
+    private scaling!: Scaling2D;
     
     public constructor(
         gl: WebGLRenderingContext,
         shape: Shape2D,
-        initialPosition?: Position2D,
         initialTranslation?: Translation2D,
         initialRotation?: Rotation2D,
-        initialScale?: Scale2D
+        initialScaling?: Scaling2D
     ) {
         super(gl, vs, fs);
-        this.init(shape, initialPosition, initialTranslation, initialRotation, initialScale);
+        this.init(shape, initialTranslation, initialRotation, initialScaling);
     }
 
     public init(
         shape: Shape2D,
-        initialPosition?: Position2D,
         initialTranslation?: Translation2D,
         initialRotation?: Rotation2D,
-        initialScale?: Scale2D
+        initialScaling?: Scaling2D,
+        originOffset?: Translation2D
     ) {
         // Defaults
-        if (!initialPosition) {
-            initialPosition = { x: 0, y: 0 };
-        }
         if (!initialTranslation) {
             initialTranslation = { x: 0, y: 0 };
         }
         if (!initialRotation) {
             initialRotation = { radians: 0 };
         }
-        if (!initialScale) {
-            initialScale = { x: 1, y: 1 };
+        if (!initialScaling) {
+            initialScaling = { x: 1, y: 1 };
         }
         // Store initial state
         this.shape = shape;
-        this.initialPosition = initialPosition;
         this.translation = this.initialTranslation = initialTranslation;
         this.rotation = this.initialRotation = initialRotation;
-        this.scale = this.initialScale = initialScale;
+        this.scaling = this.initialScaling = initialScaling;
     }
 
     public reorient() {
         this.translation = this.initialTranslation;
         this.rotation = this.initialRotation;
-        this.scale = this.initialScale;
+        this.scaling = this.initialScaling;
     }
 
     public translate(translation: Translation2D) {
-        this.translation.x += translation.x;
-        this.translation.y += translation.y;
+        this.translation.x = (this.translation.x || 0) + (translation.x || 0);
+        this.translation.y = (this.translation.y || 0) + (translation.y || 0);
     }
 
     public rotate(rotation: Rotation2D) {
         this.rotation.radians += rotation.radians;
     }
 
-    public rescale(scale: Scale2D) {
-        this.scale.x += scale.x;
-        this.scale.y += scale.y;
+    public scale(scaling: Scaling2D) {
+        this.scaling.x = (this.scaling.x || 1) * (scaling.x || 1);
+        this.scaling.y = (this.scaling.y || 1) * (scaling.y || 1);
     }
 
     public render() {
 
-        var data: number[] = [];
-        for(var i = 0; i < this.shape.triangles.length; i++) {
-            var triangle = this.shape.triangles[i];
-            for(var j = 0; j < triangle.vertices.length; j++) {
-                var vertex = triangle.vertices[j];
-                var x = vertex.x;
-                var y = vertex.y;
-                data.push(x);
-                data.push(y);
-            }
-        }
+        // Flatten vertices
+        var vertices = this.getVertices(this.shape);
 
-        // apply currently set transformations using matrices
-        this.applyTransformations(data);
+        // apply current transformations to shape(s) using matrices
+        var transformations = this.getTransformationMatrix();
 
         // set the current program for the gl context
         this.useCurrentProgram();
 
-        // set uniform value(s) for color
-        var colorUniform = this.getColorUniform();
-        this.assign4fToUniform(colorUniform, Math.random(), Math.random(), Math.random(), 1);
+        // set uniform value(s) for transformation matrix
+        this.assignMat3fToUniform(this.getMatrixUniform(), transformations);
 
-        // set uniform value(s) for resolution
-        var resolutionUniform = this.getResolutionUniform();
-        this.assign2fToUniform(resolutionUniform, this.gl.canvas.width, this.gl.canvas.height);
+        // set uniform value(s) for color
+        this.assign4fToUniform(this.getColorUniform(), Math.random(), Math.random(), Math.random(), 1);
 
         // create new buffer in which to place our point data
         var buffer = this.useNewCurrentBuffer();
 
         // load point data into the current buffer
-        this.loadDataIntoCurrentBuffer(data);
+        this.loadDataIntoCurrentBuffer(vertices);
 
          // get location of our vertex attribute
         var positionAttribute = this.getPositionAttribute();
@@ -151,15 +129,42 @@ export class TransformableShape2D extends ProgramBase {
         });
 
         // determine the number of times to draw (based on number of points)
-        let count = Math.floor(data.length / 2);
+        let count = Math.floor(vertices.length / 2);
 
         // draw using mode "TRIANGLES"
         this.drawArrays(this.gl.TRIANGLES, 0, count);
 
     }
 
-    private applyTransformations(data: number[]) {
-        return data;
+    private getTransformationMatrix(): number[] {  
+        // determine projection (resolution) matrix
+        var projectionMatrix = m3.projection(this.gl.canvas.clientWidth, this.gl.canvas.clientHeight);
+        // compute matrices  
+        var translationMatrix = m3.translation(this.translation.x || 0, this.translation.y || 0);
+        var rotationMatrix = m3.rotation(this.rotation.radians);
+        var scalingMatrix = m3.scaling(this.scaling.x || 1, this.scaling.y || 1);
+        // multiply the matrices
+        var matrix = m3.multiply(projectionMatrix, translationMatrix);
+        matrix = m3.multiply(matrix, rotationMatrix);
+        matrix = m3.multiply(matrix, scalingMatrix);
+        // return the new transformation matrix
+        return matrix;
+    }
+
+    private getVertices(shape: Shape2D) {
+        // Flatten vertices
+        var vertices: number[] = [];
+        for(var i = 0; i < shape.triangles.length; i++) {
+            var triangle = shape.triangles[i];
+            for(var j = 0; j < triangle.vertices.length; j++) {
+                var vertex = triangle.vertices[j];
+                var x = vertex.x;
+                var y = vertex.y;
+                vertices.push(x);
+                vertices.push(y);
+            }
+        }
+        return vertices;
     }
 
     protected getPositionAttribute(): number {
@@ -170,8 +175,8 @@ export class TransformableShape2D extends ProgramBase {
         return this.getUniform("u_color");
     }
 
-    protected getResolutionUniform(): WebGLUniformLocation {
-        return this.getUniform("u_resolution");
+    protected getMatrixUniform(): WebGLUniformLocation {
+        return this.getUniform("u_matrix");
     }
 
     private loadDataIntoCurrentBuffer(data: number[]) {

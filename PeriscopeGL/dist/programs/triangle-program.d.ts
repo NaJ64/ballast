@@ -1,20 +1,5 @@
-import { ProgramApiBase } from '../util';
-export declare type Vertex = {
-    x: number;
-    y: number;
-};
-export declare class TriangleProgram extends ProgramApiBase {
-    constructor(gl: WebGLRenderingContext);
-    render(a: {
-        x: number;
-        y: number;
-    }, b: {
-        x: number;
-        y: number;
-    }, c: {
-        x: number;
-        y: number;
-    }): void;
-    private loadDataIntoCurrentBuffer(data);
-    private getPositionAttribute();
+import { Vertex2D, Translation2D, Rotation2D, Scaling2D } from '../models';
+import { Shape2DProgram } from './shape-2d-program';
+export declare class TriangleProgram extends Shape2DProgram {
+    constructor(gl: WebGLRenderingContext, vertexA: Vertex2D, vertexB: Vertex2D, vertexC: Vertex2D, initialTranslation?: Translation2D, initialRotation?: Rotation2D, initialScaling?: Scaling2D);
 }

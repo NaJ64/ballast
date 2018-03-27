@@ -1,4 +1,4 @@
-export interface Scale2D {
+export interface Vertex2D {
     x: number;
     y: number;
 }
