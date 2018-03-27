@@ -1,4 +1,4 @@
-import { createShader, createProgram, resizeCanvas } from '.'
+import { createShader, createProgram, resizeCanvas } from '../utilities';
 
 export interface BufferAttributeInstruction {
     // Tells an attribute how to get data out of current buffer
@@ -9,7 +9,7 @@ export interface BufferAttributeInstruction {
     offset: number;         // start at the beginning of the buffer
 }
 
-export abstract class ProgramApiBase {
+export abstract class ProgramBase {
 
     public readonly gl: WebGLRenderingContext;
     public vs: WebGLShader;
@@ -65,15 +65,6 @@ export abstract class ProgramApiBase {
         return buffer;
     }
 
-    protected assign4fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number, f3: number, f4: number) {
-        // set the resolution
-        this.gl.uniform4f(uniform, f1, f2, f3, f4);
-    }
-    protected assign2fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number) {
-        // set the resolution
-        this.gl.uniform2f(uniform, f1, f2);
-    }
-
     protected assignBufferToAttribute(buffer: WebGLBuffer, attribute: number, instruction: BufferAttributeInstruction) {
         // activate the attribute
         this.gl.enableVertexAttribArray(attribute);  
@@ -87,6 +78,15 @@ export abstract class ProgramApiBase {
         var offset = instruction.offset;        // start position within the buffer
         // Bind the attribute to the current buffer
         this.gl.vertexAttribPointer(attribute, size, type, normalize, stride, offset)
+    }
+
+    protected assign4fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number, f3: number, f4: number) {
+        // set the resolution
+        this.gl.uniform4f(uniform, f1, f2, f3, f4);
+    }
+    protected assign2fToUniform(uniform: WebGLUniformLocation, f1: number, f2: number) {
+        // set the resolution
+        this.gl.uniform2f(uniform, f1, f2);
     }
 
     protected drawArrays(mode: number, offset: number, count: number) {

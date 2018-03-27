@@ -1,7 +1,8 @@
-import { Position2D, Shape2D, Translation2D, Rotation2D, Scale2D } from '../types';
-import { ProgramApiBase } from '../util';
+import { Position2D, Shape2D, Translation2D, Rotation2D, Scale2D } from '../models';
+import { ProgramBase } from './program-base';
 
 const vs: string = `
+
     attribute vec2 a_position;
     uniform vec2 u_resolution;
 
@@ -18,18 +19,21 @@ const vs: string = `
      
         gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
     }
+
 `;
 
 const fs: string = `
+
     precision mediump float;
     uniform vec4 u_color;
 
     void main() {
         gl_FragColor = u_color;
     }
+    
 `;
 
-export class TransformableShape2D extends ProgramApiBase {
+export class TransformableShape2D extends ProgramBase {
 
     private shape!: Shape2D;
     private initialPosition!: Position2D;
