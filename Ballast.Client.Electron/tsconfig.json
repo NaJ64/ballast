@@ -1,20 +1,20 @@
 {
-  "compileOnSave": true,
-  "compilerOptions": {
-      "baseUrl": ".",
-      "declaration": true,
-      "esModuleInterop": true,
-      "lib": [ "es2015" ],
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "rootDir": "src",
-      "outDir": "dist",
-      "sourceMap": true,
-      "strict": true,
-      "target": "es5"
-  },
-  "exclude": [
-      "**/*.test.ts",
-      "dist/**/*.ts"
-  ]
+    "compileOnSave": true,
+    "compilerOptions": {
+        "baseUrl": ".",
+        "declaration": true,
+        "esModuleInterop": true,
+        "lib": [ "es6", "dom" ],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "rootDir": "src",
+        "outDir": "dist",
+        "sourceMap": true,
+        "strict": true,
+        "target": "es5"
+    },
+    "exclude": [
+        "**/*.test.ts",
+        "dist/**/*.ts"
+    ]
 }
