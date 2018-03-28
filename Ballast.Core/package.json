@@ -29,7 +29,13 @@
     "transform": {
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testPathIgnorePatterns": [ "/node_modules/", "/dist/" ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
+  },
+  "dependencies": {
+    "inversify": "^4.11.1"
   }
 }

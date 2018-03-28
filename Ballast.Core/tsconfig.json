@@ -7,7 +7,7 @@
       "lib": [ "es2015" ],
       "module": "commonjs",
       "moduleResolution": "node",
-      "rootDir": "src",
+      "rootDir": "src/Client/",
       "outDir": "dist",
       "sourceMap": true,
       "strict": true,
