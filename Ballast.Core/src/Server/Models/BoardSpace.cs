@@ -4,6 +4,7 @@ namespace Ballast.Core.Models
 {
     public class BoardSpace
     {
+        
         public (int Row, int Column) Coordinates { get; private set; }
         public Terrain Terrain { get; set; }
         public BoardSpace NorthAdjacent { get; set; }
@@ -23,7 +24,8 @@ namespace Ballast.Core.Models
 
         public void SetAdjacents(IEnumerable<BoardSpace> allSpaces)
         {
-            
+
         }
+
     }
 }
