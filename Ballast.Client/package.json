@@ -20,6 +20,7 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^22.2.2",
+    "@types/uuid": "^3.4.3",
     "jest": "^22.4.3",
     "ts-jest": "^22.4.2",
     "typescript": "^2.7.2"
@@ -35,7 +36,16 @@
     "transform": {
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testPathIgnorePatterns": [ "/node_modules/", "/dist/" ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
+  },
+  "dependencies": {
+    "inversify": "^4.11.1",
+    "reflect-metadata": "^0.1.12",
+    "three": "^0.91.0",
+    "uuid": "^3.2.1"
   }
 }

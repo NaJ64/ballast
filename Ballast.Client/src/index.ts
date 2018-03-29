@@ -1,1 +1,1 @@
-export * from './ballast-client';
+export * from './app/ballast-client';
