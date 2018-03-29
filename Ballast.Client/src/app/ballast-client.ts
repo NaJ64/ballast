@@ -6,14 +6,14 @@ import { configureServices } from '../ioc/configure-services';
 export class BallastClient {
 
     private readonly host: HTMLElement;
-    private readonly clientId: string;
+    private readonly id: string;
     private readonly viewport: BallastViewport;
     private readonly container: Container;
 
     public constructor(host: HTMLElement) {
         this.host = host;
-        this.clientId = uuid.v4();
-        this.viewport = new BallastViewport(host, this.clientId);
+        this.id = uuid.v4();
+        this.viewport = new BallastViewport(host, this.id);
         this.container = configureServices(new Container(), this);
     }
 
