@@ -5,7 +5,23 @@ import { configureServices } from '../ioc/configure-services';
 
 export class BallastBootstrapper {
 
-    public async bootstrapAsync(host: HTMLElement): Promise<BallastClient> {
+    private readonly document: Document;
+
+    public constructor(document: Document) {
+        this.document = document;
+    }
+
+    private findBallastElement(): HTMLElement | undefined {
+        return this.document.getElementById('ballast') || undefined;
+    }
+
+    public async bootstrapAsync(host?: HTMLElement): Promise<BallastClient> {
+        if (!host) {
+            host = this.findBallastElement();
+        }
+        if (!host) {
+            throw new Error('No ballast host element was found/specified');
+        }
         let client = new BallastClient(host);
         return await client.loadAsync();
     }
