@@ -41,6 +41,7 @@ var GameView = /** @class */ (function (_super) {
             this.canvas.style.display = null;
             var context = this.canvas.getContext('2d');
             if (context) {
+                context.font = "48px serif";
                 context.fillText('BALLAST!', 10, 50);
             }
         }
