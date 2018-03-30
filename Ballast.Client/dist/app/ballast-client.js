@@ -53,6 +53,9 @@ var BallastClient = /** @class */ (function () {
         this.viewport = new ballast_viewport_1.BallastViewport(host, this.id);
         this.inversifyContainer = ioc_1.configureServices(new inversify_1.Container(), this);
     }
+    BallastClient.prototype.getId = function () {
+        return this.id;
+    };
     BallastClient.prototype.getViewport = function () {
         return this.viewport;
     };

@@ -1,1 +1,1 @@
-{"version":3,"file":"event-base.js","sourceRoot":"","sources":["../../src/messaging/event-base.ts"],"names":[],"mappings":";;AAEA;IAAA;IAOA,CAAC;IALG,sBAAkB,oBAAO;aAAzB;YAEI,MAAM,IAAI,KAAK,CAAC,+CAA+C,CAAC,CAAC;QACrE,CAAC;;;OAAA;IAEL,gBAAC;AAAD,CAAC,AAPD,IAOC;AAPqB,8BAAS"}
+{"version":3,"file":"event-base.js","sourceRoot":"","sources":["../../src/messaging/event-base.ts"],"names":[],"mappings":";;AAEA;IAAA;IAEA,CAAC;IAAD,gBAAC;AAAD,CAAC,AAFD,IAEC;AAFqB,8BAAS"}

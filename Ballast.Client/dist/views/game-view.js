@@ -28,7 +28,7 @@ var GameView = /** @class */ (function (_super) {
     };
     GameView.prototype.createCanvas = function (host) {
         var canvas = host.ownerDocument.createElement("canvas");
-        canvas.id = host.id + '_game';
+        canvas.id = this.clientContext.clientId + '_game';
         canvas.style.display = 'none';
         host.appendChild(canvas);
         return canvas;

@@ -1,15 +1,16 @@
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { IDisposable } from '../interfaces';
 import { IView } from './abstractions';
-import { IBallastClientContext } from '../app';
+import { BallastClientContext } from '../app';
+import { TYPES_BALLAST } from '..';
 
 @injectable()
 export abstract class ViewBase implements IView, IDisposable {
 
-    protected readonly clientContext: IBallastClientContext;
+    protected readonly clientContext: BallastClientContext;
     protected host?: HTMLElement;
 
-    public constructor(clientContext: IBallastClientContext) {
+    public constructor(@inject(TYPES_BALLAST.BallastClientContext) clientContext: BallastClientContext) {
         this.clientContext = clientContext;
     }
 

@@ -5,5 +5,6 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./ballast-bootstrapper"));
 __export(require("./ballast-client"));
+__export(require("./ballast-client-context"));
 __export(require("./ballast-viewport"));
 //# sourceMappingURL=index.js.map

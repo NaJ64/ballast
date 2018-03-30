@@ -18,6 +18,10 @@ export class BallastClient {
         this.inversifyContainer = configureServices(new Container(), this);
     }
 
+    public getId(): string {
+        return this.id;
+    }
+
     public getViewport(): BallastViewport {
         return this.viewport;
     }

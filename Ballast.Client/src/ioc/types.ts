@@ -4,7 +4,7 @@ export const TYPES_BALLAST =
     // app
     BallastBootstrapper: Symbol('BallastBootstrapper'),
     BallastClient: Symbol('BallastClient'),
-    IBallastClientContext: Symbol('IBallastClientContext'),
+    BallastClientContext: Symbol('BallastClientContext'),
     BallastViewport: Symbol('BallastViewport'),
 
     // controllers

@@ -1,1 +1,1 @@
-{"version":3,"file":"ballast-client-context.js","sourceRoot":"","sources":["../../src/app/ballast-client-context.ts"],"names":[],"mappings":""}
+{"version":3,"file":"ballast-client-context.js","sourceRoot":"","sources":["../../src/app/ballast-client-context.ts"],"names":[],"mappings":";;AAEA;IAKI,8BAAmB,MAAqB;QACpC,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;QACrB,IAAI,CAAC,QAAQ,GAAG,MAAM,CAAC,KAAK,EAAE,CAAC;IACnC,CAAC;IAEL,2BAAC;AAAD,CAAC,AAVD,IAUC;AAVY,oDAAoB"}

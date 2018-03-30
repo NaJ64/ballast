@@ -1,10 +1,10 @@
 import { IDisposable } from '../interfaces';
 import { IView } from './abstractions';
-import { IBallastClientContext } from '../app';
+import { BallastClientContext } from '../app';
 export declare abstract class ViewBase implements IView, IDisposable {
-    protected readonly clientContext: IBallastClientContext;
+    protected readonly clientContext: BallastClientContext;
     protected host?: HTMLElement;
-    constructor(clientContext: IBallastClientContext);
+    constructor(clientContext: BallastClientContext);
     attach(host: HTMLElement): void;
     detach(): void;
     protected onAttach(host: HTMLElement): void;

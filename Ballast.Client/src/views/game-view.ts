@@ -13,7 +13,7 @@ export class GameView extends ViewBase implements IGameView {
 
     private createCanvas(host: HTMLElement): HTMLCanvasElement {
         var canvas = host.ownerDocument.createElement("canvas");
-        canvas.id = host.id + '_game';
+        canvas.id = this.clientContext.clientId + '_game';
         canvas.style.display = 'none';
         host.appendChild(canvas);
         return canvas;

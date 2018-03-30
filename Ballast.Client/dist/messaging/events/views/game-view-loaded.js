@@ -15,7 +15,9 @@ exports.GameViewLoaded = Symbol('GameViewLoaded');
 var GameViewLoadedEvent = /** @class */ (function (_super) {
     __extends(GameViewLoadedEvent, _super);
     function GameViewLoadedEvent() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.eventId = GameViewLoadedEvent.eventId;
+        return _this;
     }
     GameViewLoadedEvent.eventId = exports.GameViewLoaded;
     return GameViewLoadedEvent;

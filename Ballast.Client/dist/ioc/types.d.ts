@@ -1,7 +1,7 @@
 export declare const TYPES_BALLAST: {
     BallastBootstrapper: symbol;
     BallastClient: symbol;
-    IBallastClientContext: symbol;
+    BallastClientContext: symbol;
     BallastViewport: symbol;
     ChatController: symbol;
     GameController: symbol;
