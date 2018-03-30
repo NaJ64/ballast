@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var event_base_1 = require("../../event-base");
-exports.GameViewLoaded = Symbol('GameViewLoaded');
+exports.GameViewLoaded = Symbol.for('GameViewLoaded');
 var GameViewLoadedEvent = /** @class */ (function (_super) {
     __extends(GameViewLoadedEvent, _super);
     function GameViewLoadedEvent() {

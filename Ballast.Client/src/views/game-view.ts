@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 import { ViewBase } from './view-base';
-import { IGameView } from './abstractions';
+import { IGameView } from './abstractions/igame-view';
+import { GameViewLoadedEvent } from '../messaging/events/views/game-view-loaded';
 
 @injectable()
 export class GameView extends ViewBase implements IGameView {
@@ -9,6 +10,8 @@ export class GameView extends ViewBase implements IGameView {
 
     public onAttach(host: HTMLElement) {
         this.canvas = this.createCanvas(host);
+        let gameViewLoaded = new GameViewLoadedEvent();
+        this.eventBus.publish(gameViewLoaded.eventId, gameViewLoaded);
     }
 
     private createCanvas(host: HTMLElement): HTMLCanvasElement {

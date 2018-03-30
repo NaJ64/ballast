@@ -1,10 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var types_1 = require("./types");
-var app_1 = require("../app");
-var controllers_1 = require("../controllers");
-var messaging_1 = require("../messaging");
-var views_1 = require("../views");
+var ballast_bootstrapper_1 = require("../app/ballast-bootstrapper");
+var ballast_client_context_1 = require("../app/ballast-client-context");
+var chat_controller_1 = require("../controllers/chat-controller");
+var game_controller_1 = require("../controllers/game-controller");
+var hud_controller_1 = require("../controllers/hud-controller");
+var menu_controller_1 = require("../controllers/menu-controller");
+var root_controller_1 = require("../controllers/root-controller");
+var sign_in_controller_1 = require("../controllers/sign-in-controller");
+var event_bus_1 = require("../messaging/event-bus");
+var chat_view_1 = require("../views/chat-view");
+var game_view_1 = require("../views/game-view");
+var hud_view_1 = require("../views/hud-view");
+var menu_view_1 = require("../views/menu-view");
+var sign_in_view_1 = require("../views/sign-in-view");
 function configureServices(container, client) {
     configureApp(container, client);
     configureControllers(container);
@@ -14,9 +24,9 @@ function configureServices(container, client) {
 }
 exports.configureServices = configureServices;
 function configureApp(container, client) {
-    var clientContext = new app_1.BallastClientContext(client);
+    var clientContext = new ballast_client_context_1.BallastClientContext(client);
     container.bind(types_1.TYPES_BALLAST.BallastBootstrapper)
-        .to(app_1.BallastBootstrapper)
+        .to(ballast_bootstrapper_1.BallastBootstrapper)
         .inSingletonScope();
     container.bind(types_1.TYPES_BALLAST.BallastClientContext)
         .toConstantValue(clientContext);
@@ -28,54 +38,54 @@ function configureApp(container, client) {
 }
 function configureControllers(container) {
     container.bind(types_1.TYPES_BALLAST.ChatController)
-        .to(controllers_1.ChatController)
+        .to(chat_controller_1.ChatController)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.GameController)
-        .to(controllers_1.GameController)
+        .to(game_controller_1.GameController)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.HudController)
-        .to(controllers_1.HudController)
+        .to(hud_controller_1.HudController)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.MenuController)
-        .to(controllers_1.MenuController)
+        .to(menu_controller_1.MenuController)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.RootController)
-        .to(controllers_1.RootController)
+        .to(root_controller_1.RootController)
         .inSingletonScope(); // Singleton scope
     container.bind(types_1.TYPES_BALLAST.SignInController)
-        .to(controllers_1.SignInController)
+        .to(sign_in_controller_1.SignInController)
         .inTransientScope();
     return container;
 }
 function configureMessaging(container) {
     container.bind(types_1.TYPES_BALLAST.IEventBus)
-        .to(messaging_1.EventBus)
+        .to(event_bus_1.EventBus)
         .inSingletonScope();
     return container;
 }
 function configureViews(container) {
     container.bind(types_1.TYPES_BALLAST.IChatView)
-        .to(views_1.ChatView)
+        .to(chat_view_1.ChatView)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.IChatViewFactory)
         .toFactory(function (context) { return function () { return context.container.get(types_1.TYPES_BALLAST.IChatView); }; });
     container.bind(types_1.TYPES_BALLAST.IGameView)
-        .to(views_1.ChatView)
+        .to(game_view_1.GameView)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.IGameViewFactory)
         .toFactory(function (context) { return function () { return context.container.get(types_1.TYPES_BALLAST.IGameView); }; });
     container.bind(types_1.TYPES_BALLAST.IHudView)
-        .to(views_1.ChatView)
+        .to(hud_view_1.HudView)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.IHudViewFactory)
         .toFactory(function (context) { return function () { return context.container.get(types_1.TYPES_BALLAST.IHudView); }; });
     container.bind(types_1.TYPES_BALLAST.IMenuView)
-        .to(views_1.MenuView)
+        .to(menu_view_1.MenuView)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.IMenuViewFactory)
         .toFactory(function (context) { return function () { return context.container.get(types_1.TYPES_BALLAST.IMenuView); }; });
     container.bind(types_1.TYPES_BALLAST.ISignInView)
-        .to(views_1.SignInView)
+        .to(sign_in_view_1.SignInView)
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.ISignInViewFactory)
         .toFactory(function (context) { return function () { return context.container.get(types_1.TYPES_BALLAST.ISignInView); }; });

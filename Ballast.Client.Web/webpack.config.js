@@ -4,7 +4,8 @@ const config = {
     output: {
         filename: 'bundle.js',
         path: path.resolve('./wwwroot/')
-    }
+    },
+    mode: 'development'
 };
 
 module.exports = config;

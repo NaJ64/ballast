@@ -1,2 +1,2 @@
 export * from './configure-services';
-export * from './types';
+export { TYPES_BALLAST } from './types';

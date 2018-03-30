@@ -1,10 +1,27 @@
 import { Container } from 'inversify';
 import { TYPES_BALLAST } from './types';
-import { BallastBootstrapper, BallastClientContext, BallastClient, BallastViewport } from '../app';
-import { ChatController, GameController, HudController, MenuController, RootController, SignInController } from '../controllers';
-import { IEventBus, EventBus } from '../messaging';
-import { IChatView, IGameView, IHudView, IMenuView, ISignInView } from '../views';
-import { ChatView, GameView, HudView, MenuView, SignInView } from '../views';
+import { BallastBootstrapper } from '../app/ballast-bootstrapper';
+import { BallastClientContext } from '../app/ballast-client-context';
+import { BallastClient } from '../app/ballast-client';
+import { BallastViewport } from '../app/ballast-viewport';
+import { ChatController } from '../controllers/chat-controller';
+import { GameController } from '../controllers/game-controller';
+import { HudController } from '../controllers/hud-controller';
+import { MenuController } from '../controllers/menu-controller';
+import { RootController } from '../controllers/root-controller';
+import { SignInController } from '../controllers/sign-in-controller';
+import { EventBus } from '../messaging/event-bus';
+import { IEventBus } from '../messaging/ievent-bus';
+import { IChatView } from '../views/abstractions/ichat-view';
+import { IGameView } from '../views/abstractions/igame-view';
+import { IHudView } from '../views/abstractions/ihud-view';
+import { IMenuView } from '../views/abstractions/imenu-view';
+import { ISignInView } from '../views/abstractions/isign-in-view';
+import { ChatView } from '../views/chat-view';
+import { GameView } from '../views/game-view';
+import { HudView } from '../views/hud-view';
+import { MenuView } from '../views/menu-view';
+import { SignInView } from '../views/sign-in-view';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
@@ -64,12 +81,12 @@ function configureViews(container: Container): Container {
     container.bind<() => IChatView>(TYPES_BALLAST.IChatViewFactory)
         .toFactory(context => () => context.container.get<IChatView>(TYPES_BALLAST.IChatView));
     container.bind<IGameView>(TYPES_BALLAST.IGameView)
-        .to(ChatView)
+        .to(GameView)
         .inTransientScope();
     container.bind<() => IGameView>(TYPES_BALLAST.IGameViewFactory)
         .toFactory(context => () => context.container.get<IGameView>(TYPES_BALLAST.IGameView));
     container.bind<IHudView>(TYPES_BALLAST.IHudView)
-        .to(ChatView)
+        .to(HudView)
         .inTransientScope();
     container.bind<() => IHudView>(TYPES_BALLAST.IHudViewFactory)
         .toFactory(context => () => context.container.get<IHudView>(TYPES_BALLAST.IHudView));

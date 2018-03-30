@@ -4,5 +4,6 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./configure-services"));
-__export(require("./types"));
+var types_1 = require("./types");
+exports.TYPES_BALLAST = types_1.TYPES_BALLAST;
 //# sourceMappingURL=index.js.map

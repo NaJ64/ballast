@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { ViewBase } from './view-base';
-import { ISignInView } from './abstractions';
+import { ISignInView } from './abstractions/isign-in-view';
 
 @injectable()
 export class SignInView extends ViewBase implements ISignInView {

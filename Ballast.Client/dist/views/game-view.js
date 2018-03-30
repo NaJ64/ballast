@@ -18,6 +18,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
 var view_base_1 = require("./view-base");
+var game_view_loaded_1 = require("../messaging/events/views/game-view-loaded");
 var GameView = /** @class */ (function (_super) {
     __extends(GameView, _super);
     function GameView() {
@@ -25,6 +26,8 @@ var GameView = /** @class */ (function (_super) {
     }
     GameView.prototype.onAttach = function (host) {
         this.canvas = this.createCanvas(host);
+        var gameViewLoaded = new game_view_loaded_1.GameViewLoadedEvent();
+        this.eventBus.publish(gameViewLoaded.eventId, gameViewLoaded);
     };
     GameView.prototype.createCanvas = function (host) {
         var canvas = host.ownerDocument.createElement("canvas");

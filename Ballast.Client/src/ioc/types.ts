@@ -1,33 +1,34 @@
-export const TYPES_BALLAST =
-{
+const TYPES_BALLAST = {
 
     // app
-    BallastBootstrapper: Symbol('BallastBootstrapper'),
-    BallastClient: Symbol('BallastClient'),
-    BallastClientContext: Symbol('BallastClientContext'),
-    BallastViewport: Symbol('BallastViewport'),
+    BallastBootstrapper: Symbol.for('BallastBootstrapper'),
+    BallastClient: Symbol.for('BallastClient'),
+    BallastClientContext: Symbol.for('BallastClientContext'),
+    BallastViewport: Symbol.for('BallastViewport'),
 
     // controllers
-    ChatController: Symbol('ChatController'),
-    GameController: Symbol('GameController'),
-    HudController: Symbol('HudController'),
-    MenuController: Symbol('MenuController'),
-    RootController: Symbol('RootController'),
-    SignInController: Symbol('SignInController'),
+    ChatController: Symbol.for('ChatController'),
+    GameController: Symbol.for('GameController'),
+    HudController: Symbol.for('HudController'),
+    MenuController: Symbol.for('MenuController'),
+    RootController: Symbol.for('RootController'),
+    SignInController: Symbol.for('SignInController'),
     
     // events
-    IEventBus: Symbol('IEventBus'),
+    IEventBus: Symbol.for('IEventBus'),
 
     // views
-    IChatView: Symbol('IChatView'),
-    IChatViewFactory: Symbol('IChatViewFactory'),
-    IGameView: Symbol('IGameView'),
-    IGameViewFactory: Symbol('IGameViewFactory'),
-    IHudView: Symbol('IHudView'),
-    IHudViewFactory: Symbol('IHudViewFactory'),
-    IMenuView: Symbol('IMenuView'),
-    IMenuViewFactory: Symbol('IMenuViewFactory'),
-    ISignInView: Symbol('ISignInView'),
-    ISignInViewFactory: Symbol('ISignInViewFactory'),
+    IChatView: Symbol.for('IChatView'),
+    IChatViewFactory: Symbol.for('IChatViewFactory'),
+    IGameView: Symbol.for('IGameView'),
+    IGameViewFactory: Symbol.for('IGameViewFactory'),
+    IHudView: Symbol.for('IHudView'),
+    IHudViewFactory: Symbol.for('IHudViewFactory'),
+    IMenuView: Symbol.for('IMenuView'),
+    IMenuViewFactory: Symbol.for('IMenuViewFactory'),
+    ISignInView: Symbol.for('ISignInView'),
+    ISignInViewFactory: Symbol.for('ISignInViewFactory'),
 
-}
+};
+
+export { TYPES_BALLAST };

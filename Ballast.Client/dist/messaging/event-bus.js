@@ -13,14 +13,14 @@ var EventBus = /** @class */ (function () {
     EventBus.prototype.dispose = function () {
         // TODO:  Implement this by disposing of all event subscriptions/handler(s)
     };
+    EventBus.prototype.publish = function (eventSignature, event) {
+        // TODO:  Implement this by calling all subscriber(s)/handler(s) (and then removing any if necessary)
+    };
     EventBus.prototype.subscribe = function (eventSignature, handler) {
         // TODO:  Implement this with a local map of handler(s) to event signature(s)
     };
     EventBus.prototype.subscribeOnce = function (eventSignature, handler) {
         // TODO:  Implement this with a local map of handler(s) to event signature(s)
-    };
-    EventBus.prototype.publish = function (eventSignature, event) {
-        // TODO:  Implement this by calling all subscriber(s)/handler(s) (and then removing any if necessary)
     };
     EventBus = __decorate([
         inversify_1.injectable()

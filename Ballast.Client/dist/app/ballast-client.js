@@ -45,13 +45,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
 var uuid = __importStar(require("uuid"));
 var ballast_viewport_1 = require("./ballast-viewport");
-var ioc_1 = require("../ioc");
+var configure_services_1 = require("../ioc/configure-services");
+var types_1 = require("../ioc/types");
 var BallastClient = /** @class */ (function () {
     function BallastClient(host) {
         this.host = host;
         this.id = uuid.v4();
         this.viewport = new ballast_viewport_1.BallastViewport(host, this.id);
-        this.inversifyContainer = ioc_1.configureServices(new inversify_1.Container(), this);
+        this.inversifyContainer = configure_services_1.configureServices(new inversify_1.Container(), this);
     }
     BallastClient.prototype.getId = function () {
         return this.id;
@@ -61,10 +62,16 @@ var BallastClient = /** @class */ (function () {
     };
     BallastClient.prototype.loadAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var root;
+            var rootController;
             return __generator(this, function (_a) {
-                root = this.inversifyContainer.get(ioc_1.TYPES_BALLAST.RootController);
-                return [2 /*return*/, this];
+                switch (_a.label) {
+                    case 0:
+                        rootController = this.inversifyContainer.get(types_1.TYPES_BALLAST.RootController);
+                        return [4 /*yield*/, rootController.activateAllViewsAsync()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, this];
+                }
             });
         });
     };

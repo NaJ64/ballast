@@ -1,4 +1,4 @@
-export declare const TYPES_BALLAST: {
+declare const TYPES_BALLAST: {
     BallastBootstrapper: symbol;
     BallastClient: symbol;
     BallastClientContext: symbol;
@@ -21,3 +21,4 @@ export declare const TYPES_BALLAST: {
     ISignInView: symbol;
     ISignInViewFactory: symbol;
 };
+export { TYPES_BALLAST };

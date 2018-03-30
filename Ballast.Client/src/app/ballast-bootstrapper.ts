@@ -1,7 +1,7 @@
 import { Container } from 'inversify';
 import { BallastClient } from './ballast-client';
 import { BallastViewport } from './ballast-viewport';
-import { configureServices } from '../ioc';
+import { configureServices } from '../ioc/configure-services';
 
 export class BallastBootstrapper {
 
