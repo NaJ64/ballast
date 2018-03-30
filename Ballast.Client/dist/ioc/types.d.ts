@@ -1,0 +1,23 @@
+export declare const TYPES_BALLAST: {
+    BallastBootstrapper: symbol;
+    BallastClient: symbol;
+    IBallastClientContext: symbol;
+    BallastViewport: symbol;
+    ChatController: symbol;
+    GameController: symbol;
+    HudController: symbol;
+    MenuController: symbol;
+    RootController: symbol;
+    SignInController: symbol;
+    IEventBus: symbol;
+    IChatView: symbol;
+    IChatViewFactory: symbol;
+    IGameView: symbol;
+    IGameViewFactory: symbol;
+    IHudView: symbol;
+    IHudViewFactory: symbol;
+    IMenuView: symbol;
+    IMenuViewFactory: symbol;
+    ISignInView: symbol;
+    ISignInViewFactory: symbol;
+};

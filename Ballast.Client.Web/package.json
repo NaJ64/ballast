@@ -4,7 +4,13 @@
   "description": "Ballast client web/browser application",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run compile && npm run bundle",
+    "bundle": "webpack && npm run copy",
+    "copy": "cpx \"./src/index.html\" \"wwwroot/\"",
+    "compile": "tsc",
+    "prepare": "npm run build",
+    "start": "npm run build && node server",
+    "test": "npm run compile && jest"
   },
   "keywords": [
     "ballast",
@@ -15,9 +21,12 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^22.2.2",
+    "cpx": "^1.5.0",
     "jest": "^22.4.3",
     "ts-jest": "^22.4.2",
-    "typescript": "^2.7.2"
+    "typescript": "^2.7.2",
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -30,7 +39,16 @@
     "transform": {
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testPathIgnorePatterns": [ "/node_modules/", "/dist/" ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
+  },
+  "dependencies": {
+    "ballast-client": "file:../ballast.client",
+    "express": "^4.16.3",
+    "inversify": "^4.11.1",
+    "reflect-metadata": "^0.1.12"
   }
 }

@@ -1,0 +1,11 @@
+{
+    "expressUseHttps": true,
+    "expressHost": "localhost",
+    "expressPort": 443,
+    "redirectToHttps": true,
+    "redirectHost": "localhost",
+    "redirectPort": 80,
+    "sslCertificatePath": "./certificates/localhost-certificate.pem",
+    "sslPrivateKeyPath": "./certificates/localhost-private-key.pem",
+    "sslPrivateKeyPassphrase": "colOCT%05"
+}

@@ -2,30 +2,27 @@ export class BallastViewport {
 
     private readonly host: HTMLElement;
     private readonly root: HTMLDivElement;
-    private readonly canvas: HTMLCanvasElement;
 
     public constructor(host: HTMLElement, clientId: string) {
         this.host = host;
         this.root = this.createRoot(host, clientId);
-        this.canvas = this.createCanvas(this.root);
     }
 
-    private createRoot(host: HTMLElement, id: string):HTMLDivElement {
+    private createRoot(host: HTMLElement, id: string): HTMLDivElement {
+        if (host.style.height == null) {
+            host.style.height = "800px";
+        }
+        if (host.style.width == null) {
+            host.style.width = "450px";
+        }
         var root = host.ownerDocument.createElement("div");
         root.id = id;
         host.appendChild(root);
         return root;
     }
 
-    private createCanvas(root: HTMLDivElement): HTMLCanvasElement {
-        var canvas = root.ownerDocument.createElement("canvas");
-        canvas.id = this.root.id + '_canvas';
-        root.appendChild(canvas);
-        return canvas;
-    }
-
-    public getCanvas(): HTMLCanvasElement {
-        return this.canvas;
+    public getRoot(): HTMLDivElement {
+        return this.root;
     }
 
 }
