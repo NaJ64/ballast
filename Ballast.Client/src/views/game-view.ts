@@ -25,6 +25,10 @@ export class GameView extends ViewBase implements IGameView {
     public show(): void {
         if (this.canvas) {
             this.canvas.style.display = null;
+            var context = this.canvas.getContext('2d');
+            if (context) {
+                context.fillText('BALLAST!', 10, 50);
+            }
         }
     }
 

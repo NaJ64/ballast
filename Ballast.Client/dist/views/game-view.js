@@ -39,6 +39,10 @@ var GameView = /** @class */ (function (_super) {
     GameView.prototype.show = function () {
         if (this.canvas) {
             this.canvas.style.display = null;
+            var context = this.canvas.getContext('2d');
+            if (context) {
+                context.fillText('BALLAST!', 10, 50);
+            }
         }
     };
     GameView.prototype.hide = function () {
