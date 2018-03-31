@@ -4,6 +4,8 @@ namespace Ballast.Core.Models
 {
     public class Player
     {
-        public User User { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public Team Team { get; set; }
     }
 }

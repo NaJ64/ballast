@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public sealed class Board
+    public class Board
     {
         
         public BoardType Type { get; private set; }

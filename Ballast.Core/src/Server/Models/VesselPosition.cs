@@ -8,7 +8,7 @@ namespace Ballast.Core.Models
         public BoardSpace Space { get; set; }
         public Vessel Vessel { get; set; }
         public Direction ArrivalDirection { get; set; }
-        public DateTime? ArrivalUtc { get; set; }
+        public DateTime ArrivalUtc { get; set; }
         public Direction ExitDirection { get; set; }
         public DateTime? ExitUtc { get; set; }
         public VesselPosition Previous { get; set; }

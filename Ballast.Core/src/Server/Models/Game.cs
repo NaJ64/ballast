@@ -7,7 +7,9 @@ namespace Ballast.Core.Models
     {
         public DateTime? StartUtc { get; set; }
         public DateTime? EndUtc { get; set; }
-        public IEnumerable<Team> Teams { get; set; }
         public int TotalMoves { get; set; }
+        public Board Board { get; set; }
+        public IEnumerable<Player> Players { get; set; }
+        public IEnumerable<Team> Teams { get; set; }
     }
 }

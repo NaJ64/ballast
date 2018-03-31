@@ -22,9 +22,9 @@ namespace Ballast.Core.Models
             Terrain = terrain;
         }
 
-        public void SetAdjacents(IEnumerable<BoardSpace> allSpaces)
+        public void SetAdjacents(IEnumerable<BoardSpace> boardSpaces)
         {
-
+            // TODO:  Implement this lookup whereby the current space calculates adjacent spaces using the entire board
         }
 
     }
