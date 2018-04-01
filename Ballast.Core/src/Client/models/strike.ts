@@ -1,8 +1,10 @@
 import { ITeam, Team } from "./team";
 import { IVessel, Vessel } from "./vessel";
 import { IMove, Move } from "./move";
+import { IStrikeType, StrikeType } from './strike-type';
 
 export interface IStrike { 
+    type: IStrikeType;
     startUtc: Date;
     endUtc: Date | null;
     move: IMove;
@@ -13,6 +15,7 @@ export interface IStrike {
 
 export class Strike implements IStrike {
 
+    public type!: StrikeType;
     public startUtc!: Date;
     public endUtc!: Date | null;
     public move!: Move;
@@ -29,6 +32,7 @@ export class Strike implements IStrike {
         this.endUtc = state.endUtc || null;
         this.totalDamageHP = state.totalDamageHP;
         this.move = move;
+        this.type = StrikeType.fromValue(state.type.value);
         let allVessels = this.getVessels(teams);
         let source = allVessels.find(x => x.id == state.source.id);
         if (!source) {

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var strike_type_1 = require("./strike-type");
 var Strike = /** @class */ (function () {
     function Strike(state, move, teams) {
         this.setState(state, move, teams);
@@ -9,6 +10,7 @@ var Strike = /** @class */ (function () {
         this.endUtc = state.endUtc || null;
         this.totalDamageHP = state.totalDamageHP;
         this.move = move;
+        this.type = strike_type_1.StrikeType.fromValue(state.type.value);
         var allVessels = this.getVessels(teams);
         var source = allVessels.find(function (x) { return x.id == state.source.id; });
         if (!source) {
