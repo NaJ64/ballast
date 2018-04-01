@@ -14,15 +14,15 @@ export class VesselType implements IVesselType {
     public baseHP!: number;
     public canReverse!: boolean;
 
-    private constructor(data: IVesselType) {
-        this.hydrate(data);
+    private constructor(state: IVesselType) {
+        this.setState(state);
     }
 
-    protected hydrate(data: IVesselType): VesselType {
-        this.value = data.value;
-        this.name = data.name;
-        this.baseHP = data.baseHP;
-        this.canReverse = data.canReverse;
+    private setState(state: IVesselType): VesselType {
+        this.value = state.value;
+        this.name = state.name;
+        this.baseHP = state.baseHP;
+        this.canReverse = state.canReverse;
         return this;
     }
 

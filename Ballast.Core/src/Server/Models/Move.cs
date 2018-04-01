@@ -6,10 +6,10 @@ namespace Ballast.Core.Models
     {
         public Team Team { get; set; }
         public Player Player { get; set; }
-        public Player Vessel { get; set; }
-        public DateTime? StartUtc { get; set; }
+        public Vessel Vessel { get; set; }
+        public VesselPosition FromPosition { get; set; }
+        public DateTime StartUtc { get; set; }
         public DateTime? EndUtc { get; set; }
-        public bool IsStrike { get; set; }
         public Strike Strike { get; set; }
     }
 }

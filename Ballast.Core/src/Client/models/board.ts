@@ -8,10 +8,6 @@ export interface IBoard {
     rows: IBoardSpace[][];
     columns: IBoardSpace[][];
     vessels: IVessel[];
-    inactiveVessels: IVessel[];
-    activeVessels: IVessel[];
-    rowCount: number;
-    columnCount: number;
 }
 
 export class Board implements IBoard {
@@ -21,21 +17,15 @@ export class Board implements IBoard {
     public rows!: BoardSpace[][];
     public columns!: BoardSpace[][];
     public vessels!: Vessel[];
-    public inactiveVessels!: Vessel[];
-    public activeVessels!: Vessel[];
-    public rowCount!: number;
-    public columnCount!: number;
 
-    public constructor(data: IBoard) {
-        if (data) {
-            this.hydrate(data);
-        }
+    public constructor(state: IBoard) {
+        this.setState(state);
     }
 
-    public hydrate(data: IBoard) {
-        this.type = BoardType.fromValue(data.type.value);
+    private setState(state: IBoard) {
+        this.type = BoardType.fromValue(state.type.value);
         this.spaces = [];
-        for(let spaceData of data.spaces)
+        for(let spaceData of state.spaces)
         {
             this.spaces.push(new BoardSpace(spaceData));
         }
@@ -43,7 +33,7 @@ export class Board implements IBoard {
         for(let space of this.spaces) {
             space.setAdjacents(spaces);
         }
-        for(let space of data.spaces)
+        for(let space of state.spaces)
         {
             this.spaces.push(new BoardSpace(space));
         }
@@ -53,7 +43,7 @@ export class Board implements IBoard {
     }
 
     private groupRows(spaces: BoardSpace[]): BoardSpace[][] {
-        let rows = spaces.reduce((rowGroups: BoardSpace[][], nextSpace: BoardSpace) => {
+        return spaces.reduce((rowGroups: BoardSpace[][], nextSpace: BoardSpace) => {
             let groupKey = nextSpace.coordinates.row;
             if (!rowGroups || rowGroups.length < 1) {
                 rowGroups.push([nextSpace]);
@@ -69,11 +59,10 @@ export class Board implements IBoard {
             }
             return rowGroups;
         }, []);
-        return rows;
     }
 
     private groupColumns(spaces: BoardSpace[]): BoardSpace[][] {
-        let columns = spaces.reduce((columnGroups: BoardSpace[][], nextSpace: BoardSpace) => {
+        return spaces.reduce((columnGroups: BoardSpace[][], nextSpace: BoardSpace) => {
             let groupKey = nextSpace.coordinates.column;
             if (!columnGroups || columnGroups.length < 1) {
                 columnGroups.push([nextSpace]);
@@ -89,7 +78,6 @@ export class Board implements IBoard {
             }
             return columnGroups;
         }, []);
-        return columns;
     }
 
 }

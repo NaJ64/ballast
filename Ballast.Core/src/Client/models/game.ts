@@ -1,51 +1,48 @@
 import { IBoard, Board } from './board';
 import { IPlayer, Player} from './player';
 import { ITeam, Team } from './team';
+import { IMove, Move } from './move';
 
 export interface IGame { 
-    startUtc?: Date;
-    endUtc?: Date;
-    totalMoves: number;
-    board?: IBoard | null;
+    startUtc: Date | null;
+    endUtc: Date | null;
+    board: IBoard | null;
     players: IPlayer[];
     teams: ITeam[];
+    moves: IMove[];
 }
 
 export class Game implements IGame {
 
-    public startUtc?: Date;
-    public endUtc?: Date;
-    public totalMoves!: number;
-    public board?: Board | null;
+    public startUtc!: Date | null;
+    public endUtc!: Date | null;
+    public board!: Board | null;
     public players!: Player[];
     public teams!: Team[];
+    public moves!: Move[];
     
-    public constructor(data?: IGame) {
-        if (data) {
-            this.hydrate(data);
-        }
+    public constructor(state: IGame) {
+        this.setState(state);
     }
 
-    private hydrate(data: IGame) {
-        // Set primitives
-        this.startUtc = data.startUtc;
-        this.endUtc = data.endUtc;
-        this.totalMoves = data.totalMoves;
-        // Set board reference prop(s)
-        if (!data.board) {
-            throw new Error('Cannot build the current game model without a board specification');
+    private setState(state: IGame): Game {
+        this.startUtc = state.startUtc || null;
+        this.endUtc = state.endUtc || null;
+        if (!state.board) {
+            throw new Error('Cannot build the current game model without board data');
         }
-        this.board = new Board(data.board);
-        // Set player reference props
+        this.board = new Board(state.board);
         this.players = [];
-        for(let playerData of data.players) {
+        for(let playerData of state.players) {
             this.players.push(new Player(playerData));
         }
-        // Set team reference props
         this.teams = [];
-        let players = this.players.splice(0);
-        for(let teamData of data.teams) {
-            this.teams.push(new Team(teamData, players));
+        for(let teamData of state.teams) {
+            this.teams.push(new Team(teamData, this.players, this.board.spaces));
+        }
+        this.moves = [];
+        for (let moveData of state.moves) {
+            this.moves.push(new Move(moveData, this.teams));
         }
         return this;
     }

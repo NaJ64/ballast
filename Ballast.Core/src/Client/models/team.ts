@@ -1,5 +1,6 @@
 import { IPlayer, Player } from './player';
 import { IVessel, Vessel } from './vessel';
+import { IBoardSpace, BoardSpace } from './board-space';
 
 export interface ITeam { 
     id: string;
@@ -15,34 +16,37 @@ export class Team implements ITeam {
     public players!: Player[];
     public vessels!: Vessel[];
 
-    public constructor(data?: ITeam, players?: Player[]) {
-        if (data) {
-            this.hydrate(data, players);
-        }
+    public constructor(state: ITeam, allPlayers: Player[], spaces: BoardSpace[]) {
+        this.setState(state, allPlayers, spaces);
     }
 
-    private hydrate(data: ITeam, allPlayers?: Player[]) {
+    private setState(state: ITeam, allPlayers: Player[], spaces: BoardSpace[]): Team {
         // Set primitives
-        this.id = data.id;
-        this.name = data.name;
+        this.id = state.id;
+        this.name = state.name;
         // Set player reference prop(s)
         this.players = [];
-        for(let playerData of data.players) {
-            let player: Player | null = null;
-            if (allPlayers) {
-                player = allPlayers.find(x => x.id == playerData.id) || null;
-            } else {
-                player = new Player(playerData);
-            }
+        for(let playerData of state.players) {
+            let player = allPlayers.find(x => x.id == playerData.id) || null;
             if (player) {
                 this.players.push(player);
             }
         }
+        for (let player of this.players) {
+            player.setTeam(this); // Set team reference for all players that were added
+        }
         // Set vessel reference prop(s)
         this.vessels = [];
-        let players = this.players.splice(0);
-        for (let vesselData of data.vessels) {
-            this.vessels.push(new Vessel(vesselData, this, this.players));
+        for (let vesselData of state.vessels) {
+            this.vessels.push(new Vessel(vesselData, this, spaces));
+        }
+        return this;
+    }
+
+    public setPlayers(players: Player[]) {
+        this.players = [];
+        for(let player of players) {
+            this.players.push(player);
         }
     }
 

@@ -13,7 +13,5 @@ namespace Ballast.Core.Models
         public DateTime? ExitUtc { get; set; }
         public VesselPosition Previous { get; set; }
         public VesselPosition Next { get; set; }
-        public bool IsSpawn { get; set; }
-        public IEnumerable<Strike> IncurredStrikes { get; set; }
     }
 }

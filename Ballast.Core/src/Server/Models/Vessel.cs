@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,6 +6,7 @@ namespace Ballast.Core.Models
 {
     public class Vessel
     {
+        public Guid Id { get; set; }
         public bool Active { get; set; }
         public Team Team { get; set; }
         public VesselType VesselType { get; set; }

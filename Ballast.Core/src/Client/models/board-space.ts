@@ -1,4 +1,3 @@
-import { ModelBase } from './model-base';
 import { Terrain, ITerrain} from './terrain';
 
 export interface IBoardSpace { 
@@ -14,16 +13,24 @@ export interface IBoardSpace {
     southEastAdjacent?: IBoardSpace | null;
 }
 
-export class BoardSpace extends ModelBase<BoardSpace, IBoardSpace> implements IBoardSpace {
+export class BoardSpace implements IBoardSpace {
 
     public coordinates!: { row: number, column: number };
     public terrain!: ITerrain;
+    public northAdjacent?: IBoardSpace | null;
+    public southAdjacent?: IBoardSpace | null;
+    public eastAdjacent?: IBoardSpace | null;
+    public westAdjacent?: IBoardSpace | null;
+    public northWestAdjacent?: IBoardSpace | null;
+    public northEastAdjacent?: IBoardSpace | null;
+    public southWestAdjacent?: IBoardSpace | null;
+    public southEastAdjacent?: IBoardSpace | null;
     
-    public constructor(data?: IBoardSpace) {
-        super(data);
+    public constructor(data: IBoardSpace) {
+        this.setState(data);
     }
 
-    public hydrate(data: IBoardSpace) {
+    private setState(data: IBoardSpace) {
         this.coordinates = data.coordinates;
         this.terrain = Terrain.fromValue(data.terrain.value);
         return this;

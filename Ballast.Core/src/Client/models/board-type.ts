@@ -11,13 +11,13 @@ export class BoardType implements IBoardType {
     public value!: number;
     public name!: string;
 
-    private constructor(data: IBoardType) {
-        this.hydrate(data);
+    private constructor(state: IBoardType) {
+        this.setState(state);
     }
 
-    protected hydrate(data: IBoardType): BoardType {
-        this.value = data.value;
-        this.name = data.name;
+    private setState(state: IBoardType): BoardType {
+        this.value = state.value;
+        this.name = state.name;
         return this;
     }
 

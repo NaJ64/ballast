@@ -11,10 +11,6 @@ namespace Ballast.Core.Models
         public IDictionary<int, IList<BoardSpace>> Rows { get; private set; }
         public IDictionary<int, IList<BoardSpace>> Columns { get; private set; }
         public IEnumerable<Vessel> Vessels { get; private set; }
-        public IEnumerable<Vessel> ActiveVessels => Vessels?.Where(x => x.Active);
-        public IEnumerable<Vessel> InactiveVessels => Vessels?.Where(x => !x.Active);
-        public int RowCount => Rows.Keys.Count();
-        public int ColumnCount => Columns.Keys.Count();
 
         public Board(BoardType type, (int Rows, int Columns) dimensions, bool? autoTerrain = false) 
         {
