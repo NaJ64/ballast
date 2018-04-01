@@ -1,17 +1,20 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-      "baseUrl": ".",
-      "declaration": true,
-      "esModuleInterop": true,
-      "lib": [ "es2015" ],
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "rootDir": "src/Client/",
-      "outDir": "dist",
-      "sourceMap": true,
-      "strict": true,
-      "target": "es5"
+    "baseUrl": ".",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "lib": [ "es6", "dom" ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "rootDir": "src/Client",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5",
+    "types": [ "reflect-metadata" ]
   },
   "exclude": [
       "**/*.test.ts",

@@ -1,10 +1,13 @@
 {
   "name": "ballast-core",
   "version": "1.0.0",
-  "description": "Core packaged services for Ballast",
+  "description": "Core types/services for Ballast",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "npm run build",
+    "build": "tsc",
+    "test": "tsc && jest"
   },
   "keywords": [
     "ballast"
@@ -36,6 +39,8 @@
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
   },
   "dependencies": {
-    "inversify": "^4.11.1"
+    "inversify": "^4.11.1",
+    "reflect-metadata": "^0.1.12",
+    "uuid": "^3.2.1"
   }
 }
