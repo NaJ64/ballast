@@ -43,6 +43,7 @@
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
   },
   "dependencies": {
+    "ballast-core": "file:../ballast.core",
     "inversify": "^4.11.1",
     "reflect-metadata": "^0.1.12",
     "three": "^0.91.0",
