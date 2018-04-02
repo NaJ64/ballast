@@ -62,14 +62,17 @@ var BallastClient = /** @class */ (function () {
     };
     BallastClient.prototype.loadAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var rootController;
+            var root, rootComponentFactory, rootComponent;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        rootController = this.inversifyContainer.get(types_1.TYPES_BALLAST.RootController);
-                        return [4 /*yield*/, rootController.activateAllViewsAsync()];
+                        root = this.viewport.getRoot();
+                        rootComponentFactory = this.inversifyContainer.get(types_1.TYPES_BALLAST.RootComponentFactory);
+                        rootComponent = rootComponentFactory();
+                        return [4 /*yield*/, rootComponent.attach(root)];
                     case 1:
                         _a.sent();
+                        this.viewport.startRenderLoop();
                         return [2 /*return*/, this];
                 }
             });

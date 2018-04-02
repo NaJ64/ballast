@@ -6,28 +6,22 @@ const TYPES_BALLAST = {
     BallastClientContext: Symbol.for('BallastClientContext'),
     BallastViewport: Symbol.for('BallastViewport'),
 
-    // controllers
-    ChatController: Symbol.for('ChatController'),
-    GameController: Symbol.for('GameController'),
-    HudController: Symbol.for('HudController'),
-    MenuController: Symbol.for('MenuController'),
-    RootController: Symbol.for('RootController'),
-    SignInController: Symbol.for('SignInController'),
+    // components
+    ChatComponent: Symbol.for('ChatComponent'),
+    ChatComponentFactory: Symbol.for('ChatComponentFactory'),
+    GameComponent: Symbol.for('GameComponent'),
+    GameComponentFactory: Symbol.for('GameComponentFactory'),
+    HudComponent: Symbol.for('HudComponent'),
+    HudComponentFactory: Symbol.for('HudComponentFactory'),
+    MenuComponent: Symbol.for('MenuComponent'),
+    MenuComponentFactory: Symbol.for('MenuComponentFactory'),
+    RootComponent: Symbol.for('RootComponent'),
+    RootComponentFactory: Symbol.for('RootComponentFactory'),
+    SignInComponent: Symbol.for('SignInComponent'),
+    SignInComponentFactory: Symbol.for('SignInComponentFactory'),
     
     // events
     IEventBus: Symbol.for('IEventBus'),
-
-    // views
-    IChatView: Symbol.for('IChatView'),
-    IChatViewFactory: Symbol.for('IChatViewFactory'),
-    IGameView: Symbol.for('IGameView'),
-    IGameViewFactory: Symbol.for('IGameViewFactory'),
-    IHudView: Symbol.for('IHudView'),
-    IHudViewFactory: Symbol.for('IHudViewFactory'),
-    IMenuView: Symbol.for('IMenuView'),
-    IMenuViewFactory: Symbol.for('IMenuViewFactory'),
-    ISignInView: Symbol.for('ISignInView'),
-    ISignInViewFactory: Symbol.for('ISignInViewFactory'),
 
 };
 

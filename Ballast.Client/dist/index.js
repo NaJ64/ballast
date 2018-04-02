@@ -4,8 +4,7 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./app"));
-__export(require("./controllers"));
+__export(require("./components"));
 __export(require("./ioc"));
 __export(require("./messaging"));
-__export(require("./views"));
 //# sourceMappingURL=index.js.map

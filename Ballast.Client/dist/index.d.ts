@@ -1,6 +1,5 @@
 export * from './app';
-export * from './controllers';
+export * from './components';
 export * from './interfaces';
 export * from './ioc';
 export * from './messaging';
-export * from './views';

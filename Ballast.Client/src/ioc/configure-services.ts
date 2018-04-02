@@ -4,30 +4,19 @@ import { BallastBootstrapper } from '../app/ballast-bootstrapper';
 import { BallastClientContext } from '../app/ballast-client-context';
 import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
-import { ChatController } from '../controllers/chat-controller';
-import { GameController } from '../controllers/game-controller';
-import { HudController } from '../controllers/hud-controller';
-import { MenuController } from '../controllers/menu-controller';
-import { RootController } from '../controllers/root-controller';
-import { SignInController } from '../controllers/sign-in-controller';
 import { EventBus } from '../messaging/event-bus';
 import { IEventBus } from '../messaging/ievent-bus';
-import { IChatView } from '../views/abstractions/ichat-view';
-import { IGameView } from '../views/abstractions/igame-view';
-import { IHudView } from '../views/abstractions/ihud-view';
-import { IMenuView } from '../views/abstractions/imenu-view';
-import { ISignInView } from '../views/abstractions/isign-in-view';
-import { ChatView } from '../views/chat-view';
-import { GameView } from '../views/game-view';
-import { HudView } from '../views/hud-view';
-import { MenuView } from '../views/menu-view';
-import { SignInView } from '../views/sign-in-view';
+import { ChatComponent } from '../components/chat';
+import { GameComponent } from '../components/game';
+import { HudComponent } from '../components/hud';
+import { MenuComponent} from '../components/menu';
+import { RootComponent } from '../components/root';
+import { SignInComponent } from '../components/sign-in';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
-    configureControllers(container);
     configureMessaging(container);
-    configureViews(container);
+    configureComponents(container);
     return container;
 }
 
@@ -45,25 +34,43 @@ function configureApp(container: Container, client: BallastClient): Container {
     return container;
 }
 
-function configureControllers(container: Container): Container {
-    container.bind<ChatController>(TYPES_BALLAST.ChatController)
-        .to(ChatController)
+function configureComponents(container: Container): Container {
+    // ChatComponent
+    container.bind<ChatComponent>(TYPES_BALLAST.ChatComponent)
+        .to(ChatComponent)
         .inTransientScope();
-    container.bind<GameController>(TYPES_BALLAST.GameController)
-        .to(GameController)
+    container.bind<() => ChatComponent>(TYPES_BALLAST.ChatComponentFactory)
+        .toFactory(context => () => context.container.get<ChatComponent>(TYPES_BALLAST.ChatComponent));
+    // GameComponent
+    container.bind<GameComponent>(TYPES_BALLAST.GameComponent)
+        .to(GameComponent)
         .inTransientScope();
-    container.bind<HudController>(TYPES_BALLAST.HudController)
-        .to(HudController)
+    container.bind<() => GameComponent>(TYPES_BALLAST.GameComponentFactory)
+        .toFactory(context => () => context.container.get<GameComponent>(TYPES_BALLAST.GameComponent));
+    // HudComponent
+    container.bind<HudComponent>(TYPES_BALLAST.HudComponent)
+        .to(HudComponent)
         .inTransientScope();
-    container.bind<MenuController>(TYPES_BALLAST.MenuController)
-        .to(MenuController)
+    container.bind<() => HudComponent>(TYPES_BALLAST.HudComponentFactory)
+        .toFactory(context => () => context.container.get<HudComponent>(TYPES_BALLAST.HudComponent));
+    // MenuComponent
+    container.bind<MenuComponent>(TYPES_BALLAST.MenuComponent)
+        .to(MenuComponent)
         .inTransientScope();
-    container.bind<RootController>(TYPES_BALLAST.RootController)
-        .to(RootController)
-        .inSingletonScope(); // Singleton scope
-    container.bind<SignInController>(TYPES_BALLAST.SignInController)
-        .to(SignInController)
+    container.bind<() => MenuComponent>(TYPES_BALLAST.MenuComponentFactory)
+        .toFactory(context => () => context.container.get<MenuComponent>(TYPES_BALLAST.MenuComponent));
+    // RootComponent
+    container.bind<RootComponent>(TYPES_BALLAST.RootComponent)
+        .to(RootComponent)
         .inTransientScope();
+    container.bind<() => RootComponent>(TYPES_BALLAST.RootComponentFactory)
+        .toFactory(context => () => context.container.get<RootComponent>(TYPES_BALLAST.RootComponent));
+    // SignInComponent
+    container.bind<SignInComponent>(TYPES_BALLAST.SignInComponent)
+        .to(SignInComponent)
+        .inTransientScope();
+    container.bind<() => SignInComponent>(TYPES_BALLAST.SignInComponentFactory)
+        .toFactory(context => () => context.container.get<SignInComponent>(TYPES_BALLAST.SignInComponent));
     return container;
 }
 
@@ -74,31 +81,3 @@ function configureMessaging(container: Container): Container {
     return container;
 }
 
-function configureViews(container: Container): Container {
-    container.bind<IChatView>(TYPES_BALLAST.IChatView)
-        .to(ChatView)
-        .inTransientScope();
-    container.bind<() => IChatView>(TYPES_BALLAST.IChatViewFactory)
-        .toFactory(context => () => context.container.get<IChatView>(TYPES_BALLAST.IChatView));
-    container.bind<IGameView>(TYPES_BALLAST.IGameView)
-        .to(GameView)
-        .inTransientScope();
-    container.bind<() => IGameView>(TYPES_BALLAST.IGameViewFactory)
-        .toFactory(context => () => context.container.get<IGameView>(TYPES_BALLAST.IGameView));
-    container.bind<IHudView>(TYPES_BALLAST.IHudView)
-        .to(HudView)
-        .inTransientScope();
-    container.bind<() => IHudView>(TYPES_BALLAST.IHudViewFactory)
-        .toFactory(context => () => context.container.get<IHudView>(TYPES_BALLAST.IHudView));
-    container.bind<IMenuView>(TYPES_BALLAST.IMenuView)
-        .to(MenuView)
-        .inTransientScope();
-    container.bind<() => IMenuView>(TYPES_BALLAST.IMenuViewFactory)
-        .toFactory(context => () => context.container.get<IMenuView>(TYPES_BALLAST.IMenuView));
-    container.bind<ISignInView>(TYPES_BALLAST.ISignInView)
-        .to(SignInView)
-        .inTransientScope();
-    container.bind<() => ISignInView>(TYPES_BALLAST.ISignInViewFactory)
-        .toFactory(context => () => context.container.get<IMenuView>(TYPES_BALLAST.ISignInView));
-    return container;
-}

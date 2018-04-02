@@ -3,7 +3,7 @@ import * as uuid from 'uuid';
 import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
-import { RootController } from '../controllers/root-controller';
+import { RootComponent } from '../components/root';
 
 export class BallastClient {
 
@@ -28,8 +28,11 @@ export class BallastClient {
     }
 
     public async loadAsync(): Promise<BallastClient> {
-        var rootController = this.inversifyContainer.get<RootController>(TYPES_BALLAST.RootController);
-        await rootController.activateAllViewsAsync();
+        var root = this.viewport.getRoot();
+        var rootComponentFactory = this.inversifyContainer.get<() => RootComponent>(TYPES_BALLAST.RootComponentFactory);
+        var rootComponent = rootComponentFactory();
+        await rootComponent.attach(root);
+        this.viewport.startRenderLoop();
         return this;
     }
 
