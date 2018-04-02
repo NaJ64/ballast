@@ -29,9 +29,9 @@ export class BallastClient {
 
     public async loadAsync(): Promise<BallastClient> {
         var root = this.viewport.getRoot();
-        var rootComponentFactory = this.inversifyContainer.get<() => RootComponent>(TYPES_BALLAST.RootComponentFactory);
-        var rootComponent = rootComponentFactory();
-        await rootComponent.attach(root);
+        var factory = this.inversifyContainer.get<() => RootComponent>(TYPES_BALLAST.GameComponentFactory);
+        var component = factory();
+        await component.attach(root);
         this.viewport.startRenderLoop();
         return this;
     }

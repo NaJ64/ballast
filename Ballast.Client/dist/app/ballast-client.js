@@ -62,14 +62,14 @@ var BallastClient = /** @class */ (function () {
     };
     BallastClient.prototype.loadAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var root, rootComponentFactory, rootComponent;
+            var root, factory, component;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         root = this.viewport.getRoot();
-                        rootComponentFactory = this.inversifyContainer.get(types_1.TYPES_BALLAST.RootComponentFactory);
-                        rootComponent = rootComponentFactory();
-                        return [4 /*yield*/, rootComponent.attach(root)];
+                        factory = this.inversifyContainer.get(types_1.TYPES_BALLAST.GameComponentFactory);
+                        component = factory();
+                        return [4 /*yield*/, component.attach(root)];
                     case 1:
                         _a.sent();
                         this.viewport.startRenderLoop();

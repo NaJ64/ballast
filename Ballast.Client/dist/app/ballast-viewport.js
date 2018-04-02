@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var BallastViewport = /** @class */ (function () {
     function BallastViewport(host, clientId) {
+        this.postrender = function (renderingContext, next) {
+            // final render step goes here
+        };
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas);
@@ -40,12 +43,9 @@ var BallastViewport = /** @class */ (function () {
     BallastViewport.prototype.render = function () {
         var renderingSteps = this.getRenderingSteps();
         var i = renderingSteps.length;
-        var final = function (renderingContext, next) {
-            // Final render step goes here
-        };
-        var next = final;
+        var next = this.postrender;
         while (i--) {
-            next = renderingSteps[i].call(this, this.canvas, next);
+            next = renderingSteps[i].call(this, this.renderingContext, next);
         }
     };
     BallastViewport.prototype.addRenderingStep = function (id, renderingStep) {

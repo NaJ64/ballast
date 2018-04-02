@@ -49,15 +49,16 @@ export class BallastViewport {
         this.render();
     }
 
+    private postrender: RenderingStep = (renderingContext, next) => { 
+        // final render step goes here
+    };
+
     private render(): void {
         var renderingSteps = this.getRenderingSteps();
         var i = renderingSteps.length;
-        let final: RenderingStep = (renderingContext, next) => { 
-            // Final render step goes here
-        };
-        let next = final;
+        let next = this.postrender;
         while (i--) {
-            next = renderingSteps[i].call(this, this.canvas, next);
+            next = renderingSteps[i].call(this, this.renderingContext, next);
         }
     }
 
