@@ -2,8 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var BallastViewport = /** @class */ (function () {
     function BallastViewport(host, clientId) {
+        var _this = this;
         this.prerender = function (renderingContext) {
             // initial render step goes here
+            _this.resizeCanvas(renderingContext.canvas);
             renderingContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
         };
         this.postrender = function (renderingContext, next) {
@@ -23,12 +25,17 @@ var BallastViewport = /** @class */ (function () {
     BallastViewport.prototype.createRoot = function (host, id) {
         var root = host.ownerDocument.createElement("div");
         root.id = id;
+        root.style.height = '100%';
+        root.style.width = '100%';
         host.appendChild(root);
         return root;
     };
     BallastViewport.prototype.createCanvas = function (root) {
         var canvas = root.ownerDocument.createElement('canvas');
         canvas.id = root.id + '_canvas';
+        canvas.style.display = 'block';
+        canvas.style.height = '100%';
+        canvas.style.width = '100%';
         root.appendChild(canvas);
         return canvas;
     };
@@ -38,6 +45,18 @@ var BallastViewport = /** @class */ (function () {
             throw new Error('Could not create rendering context from canvas');
         }
         return renderingContext;
+    };
+    BallastViewport.prototype.resizeCanvas = function (canvas) {
+        // Lookup the size the browser is displaying the canvas.
+        var displayWidth = canvas.clientWidth;
+        var displayHeight = canvas.clientHeight;
+        // Check if the canvas is not the same size.
+        if (canvas.width != displayWidth ||
+            canvas.height != displayHeight) {
+            // Make the canvas the same size
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+        }
     };
     BallastViewport.prototype.renderLoop = function () {
         var _this = this;

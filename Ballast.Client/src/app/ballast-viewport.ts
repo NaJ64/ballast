@@ -25,6 +25,8 @@ export class BallastViewport {
     private createRoot(host: HTMLElement, id: string): HTMLDivElement {
         var root = host.ownerDocument.createElement("div");
         root.id = id;
+        root.style.height = '100%';
+        root.style.width = '100%';
         host.appendChild(root);
         return root;
     }
@@ -32,6 +34,9 @@ export class BallastViewport {
     private createCanvas(root: HTMLDivElement) {
         var canvas = root.ownerDocument.createElement('canvas');
         canvas.id = root.id + '_canvas';
+        canvas.style.display = 'block';
+        canvas.style.height = '100%';
+        canvas.style.width = '100%';
         root.appendChild(canvas);
         return canvas;
     }
@@ -44,6 +49,19 @@ export class BallastViewport {
         return renderingContext;
     }
 
+    private resizeCanvas(canvas: HTMLCanvasElement) {
+        // Lookup the size the browser is displaying the canvas.
+        var displayWidth  = canvas.clientWidth;
+        var displayHeight = canvas.clientHeight;
+        // Check if the canvas is not the same size.
+        if (canvas.width  != displayWidth ||
+            canvas.height != displayHeight) {
+            // Make the canvas the same size
+            canvas.width  = displayWidth;
+            canvas.height = displayHeight;
+        }
+    }
+
     private renderLoop() {
         requestAnimationFrame(() => this.renderLoop());
         this.render();
@@ -51,6 +69,7 @@ export class BallastViewport {
 
     private prerender = (renderingContext: CanvasRenderingContext2D) => {
         // initial render step goes here
+        this.resizeCanvas(renderingContext.canvas);
         renderingContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
     };
 

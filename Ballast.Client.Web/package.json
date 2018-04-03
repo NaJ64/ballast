@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run compile && npm run bundle",
     "bundle": "webpack && npm run copy",
-    "copy": "cpx \"./src/index.html\" \"wwwroot/\"",
+    "copy": "cpx \"./src/index.{html,css}\" \"wwwroot/\"",
     "compile": "tsc",
     "prepare": "npm run build",
     "start": "npm run build && node server",

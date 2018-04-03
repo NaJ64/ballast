@@ -10,6 +10,7 @@ export declare class BallastViewport {
     private createRoot(host, id);
     private createCanvas(root);
     private createRenderingContext(canvas);
+    private resizeCanvas(canvas);
     private renderLoop();
     private prerender;
     private postrender;
