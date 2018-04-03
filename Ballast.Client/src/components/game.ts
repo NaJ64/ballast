@@ -27,7 +27,7 @@ export class GameComponent extends ComponentBase {
             this.geometry = new THREE.BoxGeometry( 1, 1, 1 );
         }
         if (!this.material) {
-            this.material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            this.material = new THREE.MeshBasicMaterial( { color: 0x0000cc } );
         }
         if (!this.cube) {
             this.cube = new THREE.Mesh(this.geometry,this.material );
