@@ -11,9 +11,11 @@ import { HudComponent } from '../components/hud';
 import { MenuComponent} from '../components/menu';
 import { RootComponent } from '../components/root';
 import { SignInComponent } from '../components/sign-in';
+import { RenderingContext } from '../rendering/rendering-context';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
+    configureRendering(container, client);
     configureMessaging(container);
     configureComponents(container);
     return container;
@@ -26,7 +28,20 @@ function configureApp(container: Container, client: BallastClient): Container {
     container.bind<BallastClient>(TYPES_BALLAST.BallastClient)
         .toConstantValue(client);
     container.bind<BallastViewport>(TYPES_BALLAST.BallastViewport)
-        .toConstantValue(client.getViewport());
+        .toDynamicValue(context => client.getViewport());
+    return container;
+}
+
+function configureRendering(container: Container, client: BallastClient): Container {
+    container.bind<RenderingContext>(TYPES_BALLAST.RenderingContext)
+        .toDynamicValue(context => client.getViewport().getRenderingContext());
+    return container;
+}
+
+function configureMessaging(container: Container): Container {
+    container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
+        .to(EventBus)
+        .inSingletonScope();
     return container;
 }
 
@@ -67,13 +82,6 @@ function configureComponents(container: Container): Container {
         .inTransientScope();
     container.bind<() => SignInComponent>(TYPES_BALLAST.SignInComponentFactory)
         .toFactory(context => () => context.container.get<SignInComponent>(TYPES_BALLAST.SignInComponent));
-    return container;
-}
-
-function configureMessaging(container: Container): Container {
-    container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
-        .to(EventBus)
-        .inSingletonScope();
     return container;
 }
 

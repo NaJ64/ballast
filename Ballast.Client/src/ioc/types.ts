@@ -19,8 +19,11 @@ const TYPES_BALLAST = {
     SignInComponent: Symbol.for('SignInComponent'),
     SignInComponentFactory: Symbol.for('SignInComponentFactory'),
     
-    // events
+    // messaging
     IEventBus: Symbol.for('IEventBus'),
+
+    // rendering
+    RenderingContext: Symbol.for('RenderingContext')
 
 };
 

@@ -18,8 +18,10 @@ var TYPES_BALLAST = {
     RootComponentFactory: Symbol.for('RootComponentFactory'),
     SignInComponent: Symbol.for('SignInComponent'),
     SignInComponentFactory: Symbol.for('SignInComponentFactory'),
-    // events
+    // messaging
     IEventBus: Symbol.for('IEventBus'),
+    // rendering
+    RenderingContext: Symbol.for('RenderingContext')
 };
 exports.TYPES_BALLAST = TYPES_BALLAST;
 //# sourceMappingURL=types.js.map

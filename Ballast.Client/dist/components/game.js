@@ -15,7 +15,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var THREE = __importStar(require("three"));
 var inversify_1 = require("inversify");
 var types_1 = require("../ioc/types");
 var component_base_1 = require("./component-base");
@@ -29,8 +37,28 @@ var GameComponent = /** @class */ (function (_super) {
         return types_1.TYPES_BALLAST.GameComponent;
     };
     GameComponent.prototype.render = function (parent, renderingContext) {
-        renderingContext.font = "48px serif";
-        renderingContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
+        if (renderingContext.canvas2dContext) {
+            renderingContext.canvas2dContext.font = "48px serif";
+            renderingContext.canvas2dContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
+        }
+        if (!this.geometry) {
+            this.geometry = new THREE.BoxGeometry(1, 1, 1);
+        }
+        if (!this.material) {
+            this.material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        }
+        if (!this.cube) {
+            this.cube = new THREE.Mesh(this.geometry, this.material);
+        }
+        // update rotation every time the object is rendered
+        this.cube.rotation.x += 0.1;
+        this.cube.rotation.y += 0.1;
+        if (renderingContext.threeScene) {
+            renderingContext.threeScene.add(this.cube);
+        }
+        if (renderingContext.threePerspectiveCamera) {
+            renderingContext.threePerspectiveCamera.position.z = 5;
+        }
     };
     GameComponent.prototype.onAttach = function (parent) {
         var loadedEvent = new game_component_loaded_1.GameComponentLoadedEvent();

@@ -11,6 +11,7 @@ var root_1 = require("../components/root");
 var sign_in_1 = require("../components/sign-in");
 function configureServices(container, client) {
     configureApp(container, client);
+    configureRendering(container, client);
     configureMessaging(container);
     configureComponents(container);
     return container;
@@ -23,7 +24,18 @@ function configureApp(container, client) {
     container.bind(types_1.TYPES_BALLAST.BallastClient)
         .toConstantValue(client);
     container.bind(types_1.TYPES_BALLAST.BallastViewport)
-        .toConstantValue(client.getViewport());
+        .toDynamicValue(function (context) { return client.getViewport(); });
+    return container;
+}
+function configureRendering(container, client) {
+    container.bind(types_1.TYPES_BALLAST.RenderingContext)
+        .toDynamicValue(function (context) { return client.getViewport().getRenderingContext(); });
+    return container;
+}
+function configureMessaging(container) {
+    container.bind(types_1.TYPES_BALLAST.IEventBus)
+        .to(event_bus_1.EventBus)
+        .inSingletonScope();
     return container;
 }
 function configureComponents(container) {
@@ -63,12 +75,6 @@ function configureComponents(container) {
         .inTransientScope();
     container.bind(types_1.TYPES_BALLAST.SignInComponentFactory)
         .toFactory(function (context) { return function () { return context.container.get(types_1.TYPES_BALLAST.SignInComponent); }; });
-    return container;
-}
-function configureMessaging(container) {
-    container.bind(types_1.TYPES_BALLAST.IEventBus)
-        .to(event_bus_1.EventBus)
-        .inSingletonScope();
     return container;
 }
 //# sourceMappingURL=configure-services.js.map

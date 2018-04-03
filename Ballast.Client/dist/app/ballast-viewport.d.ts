@@ -1,4 +1,5 @@
-export declare type RenderingStep = (renderingContext: CanvasRenderingContext2D, next: () => void) => void;
+import { RenderingContext } from '../rendering/rendering-context';
+export declare type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
 export declare class BallastViewport {
     private readonly root;
     private readonly canvas;
@@ -6,6 +7,8 @@ export declare class BallastViewport {
     private readonly renderingSteps;
     constructor(host: HTMLElement, clientId: string);
     getRoot(): HTMLDivElement;
+    getCanvas(): HTMLCanvasElement;
+    getRenderingContext(): RenderingContext;
     getRenderingSteps(): RenderingStep[];
     private createRoot(host, id);
     private createCanvas(root);

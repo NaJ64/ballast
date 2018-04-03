@@ -20,6 +20,7 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^22.2.2",
+    "@types/three": "^0.91.3",
     "@types/uuid": "^3.4.3",
     "jest": "^22.4.3",
     "ts-jest": "^22.4.2",

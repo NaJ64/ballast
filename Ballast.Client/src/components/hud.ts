@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
+import { RenderingContext } from '../rendering/rendering-context';
 
 @injectable()
 export class HudComponent extends ComponentBase {
@@ -9,6 +10,6 @@ export class HudComponent extends ComponentBase {
         return TYPES_BALLAST.HudComponent;
     }
 
-    protected render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D) { }
+    protected render(parent: HTMLElement, renderingContext: RenderingContext) { }
 
 }

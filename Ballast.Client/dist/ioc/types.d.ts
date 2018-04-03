@@ -15,5 +15,6 @@ declare const TYPES_BALLAST: {
     SignInComponent: symbol;
     SignInComponentFactory: symbol;
     IEventBus: symbol;
+    RenderingContext: symbol;
 };
 export { TYPES_BALLAST };

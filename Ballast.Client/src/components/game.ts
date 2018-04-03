@@ -1,6 +1,8 @@
+import * as THREE from 'three';
 import { injectable } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
+import { RenderingContext } from '../rendering/rendering-context';
 import { GameComponentLoadedEvent } from '../messaging/events/components/game-component-loaded';
 
 @injectable()
@@ -10,9 +12,38 @@ export class GameComponent extends ComponentBase {
         return TYPES_BALLAST.GameComponent;
     }
 
-    protected render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D) {
-        renderingContext.font = "48px serif";
-        renderingContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
+    private geometry?: THREE.BoxGeometry;
+    private material?: THREE.MeshBasicMaterial;
+    private cube?: THREE.Mesh;
+
+    protected render(parent: HTMLElement, renderingContext: RenderingContext) {
+
+        if (renderingContext.canvas2dContext) {
+            renderingContext.canvas2dContext.font = "48px serif";
+            renderingContext.canvas2dContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
+        }
+
+        if (!this.geometry) {
+            this.geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        }
+        if (!this.material) {
+            this.material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        }
+        if (!this.cube) {
+            this.cube = new THREE.Mesh(this.geometry,this.material );
+        }
+
+        // update rotation every time the object is rendered
+        this.cube.rotation.x += 0.1;
+        this.cube.rotation.y += 0.1;
+        
+        if (renderingContext.threeScene) {
+            renderingContext.threeScene.add(this.cube);
+        }
+        if (renderingContext.threePerspectiveCamera) {
+            renderingContext.threePerspectiveCamera.position.z = 5;
+        }
+
     }
 
     public onAttach(parent: HTMLElement) {

@@ -1,10 +1,15 @@
-export type RenderingStep = (renderingContext: CanvasRenderingContext2D, next: () => void) => void;
+import * as THREE from 'three';
+import { injectable } from 'inversify';
+import { RenderingContext } from '../rendering/rendering-context';
 
+export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
+
+@injectable()
 export class BallastViewport {
     
     private readonly root: HTMLDivElement;
     private readonly canvas: HTMLCanvasElement;
-    private readonly renderingContext: CanvasRenderingContext2D;
+    private readonly renderingContext: RenderingContext;
     private readonly renderingSteps: Map<Symbol, RenderingStep>;
 
     public constructor(host: HTMLElement, clientId: string) {
@@ -16,6 +21,14 @@ export class BallastViewport {
 
     public getRoot(): HTMLDivElement {
         return this.root;
+    }
+
+    public getCanvas(): HTMLCanvasElement {
+        return this.canvas;
+    }
+
+    public getRenderingContext(): RenderingContext {
+        return this.renderingContext;
     }
 
     public getRenderingSteps(): RenderingStep[] {
@@ -32,6 +45,7 @@ export class BallastViewport {
     }
 
     private createCanvas(root: HTMLDivElement) {
+        var renderer = new THREE.WebGLRenderer()
         var canvas = root.ownerDocument.createElement('canvas');
         canvas.id = root.id + '_canvas';
         canvas.style.display = 'block';
@@ -41,12 +55,8 @@ export class BallastViewport {
         return canvas;
     }
 
-    private createRenderingContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-        var renderingContext =  this.canvas.getContext('2d');
-        if (!renderingContext) {
-            throw new Error('Could not create rendering context from canvas');
-        }
-        return renderingContext;
+    private createRenderingContext(canvas: HTMLCanvasElement): RenderingContext {
+        return new RenderingContext(canvas);
     }
 
     private resizeCanvas(canvas: HTMLCanvasElement) {
@@ -67,20 +77,46 @@ export class BallastViewport {
         this.render();
     }
 
-    private prerender = (renderingContext: CanvasRenderingContext2D) => {
+    private prerender = (renderingContext: RenderingContext) => {
         // initial render step goes here
         this.resizeCanvas(renderingContext.canvas);
-        renderingContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
+        if (renderingContext.canvas2dContext) {
+            renderingContext.canvas2dContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
+        }
+        if (renderingContext.threeWebGLRenderer) {
+            renderingContext.threeWebGLRenderer.setSize(
+                renderingContext.canvas.clientWidth, 
+                renderingContext.canvas.clientHeight,
+                false
+            );
+        }
+        if (renderingContext.threePerspectiveCamera) {
+            var aspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
+            renderingContext.threePerspectiveCamera.aspect = aspect;
+            renderingContext.threePerspectiveCamera.updateProjectionMatrix();
+        }
     };
 
     private postrender: RenderingStep = (renderingContext, next) => { 
         // final render step goes here
+        if (renderingContext &&
+            renderingContext.threeWebGLRenderer && 
+            renderingContext.threeScene && 
+            renderingContext.threePerspectiveCamera
+        ) {
+
+            renderingContext.threeWebGLRenderer.render(
+                renderingContext.threeScene, 
+                renderingContext.threePerspectiveCamera
+            );
+
+        }
     };
 
     private render(): void {
         var renderingSteps = this.getRenderingSteps();
         var i = renderingSteps.length;
-        let next = this.postrender;
+        let next: RenderingStep = (renderingContext, next) => this.postrender.call(this, this.renderingContext, next);
         this.prerender(this.renderingContext);
         while (i--) {
             next = renderingSteps[i].call(this, this.renderingContext, next);

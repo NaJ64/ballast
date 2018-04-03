@@ -3,6 +3,7 @@ import { IDisposable } from '../interfaces/idisposable';
 import { TYPES_BALLAST } from '../ioc/types';
 import { IEventBus } from '../messaging/ievent-bus';
 import { BallastViewport } from '../app/ballast-viewport';
+import { RenderingContext } from '../rendering/rendering-context';
 
 @injectable()
 export abstract class ComponentBase implements IDisposable {
@@ -53,7 +54,7 @@ export abstract class ComponentBase implements IDisposable {
     }
 
     protected abstract getComponentId(): Symbol;
-    protected abstract render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D): void;
+    protected abstract render(parent: HTMLElement, renderingContext: RenderingContext): void;
     protected onAttach(parent: HTMLElement): void { }
     protected onDetach(parent: HTMLElement): void { }
     public dispose(): void { }

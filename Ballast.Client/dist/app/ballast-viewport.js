@@ -1,15 +1,50 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var THREE = __importStar(require("three"));
+var inversify_1 = require("inversify");
+var rendering_context_1 = require("../rendering/rendering-context");
 var BallastViewport = /** @class */ (function () {
     function BallastViewport(host, clientId) {
         var _this = this;
         this.prerender = function (renderingContext) {
             // initial render step goes here
             _this.resizeCanvas(renderingContext.canvas);
-            renderingContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
+            if (renderingContext.canvas2dContext) {
+                renderingContext.canvas2dContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
+            }
+            if (renderingContext.threeWebGLRenderer) {
+                renderingContext.threeWebGLRenderer.setSize(renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight, false);
+            }
+            if (renderingContext.threePerspectiveCamera) {
+                var aspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
+                renderingContext.threePerspectiveCamera.aspect = aspect;
+                renderingContext.threePerspectiveCamera.updateProjectionMatrix();
+            }
         };
         this.postrender = function (renderingContext, next) {
             // final render step goes here
+            if (renderingContext &&
+                renderingContext.threeWebGLRenderer &&
+                renderingContext.threeScene &&
+                renderingContext.threePerspectiveCamera) {
+                renderingContext.threeWebGLRenderer.render(renderingContext.threeScene, renderingContext.threePerspectiveCamera);
+            }
         };
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
@@ -18,6 +53,12 @@ var BallastViewport = /** @class */ (function () {
     }
     BallastViewport.prototype.getRoot = function () {
         return this.root;
+    };
+    BallastViewport.prototype.getCanvas = function () {
+        return this.canvas;
+    };
+    BallastViewport.prototype.getRenderingContext = function () {
+        return this.renderingContext;
     };
     BallastViewport.prototype.getRenderingSteps = function () {
         return Array.from(this.renderingSteps.values());
@@ -31,6 +72,7 @@ var BallastViewport = /** @class */ (function () {
         return root;
     };
     BallastViewport.prototype.createCanvas = function (root) {
+        var renderer = new THREE.WebGLRenderer();
         var canvas = root.ownerDocument.createElement('canvas');
         canvas.id = root.id + '_canvas';
         canvas.style.display = 'block';
@@ -40,11 +82,7 @@ var BallastViewport = /** @class */ (function () {
         return canvas;
     };
     BallastViewport.prototype.createRenderingContext = function (canvas) {
-        var renderingContext = this.canvas.getContext('2d');
-        if (!renderingContext) {
-            throw new Error('Could not create rendering context from canvas');
-        }
-        return renderingContext;
+        return new rendering_context_1.RenderingContext(canvas);
     };
     BallastViewport.prototype.resizeCanvas = function (canvas) {
         // Lookup the size the browser is displaying the canvas.
@@ -64,9 +102,10 @@ var BallastViewport = /** @class */ (function () {
         this.render();
     };
     BallastViewport.prototype.render = function () {
+        var _this = this;
         var renderingSteps = this.getRenderingSteps();
         var i = renderingSteps.length;
-        var next = this.postrender;
+        var next = function (renderingContext, next) { return _this.postrender.call(_this, _this.renderingContext, next); };
         this.prerender(this.renderingContext);
         while (i--) {
             next = renderingSteps[i].call(this, this.renderingContext, next);
@@ -81,6 +120,10 @@ var BallastViewport = /** @class */ (function () {
     BallastViewport.prototype.startRenderLoop = function () {
         this.renderLoop();
     };
+    BallastViewport = __decorate([
+        inversify_1.injectable(),
+        __metadata("design:paramtypes", [HTMLElement, String])
+    ], BallastViewport);
     return BallastViewport;
 }());
 exports.BallastViewport = BallastViewport;
