@@ -11,9 +11,10 @@ export declare class BallastViewport {
     private createCanvas(root);
     private createRenderingContext(canvas);
     private renderLoop();
+    private prerender;
     private postrender;
     private render();
-    addRenderingStep(id: string, renderingStep: RenderingStep): void;
-    removeRenderingStep(id: string): void;
+    addRenderingStep(id: Symbol, renderingStep: RenderingStep): void;
+    removeRenderingStep(id: Symbol): void;
     startRenderLoop(): void;
 }

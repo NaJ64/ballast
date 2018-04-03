@@ -1,13 +1,12 @@
 import { injectable } from 'inversify';
+import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 
 @injectable()
 export class MenuComponent extends ComponentBase {
 
-    private static componentId: string = 'Menu';
-
     protected getComponentId() {
-        return MenuComponent.componentId;
+        return TYPES_BALLAST.MenuComponent;
     }
 
     protected render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D) { }

@@ -1,7 +1,6 @@
 import { Container } from 'inversify';
 import { TYPES_BALLAST } from './types';
 import { BallastBootstrapper } from '../app/ballast-bootstrapper';
-import { BallastClientContext } from '../app/ballast-client-context';
 import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
 import { EventBus } from '../messaging/event-bus';
@@ -21,16 +20,13 @@ export function configureServices(container: Container, client: BallastClient): 
 }
 
 function configureApp(container: Container, client: BallastClient): Container {
-    var clientContext = new BallastClientContext(client)
     container.bind<BallastBootstrapper>(TYPES_BALLAST.BallastBootstrapper)
         .to(BallastBootstrapper)
         .inSingletonScope();
-    container.bind<BallastClientContext>(TYPES_BALLAST.BallastClientContext)
-        .toConstantValue(clientContext);
     container.bind<BallastClient>(TYPES_BALLAST.BallastClient)
-        .toConstantValue(clientContext.client);
+        .toConstantValue(client);
     container.bind<BallastViewport>(TYPES_BALLAST.BallastViewport)
-        .toConstantValue(clientContext.client.getViewport());
+        .toConstantValue(client.getViewport());
     return container;
 }
 

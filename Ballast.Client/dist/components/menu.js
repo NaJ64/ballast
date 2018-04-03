@@ -17,23 +17,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
+var types_1 = require("../ioc/types");
 var component_base_1 = require("./component-base");
 var MenuComponent = /** @class */ (function (_super) {
     __extends(MenuComponent, _super);
     function MenuComponent() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    MenuComponent_1 = MenuComponent;
     MenuComponent.prototype.getComponentId = function () {
-        return MenuComponent_1.componentId;
+        return types_1.TYPES_BALLAST.MenuComponent;
     };
     MenuComponent.prototype.render = function (parent, renderingContext) { };
-    MenuComponent.componentId = 'Menu';
-    MenuComponent = MenuComponent_1 = __decorate([
+    MenuComponent = __decorate([
         inversify_1.injectable()
     ], MenuComponent);
     return MenuComponent;
-    var MenuComponent_1;
 }(component_base_1.ComponentBase));
 exports.MenuComponent = MenuComponent;
 //# sourceMappingURL=menu.js.map

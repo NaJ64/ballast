@@ -4,8 +4,9 @@ import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
 import { RootComponent } from '../components/root';
+import { IDisposable } from '../interfaces/idisposable';
 
-export class BallastClient {
+export class BallastClient implements IDisposable {
 
     private readonly host: HTMLElement;
     private readonly id: string;
@@ -34,6 +35,10 @@ export class BallastClient {
         await component.attach(root);
         this.viewport.startRenderLoop();
         return this;
+    }
+
+    public dispose() {
+        // TODO:  Dispose of resources & even handlers here
     }
 
 }

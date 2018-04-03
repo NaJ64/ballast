@@ -17,23 +17,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
+var types_1 = require("../ioc/types");
 var component_base_1 = require("./component-base");
 var HudComponent = /** @class */ (function (_super) {
     __extends(HudComponent, _super);
     function HudComponent() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    HudComponent_1 = HudComponent;
     HudComponent.prototype.getComponentId = function () {
-        return HudComponent_1.componentId;
+        return types_1.TYPES_BALLAST.HudComponent;
     };
     HudComponent.prototype.render = function (parent, renderingContext) { };
-    HudComponent.componentId = 'Hud';
-    HudComponent = HudComponent_1 = __decorate([
+    HudComponent = __decorate([
         inversify_1.injectable()
     ], HudComponent);
     return HudComponent;
-    var HudComponent_1;
 }(component_base_1.ComponentBase));
 exports.HudComponent = HudComponent;
 //# sourceMappingURL=hud.js.map

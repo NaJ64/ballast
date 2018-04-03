@@ -1,13 +1,12 @@
 import { injectable } from 'inversify';
+import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 
 @injectable()
 export class ChatComponent extends ComponentBase {
 
-    private static componentId: string = 'Chat';
-
     protected getComponentId() {
-        return ChatComponent.componentId;
+        return TYPES_BALLAST.ChatComponent;
     }
 
     protected render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D) { }

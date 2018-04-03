@@ -2,6 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var BallastViewport = /** @class */ (function () {
     function BallastViewport(host, clientId) {
+        this.prerender = function (renderingContext) {
+            // initial render step goes here
+            renderingContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
+        };
         this.postrender = function (renderingContext, next) {
             // final render step goes here
         };
@@ -44,6 +48,7 @@ var BallastViewport = /** @class */ (function () {
         var renderingSteps = this.getRenderingSteps();
         var i = renderingSteps.length;
         var next = this.postrender;
+        this.prerender(this.renderingContext);
         while (i--) {
             next = renderingSteps[i].call(this, this.renderingContext, next);
         }

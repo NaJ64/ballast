@@ -78,6 +78,9 @@ var BallastClient = /** @class */ (function () {
             });
         });
     };
+    BallastClient.prototype.dispose = function () {
+        // TODO:  Dispose of resources & even handlers here
+    };
     return BallastClient;
 }());
 exports.BallastClient = BallastClient;

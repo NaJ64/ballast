@@ -17,23 +17,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
+var types_1 = require("../ioc/types");
 var component_base_1 = require("./component-base");
 var RootComponent = /** @class */ (function (_super) {
     __extends(RootComponent, _super);
     function RootComponent() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    RootComponent_1 = RootComponent;
     RootComponent.prototype.getComponentId = function () {
-        return RootComponent_1.componentId;
+        return types_1.TYPES_BALLAST.RootComponent;
     };
     RootComponent.prototype.render = function (parent, renderingContext) { };
-    RootComponent.componentId = 'Root';
-    RootComponent = RootComponent_1 = __decorate([
+    RootComponent = __decorate([
         inversify_1.injectable()
     ], RootComponent);
     return RootComponent;
-    var RootComponent_1;
 }(component_base_1.ComponentBase));
 exports.RootComponent = RootComponent;
 //# sourceMappingURL=root.js.map

@@ -17,6 +17,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
+var types_1 = require("../ioc/types");
 var component_base_1 = require("./component-base");
 var game_component_loaded_1 = require("../messaging/events/components/game-component-loaded");
 var GameComponent = /** @class */ (function (_super) {
@@ -24,24 +25,21 @@ var GameComponent = /** @class */ (function (_super) {
     function GameComponent() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    GameComponent_1 = GameComponent;
     GameComponent.prototype.getComponentId = function () {
-        return GameComponent_1.componentId;
+        return types_1.TYPES_BALLAST.GameComponent;
     };
     GameComponent.prototype.render = function (parent, renderingContext) {
         renderingContext.font = "48px serif";
-        renderingContext.fillText('BALLAST!', 10, 50);
+        renderingContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
     };
     GameComponent.prototype.onAttach = function (parent) {
         var loadedEvent = new game_component_loaded_1.GameComponentLoadedEvent();
         this.eventBus.publish(loadedEvent.eventId, loadedEvent);
     };
-    GameComponent.componentId = 'Game';
-    GameComponent = GameComponent_1 = __decorate([
+    GameComponent = __decorate([
         inversify_1.injectable()
     ], GameComponent);
     return GameComponent;
-    var GameComponent_1;
 }(component_base_1.ComponentBase));
 exports.GameComponent = GameComponent;
 //# sourceMappingURL=game.js.map

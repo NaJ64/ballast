@@ -52,7 +52,7 @@ export abstract class ComponentBase implements IDisposable {
         this.viewport.removeRenderingStep(componentId);
     }
 
-    protected abstract getComponentId(): string;
+    protected abstract getComponentId(): Symbol;
     protected abstract render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D): void;
     protected onAttach(parent: HTMLElement): void { }
     protected onDetach(parent: HTMLElement): void { }

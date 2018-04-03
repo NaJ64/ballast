@@ -17,23 +17,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
+var types_1 = require("../ioc/types");
 var component_base_1 = require("./component-base");
 var SignInComponent = /** @class */ (function (_super) {
     __extends(SignInComponent, _super);
     function SignInComponent() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    SignInComponent_1 = SignInComponent;
     SignInComponent.prototype.getComponentId = function () {
-        return SignInComponent_1.componentId;
+        return types_1.TYPES_BALLAST.SignInComponent;
     };
     SignInComponent.prototype.render = function (parent, renderingContext) { };
-    SignInComponent.componentId = 'SignIn';
-    SignInComponent = SignInComponent_1 = __decorate([
+    SignInComponent = __decorate([
         inversify_1.injectable()
     ], SignInComponent);
     return SignInComponent;
-    var SignInComponent_1;
 }(component_base_1.ComponentBase));
 exports.SignInComponent = SignInComponent;
 //# sourceMappingURL=sign-in.js.map

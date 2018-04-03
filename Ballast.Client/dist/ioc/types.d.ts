@@ -1,7 +1,6 @@
 declare const TYPES_BALLAST: {
     BallastBootstrapper: symbol;
     BallastClient: symbol;
-    BallastClientContext: symbol;
     BallastViewport: symbol;
     ChatComponent: symbol;
     ChatComponentFactory: symbol;

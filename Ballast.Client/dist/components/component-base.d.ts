@@ -11,7 +11,7 @@ export declare abstract class ComponentBase implements IDisposable {
     detach(): void;
     private addRenderingStep();
     private removeRenderingStep();
-    protected abstract getComponentId(): string;
+    protected abstract getComponentId(): Symbol;
     protected abstract render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D): void;
     protected onAttach(parent: HTMLElement): void;
     protected onDetach(parent: HTMLElement): void;

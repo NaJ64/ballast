@@ -1,13 +1,12 @@
 import { injectable } from 'inversify';
+import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 
 @injectable()
 export class RootComponent extends ComponentBase {
 
-    private static componentId: string = 'Root';
-
     protected getComponentId() {
-        return RootComponent.componentId;
+        return TYPES_BALLAST.RootComponent;
     }
 
     protected render(parent: HTMLElement, renderingContext: CanvasRenderingContext2D) { }

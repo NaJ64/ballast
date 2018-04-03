@@ -5,13 +5,13 @@ export class BallastViewport {
     private readonly root: HTMLDivElement;
     private readonly canvas: HTMLCanvasElement;
     private readonly renderingContext: CanvasRenderingContext2D;
-    private readonly renderingSteps: Map<string, RenderingStep>;
+    private readonly renderingSteps: Map<Symbol, RenderingStep>;
 
     public constructor(host: HTMLElement, clientId: string) {
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas);
-        this.renderingSteps = new Map<string, RenderingStep>();
+        this.renderingSteps = new Map<Symbol, RenderingStep>();
     }
 
     public getRoot(): HTMLDivElement {
@@ -49,6 +49,11 @@ export class BallastViewport {
         this.render();
     }
 
+    private prerender = (renderingContext: CanvasRenderingContext2D) => {
+        // initial render step goes here
+        renderingContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
+    };
+
     private postrender: RenderingStep = (renderingContext, next) => { 
         // final render step goes here
     };
@@ -57,16 +62,17 @@ export class BallastViewport {
         var renderingSteps = this.getRenderingSteps();
         var i = renderingSteps.length;
         let next = this.postrender;
+        this.prerender(this.renderingContext);
         while (i--) {
             next = renderingSteps[i].call(this, this.renderingContext, next);
         }
     }
 
-    public addRenderingStep(id: string, renderingStep: RenderingStep) {
+    public addRenderingStep(id: Symbol, renderingStep: RenderingStep) {
         this.renderingSteps.set(id, renderingStep);
     }
 
-    public removeRenderingStep(id: string) {
+    public removeRenderingStep(id: Symbol) {
         this.renderingSteps.delete(id);
     }
 

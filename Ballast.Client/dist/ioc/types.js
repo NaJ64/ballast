@@ -4,7 +4,6 @@ var TYPES_BALLAST = {
     // app
     BallastBootstrapper: Symbol.for('BallastBootstrapper'),
     BallastClient: Symbol.for('BallastClient'),
-    BallastClientContext: Symbol.for('BallastClientContext'),
     BallastViewport: Symbol.for('BallastViewport'),
     // components
     ChatComponent: Symbol.for('ChatComponent'),

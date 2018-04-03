@@ -1,5 +1,6 @@
 import { BallastViewport } from './ballast-viewport';
-export declare class BallastClient {
+import { IDisposable } from '../interfaces/idisposable';
+export declare class BallastClient implements IDisposable {
     private readonly host;
     private readonly id;
     private readonly viewport;
@@ -8,4 +9,5 @@ export declare class BallastClient {
     getId(): string;
     getViewport(): BallastViewport;
     loadAsync(): Promise<BallastClient>;
+    dispose(): void;
 }
