@@ -25,7 +25,7 @@ var ComponentBase = /** @class */ (function () {
         this.parent = parent;
         this.isAttached = true;
         this.onAttach(this.parent);
-        this.addRenderingStep();
+        this.addRenderingStep(this.parent);
     };
     ComponentBase.prototype.detach = function () {
         this.removeRenderingStep();
@@ -34,10 +34,9 @@ var ComponentBase = /** @class */ (function () {
         }
         this.isAttached = false;
     };
-    ComponentBase.prototype.addRenderingStep = function () {
+    ComponentBase.prototype.addRenderingStep = function (parent) {
         var _this = this;
         var componentId = this.getComponentId();
-        var parent = this.parent; // Rendering step only gets added after attaching to parent element
         this.viewport.addRenderingStep(componentId, function (renderingContext, next) {
             if (_this.isAttached) {
                 _this.render(parent, renderingContext);

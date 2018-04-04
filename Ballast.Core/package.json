@@ -5,16 +5,20 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "build": "npm run compile",
+    "compile": "tsc",
     "prepare": "npm run build",
-    "build": "tsc",
-    "test": "tsc && jest"
+    "test": "npm run build && jest"
   },
   "keywords": [
     "ballast"
   ],
   "author": "NaJ64 <njudice@gmail.com>",
-  "license": "MIT",
   "private": true,
+  "dependencies": {
+    "inversify": "^4.11.1",
+    "reflect-metadata": "^0.1.12"
+  },
   "devDependencies": {
     "@types/jest": "^22.2.2",
     "jest": "^22.4.3",
@@ -37,10 +41,5 @@
       "/dist/"
     ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
-  },
-  "dependencies": {
-    "inversify": "^4.11.1",
-    "reflect-metadata": "^0.1.12",
-    "uuid": "^3.2.1"
   }
 }

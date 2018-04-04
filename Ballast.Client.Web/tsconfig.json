@@ -1,23 +1,32 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-        "baseUrl": ".",
-        "declaration": true,
-        "emitDecoratorMetadata": true,
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "lib": [ "es6", "dom" ],
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "outDir": "dist",
-        "rootDir": "src",
-        "sourceMap": true,
-        "strict": true,
-        "target": "es5",
-        "types": [ "reflect-metadata" ]
-    },
-    "exclude": [
-        "**/*.test.ts",
-        "dist/**/*.ts"
+  "compileOnSave": true,
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5",
+    "types": [
+      "ballast-client",
+      "reflect-metadata"
     ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "dist/**/*.ts",
+    "src/**/*.test.ts"
+  ]
 }

@@ -2,6 +2,6 @@
 [Bb]in/
 [Oo]bj/
 **/*.csproj.user
-**/Properties
-**/node_modules
+**/[Pp]roperties
 **/coverage
+**/node_modules

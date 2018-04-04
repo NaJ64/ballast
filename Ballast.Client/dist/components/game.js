@@ -51,8 +51,8 @@ var GameComponent = /** @class */ (function (_super) {
             this.cube = new THREE.Mesh(this.geometry, this.material);
         }
         // update rotation every time the object is rendered
-        this.cube.rotation.x += 0.01;
-        this.cube.rotation.y += 0.01;
+        this.cube.rotation.x += 0.1;
+        this.cube.rotation.y += 0.1;
         if (renderingContext.threeScene) {
             renderingContext.threeScene.add(this.cube);
         }
