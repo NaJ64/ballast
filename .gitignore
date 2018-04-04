@@ -1,6 +1,7 @@
 .vs
 [Bb]in/
 [Oo]bj/
+[Dd]ist/
 **/*.csproj.user
 **/Properties
 **/node_modules
