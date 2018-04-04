@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "build": "npm run compile",
+    "compile": "tsc",
     "prepare": "npm run build",
-    "build": "tsc",
-    "test": "tsc && jest"
+    "test": "npm run build && jest"
   },
   "keywords": [
     "ballast",

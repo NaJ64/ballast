@@ -4,21 +4,26 @@
   "description": "Ballast client web/browser application",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm run compile && npm run bundle",
-    "bundle": "webpack && npm run copy",
-    "copy": "cpx \"./src/index.{html,css}\" \"wwwroot/\"",
+    "build": "npm run compile && npm run bundle && npm run copy",
+    "bundle": "webpack",
     "compile": "tsc",
+    "copy": "npm run copy-html && npm run copy-css",
+    "copy-html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"wwwroot\"",
+    "copy-css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"wwwroot\"",
     "prepare": "npm run build",
     "start": "npm run build && node server",
     "test": "npm run compile && jest"
   },
   "keywords": [
-    "ballast",
-    "vue"
+    "ballast"
   ],
   "author": "NaJ64 <njudice@gmail.com>",
-  "license": "MIT",
   "private": true,
+  "dependencies": {
+    "ballast-client": "file:../ballast.client",
+    "express": "^4.16.3",
+    "reflect-metadata": "^0.1.12"
+  },
   "devDependencies": {
     "@types/jest": "^22.2.2",
     "cpx": "^1.5.0",
@@ -44,11 +49,5 @@
       "/dist/"
     ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
-  },
-  "dependencies": {
-    "ballast-client": "file:../ballast.client",
-    "express": "^4.16.3",
-    "inversify": "^4.11.1",
-    "reflect-metadata": "^0.1.12"
   }
 }

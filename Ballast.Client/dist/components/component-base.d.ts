@@ -10,7 +10,7 @@ export declare abstract class ComponentBase implements IDisposable {
     constructor(viewport: BallastViewport, eventBus: IEventBus);
     attach(parent: HTMLElement): void;
     detach(): void;
-    private addRenderingStep();
+    private addRenderingStep(parent);
     private removeRenderingStep();
     protected abstract getComponentId(): Symbol;
     protected abstract render(parent: HTMLElement, renderingContext: RenderingContext): void;
