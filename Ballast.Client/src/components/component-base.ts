@@ -26,7 +26,7 @@ export abstract class ComponentBase implements IDisposable {
         this.parent = parent;
         this.isAttached = true;
         this.onAttach(this.parent);
-        this.addRenderingStep();
+        this.addRenderingStep(this.parent);
     }
 
     public detach(): void {
@@ -37,9 +37,8 @@ export abstract class ComponentBase implements IDisposable {
         this.isAttached = false;
     }
 
-    private addRenderingStep() {
+    private addRenderingStep(parent: HTMLElement) {
         var componentId = this.getComponentId();
-        var parent = this.parent as HTMLElement; // Rendering step only gets added after attaching to parent element
         this.viewport.addRenderingStep(componentId, (renderingContext, next) => {
             if (this.isAttached) {
                 this.render(parent, renderingContext);
