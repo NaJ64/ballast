@@ -19,6 +19,13 @@
   "author": "NaJ64 <njudice@gmail.com>",
   "license": "MIT",
   "private": true,
+  "dependencies": {
+    "ballast-core": "file:../ballast.core",
+    "inversify": "^4.11.1",
+    "reflect-metadata": "^0.1.12",
+    "three": "^0.91.0",
+    "uuid": "^3.2.1"
+  },
   "devDependencies": {
     "@types/jest": "^22.2.2",
     "@types/three": "^0.91.3",
@@ -43,12 +50,5 @@
       "/dist/"
     ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
-  },
-  "dependencies": {
-    "ballast-core": "file:../ballast.core",
-    "inversify": "^4.11.1",
-    "reflect-metadata": "^0.1.12",
-    "three": "^0.91.0",
-    "uuid": "^3.2.1"
   }
 }
