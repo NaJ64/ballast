@@ -3,7 +3,7 @@ import * as uuid from 'uuid';
 import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
-import { RootComponent } from '../components/root';
+import { GameComponent } from '../components/game';
 import { IDisposable } from '../interfaces/idisposable';
 
 @injectable()
@@ -31,7 +31,7 @@ export class BallastClient implements IDisposable {
 
     public async loadAsync(): Promise<BallastClient> {
         var root = this.viewport.getRoot();
-        var factory = this.inversifyContainer.get<() => RootComponent>(TYPES_BALLAST.GameComponentFactory);
+        var factory = this.inversifyContainer.get<() => GameComponent>(TYPES_BALLAST.GameComponentFactory);
         var component = factory();
         await component.attach(root);
         this.viewport.startRenderLoop();
