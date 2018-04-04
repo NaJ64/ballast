@@ -80,9 +80,6 @@ export class BallastViewport {
     private prerender = (renderingContext: RenderingContext) => {
         // initial render step goes here
         this.resizeCanvas(renderingContext.canvas);
-        if (renderingContext.canvas2dContext) {
-            renderingContext.canvas2dContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
-        }
         if (renderingContext.threeWebGLRenderer) {
             renderingContext.threeWebGLRenderer.setSize(
                 renderingContext.canvas.clientWidth, 
