@@ -18,11 +18,6 @@ export class GameComponent extends ComponentBase {
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
 
-        if (renderingContext.canvas2dContext) {
-            renderingContext.canvas2dContext.font = "48px serif";
-            renderingContext.canvas2dContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
-        }
-
         if (!this.geometry) {
             this.geometry = new THREE.BoxGeometry( 1, 1, 1 );
         }
