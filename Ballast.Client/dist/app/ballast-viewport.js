@@ -19,6 +19,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = __importStar(require("three"));
 var inversify_1 = require("inversify");
 var rendering_context_1 = require("../rendering/rendering-context");
+var keyboard_watcher_1 = require("../input/keyboard-watcher");
 var BallastViewport = /** @class */ (function () {
     function BallastViewport(host, clientId) {
         var _this = this;
@@ -45,14 +46,18 @@ var BallastViewport = /** @class */ (function () {
         };
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
-        this.renderingContext = this.createRenderingContext(this.canvas);
-        this.renderingSteps = new Map();
+        this.keyboardWatcher = this.createKeyboardWatcher(this.root);
+        this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
+        this.renderingSteps = this.createRenderingSteps();
     }
     BallastViewport.prototype.getRoot = function () {
         return this.root;
     };
     BallastViewport.prototype.getCanvas = function () {
         return this.canvas;
+    };
+    BallastViewport.prototype.getKeyboardWatcher = function () {
+        return this.keyboardWatcher;
     };
     BallastViewport.prototype.getRenderingContext = function () {
         return this.renderingContext;
@@ -78,8 +83,14 @@ var BallastViewport = /** @class */ (function () {
         root.appendChild(canvas);
         return canvas;
     };
-    BallastViewport.prototype.createRenderingContext = function (canvas) {
-        return new rendering_context_1.RenderingContext(canvas);
+    BallastViewport.prototype.createKeyboardWatcher = function (root) {
+        return new keyboard_watcher_1.KeyboardWatcher(root);
+    };
+    BallastViewport.prototype.createRenderingContext = function (canvas, keyboardWatcher) {
+        return new rendering_context_1.RenderingContext(canvas, keyboardWatcher);
+    };
+    BallastViewport.prototype.createRenderingSteps = function () {
+        return new Map();
     };
     BallastViewport.prototype.resizeCanvas = function (canvas) {
         // Lookup the size the browser is displaying the canvas.
@@ -95,8 +106,8 @@ var BallastViewport = /** @class */ (function () {
     };
     BallastViewport.prototype.renderLoop = function () {
         var _this = this;
-        requestAnimationFrame(function () { return _this.renderLoop(); });
         this.render();
+        requestAnimationFrame(function () { return _this.renderLoop(); });
     };
     BallastViewport.prototype.render = function () {
         var _this = this;

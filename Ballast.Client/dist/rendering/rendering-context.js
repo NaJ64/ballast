@@ -9,8 +9,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = __importStar(require("three"));
 var RenderingContext = /** @class */ (function () {
-    function RenderingContext(canvas) {
+    function RenderingContext(canvas, keyboardWatcher) {
         this.canvas = canvas;
+        this.keyboard = keyboardWatcher;
         this.threeWebGLRenderer = this.createRenderer(canvas);
         this.threeScene = this.createScene();
         this.threePerspectiveCamera = this.createCamera(canvas);

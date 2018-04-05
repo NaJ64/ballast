@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { injectable } from 'inversify';
 import { RenderingContext } from '../rendering/rendering-context';
+import { KeyboardWatcher } from '../input/keyboard-watcher';
 
 export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
 
@@ -9,14 +10,16 @@ export class BallastViewport {
     
     private readonly root: HTMLDivElement;
     private readonly canvas: HTMLCanvasElement;
+    private readonly keyboardWatcher: KeyboardWatcher;
     private readonly renderingContext: RenderingContext;
     private readonly renderingSteps: Map<Symbol, RenderingStep>;
 
     public constructor(host: HTMLElement, clientId: string) {
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
-        this.renderingContext = this.createRenderingContext(this.canvas);
-        this.renderingSteps = new Map<Symbol, RenderingStep>();
+        this.keyboardWatcher = this.createKeyboardWatcher(this.root);
+        this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
+        this.renderingSteps = this.createRenderingSteps();
     }
 
     public getRoot(): HTMLDivElement {
@@ -27,6 +30,10 @@ export class BallastViewport {
         return this.canvas;
     }
 
+    public getKeyboardWatcher(): KeyboardWatcher {
+        return this.keyboardWatcher;
+    }
+    
     public getRenderingContext(): RenderingContext {
         return this.renderingContext;
     }
@@ -35,7 +42,7 @@ export class BallastViewport {
         return Array.from(this.renderingSteps.values());
     }
 
-    private createRoot(host: HTMLElement, id: string): HTMLDivElement {
+    private createRoot(host: HTMLElement, id: string) {
         var root = host.ownerDocument.createElement("div");
         root.id = id;
         root.style.height = '100%';
@@ -55,8 +62,16 @@ export class BallastViewport {
         return canvas;
     }
 
-    private createRenderingContext(canvas: HTMLCanvasElement): RenderingContext {
-        return new RenderingContext(canvas);
+    private createKeyboardWatcher(root: HTMLDivElement) {
+        return new KeyboardWatcher(root);
+    }
+
+    private createRenderingContext(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
+        return new RenderingContext(canvas, keyboardWatcher);
+    }
+
+    private createRenderingSteps() {
+        return new Map<Symbol, RenderingStep>();
     }
 
     private resizeCanvas(canvas: HTMLCanvasElement) {
@@ -73,8 +88,8 @@ export class BallastViewport {
     }
 
     private renderLoop() {
-        requestAnimationFrame(() => this.renderLoop());
         this.render();
+        requestAnimationFrame(() => this.renderLoop());
     }
 
     private prerender = (renderingContext: RenderingContext) => {
@@ -101,12 +116,10 @@ export class BallastViewport {
             renderingContext.threeScene && 
             renderingContext.threePerspectiveCamera
         ) {
-
             renderingContext.threeWebGLRenderer.render(
                 renderingContext.threeScene, 
                 renderingContext.threePerspectiveCamera
             );
-
         }
     };
 
