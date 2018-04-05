@@ -25,9 +25,6 @@ var BallastViewport = /** @class */ (function () {
         this.prerender = function (renderingContext) {
             // initial render step goes here
             _this.resizeCanvas(renderingContext.canvas);
-            if (renderingContext.canvas2dContext) {
-                renderingContext.canvas2dContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
-            }
             if (renderingContext.threeWebGLRenderer) {
                 renderingContext.threeWebGLRenderer.setSize(renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight, false);
             }

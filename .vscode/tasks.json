@@ -1,0 +1,46 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build 'Ballast.Client.Web' application",
+            "identifier": "build-client-web-ts",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "build-client-ts"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "command": "npm install"
+        },
+        {
+            "label": "Build 'Ballast.Client' library",
+            "identifier": "build-client-ts",
+            "group": "build",
+            "dependsOn": [
+                "build-core-ts"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client"
+            },
+            "command": "npm install"
+        },
+        {
+            "label": "Build 'Ballast.Core' library (typescript)",
+            "identifier": "build-core-ts",
+            "group": "build",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Core"
+            },
+            "command": "npm install"
+        },
+    ]
+}

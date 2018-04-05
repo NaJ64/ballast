@@ -11,18 +11,10 @@ var THREE = __importStar(require("three"));
 var RenderingContext = /** @class */ (function () {
     function RenderingContext(canvas) {
         this.canvas = canvas;
-        //this.canvas2dContext = this.create2dContext(canvas);
         this.threeWebGLRenderer = this.createRenderer(canvas);
         this.threeScene = this.createScene();
         this.threePerspectiveCamera = this.createCamera(canvas);
     }
-    RenderingContext.prototype.create2dContext = function (canvas) {
-        var canvas2dContext = canvas.getContext('2d');
-        if (!canvas2dContext) {
-            throw new Error('Could not create canvas 2d context');
-        }
-        return canvas2dContext;
-    };
     RenderingContext.prototype.createRenderer = function (canvas) {
         return new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     };
