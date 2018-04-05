@@ -13,6 +13,7 @@ export class BallastViewport {
     private readonly keyboardWatcher: KeyboardWatcher;
     private readonly renderingContext: RenderingContext;
     private readonly renderingSteps: Map<Symbol, RenderingStep>;
+    private cachedSteps: RenderingStep[] | null;
 
     public constructor(host: HTMLElement, clientId: string) {
         this.root = this.createRoot(host, clientId);
@@ -20,6 +21,7 @@ export class BallastViewport {
         this.keyboardWatcher = this.createKeyboardWatcher(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
         this.renderingSteps = this.createRenderingSteps();
+        this.cachedSteps = null;
     }
 
     public getRoot(): HTMLDivElement {
@@ -39,7 +41,10 @@ export class BallastViewport {
     }
 
     public getRenderingSteps(): RenderingStep[] {
-        return Array.from(this.renderingSteps.values());
+        if (!this.cachedSteps) {
+            this.cachedSteps = Array.from(this.renderingSteps.values());
+        }
+        return this.cachedSteps;
     }
 
     private createRoot(host: HTMLElement, id: string) {
@@ -71,7 +76,12 @@ export class BallastViewport {
     }
 
     private createRenderingSteps() {
+        this.clearCachedRenderingSteps();
         return new Map<Symbol, RenderingStep>();
+    }
+
+    private clearCachedRenderingSteps() {
+        this.cachedSteps = null;
     }
 
     private resizeCanvas(canvas: HTMLCanvasElement) {
@@ -88,8 +98,8 @@ export class BallastViewport {
     }
 
     private renderLoop() {
-        this.render();
         requestAnimationFrame(() => this.renderLoop());
+        this.render();
     }
 
     private prerender = (renderingContext: RenderingContext) => {
@@ -134,10 +144,12 @@ export class BallastViewport {
     }
 
     public addRenderingStep(id: Symbol, renderingStep: RenderingStep) {
+        this.clearCachedRenderingSteps();
         this.renderingSteps.set(id, renderingStep);
     }
 
     public removeRenderingStep(id: Symbol) {
+        this.clearCachedRenderingSteps();
         this.renderingSteps.delete(id);
     }
 

@@ -49,6 +49,7 @@ var BallastViewport = /** @class */ (function () {
         this.keyboardWatcher = this.createKeyboardWatcher(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
         this.renderingSteps = this.createRenderingSteps();
+        this.cachedSteps = null;
     }
     BallastViewport.prototype.getRoot = function () {
         return this.root;
@@ -63,7 +64,10 @@ var BallastViewport = /** @class */ (function () {
         return this.renderingContext;
     };
     BallastViewport.prototype.getRenderingSteps = function () {
-        return Array.from(this.renderingSteps.values());
+        if (!this.cachedSteps) {
+            this.cachedSteps = Array.from(this.renderingSteps.values());
+        }
+        return this.cachedSteps;
     };
     BallastViewport.prototype.createRoot = function (host, id) {
         var root = host.ownerDocument.createElement("div");
@@ -90,7 +94,11 @@ var BallastViewport = /** @class */ (function () {
         return new rendering_context_1.RenderingContext(canvas, keyboardWatcher);
     };
     BallastViewport.prototype.createRenderingSteps = function () {
+        this.clearCachedRenderingSteps();
         return new Map();
+    };
+    BallastViewport.prototype.clearCachedRenderingSteps = function () {
+        this.cachedSteps = null;
     };
     BallastViewport.prototype.resizeCanvas = function (canvas) {
         // Lookup the size the browser is displaying the canvas.
@@ -106,8 +114,8 @@ var BallastViewport = /** @class */ (function () {
     };
     BallastViewport.prototype.renderLoop = function () {
         var _this = this;
-        this.render();
         requestAnimationFrame(function () { return _this.renderLoop(); });
+        this.render();
     };
     BallastViewport.prototype.render = function () {
         var _this = this;
@@ -120,9 +128,11 @@ var BallastViewport = /** @class */ (function () {
         }
     };
     BallastViewport.prototype.addRenderingStep = function (id, renderingStep) {
+        this.clearCachedRenderingSteps();
         this.renderingSteps.set(id, renderingStep);
     };
     BallastViewport.prototype.removeRenderingStep = function (id) {
+        this.clearCachedRenderingSteps();
         this.renderingSteps.delete(id);
     };
     BallastViewport.prototype.startRenderLoop = function () {

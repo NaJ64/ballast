@@ -7,6 +7,7 @@ export declare class BallastViewport {
     private readonly keyboardWatcher;
     private readonly renderingContext;
     private readonly renderingSteps;
+    private cachedSteps;
     constructor(host: HTMLElement, clientId: string);
     getRoot(): HTMLDivElement;
     getCanvas(): HTMLCanvasElement;
@@ -18,6 +19,7 @@ export declare class BallastViewport {
     private createKeyboardWatcher(root);
     private createRenderingContext(canvas, keyboardWatcher);
     private createRenderingSteps();
+    private clearCachedRenderingSteps();
     private resizeCanvas(canvas);
     private renderLoop();
     private prerender;
