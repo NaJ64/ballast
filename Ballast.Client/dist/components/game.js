@@ -37,10 +37,6 @@ var GameComponent = /** @class */ (function (_super) {
         return types_1.TYPES_BALLAST.GameComponent;
     };
     GameComponent.prototype.render = function (parent, renderingContext) {
-        if (renderingContext.canvas2dContext) {
-            renderingContext.canvas2dContext.font = "48px serif";
-            renderingContext.canvas2dContext.fillText(new Date(Date.now()).toLocaleTimeString(), 10, 50);
-        }
         if (!this.geometry) {
             this.geometry = new THREE.BoxGeometry(1, 1, 1);
         }
@@ -50,9 +46,21 @@ var GameComponent = /** @class */ (function (_super) {
         if (!this.cube) {
             this.cube = new THREE.Mesh(this.geometry, this.material);
         }
+        if (renderingContext.keyboard.leftArrowIsDown()) {
+            this.cube.position.x -= 0.1;
+        }
+        if (renderingContext.keyboard.rightArrowIsDown()) {
+            this.cube.position.x += 0.1;
+        }
+        if (renderingContext.keyboard.downArrowIsDown()) {
+            this.cube.position.y -= 0.1;
+        }
+        if (renderingContext.keyboard.upArrowIsDown()) {
+            this.cube.position.y += 0.1;
+        }
         // update rotation every time the object is rendered
-        this.cube.rotation.x += 0.1;
-        this.cube.rotation.y += 0.1;
+        this.cube.rotation.x += 0.01;
+        this.cube.rotation.y += 0.01;
         if (renderingContext.threeScene) {
             renderingContext.threeScene.add(this.cube);
         }

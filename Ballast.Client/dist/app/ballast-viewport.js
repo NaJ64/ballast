@@ -19,15 +19,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = __importStar(require("three"));
 var inversify_1 = require("inversify");
 var rendering_context_1 = require("../rendering/rendering-context");
+var keyboard_watcher_1 = require("../input/keyboard-watcher");
 var BallastViewport = /** @class */ (function () {
     function BallastViewport(host, clientId) {
         var _this = this;
         this.prerender = function (renderingContext) {
             // initial render step goes here
             _this.resizeCanvas(renderingContext.canvas);
-            if (renderingContext.canvas2dContext) {
-                renderingContext.canvas2dContext.clearRect(0, 0, renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight);
-            }
             if (renderingContext.threeWebGLRenderer) {
                 renderingContext.threeWebGLRenderer.setSize(renderingContext.canvas.clientWidth, renderingContext.canvas.clientHeight, false);
             }
@@ -48,8 +46,10 @@ var BallastViewport = /** @class */ (function () {
         };
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
-        this.renderingContext = this.createRenderingContext(this.canvas);
-        this.renderingSteps = new Map();
+        this.keyboardWatcher = this.createKeyboardWatcher(this.root);
+        this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
+        this.renderingSteps = this.createRenderingSteps();
+        this.cachedSteps = null;
     }
     BallastViewport.prototype.getRoot = function () {
         return this.root;
@@ -57,11 +57,17 @@ var BallastViewport = /** @class */ (function () {
     BallastViewport.prototype.getCanvas = function () {
         return this.canvas;
     };
+    BallastViewport.prototype.getKeyboardWatcher = function () {
+        return this.keyboardWatcher;
+    };
     BallastViewport.prototype.getRenderingContext = function () {
         return this.renderingContext;
     };
     BallastViewport.prototype.getRenderingSteps = function () {
-        return Array.from(this.renderingSteps.values());
+        if (!this.cachedSteps) {
+            this.cachedSteps = Array.from(this.renderingSteps.values());
+        }
+        return this.cachedSteps;
     };
     BallastViewport.prototype.createRoot = function (host, id) {
         var root = host.ownerDocument.createElement("div");
@@ -81,8 +87,18 @@ var BallastViewport = /** @class */ (function () {
         root.appendChild(canvas);
         return canvas;
     };
-    BallastViewport.prototype.createRenderingContext = function (canvas) {
-        return new rendering_context_1.RenderingContext(canvas);
+    BallastViewport.prototype.createKeyboardWatcher = function (root) {
+        return new keyboard_watcher_1.KeyboardWatcher(root);
+    };
+    BallastViewport.prototype.createRenderingContext = function (canvas, keyboardWatcher) {
+        return new rendering_context_1.RenderingContext(canvas, keyboardWatcher);
+    };
+    BallastViewport.prototype.createRenderingSteps = function () {
+        this.clearCachedRenderingSteps();
+        return new Map();
+    };
+    BallastViewport.prototype.clearCachedRenderingSteps = function () {
+        this.cachedSteps = null;
     };
     BallastViewport.prototype.resizeCanvas = function (canvas) {
         // Lookup the size the browser is displaying the canvas.
@@ -112,9 +128,11 @@ var BallastViewport = /** @class */ (function () {
         }
     };
     BallastViewport.prototype.addRenderingStep = function (id, renderingStep) {
+        this.clearCachedRenderingSteps();
         this.renderingSteps.set(id, renderingStep);
     };
     BallastViewport.prototype.removeRenderingStep = function (id) {
+        this.clearCachedRenderingSteps();
         this.renderingSteps.delete(id);
     };
     BallastViewport.prototype.startRenderLoop = function () {

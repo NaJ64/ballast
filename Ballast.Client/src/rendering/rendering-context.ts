@@ -1,14 +1,17 @@
 import * as THREE from 'three';
+import { KeyboardWatcher } from '../input/keyboard-watcher';
 
 export class RenderingContext {
 
     public readonly canvas: HTMLCanvasElement;
+    public readonly keyboard: KeyboardWatcher;
     public readonly threeWebGLRenderer?: THREE.WebGLRenderer;
     public readonly threePerspectiveCamera?: THREE.PerspectiveCamera;
     public readonly threeScene?: THREE.Scene;
 
-    public constructor(canvas: HTMLCanvasElement) {
+    public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         this.canvas = canvas;
+        this.keyboard = keyboardWatcher;
         this.threeWebGLRenderer = this.createRenderer(canvas);
         this.threeScene = this.createScene();
         this.threePerspectiveCamera = this.createCamera(canvas);
