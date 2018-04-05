@@ -47,16 +47,16 @@ var GameComponent = /** @class */ (function (_super) {
             this.cube = new THREE.Mesh(this.geometry, this.material);
         }
         if (renderingContext.keyboard.leftArrowIsDown()) {
-            this.cube.position.x -= 0.05;
+            this.cube.position.x -= 0.1;
         }
         if (renderingContext.keyboard.rightArrowIsDown()) {
-            this.cube.position.x += 0.05;
+            this.cube.position.x += 0.1;
         }
         if (renderingContext.keyboard.downArrowIsDown()) {
-            this.cube.position.y -= 0.05;
+            this.cube.position.y -= 0.1;
         }
         if (renderingContext.keyboard.upArrowIsDown()) {
-            this.cube.position.y += 0.05;
+            this.cube.position.y += 0.1;
         }
         // update rotation every time the object is rendered
         this.cube.rotation.x += 0.01;
