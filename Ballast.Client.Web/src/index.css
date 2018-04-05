@@ -1,9 +1,14 @@
 body { 
     margin: 0;
     border: 0; 
-    background-color: white; 
+    background-color: darkblue; 
 }
 #ballast { 
-    width: 100vw; 
-    height: 100vh; 
+    position: absolute;
+    margin-top: -35vh;
+    margin-left: -35vw;
+    left: 50%;
+    top: 50%;
+    width: 70vw; 
+    height:70vh; 
 }

@@ -3,7 +3,6 @@ import 'reflect-metadata';
 import { IEvent } from './ievent';
 import { EventBus } from './event-bus';
 
-
 let handled = 0;
 let eventKey = Symbol.for('TestEvent');
 let event: IEvent = { value: 'test' };
@@ -20,7 +19,6 @@ test('returns empty list for unsubscribed', () => {
     expect(handlers.length).toBeLessThanOrEqual(0);
     expect(handlers).not.toContain(handler1);
     expect(handlers).not.toContain(handler2);
-    expect(handlers.length).toBeLessThan(1);
 });
 
 test('accepts new subscription(s)', () => {
