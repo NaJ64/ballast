@@ -103,33 +103,26 @@ export class BallastViewport {
     }
 
     private prerender = (renderingContext: RenderingContext) => {
-        // initial render step goes here
+        // Always try to resize the canvas (in case user has resized their window)
         this.resizeCanvas(renderingContext.canvas);
-        if (renderingContext.threeWebGLRenderer) {
-            renderingContext.threeWebGLRenderer.setSize(
-                renderingContext.canvas.clientWidth, 
-                renderingContext.canvas.clientHeight,
-                false
-            );
-        }
-        if (renderingContext.threePerspectiveCamera) {
-            var originalAspect = renderingContext.threePerspectiveCamera.aspect;
-            var newAspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
-            if (originalAspect != newAspect) {
-                renderingContext.threePerspectiveCamera.aspect = newAspect;
-                renderingContext.threePerspectiveCamera.updateProjectionMatrix();
-            }
+        // Resize the renderer to match the new canvas size
+        renderingContext.renderer.setSize(
+            renderingContext.canvas.clientWidth, 
+            renderingContext.canvas.clientHeight,
+            false
+        ); 
+        // Check if we need to update the camera aspect ratio / projection matrix as well
+        var originalAspect = renderingContext.camera.aspect;
+        var newAspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
+        if (originalAspect != newAspect) {
+            renderingContext.camera.aspect = newAspect;
+            renderingContext.camera.updateProjectionMatrix();
         }
     };
 
     private postrender: RenderingStep = (renderingContext, next) => { 
-        // final render step goes here
-        if (renderingContext) {
-            renderingContext.threeWebGLRenderer.render(
-                renderingContext.threeScene, 
-                renderingContext.threePerspectiveCamera
-            );
-        }
+        // End the current render loop
+        renderingContext.renderer.render(renderingContext.scene, renderingContext.camera);
     };
 
     private render(): void {

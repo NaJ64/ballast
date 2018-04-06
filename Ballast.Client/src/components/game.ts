@@ -63,34 +63,34 @@ export class GameComponent extends ComponentBase {
 
         // Add the cube and plane into the scene an setup the camera (only on initial render)
         if (this.isInitialRender) {
-            renderingContext.threeScene.add(this.cube);
-            renderingContext.threeScene.add(this.plane)
-            renderingContext.threePerspectiveCamera.position.z = 5;
-            renderingContext.threePerspectiveCamera.position.y = 2;
-            renderingContext.threePerspectiveCamera.lookAt(this.plane.position);
+            renderingContext.scene.add(this.cube);
+            renderingContext.scene.add(this.plane)
+            renderingContext.camera.position.z = 5;
+            renderingContext.camera.position.y = 2;
+            renderingContext.camera.lookAt(this.plane.position);
         }
 
         // Check if we have finished rotating to desired position
         let finishedRotating = this.cameraRotateTo 
-            ? Math.round(renderingContext.threePerspectiveCamera.position.distanceTo(this.cameraRotateTo)) == 0 
+            ? Math.round(renderingContext.camera.position.distanceTo(this.cameraRotateTo)) == 0 
             : true;
 
         // If we have not finished rotating to the new position...
         if (!finishedRotating && this.cameraRotateTo) {
             
             // Rotate some more (1/10th of a quarter-turn)
-            renderingContext.threePerspectiveCamera.position
+            renderingContext.camera.position
                 .applyMatrix4(!this.inverted ? this.stepRotationM4 : this.stepInverseRotationM4);
 
             // Check if we made it to the destination position
-            if (Math.round(renderingContext.threePerspectiveCamera.position.distanceTo(this.cameraRotateTo)) == 0) {
+            if (Math.round(renderingContext.camera.position.distanceTo(this.cameraRotateTo)) == 0) {
                 // reset flag and get rid of position data
                 finishedRotating = true;
                 this.cameraRotateTo = undefined;
             }
 
             // Point camera back at the center of the scene / plane
-            renderingContext.threePerspectiveCamera.lookAt(this.plane.position);
+            renderingContext.camera.lookAt(this.plane.position);
 
         }
 
@@ -101,7 +101,7 @@ export class GameComponent extends ComponentBase {
             // Determine a new position for camera using rotation matrix
             let matrix = this.inverted ? this.fullInverseRotationM4 : this.fullRotationM4;
             // Trigger a rotation (on the next pass) by setting a new desired position
-            this.cameraRotateTo = renderingContext.threePerspectiveCamera.position.clone()
+            this.cameraRotateTo = renderingContext.camera.position.clone()
                 .applyMatrix4(matrix);
         }
 

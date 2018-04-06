@@ -6,6 +6,8 @@ const TYPES_BALLAST = {
     BallastViewport: Symbol.for('BallastViewport'),
 
     // components
+    CameraComponent: Symbol.for('CameraComponent'),
+    CameraComponentFactory: Symbol.for('CameraComponentFactory'),
     ChatComponent: Symbol.for('ChatComponent'),
     ChatComponentFactory: Symbol.for('ChatComponentFactory'),
     GameComponent: Symbol.for('GameComponent'),

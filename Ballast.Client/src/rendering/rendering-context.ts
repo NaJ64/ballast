@@ -5,16 +5,16 @@ export class RenderingContext {
 
     public readonly canvas: HTMLCanvasElement;
     public readonly keyboard: KeyboardWatcher;
-    public readonly threeWebGLRenderer: THREE.WebGLRenderer;
-    public readonly threePerspectiveCamera: THREE.PerspectiveCamera;
-    public readonly threeScene: THREE.Scene;
+    public readonly renderer: THREE.WebGLRenderer;
+    public readonly scene: THREE.Scene;
+    public readonly camera: THREE.PerspectiveCamera;
 
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         this.canvas = canvas;
         this.keyboard = keyboardWatcher;
-        this.threeWebGLRenderer = this.createRenderer(canvas);
-        this.threeScene = this.createScene();
-        this.threePerspectiveCamera = this.createCamera(canvas);
+        this.renderer = this.createRenderer(canvas);
+        this.scene = this.createScene();
+        this.camera = this.createCamera(canvas);
     }
 
     private createRenderer(canvas: HTMLCanvasElement): THREE.WebGLRenderer {
