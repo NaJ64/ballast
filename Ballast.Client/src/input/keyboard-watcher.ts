@@ -2,6 +2,8 @@ import { BallastViewport } from '../app/ballast-viewport';
 import { IDisposable } from '../interfaces/idisposable';
 import { IEventBus } from '../messaging/ievent-bus';
 
+const ENTER: number = 13;
+const SHIFT: number = 16;
 const LEFT_ARROW: number = 37;
 const UP_ARROW: number = 38;
 const RIGHT_ARROW: number = 39;
@@ -32,8 +34,12 @@ export class KeyboardWatcher implements IDisposable {
         return !!this.pressedKeys.get(keyCode);
     }
 
-    public enterKeyIsDown() {
-        return this.isDown(13);
+    public enterIsDown() {
+        return this.isDown(ENTER);
+    }
+
+    public shiftIsDown() {
+        return this.isDown(SHIFT);
     }
 
     public leftArrowIsDown() {

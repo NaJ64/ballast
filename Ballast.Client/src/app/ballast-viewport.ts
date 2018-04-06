@@ -113,19 +113,18 @@ export class BallastViewport {
             );
         }
         if (renderingContext.threePerspectiveCamera) {
-            var aspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
-            renderingContext.threePerspectiveCamera.aspect = aspect;
-            renderingContext.threePerspectiveCamera.updateProjectionMatrix();
+            var originalAspect = renderingContext.threePerspectiveCamera.aspect;
+            var newAspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
+            if (originalAspect != newAspect) {
+                renderingContext.threePerspectiveCamera.aspect = newAspect;
+                renderingContext.threePerspectiveCamera.updateProjectionMatrix();
+            }
         }
     };
 
     private postrender: RenderingStep = (renderingContext, next) => { 
         // final render step goes here
-        if (renderingContext &&
-            renderingContext.threeWebGLRenderer && 
-            renderingContext.threeScene && 
-            renderingContext.threePerspectiveCamera
-        ) {
+        if (renderingContext) {
             renderingContext.threeWebGLRenderer.render(
                 renderingContext.threeScene, 
                 renderingContext.threePerspectiveCamera

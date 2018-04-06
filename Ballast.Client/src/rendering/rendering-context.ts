@@ -5,9 +5,9 @@ export class RenderingContext {
 
     public readonly canvas: HTMLCanvasElement;
     public readonly keyboard: KeyboardWatcher;
-    public readonly threeWebGLRenderer?: THREE.WebGLRenderer;
-    public readonly threePerspectiveCamera?: THREE.PerspectiveCamera;
-    public readonly threeScene?: THREE.Scene;
+    public readonly threeWebGLRenderer: THREE.WebGLRenderer;
+    public readonly threePerspectiveCamera: THREE.PerspectiveCamera;
+    public readonly threeScene: THREE.Scene;
 
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         this.canvas = canvas;
