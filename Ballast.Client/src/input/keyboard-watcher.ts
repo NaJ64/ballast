@@ -32,6 +32,10 @@ export class KeyboardWatcher implements IDisposable {
         return !!this.pressedKeys.get(keyCode);
     }
 
+    public enterKeyIsDown() {
+        return this.isDown(13);
+    }
+
     public leftArrowIsDown() {
         return this.isDown(LEFT_ARROW);
     }
