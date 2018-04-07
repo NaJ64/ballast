@@ -18,12 +18,6 @@ export class GameComponent extends ComponentBase {
     private planeMaterial!: THREE.MeshBasicMaterial;
     private plane!: THREE.Mesh;
 
-    // private stepRotationM4!: THREE.Matrix4;
-    // private fullRotationM4!: THREE.Matrix4;
-
-    // private stepInverseRotationM4!: THREE.Matrix4;
-    // private fullInverseRotationM4!: THREE.Matrix4;
-    
     private cameraRotateTo?: THREE.Vector3;
     private inverted?: boolean;
     
@@ -36,11 +30,6 @@ export class GameComponent extends ComponentBase {
     }
 
     private cacheStaticAssets() {
-        // // Define a camera rotation matrix
-        // this.stepRotationM4 = new THREE.Matrix4().makeRotationY(Math.PI / 20);
-        // this.stepInverseRotationM4 = new THREE.Matrix4().makeRotationY(Math.PI / -20);
-        // this.fullRotationM4 = new THREE.Matrix4().makeRotationY(Math.PI / 2);
-        // this.fullInverseRotationM4 = new THREE.Matrix4().makeRotationY(Math.PI / -2);
         // Create cube
         this.cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
         this.cubeMaterial = new THREE.MeshBasicMaterial( { color: 0x0000cc } );
@@ -58,45 +47,7 @@ export class GameComponent extends ComponentBase {
         if (this.isFirstRender()) {
             renderingContext.scene.add(this.cube);
             renderingContext.scene.add(this.plane)
-            // renderingContext.camera.position.z = 5;
-            // renderingContext.camera.position.y = 2;
-            // renderingContext.camera.lookAt(this.plane.position);
         }
-
-        // // Check if we have finished rotating to desired position
-        // let finishedRotating = this.cameraRotateTo 
-        //     ? Math.round(renderingContext.camera.position.distanceTo(this.cameraRotateTo)) == 0 
-        //     : true;
-
-        // // If we have not finished rotating to the new position...
-        // if (!finishedRotating && this.cameraRotateTo) {
-            
-        //     // Rotate some more (1/10th of a quarter-turn)
-        //     renderingContext.camera.position
-        //         .applyMatrix4(!this.inverted ? this.stepRotationM4 : this.stepInverseRotationM4);
-
-        //     // Check if we made it to the destination position
-        //     if (Math.round(renderingContext.camera.position.distanceTo(this.cameraRotateTo)) == 0) {
-        //         // reset flag and get rid of position data
-        //         finishedRotating = true;
-        //         this.cameraRotateTo = undefined;
-        //     }
-
-        //     // Point camera back at the center of the scene / plane
-        //     renderingContext.camera.lookAt(this.plane.position);
-
-        // }
-
-        // // Check if the enter key is being pressed
-        // if (finishedRotating && renderingContext.keyboard.enterIsDown()) {
-        //     // Shift key indicates going backward (counter clockwise)
-        //     this.inverted = renderingContext.keyboard.shiftIsDown();
-        //     // Determine a new position for camera using rotation matrix
-        //     let matrix = this.inverted ? this.fullInverseRotationM4 : this.fullRotationM4;
-        //     // Trigger a rotation (on the next pass) by setting a new desired position
-        //     this.cameraRotateTo = renderingContext.camera.position.clone()
-        //         .applyMatrix4(matrix);
-        // }
 
         // Check if we need to update cube position (according to user arrow key input)
         if (renderingContext.keyboard.leftArrowIsDown())
