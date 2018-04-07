@@ -8,6 +8,9 @@ export class RenderingContext {
     public readonly renderer: THREE.WebGLRenderer;
     public readonly scene: THREE.Scene;
     public readonly camera: THREE.PerspectiveCamera;
+    public readonly clock: THREE.Clock;
+
+    private frameDelta: number;
 
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         this.canvas = canvas;
@@ -15,6 +18,8 @@ export class RenderingContext {
         this.renderer = this.createRenderer(canvas);
         this.scene = this.createScene();
         this.camera = this.createCamera(canvas);
+        this.clock = new THREE.Clock();
+        this.frameDelta = 0;
     }
 
     private createRenderer(canvas: HTMLCanvasElement): THREE.WebGLRenderer {
@@ -28,6 +33,14 @@ export class RenderingContext {
     private createCamera(canvas: HTMLCanvasElement): THREE.PerspectiveCamera {
         var aspect = canvas.clientWidth / canvas.clientHeight;
         return new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+    }
+
+    public refreshFrameDelta() {
+        this.frameDelta = this.clock.getDelta();
+    }
+
+    public getCurrentFrameDelta() {
+        return this.frameDelta;
     }
 
 }

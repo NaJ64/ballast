@@ -109,6 +109,7 @@ export class BallastViewport {
     };
 
     private render(): void {
+        this.renderingContext.refreshFrameDelta();
         this.prerender(this.renderingContext);
         this.renderingMiddleware.renderAll(this.renderingContext, this.postrender);
     }

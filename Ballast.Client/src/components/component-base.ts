@@ -11,7 +11,6 @@ export abstract class ComponentBase implements IDisposable {
 
     protected readonly viewport: BallastViewport;
     protected readonly eventBus: IEventBus;
-    protected readonly clock: THREE.Clock;
     protected isAttached: boolean;
     protected parent?: HTMLElement;
     private firstRender: boolean;
@@ -22,7 +21,6 @@ export abstract class ComponentBase implements IDisposable {
     ) {
         this.viewport = viewport;
         this.eventBus = eventBus;
-        this.clock = new THREE.Clock();
         this.isAttached = false;
         this.firstRender = true;
     }

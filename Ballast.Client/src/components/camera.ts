@@ -11,13 +11,13 @@ const QUARTER_TURN_RADIANS = (Math.PI / 2);
 export class CameraComponent extends ComponentBase {
 
     private readonly cameraPivot: THREE.Object3D;
+    private readonly quarterTurnsPerSecond: number;
     private readonly orbitRadius: number;
     private readonly orbitHeight: number;
-    private readonly quarterTurnsPerSecond: number;
     
-    private inOrbit: boolean;
-    private clockwise: boolean;
-    private orbitTo?: THREE.Vector3;
+    private orbitClockwise?: boolean;
+    private orbitClock?: THREE.Clock;
+    private orbitTo?: THREE.Object3D;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -26,12 +26,9 @@ export class CameraComponent extends ComponentBase {
         super(viewport, eventBus);
 
         this.cameraPivot = new THREE.Object3D();
+        this.quarterTurnsPerSecond = 4;
         this.orbitRadius = 5;
         this.orbitHeight = 2;
-        this.quarterTurnsPerSecond = 2;
-        this.inOrbit = false;
-        this.clockwise = true;
-        this.orbitTo = undefined;
 
     }
 
@@ -49,41 +46,57 @@ export class CameraComponent extends ComponentBase {
         // Get input
         let enterIsDown = renderingContext.keyboard.enterIsDown();
         let shiftIsDown = renderingContext.keyboard.shiftIsDown();
-        let triggerOrbit = enterIsDown;
 
-        // Check if we need to trigger a new orbit
-        if (!this.inOrbit && triggerOrbit) {
-            this.clockwise = (triggerOrbit && !shiftIsDown);
-            let thetaRadians = QUARTER_TURN_RADIANS;
-            if (!this.clockwise) // pivot direction needs to be opposite of perspective rotation
-                thetaRadians *= -1;
-            this.orbitTo = this.cameraPivot.clone().rotateY(thetaRadians).rotation.toVector3();
-            this.inOrbit = true;
-            this.clock.getDelta(); // refresh timer
+        // Determine if we are mid-orbit 
+        let inOrbit = !!this.orbitTo && !!this.orbitClock;
+
+        // Get time since last orbit adjustment (if applicable)
+        let orbitDelta = 0;
+        if (inOrbit) {
+            orbitDelta = (this.orbitClock as THREE.Clock).getDelta();
         }
 
-        // If we are mid-orbit
-        if (this.inOrbit && this.orbitTo) {
-
-            // Get time delta since last render 
-            let elapsedSeconds = this.clock.getDelta();
-
-            // Calculate how much of a quarter turn we need to rotate by
-            let quarterTurns = this.quarterTurnsPerSecond * elapsedSeconds;
-
-            // Convert quarter turns to radians
-            let thetaRadians = quarterTurns * QUARTER_TURN_RADIANS;
-            if (!this.clockwise)
+        // Check if we need to trigger a new orbit
+        let triggerNewOrbit = enterIsDown && !inOrbit;
+        if (triggerNewOrbit) {
+            this.orbitClockwise = !shiftIsDown;
+            let thetaRadians = QUARTER_TURN_RADIANS;
+            if (!this.orbitClockwise) // pivot direction needs to be opposite of perspective rotation
                 thetaRadians *= -1;
+            this.orbitClock = new THREE.Clock();
+            this.orbitTo = this.cameraPivot.clone().rotateY(thetaRadians);
+        }
 
-            // Rotate our camera pivot object
-            this.cameraPivot.rotateY(thetaRadians);
+        // If we need to adjust for seconds elapsed while in orbit state
+        if (orbitDelta > 0) {
 
-            // Compare the our current orientation to our desired orientation
-            let finished = Math.round(this.orbitTo.distanceTo(this.cameraPivot.rotation.toVector3())) == 0;
-            if (finished) {
+            // Check if we have reached the end of the orbit / quarter turn animation
+            let totalOrbitDelta = (this.orbitClock as THREE.Clock).getElapsedTime();
+            if (totalOrbitDelta >= (1 / this.quarterTurnsPerSecond)) {
+
+                // Move directly to final orientation
+                this.cameraPivot.rotation.setFromVector3(
+                    (this.orbitTo as THREE.Object3D).rotation.toVector3()
+                );
+
+                // finished rotating
+                this.orbitClockwise = undefined;
+                this.orbitClock = undefined;
                 this.orbitTo = undefined;
-                this.inOrbit = false;
+
+            } else {
+
+                // Calculate how much of a quarter turn we need to rotate by
+                let quarterTurns = this.quarterTurnsPerSecond * orbitDelta;
+
+                // Convert quarter turns to radians
+                let thetaRadians = quarterTurns * QUARTER_TURN_RADIANS;
+                if (!this.orbitClockwise)
+                    thetaRadians *= -1;
+
+                // Rotate our camera pivot object
+                this.cameraPivot.rotateY(thetaRadians);
+
             }
 
         }
