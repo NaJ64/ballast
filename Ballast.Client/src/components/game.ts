@@ -32,13 +32,13 @@ export class GameComponent extends ComponentBase {
     private cacheStaticAssets() {
         // Create cube
         this.cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-        this.cubeMaterial = new THREE.MeshBasicMaterial( { color: 0x0000cc } );
+        this.cubeMaterial = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
         this.cube = new THREE.Mesh(this.cubeGeometry, this.cubeMaterial );
         // Create plane
-        this.planeGeometry = new THREE.PlaneGeometry( 4, 4, 32 );
-        this.planeMaterial = new THREE.MeshBasicMaterial( { color: 0xaaaaaa, side: THREE.DoubleSide } );
+        this.planeGeometry = new THREE.PlaneGeometry( 6, 6 );
+        this.planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000099, side: THREE.FrontSide } );
         this.plane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
-        this.plane.rotation.x = Math.PI / 2; // Lay plane flat along X and Z axis
+        this.plane.rotation.x = Math.PI / -2; // Lay plane flat along X and Z axis
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {

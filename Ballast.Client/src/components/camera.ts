@@ -26,7 +26,7 @@ export class CameraComponent extends ComponentBase {
         this.cameraPivot = new THREE.Object3D();
         this.quarterTurnsPerSecond = 5;
         this.cameraV3 = new THREE.Vector3();
-        this.updateCamera(5, 3);
+        this.updateCamera(5, 2);
     }
 
     public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
