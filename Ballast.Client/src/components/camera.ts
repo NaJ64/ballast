@@ -11,9 +11,8 @@ const QUARTER_TURN_RADIANS = (Math.PI / 2);
 export class CameraComponent extends ComponentBase {
 
     private readonly cameraPivot: THREE.Object3D;
+    private readonly cameraV3: THREE.Vector3;
     private readonly quarterTurnsPerSecond: number;
-    private readonly orbitRadius: number;
-    private readonly orbitHeight: number;
     
     private orbitClockwise?: boolean;
     private orbitClock?: THREE.Clock;
@@ -24,12 +23,14 @@ export class CameraComponent extends ComponentBase {
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus
     ) {
         super(viewport, eventBus);
-
         this.cameraPivot = new THREE.Object3D();
-        this.quarterTurnsPerSecond = 4;
-        this.orbitRadius = 5;
-        this.orbitHeight = 2;
+        this.quarterTurnsPerSecond = 5;
+        this.cameraV3 = new THREE.Vector3();
+        this.updateCamera(5, 3);
+    }
 
+    public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
+        this.cameraV3.set(0, newOrbitHeight, newOrbitRadius);
     }
 
     public render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -38,9 +39,13 @@ export class CameraComponent extends ComponentBase {
         if (this.isFirstRender()) {
             this.cameraPivot.position.copy(renderingContext.scene.position.clone());
             this.cameraPivot.add(renderingContext.camera);
-            renderingContext.camera.position.copy(new THREE.Vector3(0, this.orbitHeight, this.orbitRadius));
-            renderingContext.camera.lookAt(renderingContext.camera.parent.position);
             renderingContext.scene.add(this.cameraPivot);
+        }
+
+        // Update camera properties
+        if (!renderingContext.camera.position.equals(this.cameraV3)) {
+            renderingContext.camera.position.copy(this.cameraV3);
+            renderingContext.camera.lookAt(renderingContext.camera.parent.position);
         }
 
         // Get input
