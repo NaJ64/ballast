@@ -5,6 +5,7 @@ import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
 import { EventBus } from '../messaging/event-bus';
 import { IEventBus } from '../messaging/ievent-bus';
+import { CameraComponent } from '../components/camera';
 import { ChatComponent } from '../components/chat';
 import { GameComponent } from '../components/game';
 import { HudComponent } from '../components/hud';
@@ -46,6 +47,12 @@ function configureMessaging(container: Container): Container {
 }
 
 function configureComponents(container: Container): Container {
+    // CameraComponent
+    container.bind<CameraComponent>(TYPES_BALLAST.CameraComponent)
+        .to(CameraComponent)
+        .inTransientScope();
+    container.bind<() => CameraComponent>(TYPES_BALLAST.CameraComponentFactory)
+        .toFactory(context => () => context.container.get<CameraComponent>(TYPES_BALLAST.CameraComponent));
     // ChatComponent
     container.bind<ChatComponent>(TYPES_BALLAST.ChatComponent)
         .to(ChatComponent)

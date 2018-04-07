@@ -24,6 +24,7 @@
     "inversify": "^4.11.1",
     "reflect-metadata": "^0.1.12",
     "three": "^0.91.0",
+    "throwback": "^2.0.1",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
