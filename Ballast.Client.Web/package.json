@@ -6,7 +6,9 @@
   "scripts": {
     "build": "npm run compile && npm run bundle && npm run copy",
     "bundle": "webpack",
+    "bundle-watch": "webpack --watch",
     "compile": "tsc",
+    "compile-watch": "tsc --watch",
     "copy": "npm run copy-html && npm run copy-css",
     "copy-html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"wwwroot\"",
     "copy-css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"wwwroot\"",
