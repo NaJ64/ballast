@@ -16,7 +16,7 @@ export class CameraComponent extends ComponentBase {
     
     private orbitClockwise?: boolean;
     private orbitClock?: THREE.Clock;
-    private orbitTo?: THREE.Object3D;
+    private orbitTo: THREE.Object3D;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -24,6 +24,9 @@ export class CameraComponent extends ComponentBase {
     ) {
         super(viewport, eventBus);
         this.cameraPivot = new THREE.Object3D();
+        this.cameraPivot.rotation.reorder('YXZ');
+        this.orbitTo = new THREE.Object3D();
+        this.orbitTo.rotation.reorder('YXZ');
         this.quarterTurnsPerSecond = 5;
         this.cameraV3 = new THREE.Vector3();
         this.updateCamera(5, 2);
@@ -53,7 +56,7 @@ export class CameraComponent extends ComponentBase {
         let shiftIsDown = renderingContext.keyboard.shiftIsDown();
 
         // Determine if we are mid-orbit 
-        let inOrbit = !!this.orbitTo && !!this.orbitClock;
+        let inOrbit = !!this.orbitClock;
 
         // Get time since last orbit adjustment (if applicable)
         let orbitDelta = 0;
@@ -69,7 +72,7 @@ export class CameraComponent extends ComponentBase {
             if (!this.orbitClockwise) // pivot direction needs to be opposite of perspective rotation
                 thetaRadians *= -1;
             this.orbitClock = new THREE.Clock();
-            this.orbitTo = this.cameraPivot.clone().rotateY(thetaRadians);
+            this.orbitTo.rotateY(thetaRadians);
         }
 
         // If we need to adjust for seconds elapsed while in orbit state
@@ -87,8 +90,7 @@ export class CameraComponent extends ComponentBase {
                 // finished rotating
                 this.orbitClockwise = undefined;
                 this.orbitClock = undefined;
-                this.orbitTo = undefined;
-
+                
             } else {
 
                 // Calculate how much of a quarter turn we need to rotate by

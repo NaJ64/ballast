@@ -1,14 +1,14 @@
 body { 
     margin: 0;
     border: 0; 
-    background-color: darkblue; 
+    background-color: rgb(63, 63, 63); 
 }
 #ballast { 
     position: absolute;
     margin-top: -35vh;
-    margin-left: -35vw;
+    margin-left: calc(-35vh*1.78);
     left: 50%;
     top: 50%;
-    width: 70vw; 
+    width: calc(70vh*1.78); 
     height:70vh; 
 }
