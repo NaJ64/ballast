@@ -8,6 +8,7 @@ export class RenderingContext {
     public readonly renderer: THREE.WebGLRenderer;
     public readonly scene: THREE.Scene;
     public readonly camera: THREE.PerspectiveCamera;
+    public readonly cameraPivot: THREE.Object3D;
     public readonly clock: THREE.Clock;
 
     private frameDelta: number;
@@ -15,9 +16,10 @@ export class RenderingContext {
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         this.canvas = canvas;
         this.keyboard = keyboardWatcher;
-        this.renderer = this.createRenderer(canvas);
+        this.renderer = this.createRenderer(this.canvas);
         this.scene = this.createScene();
-        this.camera = this.createCamera(canvas);
+        this.camera = this.createCamera(this.canvas);
+        this.cameraPivot = this.createCameraPivot(this.scene, this.camera);
         this.clock = new THREE.Clock();
         this.frameDelta = 0;
     }
@@ -31,8 +33,18 @@ export class RenderingContext {
     }
 
     private createCamera(canvas: HTMLCanvasElement): THREE.PerspectiveCamera {
-        var aspect = canvas.clientWidth / canvas.clientHeight;
-        return new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+        let aspect = canvas.clientWidth / canvas.clientHeight;
+        let camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+        return camera;
+    }
+
+    private createCameraPivot(scene: THREE.Scene, camera: THREE.Camera): THREE.Object3D {
+        let cameraPivot = new THREE.Object3D();
+        cameraPivot.position.copy(scene.position);
+        cameraPivot.rotation.reorder('YXZ');
+        cameraPivot.add(camera);
+        scene.add(cameraPivot);
+        return cameraPivot;
     }
 
     public refreshFrameDelta() {

@@ -10,7 +10,6 @@ const QUARTER_TURN_RADIANS = (Math.PI / 2);
 
 export class CameraComponent extends ComponentBase {
 
-    private readonly cameraPivot: THREE.Object3D;
     private readonly cameraV3: THREE.Vector3;
     private readonly quarterTurnsPerSecond: number;
     
@@ -23,8 +22,6 @@ export class CameraComponent extends ComponentBase {
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus
     ) {
         super(viewport, eventBus);
-        this.cameraPivot = new THREE.Object3D();
-        this.cameraPivot.rotation.reorder('YXZ');
         this.orbitTo = new THREE.Object3D();
         this.orbitTo.rotation.reorder('YXZ');
         this.quarterTurnsPerSecond = 5;
@@ -40,9 +37,7 @@ export class CameraComponent extends ComponentBase {
 
         // Set initial camera position on first render using pivot object
         if (this.isFirstRender()) {
-            this.cameraPivot.position.copy(renderingContext.scene.position.clone());
-            this.cameraPivot.add(renderingContext.camera);
-            renderingContext.scene.add(this.cameraPivot);
+            renderingContext.cameraPivot.rotation.reorder('YXZ');
         }
 
         // Update camera properties
@@ -83,7 +78,7 @@ export class CameraComponent extends ComponentBase {
             if (totalOrbitDelta >= (1 / this.quarterTurnsPerSecond)) {
 
                 // Move directly to final orientation
-                this.cameraPivot.rotation.setFromVector3(
+                renderingContext.cameraPivot.rotation.setFromVector3(
                     (this.orbitTo as THREE.Object3D).rotation.toVector3()
                 );
 
@@ -102,7 +97,7 @@ export class CameraComponent extends ComponentBase {
                     thetaRadians *= -1;
 
                 // Rotate our camera pivot object
-                this.cameraPivot.rotateY(thetaRadians);
+                renderingContext.cameraPivot.rotateY(thetaRadians);
 
             }
 

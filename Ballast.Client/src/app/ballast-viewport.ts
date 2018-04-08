@@ -49,7 +49,6 @@ export class BallastViewport {
     }
 
     private createCanvas(root: HTMLDivElement) {
-        var renderer = new THREE.WebGLRenderer()
         var canvas = root.ownerDocument.createElement('canvas');
         canvas.id = root.id + '_canvas';
         canvas.style.display = 'block';
