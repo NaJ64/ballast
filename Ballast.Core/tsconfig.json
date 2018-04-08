@@ -15,11 +15,7 @@
     "rootDir": "src/Client",
     "sourceMap": true,
     "strict": true,
-    "target": "es5",
-    "types": [
-      "inversify",
-      "reflect-metadata"
-    ]
+    "target": "es5"
   },
   "include": [
     "src/Client/**/*.ts"

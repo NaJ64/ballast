@@ -5,27 +5,33 @@
     "args": ["/c"],
     "tasks": [
         {
-            "label": "Build and run web client",
-            "identifier": "build-run-web-client",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client"
-            },
-            "command": "npm run build; cd ..; cd Ballast.Client.Web; npm run start"
-        },
-        {
-            "label": "Build 'Ballast.Client.Web' application",
-            "identifier": "build-client-web-ts",
+            "label": "Ballast.Client.Web - Run (Watch/Rebuild)",
+            "identifier": "client-web-run-watch",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "dependsOn": [
-                "build-client-ts"
+                "client-web-run",
+                "client-web-watch",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "\"Ballast.Client.Web - Run (Watch/Rebuild)\" stopped"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Ballast.Client.Web - Full rebuild",
+            "identifier": "client-web-build-ts",
+            "group": "build",
+            "dependsOn": [
+                "client-build-ts"
             ],
             "type": "shell",
             "options": {
@@ -34,11 +40,11 @@
             "command": "npm install"
         },        
         {
-            "label": "Build 'Ballast.Client' library",
-            "identifier": "build-client-ts",
+            "label": "Ballast.Client - Full rebuild",
+            "identifier": "client-build-ts",
             "group": "build",
             "dependsOn": [
-                "build-core-ts"
+                "core-build-ts"
             ],
             "type": "shell",
             "options": {
@@ -47,8 +53,8 @@
             "command": "npm install"
         },
         {
-            "label": "Build 'Ballast.Core' library (typescript)",
-            "identifier": "build-core-ts",
+            "label": "Ballast.Core - Full rebuild (typescript)",
+            "identifier": "core-build-ts",
             "group": "build",
             "type": "shell",
             "options": {
@@ -56,5 +62,70 @@
             },
             "command": "npm install"
         },
+        {
+            "label": "Ballast.Client.Web - Watch/Rebuild",
+            "identifier": "client-web-watch",
+            "group": "build",
+            "dependsOn": [
+                "client-web-webpack-watch",
+                "core-tsc-watch",
+                "client-tsc-watch"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "\"Ballast.Client.Web - Watch/Rebuild\" all stopped"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Ballast.Client.Web - Run",
+            "identifier": "client-web-run",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "node server",
+            "problemMatcher": []
+        },
+        {
+            "label": "Ballast.Client.Web - Bundle (Watch)",
+            "identifier": "client-web-webpack-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run bundle-watch",
+            "problemMatcher": []
+        },
+        {
+            "label": "Ballast.Client - Compile (Watch)",
+            "identifier": "client-tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run compile-watch",
+            "problemMatcher": []
+        },
+        {
+            "label": "Ballast.Core - Compile (Watch)",
+            "identifier": "core-tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Core"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run compile-watch",
+            "problemMatcher": []
+        }
     ]
 }
