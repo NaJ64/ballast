@@ -75,4 +75,50 @@ export class RenderingContext {
         return turns;
     }
 
+    public getPositionIncrement(direction: string): THREE.Vector3 { //returns a Vector3 of how the position of an object should change based on the current camera rotation
+        if(direction==='left'){
+            if (this.getCameraTurns() === 0 ){
+                return new THREE.Vector3(-.1,0,0);
+            }else if(this.getCameraTurns() ===.25){
+                return new THREE.Vector3(0,0,-.1);
+            }else if(this.getCameraTurns() ===.5){
+                return new THREE.Vector3(.1,0,0);
+            }else if(this.getCameraTurns() ===.75){
+                return new THREE.Vector3(0,0,.1);
+            }
+        }else if(direction==='right'){
+            if (this.getCameraTurns() === 0 ){
+                return new THREE.Vector3(.1,0,0);
+            }else if(this.getCameraTurns() ===.25){
+                return new THREE.Vector3(0,0,.1);
+            }else if(this.getCameraTurns() ===.5){
+                return new THREE.Vector3(-.1,0,0);
+            }else if(this.getCameraTurns() ===.75){
+                return new THREE.Vector3(0,0,-.1);
+            }
+        }else if(direction==='up'){
+            if (this.getCameraTurns() === 0 ){
+                return new THREE.Vector3(0,0,-.1);
+            }else if(this.getCameraTurns() ===.25){
+                return new THREE.Vector3(.1,0,0);
+            }else if(this.getCameraTurns() ===.5){
+                return new THREE.Vector3(0,0,.1);
+            }else if(this.getCameraTurns() ===.75){
+                return new THREE.Vector3(-.1,0,0);
+            }
+        }else if(direction==='down'){
+            if (this.getCameraTurns() === 0 ){
+                return new THREE.Vector3(0,0,.1);
+            }else if(this.getCameraTurns() ===.25){
+                return new THREE.Vector3(-.1,0,0);
+            }else if(this.getCameraTurns() ===.5){
+                return new THREE.Vector3(0,0,-.1);
+            }else if(this.getCameraTurns() ===.75){
+                return new THREE.Vector3(.1,0,0);
+            }
+        }
+        return new THREE.Vector3(0,0,0);
+    
+    }
+
 }

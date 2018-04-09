@@ -50,14 +50,19 @@ export class GameComponent extends ComponentBase {
         }
 
         // Check if we need to update cube position (according to user arrow key input)
-        if (renderingContext.keyboard.leftArrowIsDown())
-            this.cube.position.x -= 0.1;
-        if (renderingContext.keyboard.rightArrowIsDown())
-            this.cube.position.x += 0.1;
-        if (renderingContext.keyboard.downArrowIsDown())
-            this.cube.position.z += 0.1;
-        if (renderingContext.keyboard.upArrowIsDown())
-            this.cube.position.z -= 0.1;
+        if (renderingContext.keyboard.leftArrowIsDown()){
+            this.cube.position.add(renderingContext.getPositionIncrement('left'));
+        }
+        if (renderingContext.keyboard.rightArrowIsDown()){
+            this.cube.position.add(renderingContext.getPositionIncrement('right'));
+        }
+        if (renderingContext.keyboard.downArrowIsDown()){
+            this.cube.position.add(renderingContext.getPositionIncrement('down'));
+        }
+
+        if (renderingContext.keyboard.upArrowIsDown()){
+            this.cube.position.add(renderingContext.getPositionIncrement('up'));
+        }
 
         // Cube animates every frame/render
         this.cube.rotation.x += 0.01;
