@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run compile && npm run bundle && npm run copy",
-    "bundle": "webpack",
-    "bundle-watch": "webpack --watch",
+    "bundle": "webpack --no-watch",
+    "bundle-watch": "webpack",
     "compile": "tsc",
     "compile-watch": "tsc --watch",
     "copy": "npm run copy-html && npm run copy-css",

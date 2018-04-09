@@ -1,3 +1,4 @@
+var watch = !(process.argv.indexOf("--no-watch") >= 0)
 const path = require('path');
 const config = {
     entry: './dist/index.js',
@@ -6,7 +7,7 @@ const config = {
         path: path.resolve('./wwwroot/')
     },
     mode: 'development',
-    watch: true,
+    watch: watch,
     watchOptions: {
         aggregateTimeout: 300,
         ignored: [
@@ -16,5 +17,4 @@ const config = {
         ]
     }
 };
-
 module.exports = config;
