@@ -64,7 +64,8 @@ export class RenderingContext {
     }
 
     public getCameraTurns() {
-        let radiansY = this.getCameraRotation().y;
+        //let radiansY = this.getCameraRotation().y;
+        let radiansY = this.cameraPivot.rotation.y * -1;
         let turns =  Math.round((radiansY / Math.PI) * 100) / 200;
         if (1/turns === -Infinity) {
             turns = 0;
