@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { injectable, inject } from 'inversify';
 import { IDisposable } from '../interfaces/idisposable';
 import { TYPES_BALLAST } from '../ioc/types';
@@ -12,6 +13,7 @@ export abstract class ComponentBase implements IDisposable {
     protected readonly eventBus: IEventBus;
     protected isAttached: boolean;
     protected parent?: HTMLElement;
+    private firstRender: boolean;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -20,6 +22,7 @@ export abstract class ComponentBase implements IDisposable {
         this.viewport = viewport;
         this.eventBus = eventBus;
         this.isAttached = false;
+        this.firstRender = true;
     }
 
     public attach(parent: HTMLElement): void {
@@ -30,7 +33,6 @@ export abstract class ComponentBase implements IDisposable {
     }
 
     public detach(): void {
-        this.removeRenderingStep();
         if (this.parent) {
             this.onDetach(this.parent);
         }
@@ -38,21 +40,19 @@ export abstract class ComponentBase implements IDisposable {
     }
 
     private addRenderingStep(parent: HTMLElement) {
-        var componentId = this.getComponentId();
-        this.viewport.addRenderingStep(componentId, (renderingContext, next) => {
+        this.viewport.addRenderingStep((renderingContext, next) => {
             if (this.isAttached) {
                 this.render(parent, renderingContext);
             }
+            this.firstRender = false;
             next();
         });
     }
 
-    private removeRenderingStep() {
-        var componentId = this.getComponentId();
-        this.viewport.removeRenderingStep(componentId);
+    protected isFirstRender() {
+        return this.firstRender;
     }
 
-    protected abstract getComponentId(): Symbol;
     protected abstract render(parent: HTMLElement, renderingContext: RenderingContext): void;
     protected onAttach(parent: HTMLElement): void { }
     protected onDetach(parent: HTMLElement): void { }

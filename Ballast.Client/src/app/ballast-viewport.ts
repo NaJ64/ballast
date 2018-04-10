@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { injectable } from 'inversify';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { RenderingContext } from '../rendering/rendering-context';
+import { RenderingMiddleware } from '../rendering/rendering-middleware';
 
 export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
 
@@ -12,16 +13,14 @@ export class BallastViewport {
     private readonly canvas: HTMLCanvasElement;
     private readonly keyboardWatcher: KeyboardWatcher;
     private readonly renderingContext: RenderingContext;
-    private readonly renderingSteps: Map<Symbol, RenderingStep>;
-    private cachedSteps: RenderingStep[] | null;
+    private readonly renderingMiddleware: RenderingMiddleware;
 
     public constructor(host: HTMLElement, clientId: string) {
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
         this.keyboardWatcher = this.createKeyboardWatcher(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
-        this.renderingSteps = this.createRenderingSteps();
-        this.cachedSteps = null;
+        this.renderingMiddleware = new RenderingMiddleware();
     }
 
     public getRoot(): HTMLDivElement {
@@ -40,13 +39,6 @@ export class BallastViewport {
         return this.renderingContext;
     }
 
-    public getRenderingSteps(): RenderingStep[] {
-        if (!this.cachedSteps) {
-            this.cachedSteps = Array.from(this.renderingSteps.values());
-        }
-        return this.cachedSteps;
-    }
-
     private createRoot(host: HTMLElement, id: string): HTMLDivElement {
         var root = host.ownerDocument.createElement("div");
         root.id = id;
@@ -57,7 +49,6 @@ export class BallastViewport {
     }
 
     private createCanvas(root: HTMLDivElement) {
-        var renderer = new THREE.WebGLRenderer()
         var canvas = root.ownerDocument.createElement('canvas');
         canvas.id = root.id + '_canvas';
         canvas.style.display = 'block';
@@ -73,15 +64,6 @@ export class BallastViewport {
 
     private createRenderingContext(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         return new RenderingContext(canvas, keyboardWatcher);
-    }
-
-    private createRenderingSteps() {
-        this.clearCachedRenderingSteps();
-        return new Map<Symbol, RenderingStep>();
-    }
-
-    private clearCachedRenderingSteps() {
-        this.cachedSteps = null;
     }
 
     private resizeCanvas(canvas: HTMLCanvasElement) {
@@ -103,54 +85,36 @@ export class BallastViewport {
     }
 
     private prerender = (renderingContext: RenderingContext) => {
-        // initial render step goes here
+        // Always try to resize the canvas (in case user has resized their window)
         this.resizeCanvas(renderingContext.canvas);
-        if (renderingContext.threeWebGLRenderer) {
-            renderingContext.threeWebGLRenderer.setSize(
-                renderingContext.canvas.clientWidth, 
-                renderingContext.canvas.clientHeight,
-                false
-            );
-        }
-        if (renderingContext.threePerspectiveCamera) {
-            var aspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
-            renderingContext.threePerspectiveCamera.aspect = aspect;
-            renderingContext.threePerspectiveCamera.updateProjectionMatrix();
+        // Resize the renderer to match the new canvas size
+        renderingContext.renderer.setSize(
+            renderingContext.canvas.clientWidth, 
+            renderingContext.canvas.clientHeight,
+            false
+        ); 
+        // Check if we need to update the camera aspect ratio / projection matrix as well
+        var originalAspect = renderingContext.camera.aspect;
+        var newAspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
+        if (originalAspect != newAspect) {
+            renderingContext.camera.aspect = newAspect;
+            renderingContext.camera.updateProjectionMatrix();
         }
     };
 
-    private postrender: RenderingStep = (renderingContext, next) => { 
-        // final render step goes here
-        if (renderingContext &&
-            renderingContext.threeWebGLRenderer && 
-            renderingContext.threeScene && 
-            renderingContext.threePerspectiveCamera
-        ) {
-            renderingContext.threeWebGLRenderer.render(
-                renderingContext.threeScene, 
-                renderingContext.threePerspectiveCamera
-            );
-        }
+    private postrender = (renderingContext: RenderingContext) => { 
+        // End the current render loop
+        renderingContext.renderer.render(renderingContext.scene, renderingContext.camera);
     };
 
     private render(): void {
-        var renderingSteps = this.getRenderingSteps();
-        var i = renderingSteps.length;
-        let next: RenderingStep = (renderingContext, next) => this.postrender.call(this, this.renderingContext, next);
+        this.renderingContext.refreshFrameDelta();
         this.prerender(this.renderingContext);
-        while (i--) {
-            next = renderingSteps[i].call(this, this.renderingContext, next);
-        }
+        this.renderingMiddleware.renderAll(this.renderingContext, this.postrender);
     }
 
-    public addRenderingStep(id: Symbol, renderingStep: RenderingStep) {
-        this.clearCachedRenderingSteps();
-        this.renderingSteps.set(id, renderingStep);
-    }
-
-    public removeRenderingStep(id: Symbol) {
-        this.clearCachedRenderingSteps();
-        this.renderingSteps.delete(id);
+    public addRenderingStep(renderingStep: RenderingStep) {
+        this.renderingMiddleware.use(renderingStep)
     }
 
     public startRenderLoop() {

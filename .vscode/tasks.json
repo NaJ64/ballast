@@ -2,6 +2,7 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "args": ["/c"],
     "tasks": [
         {
             "label": "Ballast.Client.Web - Run (Watch/Rebuild)",
@@ -37,7 +38,7 @@
                 "cwd": "${workspaceFolder}/Ballast.Client.Web"
             },
             "command": "npm install"
-        },
+        },        
         {
             "label": "Ballast.Client - Full rebuild",
             "identifier": "client-build-ts",

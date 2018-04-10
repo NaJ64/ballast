@@ -6,6 +6,8 @@ const TYPES_BALLAST = {
     BallastViewport: Symbol.for('BallastViewport'),
 
     // components
+    CameraComponent: Symbol.for('CameraComponent'),
+    CameraComponentFactory: Symbol.for('CameraComponentFactory'),
     ChatComponent: Symbol.for('ChatComponent'),
     ChatComponentFactory: Symbol.for('ChatComponentFactory'),
     GameComponent: Symbol.for('GameComponent'),
@@ -18,6 +20,10 @@ const TYPES_BALLAST = {
     RootComponentFactory: Symbol.for('RootComponentFactory'),
     SignInComponent: Symbol.for('SignInComponent'),
     SignInComponentFactory: Symbol.for('SignInComponentFactory'),
+
+    // input
+    KeyboardWatcher: Symbol.for('KeyboardWatcher'),
+    PerspectiveTracker: Symbol.for('PerspectiveTracker'),
     
     // messaging
     IEventBus: Symbol.for('IEventBus'),

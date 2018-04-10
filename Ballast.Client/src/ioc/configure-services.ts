@@ -5,6 +5,7 @@ import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
 import { EventBus } from '../messaging/event-bus';
 import { IEventBus } from '../messaging/ievent-bus';
+import { CameraComponent } from '../components/camera';
 import { ChatComponent } from '../components/chat';
 import { GameComponent } from '../components/game';
 import { HudComponent } from '../components/hud';
@@ -12,12 +13,15 @@ import { MenuComponent} from '../components/menu';
 import { RootComponent } from '../components/root';
 import { SignInComponent } from '../components/sign-in';
 import { RenderingContext } from '../rendering/rendering-context';
+import { KeyboardWatcher } from '../input/keyboard-watcher';
+import { PerspectiveTracker } from '../input/perspective-tracker';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
-    configureRendering(container, client);
-    configureMessaging(container);
     configureComponents(container);
+    configureInput(container);
+    configureMessaging(container);
+    configureRendering(container, client);
     return container;
 }
 
@@ -32,20 +36,13 @@ function configureApp(container: Container, client: BallastClient): Container {
     return container;
 }
 
-function configureRendering(container: Container, client: BallastClient): Container {
-    container.bind<RenderingContext>(TYPES_BALLAST.RenderingContext)
-        .toDynamicValue(context => client.getViewport().getRenderingContext());
-    return container;
-}
-
-function configureMessaging(container: Container): Container {
-    container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
-        .to(EventBus)
-        .inSingletonScope();
-    return container;
-}
-
 function configureComponents(container: Container): Container {
+    // CameraComponent
+    container.bind<CameraComponent>(TYPES_BALLAST.CameraComponent)
+        .to(CameraComponent)
+        .inTransientScope();
+    container.bind<() => CameraComponent>(TYPES_BALLAST.CameraComponentFactory)
+        .toFactory(context => () => context.container.get<CameraComponent>(TYPES_BALLAST.CameraComponent));
     // ChatComponent
     container.bind<ChatComponent>(TYPES_BALLAST.ChatComponent)
         .to(ChatComponent)
@@ -85,3 +82,27 @@ function configureComponents(container: Container): Container {
     return container;
 }
 
+function configureInput(container: Container): Container {
+    container.bind<KeyboardWatcher>(TYPES_BALLAST.KeyboardWatcher)
+        .toDynamicValue(context => context.container.get<RenderingContext>(TYPES_BALLAST.RenderingContext)
+            .keyboard
+        );
+    container.bind<PerspectiveTracker>(TYPES_BALLAST.PerspectiveTracker)
+        .to(PerspectiveTracker)
+        .inTransientScope();
+    return container;
+}
+
+
+function configureMessaging(container: Container): Container {
+    container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
+        .to(EventBus)
+        .inSingletonScope();
+    return container;
+}
+
+function configureRendering(container: Container, client: BallastClient): Container {
+    container.bind<RenderingContext>(TYPES_BALLAST.RenderingContext)
+        .toDynamicValue(context => client.getViewport().getRenderingContext());
+    return container;
+}
