@@ -13,12 +13,15 @@ import { MenuComponent} from '../components/menu';
 import { RootComponent } from '../components/root';
 import { SignInComponent } from '../components/sign-in';
 import { RenderingContext } from '../rendering/rendering-context';
+import { KeyboardWatcher } from '../input/keyboard-watcher';
+import { PerspectiveTracker } from '../input/perspective-tracker';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
-    configureRendering(container, client);
-    configureMessaging(container);
     configureComponents(container);
+    configureInput(container);
+    configureMessaging(container);
+    configureRendering(container, client);
     return container;
 }
 
@@ -30,19 +33,6 @@ function configureApp(container: Container, client: BallastClient): Container {
         .toConstantValue(client);
     container.bind<BallastViewport>(TYPES_BALLAST.BallastViewport)
         .toDynamicValue(context => client.getViewport());
-    return container;
-}
-
-function configureRendering(container: Container, client: BallastClient): Container {
-    container.bind<RenderingContext>(TYPES_BALLAST.RenderingContext)
-        .toDynamicValue(context => client.getViewport().getRenderingContext());
-    return container;
-}
-
-function configureMessaging(container: Container): Container {
-    container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
-        .to(EventBus)
-        .inSingletonScope();
     return container;
 }
 
@@ -92,3 +82,27 @@ function configureComponents(container: Container): Container {
     return container;
 }
 
+function configureInput(container: Container): Container {
+    container.bind<KeyboardWatcher>(TYPES_BALLAST.KeyboardWatcher)
+        .toDynamicValue(context => context.container.get<RenderingContext>(TYPES_BALLAST.RenderingContext)
+            .keyboard
+        );
+    container.bind<PerspectiveTracker>(TYPES_BALLAST.PerspectiveTracker)
+        .to(PerspectiveTracker)
+        .inTransientScope();
+    return container;
+}
+
+
+function configureMessaging(container: Container): Container {
+    container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
+        .to(EventBus)
+        .inSingletonScope();
+    return container;
+}
+
+function configureRendering(container: Container, client: BallastClient): Container {
+    container.bind<RenderingContext>(TYPES_BALLAST.RenderingContext)
+        .toDynamicValue(context => client.getViewport().getRenderingContext());
+    return container;
+}

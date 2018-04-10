@@ -12,7 +12,6 @@ export class RenderingContext {
     public readonly clock: THREE.Clock;
 
     private frameDelta: number;
-    private cameraPivotQ: THREE.Quaternion;
 
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         this.canvas = canvas;
@@ -23,7 +22,6 @@ export class RenderingContext {
         this.cameraPivot = this.createCameraPivot(this.scene, this.camera);
         this.clock = new THREE.Clock();
         this.frameDelta = 0;
-        this.cameraPivotQ = this.cameraPivot.quaternion.clone();
     }
 
     private createRenderer(canvas: HTMLCanvasElement): THREE.WebGLRenderer {
@@ -55,71 +53,6 @@ export class RenderingContext {
 
     public getCurrentFrameDelta() {
         return this.frameDelta;
-    }
-
-    public getCameraRotation() {
-        var orientation = this.cameraPivot.rotation.clone();
-        orientation.setFromQuaternion(this.cameraPivotQ.setFromEuler(orientation).inverse());
-        return orientation;
-    }
-
-    public getCameraTurns() {
-        //let radiansY = this.getCameraRotation().y;
-        let radiansY = this.cameraPivot.rotation.y * -1;
-        let turns =  Math.round((radiansY / Math.PI) * 100) / 200;
-        if (1/turns === -Infinity) {
-            turns = 0;
-        }
-        if (turns < 0) {
-            turns = (turns + 1);
-        }
-        return turns;
-    }
-
-    public getPositionIncrement(direction: string): THREE.Vector3 { //returns a Vector3 of how the position of an object should change based on the current camera rotation
-        if(direction==='left'){
-            if (this.getCameraTurns() === 0 ){
-                return new THREE.Vector3(-.1,0,0);
-            }else if(this.getCameraTurns() ===.25){
-                return new THREE.Vector3(0,0,-.1);
-            }else if(this.getCameraTurns() ===.5){
-                return new THREE.Vector3(.1,0,0);
-            }else if(this.getCameraTurns() ===.75){
-                return new THREE.Vector3(0,0,.1);
-            }
-        }else if(direction==='right'){
-            if (this.getCameraTurns() === 0 ){
-                return new THREE.Vector3(.1,0,0);
-            }else if(this.getCameraTurns() ===.25){
-                return new THREE.Vector3(0,0,.1);
-            }else if(this.getCameraTurns() ===.5){
-                return new THREE.Vector3(-.1,0,0);
-            }else if(this.getCameraTurns() ===.75){
-                return new THREE.Vector3(0,0,-.1);
-            }
-        }else if(direction==='up'){
-            if (this.getCameraTurns() === 0 ){
-                return new THREE.Vector3(0,0,-.1);
-            }else if(this.getCameraTurns() ===.25){
-                return new THREE.Vector3(.1,0,0);
-            }else if(this.getCameraTurns() ===.5){
-                return new THREE.Vector3(0,0,.1);
-            }else if(this.getCameraTurns() ===.75){
-                return new THREE.Vector3(-.1,0,0);
-            }
-        }else if(direction==='down'){
-            if (this.getCameraTurns() === 0 ){
-                return new THREE.Vector3(0,0,.1);
-            }else if(this.getCameraTurns() ===.25){
-                return new THREE.Vector3(-.1,0,0);
-            }else if(this.getCameraTurns() ===.5){
-                return new THREE.Vector3(0,0,-.1);
-            }else if(this.getCameraTurns() ===.75){
-                return new THREE.Vector3(.1,0,0);
-            }
-        }
-        return new THREE.Vector3(0,0,0);
-    
     }
 
 }

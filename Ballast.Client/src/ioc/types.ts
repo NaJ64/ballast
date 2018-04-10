@@ -20,6 +20,10 @@ const TYPES_BALLAST = {
     RootComponentFactory: Symbol.for('RootComponentFactory'),
     SignInComponent: Symbol.for('SignInComponent'),
     SignInComponentFactory: Symbol.for('SignInComponentFactory'),
+
+    // input
+    KeyboardWatcher: Symbol.for('KeyboardWatcher'),
+    PerspectiveTracker: Symbol.for('PerspectiveTracker'),
     
     // messaging
     IEventBus: Symbol.for('IEventBus'),

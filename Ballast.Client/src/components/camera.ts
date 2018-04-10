@@ -6,12 +6,12 @@ import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/ievent-bus';
 
-const QUARTER_TURN_RADIANS = (Math.PI / 2);
+const PARTIAL_TURN_RADIANS = (Math.PI / 4);
 
 export class CameraComponent extends ComponentBase {
 
     private readonly cameraV3: THREE.Vector3;
-    private readonly quarterTurnsPerSecond: number;
+    private readonly partialTurnsPerSecond: number;
     
     private orbitClockwise?: boolean;
     private orbitClock?: THREE.Clock;
@@ -24,7 +24,7 @@ export class CameraComponent extends ComponentBase {
         super(viewport, eventBus);
         this.orbitTo = new THREE.Object3D();
         this.orbitTo.rotation.reorder('YXZ');
-        this.quarterTurnsPerSecond = 5;
+        this.partialTurnsPerSecond = 8;
         this.cameraV3 = new THREE.Vector3();
         this.updateCamera(5, 2);
     }
@@ -47,8 +47,14 @@ export class CameraComponent extends ComponentBase {
         }
 
         // Get input
-        let enterIsDown = renderingContext.keyboard.enterIsDown();
-        let shiftIsDown = renderingContext.keyboard.shiftIsDown();
+        let leftIsDown = renderingContext.keyboard.leftArrowIsDown();
+        let rightIsDown = renderingContext.keyboard.rightArrowIsDown();
+        let aIsDown = renderingContext.keyboard.aIsDown();
+        let dIsDown = renderingContext.keyboard.dIsDown();
+
+        // Use arrows or WASD
+        let left = leftIsDown || aIsDown;
+        let right = rightIsDown || dIsDown;
 
         // Determine if we are mid-orbit 
         let inOrbit = !!this.orbitClock;
@@ -60,10 +66,10 @@ export class CameraComponent extends ComponentBase {
         }
 
         // Check if we need to trigger a new orbit
-        let triggerNewOrbit = enterIsDown && !inOrbit;
+        let triggerNewOrbit = (left && !right || right && !left) && !inOrbit;
         if (triggerNewOrbit) {
-            this.orbitClockwise = !shiftIsDown;
-            let thetaRadians = QUARTER_TURN_RADIANS;
+            this.orbitClockwise = left; // Reverse direction
+            let thetaRadians = PARTIAL_TURN_RADIANS;
             if (!this.orbitClockwise) // pivot direction needs to be opposite of perspective rotation
                 thetaRadians *= -1;
             this.orbitClock = new THREE.Clock();
@@ -75,7 +81,7 @@ export class CameraComponent extends ComponentBase {
 
             // Check if we have reached the end of the orbit / quarter turn animation
             let totalOrbitDelta = (this.orbitClock as THREE.Clock).getElapsedTime();
-            if (totalOrbitDelta >= (1 / this.quarterTurnsPerSecond)) {
+            if (totalOrbitDelta >= (1 / this.partialTurnsPerSecond)) {
 
                 // Move directly to final orientation
                 renderingContext.cameraPivot.rotation.setFromVector3(
@@ -88,11 +94,11 @@ export class CameraComponent extends ComponentBase {
                 
             } else {
 
-                // Calculate how much of a quarter turn we need to rotate by
-                let quarterTurns = this.quarterTurnsPerSecond * orbitDelta;
+                // Calculate how much of a partial turn we need to rotate by
+                let quarterTurns = this.partialTurnsPerSecond * orbitDelta;
 
                 // Convert quarter turns to radians
-                let thetaRadians = quarterTurns * QUARTER_TURN_RADIANS;
+                let thetaRadians = quarterTurns * PARTIAL_TURN_RADIANS;
                 if (!this.orbitClockwise)
                     thetaRadians *= -1;
 
