@@ -1,83 +1,46 @@
-import { IBoardSpace, BoardSpace } from './board-space';
-import { IBoardType, BoardType } from './board-type';
-import { IVessel, Vessel } from './vessel';
+import { ITile, Tile } from './tile';
+import { ITileShape, TileShape } from './tile-shape';
+import { IBoardShape, BoardShape } from './board-shape';
 
-export interface IBoard {
-    type: IBoardType;
-    spaces: IBoardSpace[];
-    rows: IBoardSpace[][];
-    columns: IBoardSpace[][];
-    vessels: IVessel[];
+export interface IBoardState {
+    boardShape: IBoardShape;
+    gameId: string;
+    tiles: ITile[];
+    tileShape: ITileShape;
 }
 
-export class Board implements IBoard {
+export class Board implements IBoardState {
 
-    public type!: BoardType;
-    public spaces!: BoardSpace[];
-    public rows!: BoardSpace[][];
-    public columns!: BoardSpace[][];
-    public vessels!: Vessel[];
+    public readonly boardShape: BoardShape;
+    public readonly gameId: string;
+    public readonly tileShape: TileShape;
+    public readonly tileMap: Map<number[], Tile>;
 
-    public constructor(state: IBoard) {
-        this.setState(state);
+    private cachedTiles?: Tile[];
+    public get tiles() {
+        if (!this.cachedTiles) {
+            this.cachedTiles = Array.from(this.tileMap.values());
+        }
+        return this.cachedTiles;
     }
 
-    private setState(state: IBoard) {
-        this.type = BoardType.fromValue(state.type.value);
-        this.spaces = [];
-        for(let spaceData of state.spaces)
-        {
-            this.spaces.push(new BoardSpace(spaceData));
-        }
-        let spaces = this.spaces.slice(0);
-        for(let space of this.spaces) {
-            space.setAdjacents(spaces);
-        }
-        for(let space of state.spaces)
-        {
-            this.spaces.push(new BoardSpace(space));
-        }
-        this.rows = this.groupRows(this.spaces);
-        this.columns = this.groupColumns(this.spaces);
-        return this;
+    private constructor(state: IBoardState) {
+        this.boardShape = BoardShape.fromObject(state.boardShape);
+        this.gameId = state.gameId;
+        this.tileShape = TileShape.fromObject(state.tileShape);
+        this.tileMap = new Map(this.mapTiles(state.tiles));
     }
 
-    private groupRows(spaces: BoardSpace[]): BoardSpace[][] {
-        return spaces.reduce((rowGroups: BoardSpace[][], nextSpace: BoardSpace) => {
-            let groupKey = nextSpace.coordinates.row;
-            if (!rowGroups || rowGroups.length < 1) {
-                rowGroups.push([nextSpace]);
-            } else {
-                let existingGroup = rowGroups.find(group =>
-                    group[0].coordinates.row === (nextSpace.coordinates.row || "")
-                )
-                if (existingGroup) {
-                    existingGroup.push(nextSpace);
-                } else {
-                    rowGroups.push([nextSpace]);
-                }
-            }
-            return rowGroups;
-        }, []);
+    private *mapTiles(tiles: ITile[]) {
+        let tileIterator = Tile.fromObjectList(tiles);
+        for (let tile of tileIterator) {
+            let item: [number[], Tile] = [ tile.cubicCoordinates.toOrderedTriple(), tile ];
+            yield item;
+        }
     }
 
-    private groupColumns(spaces: BoardSpace[]): BoardSpace[][] {
-        return spaces.reduce((columnGroups: BoardSpace[][], nextSpace: BoardSpace) => {
-            let groupKey = nextSpace.coordinates.column;
-            if (!columnGroups || columnGroups.length < 1) {
-                columnGroups.push([nextSpace]);
-            } else {
-                let existingGroup = columnGroups.find(group =>
-                    group[0].coordinates.column === (nextSpace.coordinates.column || "")
-                )
-                if (existingGroup) {
-                    existingGroup.push(nextSpace);
-                } else {
-                    columnGroups.push([nextSpace]);
-                }
-            }
-            return columnGroups;
-        }, []);
+    public create(tileShape: ITileShape, boardShape: IBoardShape, sizeR: number) {
+        // Size = the number of 
     }
 
 }
