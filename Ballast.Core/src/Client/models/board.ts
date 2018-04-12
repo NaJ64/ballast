@@ -2,14 +2,14 @@ import { ITile, Tile } from './tile';
 import { ITileShape, TileShape } from './tile-shape';
 import { IBoardType, BoardType } from './board-type';
 
-export interface IBoardState {
+export interface IBoard {
     boardType: IBoardType;
     gameId: string;
     tiles: ITile[];
     tileShape: ITileShape;
 }
 
-export class Board implements IBoardState {
+export class Board implements IBoard {
 
     public readonly boardType: BoardType;
     public readonly gameId: string;
@@ -24,7 +24,7 @@ export class Board implements IBoardState {
         return this.cachedTiles;
     }
 
-    private constructor(state: IBoardState) {
+    private constructor(state: IBoard) {
         this.boardType = BoardType.fromObject(state.boardType);
         this.gameId = state.gameId;
         this.tileShape = TileShape.fromObject(state.tileShape);
@@ -38,17 +38,5 @@ export class Board implements IBoardState {
             yield item;
         }
     }
-
-    public create(tileShape: ITileShape, boardType: IBoardType, sizeWidth: number, sizeHeight?: number) {
-        let useTileShape = TileShape.fromObject(tileShape);
-        let useBoardType = BoardType.fromObject(boardType);   
-        let width = sizeWidth;
-        let height = sizeHeight || sizeWidth;  
-        if (useBoardType.equals(BoardType.RegularPolygon) && sizeWidth != sizeHeight) {
-            throw new Error('Regular polygon board(s) cannot specify different width/height values');
-        }
-        // TODO:  Create tiles collection here
-    }
-
 
 }
