@@ -1,9 +1,9 @@
 import { ITile, Tile } from './tile';
 import { ITileShape, TileShape } from './tile-shape';
-import { IBoardShape, BoardShape } from './board-shape';
+import { IBoardType, BoardType } from './board-type';
 
 export interface IBoardState {
-    boardShape: IBoardShape;
+    boardType: IBoardType;
     gameId: string;
     tiles: ITile[];
     tileShape: ITileShape;
@@ -11,7 +11,7 @@ export interface IBoardState {
 
 export class Board implements IBoardState {
 
-    public readonly boardShape: BoardShape;
+    public readonly boardType: BoardType;
     public readonly gameId: string;
     public readonly tileShape: TileShape;
     public readonly tileMap: Map<number[], Tile>;
@@ -25,7 +25,7 @@ export class Board implements IBoardState {
     }
 
     private constructor(state: IBoardState) {
-        this.boardShape = BoardShape.fromObject(state.boardShape);
+        this.boardType = BoardType.fromObject(state.boardType);
         this.gameId = state.gameId;
         this.tileShape = TileShape.fromObject(state.tileShape);
         this.tileMap = new Map(this.mapTiles(state.tiles));
@@ -39,12 +39,12 @@ export class Board implements IBoardState {
         }
     }
 
-    public create(tileShape: ITileShape, boardShape: IBoardShape, sizeWidth: number, sizeHeight?: number) {
+    public create(tileShape: ITileShape, boardType: IBoardType, sizeWidth: number, sizeHeight?: number) {
         let useTileShape = TileShape.fromObject(tileShape);
-        let useBoardShape = BoardShape.fromObject(boardShape);   
+        let useBoardType = BoardType.fromObject(boardType);   
         let width = sizeWidth;
         let height = sizeHeight || sizeWidth;  
-        if (useBoardShape.equals(BoardShape.RegularPolygon) && sizeWidth != sizeHeight) {
+        if (useBoardType.equals(BoardType.RegularPolygon) && sizeWidth != sizeHeight) {
             throw new Error('Regular polygon board(s) cannot specify different width/height values');
         }
         // TODO:  Create tiles collection here
