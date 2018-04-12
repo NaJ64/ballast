@@ -21,7 +21,7 @@ export class OffsetCoordinates implements IOffsetCoordinates {
     }
 
     public static fromAxial(object: IAxialCoordinates) {
-        // Bitwise AND (r&1) to get 0 for even or 1 for odd column offset
+        // Bitwise AND (& 1) to get 0 for even or 1 for odd column offset
         let col = object.x + (object.z - (object.z & 1)) / 2;
         let row = object.z;
         return new OffsetCoordinates({col: col, row: row});
