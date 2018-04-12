@@ -23,6 +23,13 @@ export class BoardShape implements IBoardShape {
         ];
     }
 
+    public equals(boardShape: BoardShape) {
+        if (!boardShape) {
+            return false;
+        }
+        return this.value == boardShape.value;
+    }
+
     public static fromObject(object: IBoardShape): BoardShape {           
         let item = !!object && BoardShape.fromValue(object.value);
         if (!item) {

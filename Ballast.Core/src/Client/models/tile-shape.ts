@@ -25,6 +25,13 @@ export class TileShape implements ITileShape {
         ];
     }
 
+    public equals(tileShape: TileShape) {
+        if (!tileShape) {
+            return false;
+        }
+        return this.value == tileShape.value;
+    }
+
     public static fromObject(object: ITileShape): TileShape {           
         let item = !!object && TileShape.fromValue(object.value);
         if (!item) {

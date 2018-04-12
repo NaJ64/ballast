@@ -39,8 +39,16 @@ export class Board implements IBoardState {
         }
     }
 
-    public create(tileShape: ITileShape, boardShape: IBoardShape, sizeR: number) {
-        // Size = the number of 
+    public create(tileShape: ITileShape, boardShape: IBoardShape, sizeWidth: number, sizeHeight?: number) {
+        let useTileShape = TileShape.fromObject(tileShape);
+        let useBoardShape = BoardShape.fromObject(boardShape);   
+        let width = sizeWidth;
+        let height = sizeHeight || sizeWidth;  
+        if (useBoardShape.equals(BoardShape.RegularPolygon) && sizeWidth != sizeHeight) {
+            throw new Error('Regular polygon board(s) cannot specify different width/height values');
+        }
+        // TODO:  Create tiles collection here
     }
+
 
 }
