@@ -37,8 +37,8 @@ export class OffsetCoordinates implements IOffsetCoordinates {
 
     public toOffsetOctagonal() {
         let sign = (this.col < 0) ? -1 : 1 ;
-        let newCol = 1 + ((3/2 * this.col) - sign * ((this.col % 2) / 2));
-        let newRow = 1 + this.row;
+        let newCol = ((3/2 * this.col) - sign * ((this.col % 2) / 2));
+        let newRow = this.row;
         return new OffsetCoordinates({ col: newCol, row: newRow });
     }
 
