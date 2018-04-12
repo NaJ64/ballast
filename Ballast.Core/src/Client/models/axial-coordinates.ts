@@ -2,14 +2,14 @@ import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates } from './offset-coordinates';
 
 export interface IAxialCoordinates { 
-    q: number; // column OR x-axis
-    r: number; // row : z-axis
+    q: number;
+    r: number;
 }
 
 export class AxialCoordinates implements IAxialCoordinates {
 
-    public readonly q: number; // column : x-axis
-    public readonly r: number; // row : z-axis
+    public readonly q: number;
+    public readonly r: number;
 
     private constructor(state: IAxialCoordinates) {
         this.q = state.q;
