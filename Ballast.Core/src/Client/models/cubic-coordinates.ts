@@ -2,22 +2,22 @@ import { IAxialCoordinates, AxialCoordinates } from './axial-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates } from './offset-coordinates';
 
 export interface ICubicCoordinates extends IAxialCoordinates {
-    s: number;
+    y: number;
 }
 
 export class CubicCoordinates implements ICubicCoordinates {
 
-    public readonly q: number;
-    public readonly r: number;
-    public readonly s: number;
+    public readonly x: number;
+    public readonly y: number;
+    public readonly z: number;
 
     private constructor(state: ICubicCoordinates) {
-        if ((state.q + state.s + state.r) != 0) {
-            throw new Error("Provided object coordinate(s) do not match constraint 'q + r + s = 0'");
+        if ((state.x + state.y + state.z) != 0) {
+            throw new Error("Provided object coordinate(s) do not match constraint 'x + y + z = 0'");
         }
-        this.q = state.q;
-        this.r = state.r;
-        this.s = state.s;
+        this.x = state.x;
+        this.y = state.y;
+        this.z = state.z;
     }
 
     public static fromObject(object: ICubicCoordinates) {
@@ -25,15 +25,15 @@ export class CubicCoordinates implements ICubicCoordinates {
     }
 
     public static fromAxial(object: IAxialCoordinates) {
-        let s = -1 * (object.q + object.r);
-        return new CubicCoordinates({ q: object.q, r: object.r, s: s });
+        let y = -1 * (object.x + object.z);
+        return new CubicCoordinates({ x: object.x, y: y, z: object.z });
     }
 
     public static fromOffset(object: IOffsetCoordinates) {
-        var q = object.col - (object.row - (object.row & 1)) / 2;
-        var r = object.row;
-        var s = -1 * (q + r);
-        return new CubicCoordinates({q: q, r: r, s: s });
+        var x = object.col - (object.row - (object.row & 1)) / 2;
+        var z = object.row;
+        var y = -1 * (x + z);
+        return new CubicCoordinates({x: x, y: y, z: z });
     }
 
     public equals(object: ICubicCoordinates) {
@@ -41,9 +41,9 @@ export class CubicCoordinates implements ICubicCoordinates {
             return false;
         }
         return (
-            this.q == object.q &&
-            this.r == object.r &&
-            this.s == object.s
+            this.x == object.x &&
+            this.y == object.y &&
+            this.z == object.z
         );
     }
 
@@ -60,7 +60,7 @@ export class CubicCoordinates implements ICubicCoordinates {
     }
 
     public toOrderedTriple() {
-        return [this.q, this.r, this.s];
+        return [this.x, this.y, this.z];
     }
 
 }

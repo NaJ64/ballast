@@ -2,18 +2,18 @@ import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates } from './offset-coordinates';
 
 export interface IAxialCoordinates { 
-    q: number;
-    r: number;
+    x: number;
+    z: number;
 }
 
 export class AxialCoordinates implements IAxialCoordinates {
 
-    public readonly q: number;
-    public readonly r: number;
+    public readonly x: number;
+    public readonly z: number;
 
     private constructor(state: IAxialCoordinates) {
-        this.q = state.q;
-        this.r = state.r;
+        this.x = state.x;
+        this.z = state.z;
     }
 
     public static fromObject(object: IAxialCoordinates) {
@@ -35,8 +35,8 @@ export class AxialCoordinates implements IAxialCoordinates {
             return false;
         }
         return (
-            this.q == object.q &&
-            this.r == object.r
+            this.x == object.x &&
+            this.z == object.z
         );
     }
 
@@ -47,7 +47,7 @@ export class AxialCoordinates implements IAxialCoordinates {
     }
 
     public toOrderedPair() {
-        return [this.q, this.r];
+        return [this.x, this.z];
     }
 
 }
