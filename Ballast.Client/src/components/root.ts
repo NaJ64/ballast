@@ -29,9 +29,6 @@ export class RootComponent extends ComponentBase {
     protected onAttach(parent: HTMLElement) {
         this.game.attach(parent);
         this.camera.attach(parent);
-
-        this.test();
-
     }
     
     protected onDetach(parent: HTMLElement) {
@@ -40,9 +37,5 @@ export class RootComponent extends ComponentBase {
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) { }
-
-    private test() {
-        
-    }
 
 }

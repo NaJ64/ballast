@@ -6,12 +6,22 @@ import { IAxialCoordinates, AxialCoordinates } from '../models/axial-coordinates
 import { ICubicCoordinates, CubicCoordinates } from '../models/cubic-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates} from '../models/offset-coordinates';
 
-export class BoardGenerator {
+export interface IBoardGenerator {
+    createBoard(        
+        gameId: string, 
+        boardType: IBoardType, 
+        tileShape: ITileShape, 
+        columnsOrSideLength: number, 
+        rows?: number
+    ): IBoard;
+}
+
+export class BoardGenerator implements IBoardGenerator {
 
     public createBoard(
         gameId: string, 
-        tileShape: TileShape, 
         boardType: IBoardType, 
+        tileShape: ITileShape, 
         columnsOrSideLength: number, 
         rows?: number
     ) {
@@ -21,11 +31,17 @@ export class BoardGenerator {
         let useBoardType = BoardType.fromObject(boardType);   
 
         // Validate column count
-        if (columnsOrSideLength < 2) {
-            throw new Error('Not enough tile row(s)/column(s) were specified');
+        if (columnsOrSideLength < 3) {
+            throw new Error('Not enough tile column(s) were specified');
         }
+
+        // Validate row count
+        if ((rows || columnsOrSideLength) < 3) {
+            throw new Error('Not enough row column(s) were specified');
+        }
+        
         // regular polygon boards enforce an odd number of column(s)
-        if (useBoardType.centerOrigin && (columnsOrSideLength % 1 < 1)) {
+        if (useBoardType.centerOrigin && ((columnsOrSideLength & 1) < 1)) {
             throw new Error('Board types with centered origin require an odd number of column(s)');
         }
 
@@ -37,7 +53,7 @@ export class BoardGenerator {
             // Calculate width and height
             let columnCount = columnsOrSideLength;
             let rowCount = rows || columnsOrSideLength;  // Default to width (length of side)
-            tiles = this.buildRectangle(columnCount, rowCount, tileShape);
+            tiles = this.buildRectangle(columnCount, rowCount, useTileShape);
         }
 
         // Build Regular polygon / convex shape board
@@ -92,11 +108,14 @@ export class BoardGenerator {
         let centerOffset = centerOrigin ? ((sideLength + 1) / 2) : 0;
         let increment = TileShape.Square.doubleIncrement ? 2 : 1;
 
+        console.log('centerOffset: ' + centerOffset);
+        console.log('increment: ' + increment);
+
         // Loop through rows x columns
         for (let rowIndex = 0; rowIndex < sideLength; rowIndex++) {
-            let row = (rowIndex - centerOffset) * increment;
+            let row = (rowIndex * increment) - centerOffset;
             for (let colIndex = 0; colIndex < sideLength; colIndex++) {
-                let col = (colIndex - centerOffset) * increment;
+                let col = (colIndex * increment) - centerOffset;
                 let cubicCoordinates = CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
                 );
@@ -125,10 +144,10 @@ export class BoardGenerator {
         while(rowLength <= (maxLength - 2)) {
             rowLength += 2;
             rowIndex++;
-            let row = (rowIndex - centerOffset) * increment;
+            let row = (rowIndex * increment) - centerOffset;
             let colOffset = (maxLength - rowLength) / 2;
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
-                let col = (colIndex + colOffset - centerOffset) * increment;
+                let col = ((colIndex + colOffset) * increment) - centerOffset;
                 octagon.push(Tile.fromObject({
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
@@ -142,9 +161,9 @@ export class BoardGenerator {
         for(rowIndex = sideLength - 1; rowIndex < sideLength; rowIndex++) {
             rowLength = maxLength;
             rowIndex++;
-            let row = (rowIndex  - centerOffset) * increment;
+            let row = (rowIndex * increment) - centerOffset;
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
-                let col = (colIndex - centerOffset) * increment;
+                let col = (colIndex * increment) - centerOffset;
                 octagon.push(Tile.fromObject({
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
@@ -158,10 +177,10 @@ export class BoardGenerator {
         while(rowLength >= sideLength) {
             rowLength -= 2;
             rowIndex++;
-            let row = (rowIndex - centerOffset) * increment;
+            let row = (rowIndex * increment) - centerOffset;
             let colOffset = (maxLength - rowLength) / 2;
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
-                let col = (colIndex + colOffset - centerOffset) * increment;
+                let col = ((colIndex + colOffset) * increment) - centerOffset;
                 octagon.push(Tile.fromObject({
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
@@ -189,10 +208,10 @@ export class BoardGenerator {
         while(rowLength < (maxLength - 1)) {
             rowLength += 1;
             rowIndex++;
-            let row = (rowIndex - centerOffset) * increment;
+            let row = (rowIndex * increment) - centerOffset;
             let colOffset = (maxLength - rowLength) / 2; // TODO:  Fix bug where column offset produces fractional value
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
-                let col = (colIndex + colOffset - centerOffset) * increment;
+                let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(Tile.fromObject({
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
@@ -205,9 +224,9 @@ export class BoardGenerator {
         // Build middle row of hexagon
         rowIndex = sideLength;
         rowLength = maxLength;
-        let row = (rowIndex - centerOffset) * increment;
+        let row = (rowIndex * increment) - centerOffset;
         for(let colIndex = 0; colIndex < rowLength; colIndex++) {
-            let col = (colIndex - centerOffset) * increment;
+            let col = (colIndex * increment) - centerOffset;
             hexagon.push(Tile.fromObject({
                 cubicCoordinates: CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })

@@ -39,13 +39,4 @@ export class OffsetCoordinates implements IOffsetCoordinates {
         return [this.col, this.row];
     }
 
-    // THIS WAS DUMB AND NOT NEEDED AFTERALL..  
-    // FOR OCTAGONS WE WILL JUST  USE EVEN ROWS/COLUMNS AND SCALE BY 1/2
-    // public toOffsetOctagonal() {
-    //     let sign = (this.col < 0) ? -1 : 1 ;
-    //     let newCol = ((3/2 * this.col) - sign * ((this.col % 2) / 2));
-    //     let newRow = this.row;
-    //     return new OffsetCoordinates({ col: newCol, row: newRow });
-    // }
-
 }
