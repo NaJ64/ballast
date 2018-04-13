@@ -105,11 +105,8 @@ export class BoardGenerator implements IBoardGenerator {
     private buildSquare(sideLength: number, centerOrigin: boolean) {
 
         let square: Tile[] = [];
-        let centerOffset = centerOrigin ? ((sideLength + 1) / 2) : 0;
         let increment = TileShape.Square.doubleIncrement ? 2 : 1;
-
-        console.log('centerOffset: ' + centerOffset);
-        console.log('increment: ' + increment);
+        let centerOffset = centerOrigin ? (((sideLength * increment) / 2) - 1) : 0;
 
         // Loop through rows x columns
         for (let rowIndex = 0; rowIndex < sideLength; rowIndex++) {
@@ -135,9 +132,9 @@ export class BoardGenerator implements IBoardGenerator {
 
         let octagon: Tile[] = [];
         let increment = TileShape.Octagonal.doubleIncrement ? 2 : 1;
-        let maxLength = sideLength + (2 * (sideLength - 1));
-        let centerOffset = centerOrigin ? ((maxLength + 1) / 2) : 0;
-
+        let maxLength = (sideLength * increment) + (2 * ((sideLength  - 1) * increment));
+        let centerOffset = centerOrigin ? ((maxLength / 2) - 1) : 0;
+        
         // Build top portion of octagon
         let rowLength = sideLength - 2;
         let rowIndex = -1;
@@ -199,7 +196,7 @@ export class BoardGenerator implements IBoardGenerator {
 
         let hexagon: Tile[] = [];
         let increment = TileShape.Hexagonal.doubleIncrement ? 2 : 1;
-        let maxLength = sideLength + (sideLength - 1);
+        let maxLength = (sideLength * increment) + ((sideLength - 1) * increment);
         let centerOffset = centerOrigin ? ((maxLength - 1) / 2) : 0;
 
         // Build top portion of hexagon

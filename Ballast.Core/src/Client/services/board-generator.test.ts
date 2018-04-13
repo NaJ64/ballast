@@ -98,5 +98,19 @@ test('creates regular square with side length 3', () => {
     expect(board.gameId).toBe(gameId);
     expect(board.tileShape).toBe(TileShape.Square);
     expect(board.tiles.length).toEqual(9);
-    console.log(board.tileMap.keys());
+    expect(board.getTile([0, 0, 0])).not.toBeUndefined();
+    expect(board.getTile([-1, 3, -2])).not.toBeUndefined();
+    expect(board.getTile([0, 2, -2])).toBeUndefined();
+    expect(board.getTile([3, -1, -2])).not.toBeUndefined();
+    expect(board.getTile([5, -3, -2])).toBeUndefined();
+    expect(board.getTile([1, -3, 2])).not.toBeUndefined();
+    expect(board.getTile([0, -4, 4])).toBeUndefined();
+})
+
+test('creates regular octagon with side length 3', () => {
+    let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Octagonal, 3);
+    //console.log(board.tileMap.keys())
+    expect(board.gameId).toBe(gameId);
+    expect(board.tileShape).toBe(TileShape.Octagonal);
+    expect(board.tiles.length).toEqual(37);
 })
