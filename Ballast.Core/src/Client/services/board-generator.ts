@@ -73,11 +73,10 @@ export class BoardGenerator {
                 let cubicCoordinates = CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
                 );
-                let newTile = Tile.fromObject({
+                rectangle.push(Tile.fromObject({
                     cubicCoordinates: cubicCoordinates,
                     tileShape: tileShape
-                });
-                rectangle.push(newTile);
+                }));
             }
         }
         return rectangle;
@@ -85,7 +84,20 @@ export class BoardGenerator {
 
     private buildSquare(sideLength: number) {
         let square: Tile[] = [];
-        // TODO:  Build square
+        let increment = TileShape.Square.doubleIncrement ? 2 : 1;
+        for (let rowIndex = 0; rowIndex < sideLength; rowIndex++) {
+            let row = rowIndex * increment;
+            for (let colIndex = 0; colIndex < sideLength; colIndex++) {
+                let col = colIndex * increment;
+                let cubicCoordinates = CubicCoordinates.fromOffset(
+                    OffsetCoordinates.fromObject({ row: row, col: col })
+                );
+                square.push(Tile.fromObject({
+                    cubicCoordinates: cubicCoordinates,
+                    tileShape: TileShape.Square
+                }));
+            }
+        }
         return square;
     }
 
