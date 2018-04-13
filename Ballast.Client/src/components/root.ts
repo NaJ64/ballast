@@ -43,11 +43,6 @@ export class RootComponent extends ComponentBase {
 
     private test() {
         
-        // Create a test board
-        let boardGenerator = new BoardGenerator();
-        let gameId = uuid.v4();
-        let board = boardGenerator.createBoard(gameId, TileShape.Square, BoardType.Rectangle, 4);
-
     }
 
 }

@@ -18,6 +18,12 @@ export class CubicCoordinates implements ICubicCoordinates {
         this.x = state.x;
         this.y = state.y;
         this.z = state.z;
+        if (this.x == -0)
+            this.x = 0;
+        if (this.y == -0)
+            this.y = 0;
+        if (this.z == -0)
+            this.z = 0;
     }
 
     public static fromObject(object: ICubicCoordinates) {

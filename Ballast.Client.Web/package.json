@@ -14,7 +14,9 @@
     "copy-css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"wwwroot\"",
     "prepare": "npm run build",
     "start": "npm run build && node server",
-    "test": "npm run compile && jest"
+    "test": "jest",
+    "test-single": "jest -- --args",
+    "test-full": "npm run compile && npm test"
   },
   "keywords": [
     "ballast"

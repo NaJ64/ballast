@@ -80,7 +80,7 @@ export class GameComponent extends ComponentBase {
                 movement.add(this.perspectiveTracker.getForwardScaled(increment));
             if (back)
                 movement.add(this.perspectiveTracker.getBackScaled(increment));
-            console.log(movement);
+            //console.log(movement);
             this.cube.position.add(movement);
             renderingContext.cameraPivot.position.add(movement);
         }

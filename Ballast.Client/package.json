@@ -9,7 +9,9 @@
     "compile": "tsc",
     "compile-watch": "tsc --watch",
     "prepare": "npm run build",
-    "test": "npm run build && jest"
+    "test": "jest",
+    "test-single": "jest -- --args",
+    "test-full": "npm run build && npm test"
   },
   "keywords": [
     "ballast",

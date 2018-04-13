@@ -14,6 +14,10 @@ export class AxialCoordinates implements IAxialCoordinates {
     private constructor(state: IAxialCoordinates) {
         this.x = state.x;
         this.z = state.z;
+        if (this.x == -0)
+            this.x = 0;
+        if (this.z == -0)
+            this.z = 0;
     }
 
     public static fromObject(object: IAxialCoordinates) {

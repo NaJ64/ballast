@@ -13,7 +13,11 @@ export class OffsetCoordinates implements IOffsetCoordinates {
 
     private constructor(state: IOffsetCoordinates) {
         this.col = state.col;
-        this.row = state.row;
+        this.row = state.row;        
+        if (this.col == -0)
+            this.col = 0;
+        if (this.row == -0)
+            this.row = 0;
     }
 
     public static fromObject(object: IOffsetCoordinates) {

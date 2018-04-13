@@ -14,7 +14,7 @@ export class Board implements IBoard {
     public readonly boardType: BoardType;
     public readonly gameId: string;
     public readonly tileShape: TileShape;
-    public readonly tileMap: Map<number[], Tile>;
+    public readonly tileMap: Map<string, Tile>;
 
     private cachedTiles?: Tile[];
     public get tiles() {
@@ -22,6 +22,10 @@ export class Board implements IBoard {
             this.cachedTiles = Array.from(this.tileMap.values());
         }
         return this.cachedTiles;
+    }
+
+    public getTile(orderedTriple: number[]) {
+        return this.tileMap.get(orderedTriple.toLocaleString());
     }
 
     private constructor(state: IBoard) {
@@ -38,7 +42,7 @@ export class Board implements IBoard {
     private *mapTiles(tiles: ITile[]) {
         let tileIterator = Tile.fromObjectList(tiles);
         for (let tile of tileIterator) {
-            let item: [number[], Tile] = [ tile.cubicCoordinates.toOrderedTriple(), tile ];
+            let item: [string, Tile] = [ tile.cubicCoordinates.toOrderedTriple().toLocaleString(), tile ];
             yield item;
         }
     }
