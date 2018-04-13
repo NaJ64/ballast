@@ -24,6 +24,7 @@ export class BoardGenerator {
         if (columnsOrSideLength < 2) {
             throw new Error('Not enough tile row(s)/column(s) were specified');
         }
+        // regular polygon boards enforce an odd number of column(s)
         if (useBoardType.centerOrigin && (columnsOrSideLength % 1 < 1)) {
             throw new Error('Board types with centered origin require an odd number of column(s)');
         }
@@ -86,9 +87,12 @@ export class BoardGenerator {
     }
 
     private buildSquare(sideLength: number, centerOrigin: boolean) {
+
         let square: Tile[] = [];
         let centerOffset = (sideLength / 2) + 0.5;
         let increment = TileShape.Square.doubleIncrement ? 2 : 1;
+
+        // Loop through rows x columns
         for (let rowIndex = 0; rowIndex < sideLength; rowIndex++) {
             let row = (rowIndex * increment) - centerOffset;
             for (let colIndex = 0; colIndex < sideLength; colIndex++) {
@@ -102,7 +106,10 @@ export class BoardGenerator {
                 }));
             }
         }
+
+        // return the square tiles
         return square;
+
     }
 
     private buildRegularOctagon(sideLength: number, centerOrigin: boolean) {
@@ -110,12 +117,12 @@ export class BoardGenerator {
         let octagon: Tile[] = [];
         let increment = TileShape.Octagonal.doubleIncrement ? 2 : 1;
         let maxLength = sideLength + (2 * (sideLength - 1));
-        let centerOffset = (maxLength / 2) + 0.5;
+        let centerOffset = (maxLength / 2) - 0.5;
 
         // Build top portion of octagon
         let rowLength = sideLength - 2;
         let rowIndex = -1;
-        while(rowLength < maxLength) {
+        while(rowLength <= (maxLength - 2)) {
             rowLength += 2;
             rowIndex++;
             let row = (rowIndex * increment) - centerOffset;
@@ -146,7 +153,7 @@ export class BoardGenerator {
                 }));
             }
         }
-        
+
         // Build bottom portion of octagon
         while(rowLength >= sideLength) {
             rowLength -= 2;
@@ -170,10 +177,65 @@ export class BoardGenerator {
     }
 
     private buildRegularHexagon(sideLength: number, centerOrigin: boolean) {
-        let hexagon: Tile[] = [];
-        let centerOffset = (sideLength / 2) + 0.5;
 
+        let hexagon: Tile[] = [];
+        let increment = TileShape.Hexagonal.doubleIncrement ? 2 : 1;
+        let maxLength = sideLength + (sideLength - 1);
+        let centerOffset = (maxLength / 2) - 0.5;
+
+        // Build top portion of hexagon
+        let rowLength = sideLength - 1;
+        let rowIndex = -1;
+        while(rowLength < (maxLength - 1)) {
+            rowLength += 1;
+            rowIndex++;
+            let row = (rowIndex * increment) - centerOffset;
+            let colOffset = (maxLength - rowLength) / 2; // TODO:  Fix bug where column offset produces fractional value
+            for(let colIndex = 0; colIndex < rowLength; colIndex++) {
+                let col = (colIndex * increment) + colOffset - centerOffset;
+                hexagon.push(Tile.fromObject({
+                    cubicCoordinates: CubicCoordinates.fromOffset(
+                        OffsetCoordinates.fromObject({ row: row, col: col })
+                    ),
+                    tileShape: TileShape.Hexagonal
+                }));
+            }
+        }
+
+        // Build middle row of hexagon
+        rowIndex = sideLength;
+        rowLength = maxLength;
+        let row = (rowIndex * increment) - centerOffset;
+        for(let colIndex = 0; colIndex < rowLength; colIndex++) {
+            let col = (colIndex * increment) - centerOffset;
+            hexagon.push(Tile.fromObject({
+                cubicCoordinates: CubicCoordinates.fromOffset(
+                    OffsetCoordinates.fromObject({ row: row, col: col })
+                ),
+                tileShape: TileShape.Octagonal
+            }));
+        }
+
+        // Build bottom portion of octagon
+        while(rowLength >= sideLength) {
+            rowLength -= 1;
+            rowIndex++;
+            let row = (rowIndex * increment) - centerOffset;
+            let colOffset = (maxLength - rowLength) / 2; // TODO:  Fix bug where column offset produces fractional value
+            for(let colIndex = 0; colIndex < rowLength; colIndex++) {
+                let col = (colIndex * increment) + colOffset - centerOffset;
+                hexagon.push(Tile.fromObject({
+                    cubicCoordinates: CubicCoordinates.fromOffset(
+                        OffsetCoordinates.fromObject({ row: row, col: col })
+                    ),
+                    tileShape: TileShape.Octagonal
+                }));
+            }
+        }
+        
+        // return the hexagon tiles
         return hexagon;
+        
     }
 
 }
