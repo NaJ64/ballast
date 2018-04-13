@@ -31,6 +31,10 @@ export class Board implements IBoard {
         this.tileMap = new Map(this.mapTiles(state.tiles));
     }
 
+    public static fromObject(object: IBoard) {
+        return new Board(object);
+    }
+
     private *mapTiles(tiles: ITile[]) {
         let tileIterator = Tile.fromObjectList(tiles);
         for (let tile of tileIterator) {
