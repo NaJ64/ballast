@@ -97,15 +97,15 @@ export class TileShape implements ITileShape {
     public static fromObject(object: ITileShape): TileShape {           
         let item = !!object && TileShape.fromValue(object.value);
         if (!item) {
-            throw new Error(`Could derive board type from object (${object})`);
+            throw new Error(`Could derive tile shape from object (${object})`);
         }
         return item;
     }
 
     public static fromValue(value: number): TileShape {           
-        let item = !!value && TileShape.list().find(x => x.value == value);
+        let item = (value > -1) && TileShape.list().find(x => x.value == value);
         if (!item) {
-            throw new Error(`Could derive board type from value (${value})`);
+            throw new Error(`Could derive tile shape from value (${value})`);
         }
         return item;
     }
@@ -113,7 +113,7 @@ export class TileShape implements ITileShape {
     public static fromString(text: string): TileShape {           
         let item = !!text && TileShape.list().find(x => x.name.toLocaleLowerCase() == text.toLocaleLowerCase());
         if (!item) {
-            throw new Error(`Could derive board type from text (${text})`);
+            throw new Error(`Could derive tile shape from text (${text})`);
         }
         return item;
     }

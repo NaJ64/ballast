@@ -43,7 +43,7 @@ export class BoardType implements IBoardType {
     }
 
     public static fromValue(value: number): BoardType {           
-        let item = !!value && BoardType.list().find(x => x.value == value);
+        let item = (value > -1) && BoardType.list().find(x => x.value == value);
         if (!item) {
             throw new Error(`Could derive board type from value (${value})`);
         }

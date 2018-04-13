@@ -1,4 +1,6 @@
 import { injectable, inject } from 'inversify';
+import { BoardGenerator, TileShape, BoardType } from 'ballast-core';
+import * as uuid from 'uuid';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
@@ -27,6 +29,9 @@ export class RootComponent extends ComponentBase {
     protected onAttach(parent: HTMLElement) {
         this.game.attach(parent);
         this.camera.attach(parent);
+
+        this.test();
+
     }
     
     protected onDetach(parent: HTMLElement) {
@@ -35,5 +40,14 @@ export class RootComponent extends ComponentBase {
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) { }
+
+    private test() {
+        
+        // Create a test board
+        let boardGenerator = new BoardGenerator();
+        let gameId = uuid.v4();
+        let board = boardGenerator.createBoard(gameId, TileShape.Square, BoardType.Rectangle, 4);
+
+    }
 
 }
