@@ -1,6 +1,4 @@
 import { injectable, inject } from 'inversify';
-import { BoardGenerator, TileShape, BoardType } from 'ballast-core';
-import * as uuid from 'uuid';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';

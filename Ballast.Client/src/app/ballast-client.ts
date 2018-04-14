@@ -1,4 +1,5 @@
 import { Container, injectable } from 'inversify';
+import { Board, BoardGenerator, BoardType, TileShape } from 'ballast-core';
 import * as uuid from 'uuid';
 import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
@@ -35,6 +36,9 @@ export class BallastClient implements IDisposable {
         var rootComponentFactory = this.inversifyContainer.get<() => RootComponent>(TYPES_BALLAST.RootComponentFactory);
         this.rootComponent = rootComponentFactory();
         this.rootComponent.attach(root);
+        // TEST
+        this.createTestBoard();
+        // END TEST
         this.viewport.startRenderLoop();
         return this;
     }
@@ -42,6 +46,13 @@ export class BallastClient implements IDisposable {
     public dispose() {
         if (this.rootComponent)
             this.rootComponent.detach();
+    }
+
+    public createTestBoard() {
+        let gameId = uuid.v4();
+        let boardGenerator = new BoardGenerator();
+        let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Hexagonal, 3);
+        console.log(board);
     }
 
 }
