@@ -208,7 +208,7 @@ export class BoardGenerator implements IBoardGenerator {
             rowLength++;
             rowIndex++;
             let row = (rowIndex * increment) - centerOffset;
-            let colOffset = (maxLength - rowLength); // TODO:  Fix bug where column offset produces fractional value
+            let colOffset = Math.floor((maxLength - rowLength) / 2); // TODO:  Fix bug where column offset produces fractional value
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(Tile.fromObject({
@@ -239,7 +239,7 @@ export class BoardGenerator implements IBoardGenerator {
             rowLength--;
             rowIndex++;
             let row = (rowIndex * increment) - centerOffset;
-            let colOffset = (maxLength - rowLength); // TODO:  Fix bug where column offset produces fractional value
+            let colOffset = Math.floor((maxLength - rowLength) / 2); // TODO:  Fix bug where column offset produces fractional value
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(Tile.fromObject({
