@@ -127,3 +127,10 @@ test('creates regular octagon with side length 3', () => {
     expect(board.getTile([-7, 1, 6])).toBeUndefined();
     expect(board.getTile([1, -7, 6])).toBeUndefined();
 });
+
+test('creates regular hexagon with side length 3', () => {
+    let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Hexagonal, 3);
+    expect(board.gameId).toBe(gameId);
+    expect(board.tileShape).toBe(TileShape.Hexagonal);
+    expect(board.tiles.length).toEqual(19);
+});
