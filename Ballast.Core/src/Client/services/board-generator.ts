@@ -132,13 +132,13 @@ export class BoardGenerator implements IBoardGenerator {
 
         let octagon: Tile[] = [];
         let increment = TileShape.Octagonal.doubleIncrement ? 2 : 1;
-        let maxLength = (sideLength * increment) + (2 * ((sideLength  - 1) * increment));
-        let centerOffset = centerOrigin ? ((maxLength / 2) - 1) : 0;
+        let maxLength = sideLength + 2 * (sideLength - 1);
+        let centerOffset = centerOrigin ? (((maxLength * increment) / 2) - 1) : 0;
         
         // Build top portion of octagon
         let rowLength = sideLength - 2;
         let rowIndex = -1;
-        while(rowLength <= (maxLength - 2)) {
+        while(rowLength <= (maxLength - 1)) {
             rowLength += 2;
             rowIndex++;
             let row = (rowIndex * increment) - centerOffset;
@@ -155,9 +155,9 @@ export class BoardGenerator implements IBoardGenerator {
         }
 
         // Build middle portion of octagon
-        for(rowIndex = sideLength - 1; rowIndex < sideLength; rowIndex++) {
+        let middleRowCount = rowIndex + sideLength;
+        for(rowIndex; rowIndex < middleRowCount; rowIndex++) {
             rowLength = maxLength;
-            rowIndex++;
             let row = (rowIndex * increment) - centerOffset;
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = (colIndex * increment) - centerOffset;
@@ -171,7 +171,8 @@ export class BoardGenerator implements IBoardGenerator {
         }
 
         // Build bottom portion of octagon
-        while(rowLength >= sideLength) {
+        rowIndex--;
+        while(rowLength > sideLength) {
             rowLength -= 2;
             rowIndex++;
             let row = (rowIndex * increment) - centerOffset;
@@ -232,7 +233,7 @@ export class BoardGenerator implements IBoardGenerator {
             }));
         }
 
-        // Build bottom portion of octagon
+        // Build bottom portion of hexagon
         while(rowLength >= sideLength) {
             rowLength -= 1;
             rowIndex++;
