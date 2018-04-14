@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Game } from 'ballast-core';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 
 export class RenderingContext {
@@ -11,6 +12,11 @@ export class RenderingContext {
     public readonly cameraPivot: THREE.Object3D;
     public readonly clock: THREE.Clock;
 
+    public get game() {
+        return this.currentGame;
+    }
+
+    private currentGame?: Game;
     private frameDelta: number;
 
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
@@ -22,6 +28,7 @@ export class RenderingContext {
         this.cameraPivot = this.createCameraPivot(this.scene, this.camera);
         this.clock = new THREE.Clock();
         this.frameDelta = 0;
+        this.currentGame = undefined;
     }
 
     private createRenderer(canvas: HTMLCanvasElement): THREE.WebGLRenderer {
@@ -45,6 +52,10 @@ export class RenderingContext {
         cameraPivot.add(camera);
         scene.add(cameraPivot);
         return cameraPivot;
+    }
+
+    public setCurrentGame(game?: Game) {
+        this.currentGame = game;
     }
 
     public refreshFrameDelta() {

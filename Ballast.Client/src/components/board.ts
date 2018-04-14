@@ -5,15 +5,18 @@ import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/ievent-bus';
+import { IEvent } from '../messaging/ievent';
 import { PerspectiveTracker } from '../input/perspective-tracker';
+import { Game, Board, Tile, CubicCoordinates } from 'ballast-core';
 
 @injectable()
 export class BoardComponent extends ComponentBase {
 
+    private static readonly hexRowScalar: number = Math.sqrt(3) / 2;
     private readonly perspectiveTracker: PerspectiveTracker;
-    private cameraRotateTo?: THREE.Vector3;
+    private currentBoardId?: string;
     private inverted?: boolean;
-    
+
     private planeGeometry!: THREE.PlaneGeometry;
     private planeMaterial!: THREE.MeshBasicMaterial;
     private plane!: THREE.Mesh;
@@ -37,9 +40,43 @@ export class BoardComponent extends ComponentBase {
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
-        // Add the cube and plane into the scene an setup the camera (only on initial render)
-        if (this.isFirstRender()) {
-            renderingContext.scene.add(this.plane)
+
+        // Check to see if we have a new game/board (using id)
+        let boardId = renderingContext && renderingContext.game && renderingContext.game.board.id;
+        if (!boardId) {
+            // remove old assets (?)
+        }
+
+        // Check if we have a new board to draw
+        if (!!boardId && this.currentBoardId != boardId) {
+
+            // TESTING
+            //renderingContext.scene.add(this.plane);
+            console.log('drawing new board');
+
+            // Render the tiles
+            let game = <Game>renderingContext.game;
+            game.board.tileMap.forEach((tile, cubicXYZ, item) => {
+                this.drawTile(renderingContext, tile);
+            });
+
+        }
+
+        // Update board id
+        this.currentBoardId = boardId;
+
+    }
+
+    private drawTile(renderingContext: RenderingContext, tile: Tile) {
+        let offsetHex = tile.cubicCoordinates.toOffset();
+        let x = offsetHex.col;
+        let z = offsetHex.row;
+        let position = new THREE.Vector3(x, 0, z);
+        if (tile.tileShape.applyHexRowScaling) {
+            
+        }
+        if (tile.tileShape.doubleIncrement) {
+            
         }
     }
 

@@ -1,11 +1,11 @@
 import { IDisposable } from '../interfaces/idisposable';
 import { IEvent } from './ievent';
 
-export type EventHandler<TEvent extends IEvent> = (event: TEvent) => void
+export type AsyncEventHandler<TEvent extends IEvent> = (event: TEvent) => Promise<void>
 
 export interface IEventBus extends IDisposable {
-    getHandlers<TEvent extends IEvent>(type: Symbol): EventHandler<TEvent>[];
-    publish<TEvent extends IEvent>(type: Symbol, event: TEvent): void;
-    subscribe<TEvent extends IEvent>(type: Symbol, handler: EventHandler<TEvent>): void;
-    unsubscribe<TEvent extends IEvent>(type: Symbol, handler: EventHandler<TEvent>): void;
+    getHandlers<TEvent extends IEvent>(type: Symbol): AsyncEventHandler<TEvent>[];
+    publishAsync<TEvent extends IEvent>(event: TEvent): Promise<void>;
+    subscribe<TEvent extends IEvent>(type: Symbol, handler: AsyncEventHandler<TEvent>): void;
+    unsubscribe<TEvent extends IEvent>(type: Symbol, handler: AsyncEventHandler<TEvent>): void;
 }

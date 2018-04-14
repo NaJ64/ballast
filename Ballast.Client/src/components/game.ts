@@ -21,10 +21,6 @@ export class GameComponent extends ComponentBase {
     private cubeMaterial!: THREE.MeshBasicMaterial;
     private cube!: THREE.Mesh;
 
-    // private planeGeometry!: THREE.PlaneGeometry;
-    // private planeMaterial!: THREE.MeshBasicMaterial;
-    // private plane!: THREE.Mesh;
-
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
@@ -42,11 +38,6 @@ export class GameComponent extends ComponentBase {
         this.cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
         this.cubeMaterial = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
         this.cube = new THREE.Mesh(this.cubeGeometry, this.cubeMaterial );
-        // // Create plane
-        // this.planeGeometry = new THREE.PlaneGeometry( 6, 6 );
-        // this.planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000099, side: THREE.FrontSide } );
-        // this.plane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
-        // this.plane.rotation.x = Math.PI / -2; // Lay plane flat along X and Z axis
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -54,7 +45,6 @@ export class GameComponent extends ComponentBase {
         // Add the cube and plane into the scene an setup the camera (only on initial render)
         if (this.isFirstRender()) {
             renderingContext.scene.add(this.cube);
-            //renderingContext.scene.add(this.plane)
         }
 
         // Flags for movement
@@ -98,7 +88,7 @@ export class GameComponent extends ComponentBase {
     public onAttach(parent: HTMLElement) {
         this.board.attach(parent);
         let loadedEvent = new GameComponentLoadedEvent();
-        this.eventBus.publish(loadedEvent.eventId, loadedEvent);
+        this.eventBus.publishAsync(loadedEvent);
     }
 
     protected onDetach(parent: HTMLElement) {

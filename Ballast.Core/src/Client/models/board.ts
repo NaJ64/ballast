@@ -4,7 +4,7 @@ import { IBoardType, BoardType } from './board-type';
 
 export interface IBoard {
     boardType: IBoardType;
-    gameId: string;
+    id: string;
     tiles: ITile[];
     tileShape: ITileShape;
 }
@@ -12,7 +12,7 @@ export interface IBoard {
 export class Board implements IBoard {
 
     public readonly boardType: BoardType;
-    public readonly gameId: string;
+    public readonly id: string;
     public readonly tileShape: TileShape;
     public readonly tileMap: Map<string, Tile>;
 
@@ -30,7 +30,7 @@ export class Board implements IBoard {
 
     private constructor(state: IBoard) {
         this.boardType = BoardType.fromObject(state.boardType);
-        this.gameId = state.gameId;
+        this.id = state.id;
         this.tileShape = TileShape.fromObject(state.tileShape);
         this.tileMap = new Map(this.mapTiles(state.tiles));
     }

@@ -8,7 +8,7 @@ import { IOffsetCoordinates, OffsetCoordinates} from '../models/offset-coordinat
 
 export interface IBoardGenerator {
     createBoard(        
-        gameId: string, 
+        id: string, 
         boardType: IBoardType, 
         tileShape: ITileShape, 
         columnsOrSideLength: number, 
@@ -19,7 +19,7 @@ export interface IBoardGenerator {
 export class BoardGenerator implements IBoardGenerator {
 
     public createBoard(
-        gameId: string, 
+        id: string, 
         boardType: IBoardType, 
         tileShape: ITileShape, 
         columnsOrSideLength: number, 
@@ -73,7 +73,7 @@ export class BoardGenerator implements IBoardGenerator {
         // Create new board 
         let board = Board.fromObject({ 
             boardType: useBoardType,
-            gameId: gameId,
+            id: id,
             tiles: tiles,
             tileShape: useTileShape
         });

@@ -24,7 +24,9 @@ export class BallastBootstrapper {
             throw new Error('No ballast host element was found/specified');
         }
         let client = new BallastClient(host);
-        return await client.loadAsync();
+        await client.loadAsync();
+        await client.startTestAsync();
+        return client;
     }
 
 }

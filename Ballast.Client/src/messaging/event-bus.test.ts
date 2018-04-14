@@ -5,7 +5,7 @@ import { EventBus } from './event-bus';
 
 let handled = 0;
 let eventKey = Symbol.for('TestEvent');
-let event: IEvent = { value: 'test' };
+let event: IEvent = { id: eventKey };
 let handler1 = (event: IEvent) => {
     handled += 1;
 };
@@ -35,7 +35,7 @@ test('accepts new subscription(s)', () => {
 
 test('publishes event to all subscribers', () => {
     expect(handled).toEqual(0);
-    eventBus.publish(eventKey, event);
+    eventBus.publish(event);
     expect(handled).toEqual(3); // handled by both 1 + 2
     handled = 0;
 }, 1000);
@@ -49,6 +49,6 @@ test('honors subscription removal', () => {
     expect(handlers).not.toContain(handler1);
     expect(handlers).toContain(handler2);
     expect(handled).toEqual(0);
-    eventBus.publish(eventKey, event);
+    eventBus.publish(event);
     expect(handled).toEqual(2); // handled by 2 only
 });

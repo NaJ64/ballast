@@ -21,7 +21,7 @@ export function configureServices(container: Container, client: BallastClient): 
     configureApp(container, client);
     configureComponents(container);
     configureInput(container);
-    configureMessaging(container);
+    configureMessaging(container, client);
     configureRendering(container, client);
     return container;
 }
@@ -101,10 +101,12 @@ function configureInput(container: Container): Container {
 }
 
 
-function configureMessaging(container: Container): Container {
+function configureMessaging(container: Container, client: BallastClient): Container {
     container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
-        .to(EventBus)
-        .inSingletonScope();
+        .toDynamicValue(context => client.getEventBus());
+    // container.bind<IEventBus>(TYPES_BALLAST.IEventBus)
+    //     .to(EventBus)
+    //     .inSingletonScope();
     return container;
 }
 

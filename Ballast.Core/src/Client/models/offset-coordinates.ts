@@ -35,6 +35,14 @@ export class OffsetCoordinates implements IOffsetCoordinates {
         return OffsetCoordinates.fromAxial(object);
     }
 
+    public toAxial() {
+        return AxialCoordinates.fromOffset(this);
+    }
+
+    public toCubic() {
+        return CubicCoordinates.fromOffset(this);
+    }
+
     public toOrderedPair() {
         return [this.col, this.row];
     }

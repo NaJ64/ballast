@@ -50,6 +50,14 @@ export class AxialCoordinates implements IAxialCoordinates {
             .equals(this);
     }
 
+    public toCubic() {
+        return CubicCoordinates.fromAxial(this);
+    }
+
+    public toOffset() {
+        return OffsetCoordinates.fromAxial(this);
+    }
+
     public toOrderedPair() {
         return [this.x, this.z];
     }
