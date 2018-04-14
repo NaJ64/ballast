@@ -53,7 +53,7 @@ export class BallastClient implements IDisposable {
         // Create a test game / board
         let gameId = uuid.v4();
         let boardGenerator = new BoardGenerator();
-        let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Hexagonal, 3);
+        let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Octagonal, 3);
         let game = Game.fromObject({id: gameId, board: board });
         // Trigger new game state changed event
         let gameStateChanged = new GameStateChangedEvent(game);

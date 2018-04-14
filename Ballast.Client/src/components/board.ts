@@ -7,7 +7,7 @@ import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/ievent-bus';
 import { IEvent } from '../messaging/ievent';
 import { PerspectiveTracker } from '../input/perspective-tracker';
-import { Game, Board, Tile, CubicCoordinates } from 'ballast-core';
+import { Game, Board, Tile, CubicCoordinates, TileShape } from 'ballast-core';
 
 @injectable()
 export class BoardComponent extends ComponentBase {
@@ -17,9 +17,11 @@ export class BoardComponent extends ComponentBase {
     private currentBoardId?: string;
     private inverted?: boolean;
 
-    private planeGeometry!: THREE.PlaneGeometry;
-    private planeMaterial!: THREE.MeshBasicMaterial;
-    private plane!: THREE.Mesh;
+    private squareGeometry!: THREE.CircleGeometry;
+    private hexagonGeometry!: THREE.CircleGeometry;
+    private octagonGeometry!: THREE.CircleGeometry;
+    private circleGeometry!: THREE.CircleGeometry;
+    private tileMaterial!: THREE.MeshBasicMaterial;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -32,11 +34,11 @@ export class BoardComponent extends ComponentBase {
     }
 
     private cacheStaticAssets() {
-        // Create plane
-        this.planeGeometry = new THREE.PlaneGeometry( 6, 6 );
-        this.planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000099, side: THREE.FrontSide } );
-        this.plane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
-        this.plane.rotation.x = Math.PI / -2; // Lay plane flat along X and Z axis
+        this.circleGeometry = new THREE.CircleGeometry( 1, 24);
+        this.squareGeometry = new THREE.CircleGeometry( 2, 4, Math.PI / 4);
+        this.octagonGeometry = new THREE.CircleGeometry( 2, 8, Math.PI / 8);
+        this.hexagonGeometry = new THREE.CircleGeometry( 2, 6, Math.PI / 3);
+        this.tileMaterial = new THREE.MeshBasicMaterial( { color: 0x0000cc, side: THREE.FrontSide } );
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -69,15 +71,42 @@ export class BoardComponent extends ComponentBase {
 
     private drawTile(renderingContext: RenderingContext, tile: Tile) {
         let offsetHex = tile.cubicCoordinates.toOffset();
+        let spacing = 4;
         let x = offsetHex.col;
+        if (tile.tileShape.equals(TileShape.Hexagonal)) {
+            // if ((x & 1)) {
+            //     x += 0.5;
+            // }
+        }
         let z = offsetHex.row;
-        let position = new THREE.Vector3(x, 0, z);
-        if (tile.tileShape.applyHexRowScaling) {
-            
-        }
         if (tile.tileShape.doubleIncrement) {
-            
+            spacing *= 0.5
         }
+        if (tile.tileShape.applyHexRowScaling) {
+            // Do something here
+        }
+        let newTileMesh = this.createTileMesh(tile.tileShape);
+        newTileMesh.position.set(x * spacing, 0, z * spacing);
+        renderingContext.scene.add(newTileMesh);
+    }
+
+    private createTileMesh(tileShape: TileShape) {
+        let tileGeometry: THREE.CircleGeometry | undefined;
+        if (tileShape.equals(TileShape.Square)) {
+            tileGeometry = this.squareGeometry;
+        }
+        if (tileShape.equals(TileShape.Octagonal)) {
+            tileGeometry = this.octagonGeometry;
+        }
+        if (tileShape.equals(TileShape.Hexagonal)) {
+            tileGeometry = this.hexagonGeometry;
+        }
+        if (!tileGeometry) {
+            tileGeometry = this.circleGeometry;
+        }
+        let tileMesh = new THREE.Mesh(tileGeometry, this.tileMaterial);
+        tileMesh.rotation.x = (Math.PI / -2); // Lay shape flat along X and Z axis
+        return tileMesh;
     }
 
 }
