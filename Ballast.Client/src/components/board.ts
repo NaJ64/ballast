@@ -37,7 +37,7 @@ export class BoardComponent extends ComponentBase {
         this.circleGeometry = new THREE.CircleGeometry( 1, 24);
         this.squareGeometry = new THREE.CircleGeometry( 2, 4, Math.PI / 4);
         this.octagonGeometry = new THREE.CircleGeometry( 2, 8, Math.PI / 8);
-        this.hexagonGeometry = new THREE.CircleGeometry( 2, 6, Math.PI / 3);
+        this.hexagonGeometry = new THREE.CircleGeometry( 2, 6, Math.PI / 2);
         this.tileMaterial = new THREE.MeshBasicMaterial( { color: 0x0000cc, side: THREE.FrontSide } );
     }
 
@@ -73,11 +73,6 @@ export class BoardComponent extends ComponentBase {
         let offsetHex = tile.cubicCoordinates.toOffset();
         let spacing = 4;
         let x = offsetHex.col;
-        if (tile.tileShape.equals(TileShape.Hexagonal)) {
-            // if ((x & 1)) {
-            //     x += 0.5;
-            // }
-        }
         let z = offsetHex.row;
         if (tile.tileShape.doubleIncrement) {
             spacing *= 0.5
@@ -86,7 +81,14 @@ export class BoardComponent extends ComponentBase {
             // Do something here
         }
         let newTileMesh = this.createTileMesh(tile.tileShape);
-        newTileMesh.position.set(x * spacing, 0, z * spacing);
+        x *= spacing;
+        if (tile.tileShape.equals(TileShape.Hexagonal)) {
+            if ((z & 1) > 0) {
+                x += 2;
+            }
+        }
+        z *= spacing;
+        newTileMesh.position.set(x, 0, z);
         renderingContext.scene.add(newTileMesh);
     }
 
