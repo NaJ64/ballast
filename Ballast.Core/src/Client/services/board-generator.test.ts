@@ -133,4 +133,13 @@ test('creates regular hexagon with side length 3', () => {
     expect(board.gameId).toBe(gameId);
     expect(board.tileShape).toBe(TileShape.Hexagonal);
     expect(board.tiles.length).toEqual(19);
+    expect(board.getTile([-1, 3, -2])).toBeUndefined();
+    expect(board.getTile([0, 2, -2])).not.toBeUndefined();
+    expect(board.getTile([-3, 3, 0])).toBeUndefined();
+    expect(board.getTile([-2, 2, 0])).not.toBeUndefined();
+    expect(board.getTile([0, 0, 0])).not.toBeUndefined();
+    expect(board.getTile([2, -2, 0])).not.toBeUndefined();
+    expect(board.getTile([3, -3, 0])).toBeUndefined();
+    expect(board.getTile([0, -2, 2])).not.toBeUndefined();
+    expect(board.getTile([1, -3, 2])).toBeUndefined();
 });
