@@ -10,10 +10,6 @@ import { TileShape } from '../models/tile-shape';
 let boardGenerator = new BoardGenerator();
 let gameId = uuid.v4();
 
-test('has "createBoard()" method', () => {
-    expect(boardGenerator.createBoard).not.toBeUndefined();
-});
-
 test('rejects board dimensions less than 3x3', () => {
     expect(() => { boardGenerator.createBoard(gameId, BoardType.Rectangle, TileShape.Square, 2, 3); }).toThrowError();
     expect(() => { boardGenerator.createBoard(gameId, BoardType.Rectangle, TileShape.Octagonal, 3, 2); }).toThrowError();
