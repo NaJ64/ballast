@@ -92,10 +92,10 @@ export class BoardComponent extends ComponentBase {
         if (tileShape.equals(TileShape.Square)) {
             tileGeometry = this.squareGeometry;
         }
-        if (tileShape.equals(TileShape.Octagonal)) {
+        if (tileShape.equals(TileShape.Octagon)) {
             tileGeometry = this.octagonGeometry;
         }
-        if (tileShape.equals(TileShape.Hexagonal)) {
+        if (tileShape.equals(TileShape.Hexagon)) {
             tileGeometry = this.hexagonGeometry;
         }
         if (!tileGeometry) {

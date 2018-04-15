@@ -12,11 +12,11 @@ let boardId = uuid.v4();
 
 test('rejects board dimensions less than 3x3', () => {
     expect(() => { boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Square, 2, 3); }).toThrowError();
-    expect(() => { boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Octagonal, 3, 2); }).toThrowError();
-    expect(() => { boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Hexagonal, 1, 1); }).toThrowError();
+    expect(() => { boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Octagon, 3, 2); }).toThrowError();
+    expect(() => { boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Hexagon, 1, 1); }).toThrowError();
     expect(() => { boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Square, 2, 3); }).toThrowError();
-    expect(() => { boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Octagonal, 3, 2); }).toThrowError();
-    expect(() => { boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Hexagonal, 1, 1); }).toThrowError();
+    expect(() => { boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Octagon, 3, 2); }).toThrowError();
+    expect(() => { boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Hexagon, 1, 1); }).toThrowError();
 });
 
 test('creates 4x4 rectangular board of squares', () => {
@@ -42,9 +42,9 @@ test('creates 3x5 rectangular board of squares', () => {
 });
 
 test('creates 5x3 rectangular board of octagons', () => {
-    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Octagonal, 5, 3);
+    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Octagon, 5, 3);
     expect(board.id).toBe(boardId);
-    expect(board.tileShape).toBe(TileShape.Octagonal);
+    expect(board.tileShape).toBe(TileShape.Octagon);
     expect(board.tiles.length).toEqual(15);
     expect(board.getTile([0, 0, 0])).not.toBeUndefined();
     expect(board.getTile([1, -1, 0])).toBeUndefined();
@@ -53,9 +53,9 @@ test('creates 5x3 rectangular board of octagons', () => {
 });
 
 test('creates 4x5 rectangular board of octagons', () => {
-    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Octagonal, 5, 4);
+    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Octagon, 5, 4);
     expect(board.id).toBe(boardId);
-    expect(board.tileShape).toBe(TileShape.Octagonal);
+    expect(board.tileShape).toBe(TileShape.Octagon);
     expect(board.tiles.length).toEqual(20);
     expect(board.getTile([0, 0, 0])).not.toBeUndefined();
     expect(board.getTile([1, -1, 0])).toBeUndefined();
@@ -64,9 +64,9 @@ test('creates 4x5 rectangular board of octagons', () => {
 });
 
 test('creates 6x3 rectangular board of hexagons', () => {
-    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Hexagonal, 6, 3);
+    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Hexagon, 6, 3);
     expect(board.id).toBe(boardId);
-    expect(board.tileShape).toBe(TileShape.Hexagonal);
+    expect(board.tileShape).toBe(TileShape.Hexagon);
     expect(board.tiles.length).toEqual(18);
     expect(board.getTile([0, 0, 0])).not.toBeUndefined();
     expect(board.getTile([1, -1, 0])).not.toBeUndefined();
@@ -77,9 +77,9 @@ test('creates 6x3 rectangular board of hexagons', () => {
 });
 
 test('creates 4x6 rectangular board of hexagons', () => {
-    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Hexagonal, 4, 6);
+    let board = boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Hexagon, 4, 6);
     expect(board.id).toBe(boardId);
-    expect(board.tileShape).toBe(TileShape.Hexagonal);
+    expect(board.tileShape).toBe(TileShape.Hexagon);
     expect(board.tiles.length).toEqual(24);
     expect(board.getTile([0, 0, 0])).not.toBeUndefined();
     expect(board.getTile([1, -1, 0])).not.toBeUndefined();
@@ -104,9 +104,9 @@ test('creates regular square with side length 3', () => {
 });
 
 test('creates regular octagon with side length 3', () => {
-    let board = boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Octagonal, 3);
+    let board = boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Octagon, 3);
     expect(board.id).toBe(boardId);
-    expect(board.tileShape).toBe(TileShape.Octagonal);
+    expect(board.tileShape).toBe(TileShape.Octagon);
     expect(board.tiles.length).toEqual(37);
     expect(board.getTile([-1, 7, -6])).toBeUndefined();
     expect(board.getTile([3, 3, -6])).not.toBeUndefined();
@@ -125,9 +125,9 @@ test('creates regular octagon with side length 3', () => {
 });
 
 test('creates regular hexagon with side length 3', () => {
-    let board = boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Hexagonal, 3);
+    let board = boardGenerator.createBoard(boardId, BoardType.RegularPolygon, TileShape.Hexagon, 3);
     expect(board.id).toBe(boardId);
-    expect(board.tileShape).toBe(TileShape.Hexagonal);
+    expect(board.tileShape).toBe(TileShape.Hexagon);
     expect(board.tiles.length).toEqual(19);
     expect(board.getTile([-1, 3, -2])).toBeUndefined();
     expect(board.getTile([0, 2, -2])).not.toBeUndefined();

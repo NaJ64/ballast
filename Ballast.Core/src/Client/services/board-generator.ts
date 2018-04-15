@@ -62,10 +62,10 @@ export class BoardGenerator implements IBoardGenerator {
             if (useTileShape.equals(TileShape.Square)) {
                 tiles = this.buildSquare(sideLength, useBoardType.centerOrigin);
             }
-            if (useTileShape.equals(TileShape.Octagonal)) {
+            if (useTileShape.equals(TileShape.Octagon)) {
                 tiles = this.buildRegularOctagon(sideLength, useBoardType.centerOrigin);
             }
-            if (useTileShape.equals(TileShape.Hexagonal)) {
+            if (useTileShape.equals(TileShape.Hexagon)) {
                 tiles = this.buildRegularHexagon(sideLength, useBoardType.centerOrigin);
             }
         }
@@ -131,7 +131,7 @@ export class BoardGenerator implements IBoardGenerator {
     private buildRegularOctagon(sideLength: number, centerOrigin: boolean) {
 
         let octagon: Tile[] = [];
-        let increment = TileShape.Octagonal.doubleIncrement ? 2 : 1;
+        let increment = TileShape.Octagon.doubleIncrement ? 2 : 1;
         let maxLength = sideLength + 2 * (sideLength - 1);
         let centerOffset = centerOrigin ? (((maxLength * increment) / 2) - 1) : 0;
         
@@ -149,7 +149,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagonal
+                    tileShape: TileShape.Octagon
                 }));
             }
         }
@@ -166,7 +166,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagonal
+                    tileShape: TileShape.Octagon
                 }));
             }
         }
@@ -184,7 +184,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagonal
+                    tileShape: TileShape.Octagon
                 }));
             }
         }
@@ -197,7 +197,7 @@ export class BoardGenerator implements IBoardGenerator {
     private buildRegularHexagon(sideLength: number, centerOrigin: boolean) {
 
         let hexagon: Tile[] = [];
-        let increment = TileShape.Hexagonal.doubleIncrement ? 2 : 1;
+        let increment = TileShape.Hexagon.doubleIncrement ? 2 : 1;
         let maxLength = (2 * sideLength) - 1;
         let centerOffset = centerOrigin ? ((sideLength * increment) - 1) : 0;
 
@@ -215,7 +215,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Hexagonal
+                    tileShape: TileShape.Hexagon
                 }));
             }
         }
@@ -230,7 +230,7 @@ export class BoardGenerator implements IBoardGenerator {
                 cubicCoordinates: CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
                 ),
-                tileShape: TileShape.Hexagonal
+                tileShape: TileShape.Hexagon
             }));
         }
 
@@ -246,7 +246,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Hexagonal
+                    tileShape: TileShape.Hexagon
                 }));
             }
         }
