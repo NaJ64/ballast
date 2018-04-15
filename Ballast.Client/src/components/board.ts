@@ -34,11 +34,11 @@ export class BoardComponent extends ComponentBase {
     }
 
     private cacheStaticAssets() {
-        this.circleGeometry = new THREE.CircleGeometry( 1, 24);
-        this.squareGeometry = new THREE.CircleGeometry( 2, 4, Math.PI / 4);
-        this.octagonGeometry = new THREE.CircleGeometry( 2, 8, Math.PI / 8);
-        this.hexagonGeometry = new THREE.CircleGeometry( 2, 6, Math.PI / 2);
-        this.tileMaterial = new THREE.MeshBasicMaterial( { color: 0x0000cc, side: THREE.FrontSide } );
+        this.circleGeometry = new THREE.CircleGeometry(5, 24);
+        this.squareGeometry = new THREE.CircleGeometry(5, 4, Math.PI / 4);
+        this.octagonGeometry = new THREE.CircleGeometry(5, 8, Math.PI / 8);
+        this.hexagonGeometry = new THREE.CircleGeometry(5, 6, Math.PI / 2);
+        this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide });
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -51,10 +51,6 @@ export class BoardComponent extends ComponentBase {
 
         // Check if we have a new board to draw
         if (!!boardId && this.currentBoardId != boardId) {
-
-            // TESTING
-            //renderingContext.scene.add(this.plane);
-            console.log('drawing new board');
 
             // Render the tiles
             let game = <Game>renderingContext.game;
@@ -71,23 +67,22 @@ export class BoardComponent extends ComponentBase {
 
     private drawTile(renderingContext: RenderingContext, tile: Tile) {
         let offsetHex = tile.cubicCoordinates.toOffset();
-        let spacing = 4;
         let x = offsetHex.col;
         let z = offsetHex.row;
+        if ((z & 1) > 0) {
+            x += 0.5;
+        }
+        let colSpacing = 10;
         if (tile.tileShape.doubleIncrement) {
-            spacing *= 0.5
+            colSpacing *= 0.5;
         }
+        let rowSpacing = colSpacing;
         if (tile.tileShape.applyHexRowScaling) {
-            // Do something here
+            rowSpacing *= BoardComponent.hexRowScalar;
         }
+        x *= colSpacing;
+        z *= rowSpacing;
         let newTileMesh = this.createTileMesh(tile.tileShape);
-        x *= spacing;
-        if (tile.tileShape.equals(TileShape.Hexagonal)) {
-            if ((z & 1) > 0) {
-                x += 2;
-            }
-        }
-        z *= spacing;
         newTileMesh.position.set(x, 0, z);
         renderingContext.scene.add(newTileMesh);
     }
