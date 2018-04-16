@@ -17,10 +17,10 @@ export class BoardComponent extends ComponentBase {
     private currentBoardId?: string;
     private inverted?: boolean;
 
-    private squareGeometry!: THREE.CircleGeometry;
-    private hexagonGeometry!: THREE.CircleGeometry;
-    private octagonGeometry!: THREE.CircleGeometry;
-    private circleGeometry!: THREE.CircleGeometry;
+    private squareGeometry!: THREE.RingGeometry;
+    private hexagonGeometry!: THREE.RingGeometry;
+    private octagonGeometry!: THREE.RingGeometry;
+    private circleGeometry!: THREE.RingGeometry;
     private tileMaterial!: THREE.MeshBasicMaterial;
 
     public constructor(
@@ -34,11 +34,11 @@ export class BoardComponent extends ComponentBase {
     }
 
     private cacheStaticAssets() {
-        this.circleGeometry = new THREE.CircleGeometry(5, 24);
-        this.squareGeometry = new THREE.CircleGeometry(5, 4, Math.PI / 4);
-        this.octagonGeometry = new THREE.CircleGeometry(5, 8, Math.PI / 8);
-        this.hexagonGeometry = new THREE.CircleGeometry(5, 6, Math.PI / 2);
-        this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide });
+        this.circleGeometry = new THREE.RingGeometry(4.5, 5, 24, 1);
+        this.squareGeometry = new THREE.RingGeometry(4.5, 5, 4, Math.PI / 4, 1);
+        this.octagonGeometry = new THREE.RingGeometry(4.5, 5, 8, Math.PI / 8, 1);
+        this.hexagonGeometry = new THREE.RingGeometry(4.5, 5.5, 6, Math.PI / 2, 1);
+        this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.FrontSide });
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -88,7 +88,7 @@ export class BoardComponent extends ComponentBase {
     }
 
     private createTileMesh(tileShape: TileShape) {
-        let tileGeometry: THREE.CircleGeometry | undefined;
+        let tileGeometry: THREE.RingGeometry | undefined;
         if (tileShape.equals(TileShape.Square)) {
             tileGeometry = this.squareGeometry;
         }

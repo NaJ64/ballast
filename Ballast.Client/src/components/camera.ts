@@ -26,7 +26,7 @@ export class CameraComponent extends ComponentBase {
         this.orbitTo.rotation.reorder('YXZ');
         this.partialTurnsPerSecond = 8;
         this.cameraV3 = new THREE.Vector3();
-        this.updateCamera(5, 2);
+        this.updateCamera(10, 5);
     }
 
     public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
