@@ -3,6 +3,8 @@ import { injectable } from 'inversify';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { RenderingContext } from '../rendering/rendering-context';
 import { RenderingMiddleware } from '../rendering/rendering-middleware';
+import { IEventBus } from '../messaging/ievent-bus';
+import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 
 export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
 
@@ -14,13 +16,16 @@ export class BallastViewport {
     private readonly keyboardWatcher: KeyboardWatcher;
     private readonly renderingContext: RenderingContext;
     private readonly renderingMiddleware: RenderingMiddleware;
+    private readonly eventBus: IEventBus;
 
-    public constructor(host: HTMLElement, clientId: string) {
+    public constructor(host: HTMLElement, clientId: string, eventBus: IEventBus) {
         this.root = this.createRoot(host, clientId);
         this.canvas = this.createCanvas(this.root);
         this.keyboardWatcher = this.createKeyboardWatcher(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
         this.renderingMiddleware = new RenderingMiddleware();
+        this.eventBus = eventBus;
+        this.subscribeToEvents();
     }
 
     public getRoot(): HTMLDivElement {
@@ -64,6 +69,16 @@ export class BallastViewport {
 
     private createRenderingContext(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
         return new RenderingContext(canvas, keyboardWatcher);
+    }
+
+    private subscribeToEvents() {
+        this.eventBus.subscribe<GameStateChangedEvent>(GameStateChangedEvent.id, 
+            event => this.onGameStateChangedAsync(event)
+        );
+    }
+
+    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
+        this.renderingContext.setCurrentGame(event.game);
     }
 
     private resizeCanvas(canvas: HTMLCanvasElement) {

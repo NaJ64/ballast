@@ -1,5 +1,5 @@
-import { IEvent } from './ievent';
+import { IEvent } from "./ievent";
 
-export abstract class EventBase implements IEvent {
-    public abstract eventId: Symbol;
+export abstract class EventBase implements IEvent { 
+    public abstract id: Symbol;
 }

@@ -7,11 +7,13 @@ import { GameComponentLoadedEvent } from '../messaging/events/components/game-co
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/ievent-bus';
 import { PerspectiveTracker } from '../input/perspective-tracker';
+import { BoardComponent } from './board';
 
 @injectable()
 export class GameComponent extends ComponentBase {
 
     private readonly perspectiveTracker: PerspectiveTracker;
+    private readonly board: BoardComponent;
     private cameraRotateTo?: THREE.Vector3;
     private inverted?: boolean;
     
@@ -19,17 +21,15 @@ export class GameComponent extends ComponentBase {
     private cubeMaterial!: THREE.MeshBasicMaterial;
     private cube!: THREE.Mesh;
 
-    private planeGeometry!: THREE.PlaneGeometry;
-    private planeMaterial!: THREE.MeshBasicMaterial;
-    private plane!: THREE.Mesh;
-
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
-        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker
+        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
+        @inject(TYPES_BALLAST.BoardComponentFactory) boardFactory: () => BoardComponent
     ) {
         super(viewport, eventBus);
         this.perspectiveTracker = perspectiveTracker;
+        this.board = boardFactory( );
         this.cacheStaticAssets();
     }
 
@@ -38,11 +38,6 @@ export class GameComponent extends ComponentBase {
         this.cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
         this.cubeMaterial = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
         this.cube = new THREE.Mesh(this.cubeGeometry, this.cubeMaterial );
-        // Create plane
-        this.planeGeometry = new THREE.PlaneGeometry( 6, 6 );
-        this.planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000099, side: THREE.FrontSide } );
-        this.plane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
-        this.plane.rotation.x = Math.PI / -2; // Lay plane flat along X and Z axis
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -50,7 +45,6 @@ export class GameComponent extends ComponentBase {
         // Add the cube and plane into the scene an setup the camera (only on initial render)
         if (this.isFirstRender()) {
             renderingContext.scene.add(this.cube);
-            renderingContext.scene.add(this.plane)
         }
 
         // Flags for movement
@@ -92,8 +86,13 @@ export class GameComponent extends ComponentBase {
     }
 
     public onAttach(parent: HTMLElement) {
+        this.board.attach(parent);
         let loadedEvent = new GameComponentLoadedEvent();
-        this.eventBus.publish(loadedEvent.eventId, loadedEvent);
+        this.eventBus.publishAsync(loadedEvent);
+    }
+
+    protected onDetach(parent: HTMLElement) {
+        this.board.detach();
     }
 
 }

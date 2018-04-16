@@ -25,7 +25,7 @@ export class TileShape implements ITileShape {
         hasDirectionEast: true
     });
 
-    public static Octagonal: TileShape = new TileShape({ 
+    public static Octagon: TileShape = new TileShape({ 
         value: 1, 
         name: 'Octagonal',
         doubleIncrement: true,
@@ -39,7 +39,7 @@ export class TileShape implements ITileShape {
         hasDirectionSouthEast: true
     });
 
-    public static Hexagonal: TileShape = new TileShape({ 
+    public static Hexagon: TileShape = new TileShape({ 
         value: 2, 
         name: 'Hexagonal',
         applyHexRowScaling: true,
@@ -82,8 +82,8 @@ export class TileShape implements ITileShape {
     public static list(): TileShape[] {
         return [
             TileShape.Square,
-            TileShape.Octagonal,
-            TileShape.Hexagonal
+            TileShape.Octagon,
+            TileShape.Hexagon
         ];
     }
 

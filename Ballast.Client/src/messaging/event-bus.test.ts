@@ -5,12 +5,18 @@ import { EventBus } from './event-bus';
 
 let handled = 0;
 let eventKey = Symbol.for('TestEvent');
-let event: IEvent = { value: 'test' };
+let event: IEvent = { id: eventKey };
 let handler1 = (event: IEvent) => {
-    handled += 1;
+    return new Promise<void>((resolve, reject) => {
+        handled += 1;
+        resolve();
+    });
 };
 let handler2 = (event: IEvent) => {
-    handled += 2;
+    return new Promise<void>((resolve, reject) => {
+        handled += 2;
+        resolve();
+    });
 };
 let eventBus = new EventBus();
 
@@ -33,14 +39,14 @@ test('accepts new subscription(s)', () => {
     expect(handlers).toContain(handler2);
 });
 
-test('publishes event to all subscribers', () => {
+test('publishes event to all subscribers', async () => {
     expect(handled).toEqual(0);
-    eventBus.publish(eventKey, event);
+    await eventBus.publishAsync(event);
     expect(handled).toEqual(3); // handled by both 1 + 2
     handled = 0;
 }, 1000);
 
-test('honors subscription removal', () => {
+test('honors subscription removal', async () => {
     let handlers = eventBus.getHandlers<IEvent>(eventKey);
     expect(handlers).toContain(handler1);
     expect(handlers).toContain(handler2);
@@ -49,6 +55,6 @@ test('honors subscription removal', () => {
     expect(handlers).not.toContain(handler1);
     expect(handlers).toContain(handler2);
     expect(handled).toEqual(0);
-    eventBus.publish(eventKey, event);
+    await eventBus.publishAsync(event);
     expect(handled).toEqual(2); // handled by 2 only
 });

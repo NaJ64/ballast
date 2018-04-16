@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
 import { IEvent } from './ievent';
-import { IEventBus, EventHandler } from './ievent-bus';
+import { IEventBus, AsyncEventHandler } from './ievent-bus';
 
 interface EventSubscription<TEvent extends IEvent> {
     key: Symbol;
-    handler: EventHandler<TEvent>;
+    asyncHandler: AsyncEventHandler<TEvent>;
 }
 
 @injectable()
@@ -16,11 +16,11 @@ export class EventBus implements IEventBus {
         this.subscriptions = new Map<Symbol, EventSubscription<IEvent>[]>();
     }
 
-    public getHandlers<TEvent extends IEvent>(key: Symbol): EventHandler<TEvent>[] {
+    public getHandlers<TEvent extends IEvent>(key: Symbol): AsyncEventHandler<TEvent>[] {
         // get subscription list
         let subscriptions = this.getSubscriptions<TEvent>(key);
         // return projection to list of handler functions
-        return subscriptions.map(x => x.handler);
+        return subscriptions.map(x => x.asyncHandler);
 
     }
 
@@ -44,30 +44,30 @@ export class EventBus implements IEventBus {
         this.subscriptions.clear();
     }
 
-    public publish<TEvent extends IEvent>(key: Symbol, event: TEvent) {
+    public async publishAsync<TEvent extends IEvent>(event: TEvent): Promise<void> {
         // Get all subscribers for the current event key
-        let subscriptions = this.getSubscriptions<TEvent>(key);
+        let subscriptions = this.getSubscriptions<TEvent>(event.id);
         // Loop through the subscribers
         for(let subscription of subscriptions) {
             // invoke the handler(s)
-            subscription.handler(event);
+            await subscription.asyncHandler(event);
         }
     }
     
-    public subscribe<TEvent extends IEvent>(key: Symbol, handler: (event: TEvent) => void) {
+    public subscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (event: TEvent) => Promise<void>) {
         // Get all subscribers for the current event key
         let subscriptions = this.getSubscriptions<TEvent>(key);
         // Add a new handler
-        subscriptions.push({ key: key, handler: handler });
+        subscriptions.push({ key: key, asyncHandler: asyncHandler });
     }
     
-    public unsubscribe<TEvent extends IEvent>(key: Symbol, handler: (event: TEvent) => void) {
+    public unsubscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (event: TEvent) => Promise<void>) {
         // Get all subscribers for the current event key
         let subscriptions = this.getSubscriptions<TEvent>(key);
         // Find an index to remove where subscription.handler has reference equality
         let removeIndex = -1;
         for (let i=0; i < subscriptions.length; i++) {
-            if (subscriptions[i].handler == handler) {
+            if (subscriptions[i].asyncHandler == asyncHandler) {
                 removeIndex = i;
                 break;
             }

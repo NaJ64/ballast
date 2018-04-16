@@ -65,6 +65,14 @@ export class CubicCoordinates implements ICubicCoordinates {
             .equals(this);
     }
 
+    public toAxial() {
+        return AxialCoordinates.fromCubic(this);
+    }
+
+    public toOffset() {
+        return OffsetCoordinates.fromCubic(this);
+    }
+
     public toOrderedTriple() {
         return [this.x, this.y, this.z];
     }

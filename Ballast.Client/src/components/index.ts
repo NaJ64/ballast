@@ -1,3 +1,4 @@
+export * from './board';
 export * from './camera';
 export * from './chat';
 export * from './component-base';
