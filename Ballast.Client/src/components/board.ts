@@ -34,10 +34,10 @@ export class BoardComponent extends ComponentBase {
     }
 
     private cacheStaticAssets() {
-        this.circleGeometry = new THREE.RingGeometry(4.5, 5, 24, 1);
-        this.squareGeometry = new THREE.RingGeometry(4.5, 5, 4, Math.PI / 4, 1);
-        this.octagonGeometry = new THREE.RingGeometry(4.5, 5, 8, Math.PI / 8, 1);
-        this.hexagonGeometry = new THREE.RingGeometry(4.5, 5.5, 6, Math.PI / 2, 1);
+        this.circleGeometry = new THREE.RingGeometry(5.8, 5.9, 24, 1);
+        this.squareGeometry = new THREE.RingGeometry(5.8, 5.9, 4, 1, Math.PI / 4);
+        this.octagonGeometry = new THREE.RingGeometry(5.8, 5.9, 8, 1, Math.PI / 8);
+        this.hexagonGeometry = new THREE.RingGeometry(5.8, 5.9, 6, 1, Math.PI / 2);
         this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.FrontSide });
     }
 
@@ -72,7 +72,7 @@ export class BoardComponent extends ComponentBase {
         if ((z & 1) > 0) {
             x += 0.5;
         }
-        let colSpacing = 10;
+        let colSpacing = 10.1;
         if (tile.tileShape.doubleIncrement) {
             colSpacing *= 0.5;
         }
