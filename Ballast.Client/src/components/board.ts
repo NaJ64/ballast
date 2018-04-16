@@ -13,7 +13,6 @@ import { Game, Board, Tile, CubicCoordinates, TileShape } from 'ballast-core';
 @injectable()
 export class BoardComponent extends ComponentBase {
 
-    private static readonly hexRowScalar: number = Math.sqrt(3) / 2;
     private readonly perspectiveTracker: PerspectiveTracker;
     private currentBoardId?: string;
     private inverted?: boolean;
@@ -115,7 +114,7 @@ export class BoardComponent extends ComponentBase {
         }
         let rowSpacing = colSpacing;
         if (tile.tileShape.applyHexRowScaling) {
-            rowSpacing *= BoardComponent.hexRowScalar;
+            rowSpacing *= RenderingConstants.HEX_ROW_SCALAR;
         }
         x *= colSpacing;
         z *= rowSpacing;
