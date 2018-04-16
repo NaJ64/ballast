@@ -51,6 +51,18 @@ export class TileShape implements ITileShape {
         hasDirectionSouthEast: true
     });
     
+    public static Circle: TileShape = new TileShape({ 
+        value: 3, 
+        name: 'Circle',
+        applyHexRowScaling: true,
+        hasDirectionWest: true,
+        hasDirectionEast: true,
+        hasDirectionNorthWest: true,
+        hasDirectionNorthEast: true,
+        hasDirectionSouthWest: true,
+        hasDirectionSouthEast: true
+    });
+
     public readonly value: number;
     public readonly name: string;
     public readonly applyHexRowScaling: boolean;
@@ -83,7 +95,8 @@ export class TileShape implements ITileShape {
         return [
             TileShape.Square,
             TileShape.Octagon,
-            TileShape.Hexagon
+            TileShape.Hexagon,
+            TileShape.Circle
         ];
     }
 

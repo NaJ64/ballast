@@ -54,6 +54,8 @@ export class CameraComponent extends ComponentBase {
     private async onGameStateChanged(event: GameStateChangedEvent): Promise<void> {
         if (event.game && event.game.board.tileShape.applyHexRowScaling) {
             this.partialTurnRadians = RenderingConstants.SIXTH_TURN_RADIANS;
+        } else if (event.game && !event.game.board.tileShape.hasDirectionNorthWest){
+            this.partialTurnRadians = RenderingConstants.QUARTER_TURN_RADIANS;
         } else {
             this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
         }

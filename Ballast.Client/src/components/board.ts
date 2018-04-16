@@ -3,6 +3,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
+import { RenderingConstants } from '../rendering/rendering-constants';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/ievent-bus';
 import { IEvent } from '../messaging/ievent';
@@ -34,11 +35,47 @@ export class BoardComponent extends ComponentBase {
     }
 
     private cacheStaticAssets() {
-        this.circleGeometry = new THREE.RingGeometry(5.8, 5.9, 24, 1);
-        this.squareGeometry = new THREE.RingGeometry(5.8, 5.9, 4, 1, Math.PI / 4);
-        this.octagonGeometry = new THREE.RingGeometry(5.8, 5.9, 8, 1, Math.PI / 8);
-        this.hexagonGeometry = new THREE.RingGeometry(5.8, 5.9, 6, 1, Math.PI / 2);
+        this.circleGeometry = this.createCircleGeometry();
+        this.squareGeometry = this.createSquareGeometry();
+        this.octagonGeometry = this.createOctagonGeometry();
+        this.hexagonGeometry = this.createHexagonGeometry();
         this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.FrontSide });
+    }
+
+    private createCircleGeometry() {
+        let outerRadius = this.getTileOuterRadius(24);
+        let innerRadius = this.getTileInnerRadius(outerRadius);
+        return new THREE.RingGeometry(innerRadius, outerRadius, 24, 1);
+    }
+
+    private createSquareGeometry() {
+        let outerRadius = this.getTileOuterRadius(4);
+        let innerRadius = this.getTileInnerRadius(outerRadius);
+        return new THREE.RingGeometry(innerRadius, outerRadius, 4, 1, Math.PI / 4);
+    }
+
+    private createOctagonGeometry() {
+        let outerRadius = this.getTileOuterRadius(8);
+        let innerRadius = this.getTileInnerRadius(outerRadius);
+        return new THREE.RingGeometry(innerRadius, outerRadius, 8, 1, Math.PI / 8);
+    }
+
+    private createHexagonGeometry() {
+        let outerRadius = this.getTileOuterRadius(6);
+        let innerRadius = this.getTileInnerRadius(outerRadius);
+        return new THREE.RingGeometry(innerRadius, outerRadius, 6, 1, Math.PI / 2);
+    }
+
+    private getTileInnerRadius(outerRadius: number) {
+        return outerRadius - (RenderingConstants.TILE_BORDER_WIDTH / 2);
+    }
+
+    private getTileOuterRadius(sides: number) {
+        return this.getRadiusFromApothem((RenderingConstants.TILE_POSITION_SCALAR / 2), sides); 
+    }
+
+    private getRadiusFromApothem(apothem: number, sides: number) {
+        return (apothem / Math.cos(Math.PI / sides));
     }
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -72,7 +109,7 @@ export class BoardComponent extends ComponentBase {
         if ((z & 1) > 0) {
             x += 0.5;
         }
-        let colSpacing = 10.1;
+        let colSpacing = RenderingConstants.TILE_POSITION_SCALAR;
         if (tile.tileShape.doubleIncrement) {
             colSpacing *= 0.5;
         }

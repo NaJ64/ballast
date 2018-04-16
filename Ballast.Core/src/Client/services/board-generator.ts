@@ -65,8 +65,8 @@ export class BoardGenerator implements IBoardGenerator {
             if (useTileShape.equals(TileShape.Octagon)) {
                 tiles = this.buildRegularOctagon(sideLength, useBoardType.centerOrigin);
             }
-            if (useTileShape.equals(TileShape.Hexagon)) {
-                tiles = this.buildRegularHexagon(sideLength, useBoardType.centerOrigin);
+            if (useTileShape.equals(TileShape.Hexagon) || useTileShape.equals(TileShape.Circle)) {
+                tiles = this.buildRegularHexagon(sideLength, useBoardType.centerOrigin, useTileShape);
             }
         }
 
@@ -194,12 +194,15 @@ export class BoardGenerator implements IBoardGenerator {
 
     }
 
-    private buildRegularHexagon(sideLength: number, centerOrigin: boolean) {
+    private buildRegularHexagon(sideLength: number, centerOrigin: boolean, tileShape?: TileShape) {
 
         let hexagon: Tile[] = [];
         let increment = TileShape.Hexagon.doubleIncrement ? 2 : 1;
         let maxLength = (2 * sideLength) - 1;
         let centerOffset = centerOrigin ? ((sideLength * increment) - 1) : 0;
+        if (typeof tileShape == 'undefined') {
+            tileShape = TileShape.Hexagon;
+        }
 
         // Build top portion of hexagon
         let rowLength = sideLength - 1;
@@ -215,7 +218,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Hexagon
+                    tileShape: tileShape
                 }));
             }
         }
@@ -230,7 +233,7 @@ export class BoardGenerator implements IBoardGenerator {
                 cubicCoordinates: CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
                 ),
-                tileShape: TileShape.Hexagon
+                tileShape: tileShape
             }));
         }
 
@@ -246,7 +249,7 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Hexagon
+                    tileShape: tileShape
                 }));
             }
         }
