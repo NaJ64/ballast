@@ -46,30 +46,36 @@ export class PerspectiveTracker {
         return this.getCameraHalfTurns() / 2;
     }
 
-    public getSnappedRotation(): THREE.Matrix4 {
+    public getUnsnappedRotation(): THREE.Matrix4 {
         let cameraHalfTurns = (2 - this.getCameraHalfTurns()) % 2;
-        if (cameraHalfTurns >= 1.625 && cameraHalfTurns < 1.875) {
-            this.rotationM4.makeRotationY(1.75 * Math.PI);
-        } else if (cameraHalfTurns >= 1.375) {
-            this.rotationM4.makeRotationY(1.5 * Math.PI);
-        } else if (cameraHalfTurns >= 1.125) {
-            this.rotationM4.makeRotationY(1.25 * Math.PI);
-        } else if (cameraHalfTurns >= 0.875) {
-            this.rotationM4.makeRotationY(Math.PI);
-        } else if (cameraHalfTurns >= 0.625) {
-            this.rotationM4.makeRotationY(0.75 * Math.PI);
-        } else if (cameraHalfTurns >= 0.375) {
-            this.rotationM4.makeRotationY(0.5 * Math.PI);
-        } else if (cameraHalfTurns >= 0.125) {
-            this.rotationM4.makeRotationY(0.25 * Math.PI);
-        } else {
-            this.rotationM4.makeRotationY(0);
-        }
+        this.rotationM4.makeRotationY(cameraHalfTurns * Math.PI);
         return this.rotationM4;
     }
 
+    // public getSnappedRotation(): THREE.Matrix4 {
+    //     let cameraHalfTurns = (2 - this.getCameraHalfTurns()) % 2;
+    //     if (cameraHalfTurns >= 1.625 && cameraHalfTurns < 1.875) {
+    //         this.rotationM4.makeRotationY(1.75 * Math.PI);
+    //     } else if (cameraHalfTurns >= 1.375) {
+    //         this.rotationM4.makeRotationY(1.5 * Math.PI);
+    //     } else if (cameraHalfTurns >= 1.125) {
+    //         this.rotationM4.makeRotationY(1.25 * Math.PI);
+    //     } else if (cameraHalfTurns >= 0.875) {
+    //         this.rotationM4.makeRotationY(Math.PI);
+    //     } else if (cameraHalfTurns >= 0.625) {
+    //         this.rotationM4.makeRotationY(0.75 * Math.PI);
+    //     } else if (cameraHalfTurns >= 0.375) {
+    //         this.rotationM4.makeRotationY(0.5 * Math.PI);
+    //     } else if (cameraHalfTurns >= 0.125) {
+    //         this.rotationM4.makeRotationY(0.25 * Math.PI);
+    //     } else {
+    //         this.rotationM4.makeRotationY(0);
+    //     }
+    //     return this.rotationM4;
+    // }
+
     public transformDirection(movementV3: THREE.Vector3): THREE.Vector3 {
-        let rotationM4 = this.getSnappedRotation();
+        let rotationM4 = this.getUnsnappedRotation();
         return movementV3.applyMatrix4(rotationM4);
     }
 

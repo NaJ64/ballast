@@ -72,9 +72,7 @@ export class BallastViewport {
     }
 
     private subscribeToEvents() {
-        this.eventBus.subscribe<GameStateChangedEvent>(GameStateChangedEvent.id, 
-            event => this.onGameStateChangedAsync(event)
-        );
+        this.eventBus.subscribe<GameStateChangedEvent>(GameStateChangedEvent.id, this.onGameStateChangedAsync.bind(this));
     }
 
     private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
@@ -125,7 +123,7 @@ export class BallastViewport {
     private render(): void {
         this.renderingContext.refreshFrameDelta();
         this.prerender(this.renderingContext);
-        this.renderingMiddleware.renderAll(this.renderingContext, this.postrender);
+        this.renderingMiddleware.renderAll(this.renderingContext, this.postrender.bind(this));
     }
 
     public addRenderingStep(renderingStep: RenderingStep) {

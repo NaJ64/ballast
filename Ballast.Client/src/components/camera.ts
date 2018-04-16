@@ -1,21 +1,23 @@
 import * as THREE from 'three';
 import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
+import { RenderingConstants } from '../rendering/rendering-constants';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/ievent-bus';
-
-const PARTIAL_TURN_RADIANS = (Math.PI / 4);
+import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 
 export class CameraComponent extends ComponentBase {
 
     private readonly cameraV3: THREE.Vector3;
     private readonly partialTurnsPerSecond: number;
-    
+    private partialTurnRadians: number;
     private orbitClockwise?: boolean;
     private orbitClock?: THREE.Clock;
     private orbitTo: THREE.Object3D;
+    private resetCamera?: boolean;
+    private gameStateChangedHandler?: (event: GameStateChangedEvent) => Promise<void>;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -24,13 +26,38 @@ export class CameraComponent extends ComponentBase {
         super(viewport, eventBus);
         this.orbitTo = new THREE.Object3D();
         this.orbitTo.rotation.reorder('YXZ');
-        this.partialTurnsPerSecond = 8;
+        this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
+        this.partialTurnsPerSecond = RenderingConstants.PIVOT_DURATION_SECONDS;
         this.cameraV3 = new THREE.Vector3();
         this.updateCamera(10, 5);
+        this.subscribeToEvents();
+        this.resetCamera = true;
     }
 
     public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
         this.cameraV3.set(0, newOrbitHeight, newOrbitRadius);
+    }
+
+    private subscribeToEvents() {
+        this.gameStateChangedHandler = this.onGameStateChanged.bind(this);
+        if (this.gameStateChangedHandler) {
+            this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        }
+    }
+
+    private unsubscribeFromEvents() {
+        if (this.gameStateChangedHandler) {
+            this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        }
+    }
+
+    private async onGameStateChanged(event: GameStateChangedEvent): Promise<void> {
+        if (event.game && event.game.board.tileShape.applyHexRowScaling) {
+            this.partialTurnRadians = RenderingConstants.SIXTH_TURN_RADIANS;
+        } else {
+            this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
+        }
+        this.resetCamera = true;
     }
 
     public render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -38,6 +65,14 @@ export class CameraComponent extends ComponentBase {
         // Set initial camera position on first render using pivot object
         if (this.isFirstRender()) {
             renderingContext.cameraPivot.rotation.reorder('YXZ');
+        }
+
+        // If the camera reset flag has been set, re-orient camera back to start
+        if (this.resetCamera) {
+            let initialY = Math.PI / -2;
+            this.orbitTo.rotation.set(0, initialY, 0);
+            renderingContext.cameraPivot.rotation.set(0, initialY, 0);
+            this.resetCamera = false;
         }
 
         // Update camera properties
@@ -69,7 +104,7 @@ export class CameraComponent extends ComponentBase {
         let triggerNewOrbit = (left && !right || right && !left) && !inOrbit;
         if (triggerNewOrbit) {
             this.orbitClockwise = left; // Reverse direction
-            let thetaRadians = PARTIAL_TURN_RADIANS;
+            let thetaRadians = this.partialTurnRadians;
             if (!this.orbitClockwise) // pivot direction needs to be opposite of perspective rotation
                 thetaRadians *= -1;
             this.orbitClock = new THREE.Clock();
@@ -85,7 +120,7 @@ export class CameraComponent extends ComponentBase {
 
                 // Move directly to final orientation
                 renderingContext.cameraPivot.rotation.setFromVector3(
-                    (this.orbitTo as THREE.Object3D).rotation.toVector3()
+                    (<THREE.Object3D>this.orbitTo).rotation.toVector3()
                 );
 
                 // finished rotating
@@ -95,10 +130,10 @@ export class CameraComponent extends ComponentBase {
             } else {
 
                 // Calculate how much of a partial turn we need to rotate by
-                let quarterTurns = this.partialTurnsPerSecond * orbitDelta;
+                let partialTurns = this.partialTurnsPerSecond * orbitDelta;
 
-                // Convert quarter turns to radians
-                let thetaRadians = quarterTurns * PARTIAL_TURN_RADIANS;
+                // Convert partial turns to radians
+                let thetaRadians = partialTurns * this.partialTurnRadians;
                 if (!this.orbitClockwise)
                     thetaRadians *= -1;
 
@@ -109,6 +144,10 @@ export class CameraComponent extends ComponentBase {
 
         }
 
+    }
+
+    public dispose(): void { 
+        this.unsubscribeFromEvents();
     }
 
 }
