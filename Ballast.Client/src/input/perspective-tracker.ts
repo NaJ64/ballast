@@ -114,11 +114,11 @@ export class PerspectiveTracker {
 
     public transformDirection(movementV3: THREE.Vector3, possibleDirections?: number): THREE.Vector3 {
         let rotationM4 = null;
-        if (possibleDirections) {
-            rotationM4 = this.getSnappedRotation(possibleDirections);
-        } else {
+        //if (possibleDirections) {
+        //  rotationM4 = this.getSnappedRotation(possibleDirections);
+        //} else {
             rotationM4 = this.getUnsnappedRotation();
-        }
+        //}
         return movementV3.applyMatrix4(rotationM4);
     }
 
@@ -128,18 +128,18 @@ export class PerspectiveTracker {
     }
 
     public getForwardScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_FORWARD, scalar);
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_FORWARD, scalar, possibleDirections);
     }
 
     public getBackScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar);
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar, possibleDirections);
     }
     
     public getLeftScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar);
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar, possibleDirections);
     }
     
     public getRightScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar);
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar, possibleDirections);
     }
 }

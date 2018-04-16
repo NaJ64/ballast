@@ -42,6 +42,9 @@ export class GameComponent extends ComponentBase {
 
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
 
+        // Get total possible directions of movement
+        let directions = renderingContext.game && renderingContext.game.board.tileShape.possibleDirections || undefined;
+
         // Add the cube and plane into the scene an setup the camera (only on initial render)
         if (this.isFirstRender()) {
             renderingContext.scene.add(this.cube);
@@ -71,9 +74,9 @@ export class GameComponent extends ComponentBase {
             let increment = 0.1;
             let movement = new THREE.Vector3(0, 0, 0);
             if (forward)
-                movement.add(this.perspectiveTracker.getForwardScaled(increment));
+                movement.add(this.perspectiveTracker.getForwardScaled(increment, directions));
             if (back)
-                movement.add(this.perspectiveTracker.getBackScaled(increment));
+                movement.add(this.perspectiveTracker.getBackScaled(increment, directions));
             //console.log(movement);
             this.cube.position.add(movement);
             renderingContext.cameraPivot.position.add(movement);

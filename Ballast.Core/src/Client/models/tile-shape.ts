@@ -1,4 +1,4 @@
-export interface ITileShape { 
+export interface ITileShape {
     value: number;
     name: string;
     applyHexRowScaling?: boolean;
@@ -15,8 +15,8 @@ export interface ITileShape {
 
 export class TileShape implements ITileShape {
 
-    public static Square: TileShape = new TileShape({ 
-        value: 0, 
+    public static Square: TileShape = new TileShape({
+        value: 0,
         name: 'Square',
         doubleIncrement: true,
         hasDirectionNorth: true,
@@ -25,8 +25,8 @@ export class TileShape implements ITileShape {
         hasDirectionEast: true
     });
 
-    public static Octagon: TileShape = new TileShape({ 
-        value: 1, 
+    public static Octagon: TileShape = new TileShape({
+        value: 1,
         name: 'Octagonal',
         doubleIncrement: true,
         hasDirectionNorth: true,
@@ -39,8 +39,8 @@ export class TileShape implements ITileShape {
         hasDirectionSouthEast: true
     });
 
-    public static Hexagon: TileShape = new TileShape({ 
-        value: 2, 
+    public static Hexagon: TileShape = new TileShape({
+        value: 2,
         name: 'Hexagonal',
         applyHexRowScaling: true,
         hasDirectionWest: true,
@@ -50,9 +50,9 @@ export class TileShape implements ITileShape {
         hasDirectionSouthWest: true,
         hasDirectionSouthEast: true
     });
-    
-    public static Circle: TileShape = new TileShape({ 
-        value: 3, 
+
+    public static Circle: TileShape = new TileShape({
+        value: 3,
         name: 'Circle',
         applyHexRowScaling: true,
         hasDirectionWest: true,
@@ -107,7 +107,7 @@ export class TileShape implements ITileShape {
         return this.value == tileShape.value;
     }
 
-    public static fromObject(object: ITileShape): TileShape {           
+    public static fromObject(object: ITileShape): TileShape {
         let item = !!object && TileShape.fromValue(object.value);
         if (!item) {
             throw new Error(`Could derive tile shape from object (${object})`);
@@ -115,7 +115,7 @@ export class TileShape implements ITileShape {
         return item;
     }
 
-    public static fromValue(value: number): TileShape {           
+    public static fromValue(value: number): TileShape {
         let item = (value > -1) && TileShape.list().find(x => x.value == value);
         if (!item) {
             throw new Error(`Could derive tile shape from value (${value})`);
@@ -123,12 +123,33 @@ export class TileShape implements ITileShape {
         return item;
     }
 
-    public static fromString(text: string): TileShape {           
+    public static fromString(text: string): TileShape {
         let item = !!text && TileShape.list().find(x => x.name.toLocaleLowerCase() == text.toLocaleLowerCase());
         if (!item) {
             throw new Error(`Could derive tile shape from text (${text})`);
         }
         return item;
+    }
+
+    public get possibleDirections() {
+        let directions = 0;
+        if (this.hasDirectionNorth)
+            directions += 1;
+        if (this.hasDirectionSouth)
+            directions += 1;
+        if (this.hasDirectionWest)
+            directions += 1;
+        if (this.hasDirectionEast)
+            directions += 1;
+        if (this.hasDirectionNorthWest)
+            directions += 1;
+        if (this.hasDirectionNorthEast)
+            directions += 1;
+        if (this.hasDirectionSouthWest)
+            directions += 1;
+        if (this.hasDirectionSouthEast)
+            directions += 1;
+        return directions;
     }
 
 }
