@@ -11,4 +11,7 @@ body {
     top: 50%;
     width: calc(70vh*1.78); 
     height:70vh; 
+    border: 1px;
+    border-style: solid;
+    border-color: white;
 }

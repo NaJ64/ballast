@@ -31,11 +31,12 @@ export class PerspectiveTracker {
         // 4-directions
         map.set(4, new Map<number, number>([
             [7 / 4, 0],
-            [5 / 4, 3 / 4],
+            [5 / 4, 3 / 2],
             [3 / 4, 1],
             [1 / 4, 1 / 2],
             [0, 0]
         ]));
+        Math.PI / -2
         // 6 directions (no direct north/south)
         map.set(6, new Map<number, number>([
             [11 / 6, 0],
@@ -104,20 +105,22 @@ export class PerspectiveTracker {
             let lowerBound = minimums.next();
             if (lowerBound.done)
                 done = true;
-            if (cameraHalfTurns > lowerBound.value) {
+            if (cameraHalfTurns >= lowerBound.value) {
                 halfTurns = <number>map.get(lowerBound.value);
+                done = true;
             }
         }
+        console.log(halfTurns);
         this.rotationM4.makeRotationY(halfTurns * Math.PI);
         return this.rotationM4;
     }
 
     public transformDirection(movementV3: THREE.Vector3, possibleDirections?: number): THREE.Vector3 {
         let rotationM4 = null;
-        //if (possibleDirections) {
-        //  rotationM4 = this.getSnappedRotation(possibleDirections);
+       // if (possibleDirections) {
+       //     rotationM4 = this.getSnappedRotation(possibleDirections);
         //} else {
-            rotationM4 = this.getUnsnappedRotation();
+        rotationM4 = this.getUnsnappedRotation();
         //}
         return movementV3.applyMatrix4(rotationM4);
     }
