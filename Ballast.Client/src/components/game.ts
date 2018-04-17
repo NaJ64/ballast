@@ -74,9 +74,9 @@ export class GameComponent extends ComponentBase {
             let increment = 0.1;
             let movement = new THREE.Vector3(0, 0, 0);
             if (forward)
-                movement.add(this.perspectiveTracker.getForwardScaled(increment, directions));
+                movement.add(this.perspectiveTracker.getForwardScaled(increment));
             if (back)
-                movement.add(this.perspectiveTracker.getBackScaled(increment, directions));
+                movement.add(this.perspectiveTracker.getBackScaled(increment));
             //console.log(movement);
             this.cube.position.add(movement);
             renderingContext.cameraPivot.position.add(movement);

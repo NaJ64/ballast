@@ -115,34 +115,29 @@ export class PerspectiveTracker {
         return this.rotationM4;
     }
 
-    public transformDirection(movementV3: THREE.Vector3, possibleDirections?: number): THREE.Vector3 {
-        let rotationM4 = null;
-       // if (possibleDirections) {
-       //     rotationM4 = this.getSnappedRotation(possibleDirections);
-        //} else {
-        rotationM4 = this.getUnsnappedRotation();
-        //}
+    public transformDirection(movementV3: THREE.Vector3): THREE.Vector3 {
+        let rotationM4 = this.getUnsnappedRotation();
         return movementV3.applyMatrix4(rotationM4);
     }
 
-    private getBaseMovementScaled(baseMovement: THREE.Vector3, scalar: number, possibleDirections?: number) {
+    private getBaseMovementScaled(baseMovement: THREE.Vector3, scalar: number) {
         let vector = baseMovement.clone().multiplyScalar(scalar);
-        return this.transformDirection(vector, possibleDirections);
+        return this.transformDirection(vector);
     }
 
-    public getForwardScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_FORWARD, scalar, possibleDirections);
+    public getForwardScaled(scalar: number): THREE.Vector3 {
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_FORWARD, scalar);
     }
 
-    public getBackScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar, possibleDirections);
+    public getBackScaled(scalar: number): THREE.Vector3 {
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar);
     }
     
-    public getLeftScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar, possibleDirections);
+    public getLeftScaled(scalar: number): THREE.Vector3 {
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar);
     }
     
-    public getRightScaled(scalar: number, possibleDirections?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar, possibleDirections);
+    public getRightScaled(scalar: number): THREE.Vector3 {
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar);
     }
 }
