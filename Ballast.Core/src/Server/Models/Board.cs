@@ -5,7 +5,7 @@ namespace Ballast.Core.Models
 {
     public class Board
     {
-        
+        // Test Comment here
         public BoardType Type { get; private set; }
         public IEnumerable<BoardSpace> Spaces { get; private set; }
         public IDictionary<int, IList<BoardSpace>> Rows { get; private set; }

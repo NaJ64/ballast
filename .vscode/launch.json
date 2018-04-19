@@ -10,6 +10,33 @@
             "name": "Launch 'Ballast.Client.Web' (Node.js)",
             "cwd": "${workspaceFolder}/Ballast.Client.Web",
             "program": "${workspaceFolder}/Ballast.Client.Web/server.js"
-        }
+        },
+        {
+            "name": "Launch 'Ballast.Server' (.NET Core)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/Ballast.Server/bin/Debug/netcoreapp2.1/Ballast.Server.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Ballast.Server",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+            "launchBrowser": {
+                "enabled": false,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                },
+                "osx": {
+                    "command": "open"
+                },
+                "linux": {
+                    "command": "xdg-open"
+                }
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
     ]
 }

@@ -13,7 +13,7 @@
     "copy-html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"wwwroot\"",
     "copy-css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"wwwroot\"",
     "prepare": "npm run build",
-    "start": "npm run build && node server",
+    "start": "npm run copy && node server",
     "test": "jest",
     "test-single": "jest -- --args",
     "test-full": "npm run compile && npm test"

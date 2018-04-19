@@ -5,7 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="coverage\**\*" />
+    <Content Remove="dist\**\*" />
+    <Content Remove="illustrations\**\*" />
     <Content Remove="node_modules\**\*" />
+    <Content Remove="src\Client\**\*" />
   </ItemGroup>
   
   <PropertyGroup>

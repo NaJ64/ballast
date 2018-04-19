@@ -2,122 +2,78 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
-    "args": ["/c"],
     "tasks": [
         {
-            "label": "Ballast.Client.Web - Run (Watch/Rebuild)",
-            "identifier": "client-web-run-watch",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "dependsOn": [
-                "client-web-run",
-                "client-web-watch",
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
-            },
-            "isBackground": true,
-            "type": "shell",
-            "command": "echo",
-            "args": [
-                "\"Ballast.Client.Web - Run (Watch/Rebuild)\" stopped"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Ballast.Client.Web - Full rebuild",
-            "identifier": "client-web-build-ts",
-            "group": "build",
-            "dependsOn": [
-                "client-build-ts"
-            ],
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
-            },
-            "command": "npm install"
-        },        
-        {
-            "label": "Ballast.Client - Full rebuild",
-            "identifier": "client-build-ts",
-            "group": "build",
-            "dependsOn": [
-                "core-build-ts"
-            ],
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client"
-            },
-            "command": "npm install"
-        },
-        {
-            "label": "Ballast.Core - Full rebuild (typescript)",
-            "identifier": "core-build-ts",
+            "label": "Ballast.Core - Install/Build (NPM)",
+            "identifier": "core-npm-install",
             "group": "build",
             "type": "shell",
             "options": {
                 "cwd": "${workspaceFolder}/Ballast.Core"
             },
-            "command": "npm install"
+            "command": "npm install",
+            "problemMatcher": "$tsc"
         },
         {
-            "label": "Ballast.Client.Web - Watch/Rebuild",
-            "identifier": "client-web-watch",
+            "label": "Ballast.Core - Restore/Build (.NET Core)",
+            "identifier": "core-dotnet-build",
+            "group": "build",
+            "type": "process",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Core"
+            },
+            "command": "dotnet",
+            "args": [
+                "build",
+                "Ballast.Core.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Ballast.Server - Restore/Build (.NET Core)",
+            "identifier": "server-dotnet-build",
+            "group": "build",
+            "type": "process",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Server"
+            },
+            "command": "dotnet",
+            "args": [
+                "build",
+                "Ballast.Server.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Ballast.Client - Install/Build (NPM)",
+            "identifier": "client-npm-install",
             "group": "build",
             "dependsOn": [
-                "client-web-webpack-watch",
-                "core-tsc-watch",
-                "client-tsc-watch"
+                "core-npm-install"
             ],
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
-            },
-            "isBackground": true,
             "type": "shell",
-            "command": "echo",
-            "args": [
-                "\"Ballast.Client.Web - Watch/Rebuild\" all stopped"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Ballast.Client.Web - Run",
-            "identifier": "client-web-run",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
-            },
-            "isBackground": true,
-            "type": "shell",
-            "command": "node server",
-            "problemMatcher": []
-        },
-        {
-            "label": "Ballast.Client.Web - Bundle (Watch)",
-            "identifier": "client-web-webpack-watch",
-            "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
-            },
-            "isBackground": true,
-            "type": "shell",
-            "command": "npm run bundle-watch",
-            "problemMatcher": []
-        },
-        {
-            "label": "Ballast.Client - Compile (Watch)",
-            "identifier": "client-tsc-watch",
             "options": {
                 "cwd": "${workspaceFolder}/Ballast.Client"
             },
-            "isBackground": true,
-            "type": "shell",
-            "command": "npm run compile-watch",
-            "problemMatcher": []
+            "command": "npm install",
+            "problemMatcher": "$tsc"
         },
         {
-            "label": "Ballast.Core - Compile (Watch)",
+            "label": "Ballast.Client.Web - Install/Build (NPM)",
+            "identifier": "client-web-npm-install",
+            "group": "build",
+            "dependsOn": [
+                "client-npm-install"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "command": "npm install",
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "Ballast.Core - Compile/Watch (TypeScript)",
             "identifier": "core-tsc-watch",
             "options": {
                 "cwd": "${workspaceFolder}/Ballast.Core"
@@ -125,7 +81,114 @@
             "isBackground": true,
             "type": "shell",
             "command": "npm run compile-watch",
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "label": "Ballast.Core - Compile/Watch (.NET Core)",
+            "identifier": "core-dotnet-watch-build",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Core"
+            },
+            "isBackground": true,
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "watch",
+                "build",
+                "Ballast.Core.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Ballast.Server - Compile/Watch (.NET Core)",
+            "identifier": "server-dotnet-watch-build",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Server"
+            },
+            "isBackground": true,
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "watch",
+                "build",
+                "Ballast.Server.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Ballast.Server - Run/Watch (.NET Core)",
+            "identifier": "server-dotnet-watch-run",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Server"
+            },
+            "isBackground": true,
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "watch",
+                "run",
+                "Ballast.Server.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Ballast.Client - Compile/Watch (TypeScript)",
+            "identifier": "client-tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run compile-watch",
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "label": "Ballast.Client.Web - Bundle/Watch (Webpack)",
+            "identifier": "client-web-webpack-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run bundle-watch",
+            "problemMatcher": "$eslint-stylish"
+        },
+        {
+            "label": "Ballast.Client.Web - Start (NPM)",
+            "identifier": "client-web-npm-start",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm start",
+            "problemMatcher": "$eslint-stylish"
+        },
+        {
+            "label": "Ballast - Start/Watch",
+            "identifier": "watch-run",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "core-dotnet-watch-build",
+                "server-dotnet-watch-run",
+                "core-tsc-watch",
+                "client-tsc-watch",
+                "client-web-webpack-watch",
+                "client-web-npm-start"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "Ballast - Run/Watch task was stopped"
+            ],
             "problemMatcher": []
-        }
+        },
     ]
 }
