@@ -5,6 +5,7 @@ import { ITileShape, TileShape } from '../models/tile-shape';
 import { IAxialCoordinates, AxialCoordinates } from '../models/axial-coordinates';
 import { ICubicCoordinates, CubicCoordinates } from '../models/cubic-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates} from '../models/offset-coordinates';
+import { ITerrain, Terrain } from '../models/terrain';
 
 export interface IBoardGenerator {
     createBoard(        
@@ -12,7 +13,8 @@ export interface IBoardGenerator {
         boardType: IBoardType, 
         tileShape: ITileShape, 
         columnsOrSideLength: number, 
-        rows?: number
+        landToWaterRatio?: number,
+        rows?: number,
     ): IBoard;
 }
 
@@ -23,8 +25,13 @@ export class BoardGenerator implements IBoardGenerator {
         boardType: IBoardType, 
         tileShape: ITileShape, 
         columnsOrSideLength: number, 
+        landToWaterRatio?: number,
         rows?: number
     ) {
+
+        // Get passable terrain types to use when figuring land/water tile ratio
+        let passableTerrain = Terrain.list().filter(x => x.passable);
+        let impassableTerrain = Terrain.list().filter(x => !x.passable);
 
         // Determine shape and tile layout
         let useTileShape = TileShape.fromObject(tileShape);
@@ -95,7 +102,8 @@ export class BoardGenerator implements IBoardGenerator {
                 );
                 rectangle.push(Tile.fromObject({
                     cubicCoordinates: cubicCoordinates,
-                    tileShape: tileShape
+                    tileShape: tileShape,
+                    terrain: Terrain.Water
                 }));
             }
         }
@@ -118,7 +126,8 @@ export class BoardGenerator implements IBoardGenerator {
                 );
                 square.push(Tile.fromObject({
                     cubicCoordinates: cubicCoordinates,
-                    tileShape: TileShape.Square
+                    tileShape: TileShape.Square,
+                    terrain: Terrain.Water
                 }));
             }
         }
@@ -149,7 +158,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagon
+                    tileShape: TileShape.Octagon,
+                    terrain: Terrain.Water
                 }));
             }
         }
@@ -166,7 +176,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagon
+                    tileShape: TileShape.Octagon,
+                    terrain: Terrain.Water
                 }));
             }
         }
@@ -184,7 +195,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagon
+                    tileShape: TileShape.Octagon,
+                    terrain: Terrain.Water
                 }));
             }
         }
@@ -218,7 +230,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: tileShape
+                    tileShape: tileShape,
+                    terrain: Terrain.Water
                 }));
             }
         }
@@ -233,7 +246,8 @@ export class BoardGenerator implements IBoardGenerator {
                 cubicCoordinates: CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
                 ),
-                tileShape: tileShape
+                tileShape: tileShape,
+                terrain: Terrain.Water
             }));
         }
 
@@ -249,7 +263,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: tileShape
+                    tileShape: tileShape,
+                    terrain: Terrain.Water
                 }));
             }
         }
