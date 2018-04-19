@@ -2,6 +2,7 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "args": ["/c"],
     "tasks": [
         {
             "label": "Ballast.Core - Install/Build (NPM)",
@@ -126,6 +127,7 @@
             "command": "dotnet",
             "args": [
                 "watch",
+                "--verbose",
                 "run",
                 "Ballast.Server.csproj"
             ],
@@ -189,6 +191,6 @@
                 "Ballast - Run/Watch task was stopped"
             ],
             "problemMatcher": []
-        },
+        }
     ]
 }

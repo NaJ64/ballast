@@ -21,6 +21,7 @@ export class KeyboardWatcher implements IDisposable {
     private readonly pressedKeys: Map<number, Date | undefined>;
     private readonly keydownListener: KeyboardEventListener;
     private readonly keyupListener: KeyboardEventListener;
+    private isSuspended: boolean;
 
     public constructor(root: HTMLDivElement) {
         this.root = root;
@@ -28,6 +29,15 @@ export class KeyboardWatcher implements IDisposable {
         this.keydownListener = event => this.pressedKeys.set(event.keyCode, new Date(Date.now()));
         this.keyupListener = event => this.pressedKeys.delete(event.keyCode);
         this.addWindowEvents();
+        this.isSuspended = false;
+    }
+
+    public suspend() {
+        this.isSuspended = true;
+    }
+
+    public resume() {
+        this.isSuspended = false;
     }
 
     private getWindow() {
@@ -35,6 +45,8 @@ export class KeyboardWatcher implements IDisposable {
     }
 
     public isDown(keyCode: number) {
+        if (this.isSuspended)
+            return false;
         return !!this.pressedKeys.get(keyCode);
     }
 
