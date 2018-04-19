@@ -1,15 +1,14 @@
 {
-    "name": "ballast-server",
-    "version": "1.0.0",
-    "description": "Ballast application server / API",
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [
-      "ballast",
-      "signalr"
-    ],
-    "author": "NaJ64 <njudice@gmail.com>",
-    "private": true
-  }
-  
+  "name": "ballast-server",
+  "version": "1.0.0",
+  "description": "Ballast application server / API",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ballast",
+    "signalr"
+  ],
+  "author": "NaJ64 <njudice@gmail.com>",
+  "private": true
+}
