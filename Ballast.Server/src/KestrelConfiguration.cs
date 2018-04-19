@@ -13,15 +13,17 @@ namespace Ballast.Server
         {
             
             // Get hosting config values
+            var httpEnabled = bool.Parse(configuration["Hosting:Http:Enabled"]?.Trim() ?? "false");
             var httpIpAddress = configuration["Hosting:Http:IPAddress"]?.Trim().ToLower();
             var httpPort = configuration["Hosting:Http:Port"];
+            var httpsEnabled = bool.Parse(configuration["Hosting:Https:Enabled"]?.Trim() ?? "false");
             var httpsIpAddress = configuration["Hosting:Https:IPAddress"]?.Trim().ToLower();
             var httpsPort = configuration["Hosting:Https:Port"];
             var httpsCertificateFileName= configuration["Hosting:Https:Certificate:FileName"]?.Trim().ToLower();
             var httpsCertificatePassword = configuration["Hosting:Https:Certificate:Password"].Trim();
 
             // An HTTP address was specified
-            if ((httpIpAddress?.Trim() ?? "") != "")
+            if (httpEnabled && (httpIpAddress?.Trim() ?? "") != "")
             {
                 // Determine IP address for HTTP
                 IPAddress address = null;
@@ -39,7 +41,7 @@ namespace Ballast.Server
             }
 
             // An HTTPS address was specified
-            if ((httpsIpAddress?.Trim() ?? "") != "")
+            if (httpsEnabled && (httpsIpAddress?.Trim() ?? "") != "")
             {
 
                 // Determine IP Address for HTTPS
