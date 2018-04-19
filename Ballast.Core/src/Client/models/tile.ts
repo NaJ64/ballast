@@ -1,9 +1,11 @@
 import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
 import { ITileShape, TileShape } from './tile-shape';
+import { ITerrain, Terrain } from './terrain';
 
 export interface ITile {
     cubicCoordinates: ICubicCoordinates;
     tileShape: ITileShape;
+    terrain: ITerrain;
     inactive?: boolean;
 }
 
@@ -11,11 +13,13 @@ export class Tile implements ITile {
 
     public readonly cubicCoordinates: CubicCoordinates;
     public readonly tileShape: TileShape;
+    public readonly terrain: Terrain;
     public readonly inactive: boolean;
     
     private constructor(state: ITile) {
         this.cubicCoordinates = CubicCoordinates.fromObject(state.cubicCoordinates);
         this.tileShape = TileShape.fromObject(state.tileShape);
+        this.terrain = Terrain.fromObject(state.terrain);
         this.inactive = !!state.inactive;
     }
 
