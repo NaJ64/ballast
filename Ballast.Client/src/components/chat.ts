@@ -12,12 +12,16 @@ type InputFocusEvent = ((this: HTMLElement, event: FocusEvent) => any) | null;
 export class ChatComponent extends ComponentBase {
 
     private chatWindow?: HTMLDivElement;
+    private chatHistory?: HTMLUListElement;
+    private chatForm?: HTMLFormElement;
     private chatInput?: HTMLInputElement;
 
     protected onAttach(parent: HTMLElement) {
-        let chat = this.createChat(parent);
-        this.chatWindow = chat["0"];
-        this.chatInput = chat["1"];
+        let elements = this.createChatElements(parent);
+        this.chatWindow = elements["0"];
+        this.chatHistory = elements["1"];
+        this.chatForm = elements["2"];
+        this.chatInput = elements["3"];
         this.addChatEvents();
     }
 
@@ -25,6 +29,13 @@ export class ChatComponent extends ComponentBase {
         if (this.chatInput) {
             this.chatInput.onfocus = event => this.suspendKeyboardWatching();
             this.chatInput.onblur = event => this.resumeKeyboardWatching();
+            this.chatForm
+        }
+        if (this.chatForm) {
+            this.chatForm.onsubmit = event => {
+                this.submitMessage();
+                return false;
+            };
         }
     }
 
@@ -32,6 +43,26 @@ export class ChatComponent extends ComponentBase {
         if (this.chatInput) {
             this.chatInput.onfocus = null;
             this.chatInput.onblur = null;
+        }
+        if (this.chatForm) {
+            this.chatForm.onsubmit = null;
+        }
+    }
+
+    private submitMessage() {
+        if (this.chatInput) {
+            let message = this.chatInput.value || "";
+            this.appendMessageToHistory(message);
+            this.chatInput.value = "";
+        }
+    }
+
+    private appendMessageToHistory(message: string) {
+        if (this.chatHistory) {
+            let item = this.chatHistory.ownerDocument.createElement('li');
+            item.innerHTML = message;
+            this.chatHistory.appendChild(item);
+            this.chatHistory.scrollTop = this.chatHistory.scrollHeight
         }
     }
 
@@ -48,14 +79,18 @@ export class ChatComponent extends ComponentBase {
     }
 
     protected onDetach(parent: HTMLElement) {
-        
+        this.dispose();
     }
 
-    protected render(parent: HTMLElement, renderingContext: RenderingContext) { 
+    protected render(parent: HTMLElement, renderingContext: RenderingContext) { }
 
-    }
+    private createChatElements(container: HTMLElement): [ 
+        HTMLDivElement, 
+        HTMLUListElement, 
+        HTMLFormElement, 
+        HTMLInputElement 
+    ] {
 
-    private createChat(container: HTMLElement): [ HTMLDivElement, HTMLInputElement ] {
         let chatWindow = container.ownerDocument.createElement("div");
         chatWindow.style.cssFloat = 'right';
         chatWindow.style.position = 'absolute';
@@ -63,10 +98,30 @@ export class ChatComponent extends ComponentBase {
         chatWindow.style.right = '0px';
         chatWindow.style.top = '0px';
         chatWindow.style.height = '100%';
-        chatWindow.style.width = '25%';
+        chatWindow.style.width = 'calc(20% - 2px)';
         chatWindow.style.borderLeftStyle = 'solid';
         chatWindow.style.borderLeftColor = 'rgba(255, 255, 255, 0.25)';
         chatWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+
+        let chatHistory = container.ownerDocument.createElement("ul");
+        chatHistory.style.color = "white";
+        chatHistory.style.marginTop = '10px';
+        chatHistory.style.marginBottom = '10px';
+        chatHistory.style.marginLeft = '5px';
+        chatHistory.style.marginRight = '5px';
+        chatHistory.style.padding = '0px';
+        chatHistory.style.listStyle = "none";
+        chatHistory.style.position = 'absolute';
+        chatHistory.style.bottom = '26px';
+        chatHistory.style.right = '0px';
+        chatHistory.style.left = '0px';
+        chatHistory.style.overflowY = 'auto';
+        chatHistory.style.maxHeight = 'calc(100% - 46px)';
+        chatWindow.appendChild(chatHistory);
+
+        let chatForm = container.ownerDocument.createElement('form');
+        chatWindow.appendChild(chatForm);
+
         let chatInput = container.ownerDocument.createElement("input");
         chatInput.style.cssFloat = 'bottom';
         chatInput.style.position = 'absolute';
@@ -82,9 +137,11 @@ export class ChatComponent extends ComponentBase {
         chatInput.style.borderRightStyle = 'none';
         chatInput.style.borderTopColor = 'rgba(255, 255, 255, 0.25)';
         chatInput.style.color = 'white';
-        chatWindow.appendChild(chatInput);
+        chatForm.appendChild(chatInput);
+
         container.appendChild(chatWindow);
-        return [chatWindow, chatInput];
+
+        return [ chatWindow, chatHistory, chatForm, chatInput];
     }
     
 }

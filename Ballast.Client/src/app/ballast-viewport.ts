@@ -59,7 +59,7 @@ export class BallastViewport {
         canvas.id = root.id + '_canvas';
         canvas.style.display = 'block';
         canvas.style.height = '100%';
-        canvas.style.width = '100%';
+        canvas.style.width = '80%';
         root.appendChild(canvas);
         return canvas;
     }

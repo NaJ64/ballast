@@ -6,10 +6,10 @@ body {
 #ballast { 
     position: absolute;
     margin-top: -35vh;
-    margin-left: calc(-35vh*1.78);
+    margin-left: calc(-35vh*2.22);
     left: 50%;
     top: 50%;
-    width: calc(70vh*1.78); 
+    width: calc(70vh*2.22); 
     height:70vh; 
     background-color: black;
     border: 1px;
