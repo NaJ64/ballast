@@ -29,7 +29,7 @@ namespace Ballast.Server
                 .GetChildren()
                 .Select(x => x.Value)
                 .ToArray();
-
+            //test
             services.AddCors(options => 
                 options.AddPolicy("ClientWeb", builder => 
                 {

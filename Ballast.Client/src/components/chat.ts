@@ -54,6 +54,7 @@ export class ChatComponent extends ComponentBase {
             let message = this.chatInput.value || "";
             this.appendMessageToHistory(message);
             this.chatInput.value = "";
+            this.chatInput.blur();
         }
     }
 
@@ -96,12 +97,13 @@ export class ChatComponent extends ComponentBase {
         chatWindow.style.position = 'absolute';
         chatWindow.style.zIndex = '1000';
         chatWindow.style.right = '0px';
-        chatWindow.style.top = '0px';
-        chatWindow.style.height = '100%';
-        chatWindow.style.width = 'calc(20% - 2px)';
-        chatWindow.style.borderLeftStyle = 'solid';
-        chatWindow.style.borderLeftColor = 'rgba(255, 255, 255, 0.25)';
-        chatWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        chatWindow.style.bottom = '0px';
+        chatWindow.style.height = '33%';
+        chatWindow.style.width = 'calc(33% - 2px)';
+        chatWindow.style.borderWidth = '1px';
+        chatWindow.style.borderStyle = 'solid';
+        chatWindow.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        chatWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
 
         let chatHistory = container.ownerDocument.createElement("ul");
         chatHistory.style.color = "white";
@@ -130,12 +132,12 @@ export class ChatComponent extends ComponentBase {
         chatInput.style.bottom = '0px';
         chatInput.style.height = '25px';
         chatInput.style.width = '100%';
-        chatInput.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+        chatInput.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
         chatInput.style.borderStyle = 'solid';
         chatInput.style.borderBottomStyle = 'none';
         chatInput.style.borderLeftStyle = 'none';
         chatInput.style.borderRightStyle = 'none';
-        chatInput.style.borderTopColor = 'rgba(255, 255, 255, 0.25)';
+        chatInput.style.borderTopColor = 'rgba(255, 255, 255, 0.1)';
         chatInput.style.color = 'white';
         chatForm.appendChild(chatInput);
 
