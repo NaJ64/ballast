@@ -12,7 +12,7 @@ body {
     width: calc(70vh*1.78); 
     height:70vh; 
     background-color: black;
-    border: 1px;
+    border: 2px;
     border-style: solid;
     border-color: white;
 }

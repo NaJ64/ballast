@@ -5,7 +5,7 @@ import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { GameComponentLoadedEvent } from '../messaging/events/components/game-component-loaded';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/ievent-bus';
+import { IEventBus } from '../messaging/event-bus';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { BoardComponent } from './board';
 

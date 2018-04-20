@@ -1,4 +1,4 @@
-import { EventBase } from '../../event-base';
+import { EventBase } from '../../event';
 import { Game } from 'ballast-core';
 
 export class GameStateChangedEvent extends EventBase {

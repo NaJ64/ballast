@@ -1,6 +1,6 @@
 import { BallastViewport } from '../app/ballast-viewport';
 import { IDisposable } from '../interfaces/idisposable';
-import { IEventBus } from '../messaging/ievent-bus';
+import { IEventBus } from '../messaging/event-bus';
 
 const ENTER: number = 13;
 const SHIFT: number = 16;
@@ -12,6 +12,7 @@ const W: number = 87;
 const A: number = 65;
 const S: number = 83;
 const D: number = 68;
+const T: number = 84;
 
 type KeyboardEventListener = (event: KeyboardEvent) => any;
 
@@ -88,6 +89,10 @@ export class KeyboardWatcher implements IDisposable {
 
     public dIsDown() {
         return this.isDown(D);
+    }
+
+    public tIsDown() {
+        return this.isDown(T);
     }
 
     private addWindowEvents() {

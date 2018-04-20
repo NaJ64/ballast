@@ -1,4 +1,4 @@
-import { EventBase } from '../../event-base';
+import { EventBase } from '../../event';
 
 export class GameComponentLoadedEvent extends EventBase {
 

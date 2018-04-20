@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Ballast.Server.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ballast.Server
 {
@@ -30,14 +31,12 @@ namespace Ballast.Server
                 .Select(x => x.Value)
                 .ToArray();
 
-            services.AddCors(options => 
-                options.AddPolicy("ClientWeb", builder => 
-                {
-                    builder.AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .WithOrigins(corsOrigins);
-                })
-            );
+            services.AddCors(options => options.AddPolicy("ClientWeb", builder => builder
+                .WithOrigins(corsOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+            ));
 
             services.AddSignalR();
             
@@ -52,14 +51,17 @@ namespace Ballast.Server
             }
 
             app.UseCors("ClientWeb");
+            
             app.UseSignalR(routes => 
             {
-                //routes.MapHub<ChatHub>("/chathub");
+                routes.MapHub<ChatHub>("/chathub");
             });
+
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World!");
             });
+            
         }
     }
 }

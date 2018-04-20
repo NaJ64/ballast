@@ -1,7 +1,8 @@
 import 'jest';
 import 'reflect-metadata';
-import { IEvent } from './ievent';
-import { EventBus } from './event-bus';
+import { IEvent } from './event';
+import { IEventBus } from './event-bus';
+import { LocalEventBus } from './local-event-bus';
 
 let handled = 0;
 let eventKey = Symbol.for('TestEvent');
@@ -18,7 +19,7 @@ let handler2 = (event: IEvent) => {
         resolve();
     });
 };
-let eventBus = new EventBus();
+let eventBus: IEventBus = new LocalEventBus();
 
 test('returns empty list for unsubscribed', () => {
     let handlers = eventBus.getHandlers(eventKey);
