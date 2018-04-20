@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0-preview2-final" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Ballast.Core\Ballast.Core.csproj" />
+  </ItemGroup>
+
 </Project>
