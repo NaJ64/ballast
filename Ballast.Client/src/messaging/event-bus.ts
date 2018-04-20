@@ -1,82 +1,43 @@
 import { injectable } from 'inversify';
-import { IEvent } from './ievent';
-import { IEventBus, AsyncEventHandler } from './ievent-bus';
+import { IEvent } from './event';
+import { IDisposable } from '../interfaces/idisposable';
 
-interface EventSubscription<TEvent extends IEvent> {
-    key: Symbol;
-    asyncHandler: AsyncEventHandler<TEvent>;
-}
+export type AsyncEventHandler<TEvent extends IEvent> = (event: TEvent) => Promise<void>
 
-@injectable()
-export class EventBus implements IEventBus {
+export interface IEventBus extends IDisposable {
 
-    private readonly subscriptions: Map<Symbol, EventSubscription<IEvent>[]>;
+    /**
+     * Gets a list of all the current handlers/subscribers for the specified event type
+     * @param type
+     * A symbol uniquely identifying the event type
+     */
+    getHandlers<TEvent extends IEvent>(type: Symbol): AsyncEventHandler<TEvent>[];
 
-    public constructor() {
-        this.subscriptions = new Map<Symbol, EventSubscription<IEvent>[]>();
-    }
+    /**
+     * Publishes an event to all subscribers for the specified event type
+     * 
+     * Event type is determined by the "id" property of the event being published
+     * @param event
+     * The event to publish
+     */
+    publishAsync<TEvent extends IEvent>(event: TEvent): Promise<void>;
 
-    public getHandlers<TEvent extends IEvent>(key: Symbol): AsyncEventHandler<TEvent>[] {
-        // get subscription list
-        let subscriptions = this.getSubscriptions<TEvent>(key);
-        // return projection to list of handler functions
-        return subscriptions.map(x => x.asyncHandler);
+    /**
+     * Registers a new event subscription for the specified event type
+     * @param event
+     * A symbol uniquely identifying the event
+     * @param handler
+     * A new handler to be invoked when a new event is published
+     */
+    subscribe<TEvent extends IEvent>(type: Symbol, handler: AsyncEventHandler<TEvent>): void;
 
-    }
-
-    private getSubscriptions<TEvent extends IEvent>(key: Symbol): EventSubscription<TEvent>[] {
-        // check if the current event signature/key already exists
-        if (!this.subscriptions.has(key)) {
-            // set to new collection
-            this.subscriptions.set(key, []);
-        }
-        // return the subscription list
-        return this.subscriptions.get(key) || [];
-    }
-
-    public dispose(): void {
-        // loop through all events
-        this.subscriptions.forEach((subscription, key, map) => {
-            // empty the subscriber collection for the current event
-            subscription.length = 0;
-        });
-        // clear all mapped event subscriptions
-        this.subscriptions.clear();
-    }
-
-    public async publishAsync<TEvent extends IEvent>(event: TEvent): Promise<void> {
-        // Get all subscribers for the current event key
-        let subscriptions = this.getSubscriptions<TEvent>(event.id);
-        // Loop through the subscribers
-        for(let subscription of subscriptions) {
-            // invoke the handler(s)
-            await subscription.asyncHandler(event);
-        }
-    }
-    
-    public subscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (event: TEvent) => Promise<void>) {
-        // Get all subscribers for the current event key
-        let subscriptions = this.getSubscriptions<TEvent>(key);
-        // Add a new handler
-        subscriptions.push({ key: key, asyncHandler: asyncHandler });
-    }
-    
-    public unsubscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (event: TEvent) => Promise<void>) {
-        // Get all subscribers for the current event key
-        let subscriptions = this.getSubscriptions<TEvent>(key);
-        // Find an index to remove where subscription.handler has reference equality
-        let removeIndex = -1;
-        for (let i=0; i < subscriptions.length; i++) {
-            if (subscriptions[i].asyncHandler == asyncHandler) {
-                removeIndex = i;
-                break;
-            }
-        }
-        // If the handler index was obtained
-        if (removeIndex >= 0) {
-            // remove the subscription from the collection
-            subscriptions.splice(removeIndex, 1);
-        }
-    }
+    /**
+     * Removes the event subscription for the specified event type
+     * @param event
+     * A symbol uniquely identifying the event
+     * @param handler
+     * An existing handler for the current event
+     */
+    unsubscribe<TEvent extends IEvent>(type: Symbol, handler: AsyncEventHandler<TEvent>): void;
 
 }

@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { RenderingContext } from '../rendering/rendering-context';
 import { RenderingMiddleware } from '../rendering/rendering-middleware';
-import { IEventBus } from '../messaging/ievent-bus';
+import { IEventBus } from '../messaging/event-bus';
 import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 
 export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;

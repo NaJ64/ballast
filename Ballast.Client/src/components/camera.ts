@@ -5,19 +5,19 @@ import { RenderingConstants } from '../rendering/rendering-constants';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/ievent-bus';
+import { IEventBus } from '../messaging/event-bus';
 import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 
 export class CameraComponent extends ComponentBase {
 
     private readonly cameraV3: THREE.Vector3;
     private readonly partialTurnsPerSecond: number;
+    private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
+    private readonly orbitTo: THREE.Object3D;
     private partialTurnRadians: number;
     private orbitClockwise?: boolean;
     private orbitClock?: THREE.Clock;
-    private orbitTo: THREE.Object3D;
     private resetCamera?: boolean;
-    private gameStateChangedHandler?: (event: GameStateChangedEvent) => Promise<void>;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -29,9 +29,10 @@ export class CameraComponent extends ComponentBase {
         this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
         this.partialTurnsPerSecond = RenderingConstants.PIVOT_DURATION_SECONDS;
         this.cameraV3 = new THREE.Vector3();
+        this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
+        this.resetCamera = true;
         this.updateCamera(10, 5);
         this.subscribeToEvents();
-        this.resetCamera = true;
     }
 
     public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
@@ -39,7 +40,6 @@ export class CameraComponent extends ComponentBase {
     }
 
     private subscribeToEvents() {
-        this.gameStateChangedHandler = this.onGameStateChanged.bind(this);
         if (this.gameStateChangedHandler) {
             this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
         }
@@ -51,7 +51,7 @@ export class CameraComponent extends ComponentBase {
         }
     }
 
-    private async onGameStateChanged(event: GameStateChangedEvent): Promise<void> {
+    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
         if (event.game && event.game.board.tileShape.possibleDirections == 6) {
             this.partialTurnRadians = RenderingConstants.SIXTH_TURN_RADIANS;
         } else if (event.game && event.game.board.tileShape.possibleDirections == 4){

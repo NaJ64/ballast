@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/ievent-bus';
+import { IEventBus } from '../messaging/event-bus';
 import { RenderingContext } from '../rendering/rendering-context';
 import { ComponentBase } from './component-base';
 import { CameraComponent } from './camera';

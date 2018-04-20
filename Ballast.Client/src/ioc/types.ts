@@ -31,7 +31,12 @@ const TYPES_BALLAST = {
     IEventBus: Symbol.for('IEventBus'),
 
     // rendering
-    RenderingContext: Symbol.for('RenderingContext')
+    RenderingContext: Symbol.for('RenderingContext'),
+
+    // services
+    ISignalRServiceOptions: Symbol.for('ISignalRServiceOptions'),
+    ISignalRServiceOptionsFactory: Symbol.for('ISignalRServiceOptionsFactory'),
+    IChatService: Symbol.for("IChatService")
 
 };
 

@@ -7,8 +7,9 @@ import { TYPES_BALLAST } from '../ioc/types';
 import { RootComponent } from '../components/root';
 import { IDisposable } from '../interfaces/idisposable';
 import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
-import { IEventBus } from '../messaging/ievent-bus';
-import { EventBus } from '..';
+import { IEventBus } from '../messaging/event-bus';
+import { LocalEventBus } from '../messaging/local-event-bus';
+import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 
 @injectable()
 export class BallastClient implements IDisposable {
@@ -18,14 +19,16 @@ export class BallastClient implements IDisposable {
     private readonly viewport: BallastViewport;
     private readonly inversifyContainer: Container;
     private readonly eventBus: IEventBus;
+    private readonly signalRServiceOptions: ISignalRServiceOptions;
     private rootComponent?: RootComponent;
 
-    public constructor(host: HTMLElement) {
+    public constructor(host: HTMLElement, serverUrl: string) {
         this.host = host;
         this.id = uuid.v4();
-        this.eventBus = new EventBus();
+        this.eventBus = new LocalEventBus();
         this.viewport = new BallastViewport(host, this.id, this.eventBus);
         this.inversifyContainer = configureServices(new Container(), this);
+        this.signalRServiceOptions = { serverUrl: serverUrl };
     }
 
     public getId(): string {
@@ -38,6 +41,10 @@ export class BallastClient implements IDisposable {
 
     public getEventBus(): IEventBus {
         return this.eventBus;
+    }
+
+    public getSignalRServiceOptions(): ISignalRServiceOptions {
+        return this.signalRServiceOptions;
     }
 
     public async loadAsync(): Promise<BallastClient> {

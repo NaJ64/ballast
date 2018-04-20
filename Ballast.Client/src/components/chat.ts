@@ -1,20 +1,35 @@
 import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
-import { IEventBus } from '../messaging/ievent-bus';
-import { } from '../viewport'
+import { IEventBus } from '../messaging/event-bus';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
+import { ChatMessageReceivedEvent } from '../messaging/events/services/chat-message-received';
+import { BallastViewport } from '../app/ballast-viewport';
+import { IChatService } from '../services/chat/chat-service';
+import { IChatMessage } from '../services/chat/chat-message';
 
 type InputFocusEvent = ((this: HTMLElement, event: FocusEvent) => any) | null;
 
 @injectable()
 export class ChatComponent extends ComponentBase {
 
+    private readonly chatService: IChatService;
+    private readonly chatMessageReceivedHandler: (event: ChatMessageReceivedEvent) => Promise<void>;
     private chatWindow?: HTMLDivElement;
     private chatHistory?: HTMLUListElement;
     private chatForm?: HTMLFormElement;
     private chatInput?: HTMLInputElement;
+
+    public constructor(
+        @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport, 
+        @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
+        @inject(TYPES_BALLAST.IChatService) chatService: IChatService
+    ) {
+        super(viewport, eventBus);
+        this.chatService = chatService;
+        this.chatMessageReceivedHandler = this.onChatMessageReceivedAsync.bind(this);
+    }
 
     protected onAttach(parent: HTMLElement) {
         let elements = this.createChatElements(parent);
@@ -22,24 +37,33 @@ export class ChatComponent extends ComponentBase {
         this.chatHistory = elements["1"];
         this.chatForm = elements["2"];
         this.chatInput = elements["3"];
-        this.addChatEvents();
+        this.subscribeToEvents();
+        if (!this.chatService.isConnected) {
+            this.chatService.connectAsync(); // Fire and forget
+        }
     }
 
-    private addChatEvents() {
+    public dispose() {
+        this.unsubscribeFromEvents();
+    }
+
+    private subscribeToEvents() {
+        this.eventBus.subscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
         if (this.chatInput) {
             this.chatInput.onfocus = event => this.suspendKeyboardWatching();
             this.chatInput.onblur = event => this.resumeKeyboardWatching();
-            this.chatForm
         }
         if (this.chatForm) {
             this.chatForm.onsubmit = event => {
                 this.submitMessage();
+                event.preventDefault();
                 return false;
             };
         }
     }
 
-    private removeChatEvents() {
+    private unsubscribeFromEvents() {
+        this.eventBus.unsubscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
         if (this.chatInput) {
             this.chatInput.onfocus = null;
             this.chatInput.onblur = null;
@@ -49,19 +73,39 @@ export class ChatComponent extends ComponentBase {
         }
     }
 
+    private async onChatMessageReceivedAsync(event: ChatMessageReceivedEvent) {
+        console.log('got a message received event:');
+        console.log(event);
+        this.appendMessageToHistory(event.message);
+    }
+
     private submitMessage() {
         if (this.chatInput) {
-            let message = this.chatInput.value || "";
-            this.appendMessageToHistory(message);
+            let messageText = this.chatInput.value || "";
+            this.sendMessageFromTextAsync(messageText); // Fire and forget
             this.chatInput.value = "";
             this.chatInput.blur();
         }
     }
 
-    private appendMessageToHistory(message: string) {
+    private async sendMessageFromTextAsync(text: string) {
+        let channel = 'global';
+        let from = 'testUser';
+        let timestamp = new Date(Date.now());
+        await this.chatService.sendMessageAsync({
+            channel: channel,
+            from: from,
+            timestamp: timestamp,
+            text: text
+        });
+    }
+
+    private appendMessageToHistory(message: IChatMessage) {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
-            item.innerHTML = message;
+            let timestampDate = new Date(message.timestamp);
+            let messageDisplay = `(${timestampDate.toLocaleTimeString()}) ${message.from}: ${message.text}`;
+            item.innerHTML = messageDisplay;
             this.chatHistory.appendChild(item);
             this.chatHistory.scrollTop = this.chatHistory.scrollHeight
         }
@@ -75,15 +119,20 @@ export class ChatComponent extends ComponentBase {
         this.viewport.getKeyboardWatcher().resume();
     }
     
-    public dispose() {
-        this.removeChatEvents();
-    }
-
     protected onDetach(parent: HTMLElement) {
         this.dispose();
     }
 
-    protected render(parent: HTMLElement, renderingContext: RenderingContext) { }
+    protected render(parent: HTMLElement, renderingContext: RenderingContext) { 
+
+        // Check if the user has hit the "t" key to talk
+        let focusedElement = this.chatInput && this.chatInput.ownerDocument.activeElement;
+        let chatInputHasFocus = this.chatInput && focusedElement && (focusedElement == this.chatInput);
+        if (!chatInputHasFocus && renderingContext.keyboard.tIsDown()) {
+            (<HTMLInputElement>this.chatInput).focus();
+        }
+
+    }
 
     private createChatElements(container: HTMLElement): [ 
         HTMLDivElement, 

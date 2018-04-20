@@ -3,8 +3,8 @@ import { TYPES_BALLAST } from './types';
 import { BallastBootstrapper } from '../app/ballast-bootstrapper';
 import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
-import { EventBus } from '../messaging/event-bus';
-import { IEventBus } from '../messaging/ievent-bus';
+import { IEventBus } from '../messaging/event-bus';
+import { LocalEventBus } from '../messaging/local-event-bus';
 import { BoardComponent } from '../components/board';
 import { CameraComponent } from '../components/camera';
 import { ChatComponent } from '../components/chat';
@@ -16,6 +16,9 @@ import { SignInComponent } from '../components/sign-in';
 import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { PerspectiveTracker } from '../input/perspective-tracker';
+import { IChatService } from '../services/chat/chat-service';
+import { SignalRChatService } from '../services/signalr/signalr-chat-service';
+import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
@@ -23,6 +26,7 @@ export function configureServices(container: Container, client: BallastClient): 
     configureInput(container);
     configureMessaging(container, client);
     configureRendering(container, client);
+    configureClientServices(container, client);
     return container;
 }
 
@@ -113,5 +117,16 @@ function configureMessaging(container: Container, client: BallastClient): Contai
 function configureRendering(container: Container, client: BallastClient): Container {
     container.bind<RenderingContext>(TYPES_BALLAST.RenderingContext)
         .toDynamicValue(context => client.getViewport().getRenderingContext());
+    return container;
+}
+
+function configureClientServices(container: Container, client: BallastClient): Container {
+    container.bind<() => ISignalRServiceOptions>(TYPES_BALLAST.ISignalRServiceOptionsFactory)
+        .toFactory(context => () => context.container.get<ISignalRServiceOptions>(TYPES_BALLAST.ISignalRServiceOptions));
+    container.bind<ISignalRServiceOptions>(TYPES_BALLAST.ISignalRServiceOptions)
+        .toDynamicValue(context => client.getSignalRServiceOptions());
+    container.bind<IChatService>(TYPES_BALLAST.IChatService)
+        .to(SignalRChatService)
+        .inSingletonScope();
     return container;
 }

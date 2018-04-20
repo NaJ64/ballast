@@ -16,14 +16,14 @@ export class BallastBootstrapper {
         return this.document.getElementById('ballast') || undefined;
     }
 
-    public async bootstrapAsync(host?: HTMLElement): Promise<BallastClient> {
+    public async bootstrapAsync(serverUrl: string, host?: HTMLElement): Promise<BallastClient> {
         if (!host) {
             host = this.findBallastElement();
         }
         if (!host) {
             throw new Error('No ballast host element was found/specified');
         }
-        let client = new BallastClient(host);
+        let client = new BallastClient(host, serverUrl);
         await client.loadAsync();
         await client.startTestAsync();
         return client;
