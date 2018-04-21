@@ -27,7 +27,7 @@ before_build:
   - cmd: dotnet restore ./Ballast.Web/Ballast.Web.csproj --verbosity m
 build_script:
   # output will be in ./Ballast.Web/bin/debug/netcoreapp2.1/publish
-  - cmd: dotnet publish ./Ballast.Web/Ballast.Web.csproj --self-contained true
+  - cmd: dotnet publish ./Ballast.Web/Ballast.Web.csproj
 after_build:
   # For once the build has completed
 artifacts:
