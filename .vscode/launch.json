@@ -5,19 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch 'Ballast.Client.Web' (Node.js)",
-            "cwd": "${workspaceFolder}/Ballast.Client.Web",
-            "program": "${workspaceFolder}/Ballast.Client.Web/server.js"
-        },
-        {
-            "name": "Launch 'Ballast.Server' (.NET Core)",
+            "name": "Launch 'Ballast.Web' (.NET Core)",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/Ballast.Server/bin/Debug/netcoreapp2.1/Ballast.Server.dll",
+            "program": "${workspaceFolder}/Ballast.Web/bin/Debug/netcoreapp2.1/Ballast.Web.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Ballast.Server",
+            "cwd": "${workspaceFolder}/Ballast.Web",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {

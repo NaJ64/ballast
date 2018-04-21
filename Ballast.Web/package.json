@@ -1,8 +1,7 @@
 {
-  "name": "ballast-client-web",
+  "name": "ballast-web",
   "version": "1.0.0",
-  "description": "Ballast client web/browser application",
-  "main": "dist/index.js",
+  "description": "Ballast application server / API",
   "scripts": {
     "build": "npm run compile && npm run bundle && npm run copy",
     "bundle": "webpack --no-watch",
@@ -10,18 +9,20 @@
     "compile": "tsc",
     "compile-watch": "tsc --watch",
     "copy": "npm run copy-html && npm run copy-css",
-    "copy-html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"wwwroot\"",
-    "copy-css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"wwwroot\"",
+    "copy-html": "node ./node_modules/cpx/bin \"src/Client/**/*.html\" \"wwwroot\"",
+    "copy-css": "node ./node_modules/cpx/bin \"src/Client/**/*.css\" \"wwwroot\"",
     "prepare": "npm run build",
-    "start": "npm run copy && node server",
+    "start": "echo \"Use the 'dotnet run' command to start the project using .NET Core\" && exit 1",
     "test": "jest",
     "test-single": "jest -- --args",
     "test-full": "npm run compile && npm test"
   },
   "keywords": [
-    "ballast"
+    "ballast",
+    "signalr"
   ],
   "author": "NaJ64 <njudice@gmail.com>",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "ballast-client": "file:../ballast.client",
@@ -52,6 +53,6 @@
       "/node_modules/",
       "/dist/"
     ],
-    "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
+    "testRegex": "src/Client/.*\\.test\\.(jsx?|tsx?)$"
   }
 }
