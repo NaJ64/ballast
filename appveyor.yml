@@ -7,6 +7,8 @@ init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
 install:
+  # Get a later version of Node.js
+  - ps: Install-Product node 6.11.5
   - cmd: npm -v
   # Install repo specific stuff here
   - cmd: cd ./Ballast.Core
