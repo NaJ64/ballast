@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballast.Core", "Ballast.Core\Ballast.Core.csproj", "{382A5318-7D1B-4D22-A108-D6EA9B5F2AD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballast.Server", "Ballast.Server\Ballast.Server.csproj", "{912845D1-8F7E-472F-8FCB-36255910B252}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballast.Web", "Ballast.Web\Ballast.Web.csproj", "{912845D1-8F7E-472F-8FCB-36255910B252}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

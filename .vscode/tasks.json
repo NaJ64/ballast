@@ -31,17 +31,17 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Ballast.Server - Restore/Build (.NET Core)",
-            "identifier": "server-dotnet-build",
+            "label": "Ballast.Web - Restore/Build (.NET Core)",
+            "identifier": "web-dotnet-build",
             "group": "build",
             "type": "process",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Server"
+                "cwd": "${workspaceFolder}/Ballast.Web"
             },
             "command": "dotnet",
             "args": [
                 "build",
-                "Ballast.Server.csproj"
+                "Ballast.Web.csproj"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -60,15 +60,15 @@
             "problemMatcher": "$tsc"
         },
         {
-            "label": "Ballast.Client.Web - Install/Build (NPM)",
-            "identifier": "client-web-npm-install",
+            "label": "Ballast.Web - Install/Build (NPM)",
+            "identifier": "web-npm-install",
             "group": "build",
             "dependsOn": [
                 "client-npm-install"
             ],
             "type": "shell",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+                "cwd": "${workspaceFolder}/Ballast.Web"
             },
             "command": "npm install",
             "problemMatcher": "$tsc"
@@ -101,10 +101,10 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Ballast.Server - Compile/Watch (.NET Core)",
-            "identifier": "server-dotnet-watch-build",
+            "label": "Ballast.Web - Compile/Watch (.NET Core)",
+            "identifier": "web-dotnet-watch-build",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Server"
+                "cwd": "${workspaceFolder}/Ballast.Web"
             },
             "isBackground": true,
             "type": "process",
@@ -112,15 +112,15 @@
             "args": [
                 "watch",
                 "build",
-                "Ballast.Server.csproj"
+                "Ballast.Web.csproj"
             ],
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Ballast.Server - Run/Watch (.NET Core)",
-            "identifier": "server-dotnet-watch-run",
+            "label": "Ballast.Web - Run/Watch (.NET Core)",
+            "identifier": "web-dotnet-watch-run",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Server"
+                "cwd": "${workspaceFolder}/Ballast.Web"
             },
             "isBackground": true,
             "type": "process",
@@ -129,7 +129,7 @@
                 "watch",
                 "--verbose",
                 "run",
-                "Ballast.Server.csproj"
+                "Ballast.Web.csproj"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -145,10 +145,10 @@
             "problemMatcher": "$tsc-watch"
         },
         {
-            "label": "Ballast.Client.Web - Bundle/Watch (Webpack)",
-            "identifier": "client-web-webpack-watch",
+            "label": "Ballast.Web - Bundle/Watch (Webpack)",
+            "identifier": "web-webpack-watch",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+                "cwd": "${workspaceFolder}/Ballast.Web"
             },
             "isBackground": true,
             "type": "shell",
@@ -156,10 +156,10 @@
             "problemMatcher": "$eslint-stylish"
         },
         {
-            "label": "Ballast.Client.Web - Start (NPM)",
-            "identifier": "client-web-npm-start",
+            "label": "Ballast.Web - Start (NPM)",
+            "identifier": "web-npm-start",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Client.Web"
+                "cwd": "${workspaceFolder}/Ballast.Web"
             },
             "isBackground": true,
             "type": "shell",
@@ -175,11 +175,11 @@
             },
             "dependsOn": [
                 "core-dotnet-watch-build",
-                "server-dotnet-watch-run",
                 "core-tsc-watch",
                 "client-tsc-watch",
-                "client-web-webpack-watch",
-                "client-web-npm-start"
+                "web-dotnet-watch-run",
+                "web-webpack-watch",
+                "web-npm-start"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

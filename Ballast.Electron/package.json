@@ -1,5 +1,5 @@
 {
-  "name": "ballast-client-electron",
+  "name": "ballast-electron",
   "version": "1.0.0",
   "description": "Ballast client Electron application",
   "main": "dist/index.js",

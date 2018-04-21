@@ -57,6 +57,8 @@ namespace Ballast.Server
                 routes.MapHub<ChatHub>("/chathub");
             });
 
+            //app.UseFileServer();
+
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World!");
