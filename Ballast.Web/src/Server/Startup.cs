@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -52,6 +53,10 @@ namespace Ballast.Server
 
             //app.UseCors("ClientWeb");
             
+            // // Redirect all http requests to https
+            // app.UseRewriter(new RewriteOptions()
+            //     .AddRedirectToHttps());
+
             app.UseSignalR(routes => 
             {
                 routes.MapHub<ChatHub>("/chathub");
@@ -60,11 +65,6 @@ namespace Ballast.Server
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-            // app.Run(async (context) =>
-            // {
-            //     await context.Response.WriteAsync("Hello World!");
-            // });
-            
         }
     }
 }

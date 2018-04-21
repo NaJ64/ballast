@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { BallastBootstrapper } from 'ballast-client';
 
-let server = 'http://localhost:80';
+let server = window.location.hostname;
 let bootstrapper = new BallastBootstrapper(document)
     .bootstrapAsync(server)
     .then(client => console.log('ballast loaded!'))
