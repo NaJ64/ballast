@@ -40,8 +40,7 @@ test_script:
   - cmd: npm test
   - cmd: cd ../Ballast.Client
   - cmd: npm test
-  - cmd: cd ../Ballast.Web
-  - cmd: npm test
+  - cmd: cd ../
 on_finish :
   # any cleanup in here
 deploy: off

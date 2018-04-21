@@ -51,7 +51,8 @@
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "/bin/"
     ],
     "testRegex": "src/Client/.*\\.test\\.(jsx?|tsx?)$"
   }
