@@ -5,14 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch 'Ballast.Web' Client (Node.js)",
-            "cwd": "${workspaceFolder}/Ballast.Web",
-            "program": "${workspaceFolder}/Ballast.Web/server.js"
-        },
-        {
-            "name": "Launch 'Ballast.Web' Client/Server (.NET Core)",
+            "name": "Launch 'Ballast.Web' (.NET Core)",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/Ballast.Web/bin/Debug/netcoreapp2.1/Ballast.Web.dll",

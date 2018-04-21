@@ -12,7 +12,7 @@
     "copy-html": "node ./node_modules/cpx/bin \"src/Client/**/*.html\" \"wwwroot\"",
     "copy-css": "node ./node_modules/cpx/bin \"src/Client/**/*.css\" \"wwwroot\"",
     "prepare": "npm run build",
-    "start": "npm run copy && node server",
+    "start": "echo \"Use the 'dotnet run' command to start the project using .NET Core\" && exit 1",
     "test": "jest",
     "test-single": "jest -- --args",
     "test-full": "npm run compile && npm test"

@@ -26,17 +26,17 @@ namespace Ballast.Server
         public void ConfigureServices(IServiceCollection services)
         {
             
-            var corsOrigins = Configuration.GetSection("hosting:cors:origins")
-                .GetChildren()
-                .Select(x => x.Value)
-                .ToArray();
+            // var corsOrigins = Configuration.GetSection("hosting:cors:origins")
+            //     .GetChildren()
+            //     .Select(x => x.Value)
+            //     .ToArray();
 
-            services.AddCors(options => options.AddPolicy("ClientWeb", builder => builder
-                .WithOrigins(corsOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-            ));
+            // services.AddCors(options => options.AddPolicy("ClientWeb", builder => builder
+            //     .WithOrigins(corsOrigins)
+            //     .AllowAnyHeader()
+            //     .AllowAnyMethod()
+            //     .AllowCredentials()
+            // ));
 
             services.AddSignalR();
             
@@ -50,19 +50,20 @@ namespace Ballast.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("ClientWeb");
+            //app.UseCors("ClientWeb");
             
             app.UseSignalR(routes => 
             {
                 routes.MapHub<ChatHub>("/chathub");
             });
 
-            //app.UseFileServer();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
-            });
+            // app.Run(async (context) =>
+            // {
+            //     await context.Response.WriteAsync("Hello World!");
+            // });
             
         }
     }

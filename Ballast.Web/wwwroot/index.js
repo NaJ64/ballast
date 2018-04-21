@@ -1429,7 +1429,7 @@ eval("\r\nfunction __export(m) {\r\n    for (var p in m) if (!exports.hasOwnProp
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\n__webpack_require__(/*! reflect-metadata */ \"./node_modules/reflect-metadata/Reflect.js\");\r\nvar ballast_client_1 = __webpack_require__(/*! ballast-client */ \"../ballast.client/dist/index.js\");\r\nvar server = 'http://localhost:3000';\r\nvar bootstrapper = new ballast_client_1.BallastBootstrapper(document)\r\n    .bootstrapAsync(server)\r\n    .then(function (client) { return console.log('ballast loaded!'); })\r\n    .catch(function (error) { return console.log('error loading ballast: ' + error.message); });\r\n//# sourceMappingURL=index.js.map\n\n//# sourceURL=webpack:///./dist/index.js?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\n__webpack_require__(/*! reflect-metadata */ \"./node_modules/reflect-metadata/Reflect.js\");\r\nvar ballast_client_1 = __webpack_require__(/*! ballast-client */ \"../ballast.client/dist/index.js\");\r\nvar server = 'http://localhost:80';\r\nvar bootstrapper = new ballast_client_1.BallastBootstrapper(document)\r\n    .bootstrapAsync(server)\r\n    .then(function (client) { return console.log('ballast loaded!'); })\r\n    .catch(function (error) { return console.log('error loading ballast: ' + error.message); });\r\n//# sourceMappingURL=index.js.map\n\n//# sourceURL=webpack:///./dist/index.js?");
 
 /***/ }),
 
