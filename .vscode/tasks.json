@@ -167,7 +167,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Ballast - Watch",
+            "label": "Ballast - Run/Watch",
             "identifier": "watch",
             "group": {
                 "kind": "build",
