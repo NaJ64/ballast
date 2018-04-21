@@ -37,13 +37,10 @@ clone_depth: 1
 test_script:
   # restore packages for our unit tests
   - cmd: cd ./Ballast.Core
-  - cmd: npm install
   - cmd: npm test
   - cmd: cd ../Ballast.Client
-  - cmd: npm install
   - cmd: npm test
   - cmd: cd ../Ballast.Web
-  - cmd: npm install
   - cmd: npm test
 on_finish :
   # any cleanup in here
