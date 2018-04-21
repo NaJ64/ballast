@@ -13,8 +13,8 @@ export interface IBoardGenerator {
         boardType: IBoardType, 
         tileShape: ITileShape, 
         columnsOrSideLength: number, 
-        landToWaterRatio?: number,
         rows?: number,
+        landToWaterRatio?: number
     ): IBoard;
 }
 
@@ -25,8 +25,8 @@ export class BoardGenerator implements IBoardGenerator {
         boardType: IBoardType, 
         tileShape: ITileShape, 
         columnsOrSideLength: number, 
-        landToWaterRatio?: number,
-        rows?: number
+        rows?: number,
+        landToWaterRatio?: number
     ) {
 
         // Get passable terrain types to use when figuring land/water tile ratio
