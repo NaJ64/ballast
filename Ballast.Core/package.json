@@ -17,6 +17,7 @@
     "ballast"
   ],
   "author": "NaJ64 <njudice@gmail.com>",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "inversify": "^4.11.1",
