@@ -9,7 +9,7 @@ init:
 install:
   # Get a later version of Node.js
   - ps: Install-Product node 6.11.5
-  - cmd: npm -g install npm@latest
+  - cmd: npm -g install npm@latest --silent
   - cmd: npm -v
   # Install repo specific stuff here
   - cmd: cd ./Ballast.Core
