@@ -145,8 +145,8 @@ export class ChatComponent extends ComponentBase {
         chatWindow.style.cssFloat = 'right';
         chatWindow.style.position = 'absolute';
         chatWindow.style.zIndex = '1000';
-        chatWindow.style.right = '0px';
-        chatWindow.style.bottom = '0px';
+        chatWindow.style.right = '2px'; // parent has 2px border
+        chatWindow.style.bottom = '2px'; // parent has 2px border
         chatWindow.style.height = '33%';
         chatWindow.style.width = 'calc(33% - 2px)';
         chatWindow.style.borderWidth = '1px';

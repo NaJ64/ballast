@@ -47,9 +47,12 @@ export class BallastViewport {
     private createRoot(host: HTMLElement, id: string): HTMLDivElement {
         var root = host.ownerDocument.createElement("div");
         root.id = id;
+        root.style.border = '2px';
+        root.style.borderStyle = 'solid';
+        root.style.borderColor = 'white';
         root.style.backgroundColor = 'black';
-        root.style.height = '100%';
-        root.style.width = '100%';
+        root.style.height = 'calc(100% - 4px)';
+        root.style.width = 'calc(100% - 4px)';
         host.appendChild(root);
         return root;
     }
