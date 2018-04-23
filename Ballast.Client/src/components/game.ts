@@ -8,11 +8,13 @@ import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/event-bus';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { BoardComponent } from './board';
+import { WorldComponent } from './world';
 
 @injectable()
 export class GameComponent extends ComponentBase {
 
     private readonly perspectiveTracker: PerspectiveTracker;
+    private readonly world: WorldComponent;
     private readonly board: BoardComponent;
     private cameraRotateTo?: THREE.Vector3;
     private inverted?: boolean;
@@ -25,11 +27,13 @@ export class GameComponent extends ComponentBase {
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
-        @inject(TYPES_BALLAST.BoardComponentFactory) boardFactory: () => BoardComponent
+        @inject(TYPES_BALLAST.BoardComponentFactory) worldFactory: () => WorldComponent,
+        @inject(TYPES_BALLAST.WorldComponentFactory) boardFactory: () => BoardComponent
     ) {
         super(viewport, eventBus);
         this.perspectiveTracker = perspectiveTracker;
-        this.board = boardFactory( );
+        this.world = worldFactory();
+        this.board = boardFactory();
         this.cacheStaticAssets();
     }
 
@@ -89,6 +93,7 @@ export class GameComponent extends ComponentBase {
     }
 
     public onAttach(parent: HTMLElement) {
+        this.world.attach(parent);
         this.board.attach(parent);
         let loadedEvent = new GameComponentLoadedEvent();
         this.eventBus.publishAsync(loadedEvent);
@@ -96,6 +101,7 @@ export class GameComponent extends ComponentBase {
 
     protected onDetach(parent: HTMLElement) {
         this.board.detach();
+        this.world.detach();
     }
 
 }
