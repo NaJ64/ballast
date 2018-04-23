@@ -56,36 +56,41 @@ export class CameraComponent extends ComponentBase {
     }
 
     private createRotationButtons(container: HTMLElement): [HTMLButtonElement, HTMLButtonElement] {
+
+        // Add some CSS to the game style header tag for media query'ing the buttons
+        let style = this.viewport.getGameStyle();
+        style.appendChild(style.ownerDocument.createTextNode(`
+            .ballastButton { 
+                transform: rotate(180deg);
+                position: absolute;
+                color: white;
+                background-color: transparent;
+                border-width: 0px;
+                border-style: solid;
+                border-color: rgba(255, 255, 255, 0.1);
+                text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+                font-size: 5vw;
+            } 
+            @media screen and (min-width: 1000px) { 
+                .ballastButton { 
+                    font-size: 50px;
+                } 
+            }
+        `));
         
         let counterClockwiseButton = container.ownerDocument.createElement('button');
-        counterClockwiseButton.innerHTML = '&#8630';
+        counterClockwiseButton.innerHTML = '&#8634';
         counterClockwiseButton.type = 'button';
-        counterClockwiseButton.style.fontSize = '4em';
-        counterClockwiseButton.style.textShadow = '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000';
+        counterClockwiseButton.className = 'ballastButton';
         counterClockwiseButton.style.cssFloat = 'left';
-        counterClockwiseButton.style.position = 'absolute';
-        //counterClockwiseButton.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-        counterClockwiseButton.style.backgroundColor = 'transparent';
-        counterClockwiseButton.style.borderWidth = '0px';
-        counterClockwiseButton.style.borderStyle = 'solid';
-        counterClockwiseButton.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        counterClockwiseButton.style.color = 'white';
         counterClockwiseButton.style.top = '10%';
         counterClockwiseButton.style.left = '5.63%';
 
         let clockwiseButton = container.ownerDocument.createElement('button');
-        clockwiseButton.innerHTML = '&#8631';
+        clockwiseButton.innerHTML = '&#8635';
         clockwiseButton.type = 'button';
-        clockwiseButton.style.fontSize = '4em';
-        clockwiseButton.style.textShadow = '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000';
+        clockwiseButton.className = 'ballastButton';
         clockwiseButton.style.cssFloat = 'right';
-        clockwiseButton.style.position = 'absolute';
-        //clockwiseButton.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-        clockwiseButton.style.backgroundColor = 'transparent';
-        clockwiseButton.style.borderWidth = '0px';
-        clockwiseButton.style.borderStyle = 'solid';
-        clockwiseButton.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        clockwiseButton.style.color = 'white';
         clockwiseButton.style.top = '10%';
         clockwiseButton.style.right = '5.63%';
 

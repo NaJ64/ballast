@@ -12,6 +12,7 @@ export type RenderingStep = (renderingContext: RenderingContext, next: () => voi
 export class BallastViewport {
     
     private readonly root: HTMLDivElement;
+    private readonly gameStyle: HTMLStyleElement;
     private readonly canvas: HTMLCanvasElement;
     private readonly keyboardWatcher: KeyboardWatcher;
     private readonly renderingContext: RenderingContext;
@@ -20,6 +21,7 @@ export class BallastViewport {
 
     public constructor(host: HTMLElement, clientId: string, eventBus: IEventBus) {
         this.root = this.createRoot(host, clientId);
+        this.gameStyle = this.createGameStyle(this.root);
         this.canvas = this.createCanvas(this.root);
         this.keyboardWatcher = this.createKeyboardWatcher(this.root);
         this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
@@ -30,6 +32,10 @@ export class BallastViewport {
 
     public getRoot(): HTMLDivElement {
         return this.root;
+    }
+
+    public getGameStyle(): HTMLStyleElement {
+        return this.gameStyle;
     }
 
     public getCanvas(): HTMLCanvasElement {
@@ -56,6 +62,16 @@ export class BallastViewport {
         root.style.width = 'calc(100% - 4px)';
         host.appendChild(root);
         return root;
+    }
+
+    private createGameStyle(root: HTMLDivElement) {
+        let currentDocument = root.ownerDocument;
+        let head = currentDocument.head || currentDocument.getElementsByTagName('head')[0];
+        let gameStyle = currentDocument.createElement('style');
+        gameStyle.type = 'text/css';
+        gameStyle.appendChild(document.createTextNode(''));
+        head.appendChild(gameStyle);
+        return gameStyle;
     }
 
     private createCanvas(root: HTMLDivElement) {

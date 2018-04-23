@@ -141,6 +141,12 @@ export class ChatComponent extends ComponentBase {
         HTMLInputElement 
     ] {
 
+        // // Add some CSS to the game style header tag
+        // let style = this.viewport.getGameStyle();
+        // style.appendChild(style.ownerDocument.createTextNode(`
+
+        // `));
+
         let chatWindow = container.ownerDocument.createElement("div");
         chatWindow.style.cssFloat = 'right';
         chatWindow.style.position = 'absolute';
