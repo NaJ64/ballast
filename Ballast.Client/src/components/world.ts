@@ -89,7 +89,7 @@ export class WorldComponent extends ComponentBase {
 		// 	distortionScale: 50.0
         // });
 
-        let testMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff, side: THREE.FrontSide });
+        let testMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, side: THREE.FrontSide });
         
 		let meshMirror = new THREE.Mesh(
 			meshMirrorGeometry, 
