@@ -32,7 +32,9 @@ export class RenderingContext {
     }
 
     private createRenderer(canvas: HTMLCanvasElement): THREE.WebGLRenderer {
-        return new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setPixelRatio(1);
+        return renderer;
     }
 
     private createScene(): THREE.Scene {

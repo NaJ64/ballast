@@ -54,7 +54,7 @@ export class WorldComponent extends ComponentBase {
     private createWaterTexture() {
         // Load texture	
         let waterTextureLoader = new THREE.TextureLoader();
-        let waterNormals = waterTextureLoader.load('waternormals.jpg'); //new THREE.ImageUtils.loadTexture('waternormals.jpg');
+        let waterNormals = waterTextureLoader.load('images/water/waternormals.jpg'); //new THREE.ImageUtils.loadTexture('waternormals.jpg');
         waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping; 
         return waterNormals;
     }
@@ -89,7 +89,7 @@ export class WorldComponent extends ComponentBase {
 		// 	distortionScale: 50.0
         // });
 
-        let testMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, side: THREE.FrontSide });
+        let testMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff, side: THREE.FrontSide });
         
 		let meshMirror = new THREE.Mesh(
 			meshMirrorGeometry, 
@@ -107,12 +107,12 @@ export class WorldComponent extends ComponentBase {
 
         let cubeTextureLoader = new THREE.CubeTextureLoader();
         let cubeMap = cubeTextureLoader.load([ //THREE.ImageUtils.loadTextureCube([
-            'px.jpg',
-            'nx.jpg',
-            'py.jpg',
-            'ny.jpg',
-            'pz.jpg',
-            'nz.jpg'
+            'images/skybox/px.jpg',
+            'images/skybox/nx.jpg',
+            'images/skybox/py.jpg',
+            'images/skybox/ny.jpg',
+            'images/skybox/pz.jpg',
+            'images/skybox/nz.jpg'
         ]);
         cubeMap.format = THREE.RGBFormat;
 
