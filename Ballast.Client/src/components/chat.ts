@@ -86,8 +86,8 @@ export class ChatComponent extends ComponentBase {
     }
 
     private async onChatMessageReceivedAsync(event: ChatMessageReceivedEvent) {
-        console.log('got a message received event:');
-        console.log(event);
+        // console.log('got a message received event:');
+        // console.log(event);
         this.appendMessageToHistory(event.message);
     }
 
@@ -96,7 +96,9 @@ export class ChatComponent extends ComponentBase {
     }
 
     private onChatInputBlur(ev: FocusEvent): any {
-        this.resumeKeyboardWatching();
+        setTimeout(() => {
+            this.resumeKeyboardWatching();
+        }, 250);
     }
 
     private onChatFormSubmit(ev: Event): any {
@@ -108,7 +110,9 @@ export class ChatComponent extends ComponentBase {
     private submitMessage() {
         if (this.chatInput) {
             let messageText = this.chatInput.value || "";
-            this.sendMessageFromTextAsync(messageText); // Fire and forget
+            if (!!messageText) {
+                this.sendMessageFromTextAsync(messageText); // Fire and forget
+            }
             this.chatInput.value = "";
             this.chatInput.blur();
         }
@@ -116,7 +120,7 @@ export class ChatComponent extends ComponentBase {
 
     private async sendMessageFromTextAsync(text: string) {
         let channel = 'global';
-        let from = 'testUser';
+        let from = 'anonymous';
         let timestamp = new Date(Date.now());
         await this.chatService.sendMessageAsync({
             channel: channel,
@@ -130,8 +134,8 @@ export class ChatComponent extends ComponentBase {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
             let timestampDate = new Date(message.timestamp);
-            let messageDisplay = `(${timestampDate.toLocaleTimeString()}) ${message.from}: ${message.text}`;
-            item.innerHTML = messageDisplay;
+            let messageDisplay = `${timestampDate.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })} [${message.from}]:  ${message.text}`;
+            item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);
             this.chatHistory.scrollTop = this.chatHistory.scrollHeight
         }
@@ -154,7 +158,7 @@ export class ChatComponent extends ComponentBase {
         // Check if the user has hit the "t" key to talk
         let focusedElement = this.chatInput && this.chatInput.ownerDocument.activeElement;
         let chatInputHasFocus = this.chatInput && focusedElement && (focusedElement == this.chatInput);
-        if (!chatInputHasFocus && renderingContext.keyboard.tIsDown()) {
+        if (!chatInputHasFocus && renderingContext.keyboard.enterIsDown()) {
             (<HTMLInputElement>this.chatInput).focus();
         }
 
@@ -170,7 +174,6 @@ export class ChatComponent extends ComponentBase {
         // // Add some CSS to the game style header tag
         // let style = this.viewport.getGameStyle();
         // style.appendChild(style.ownerDocument.createTextNode(`
-
         // `));
 
         let chatWindow = container.ownerDocument.createElement("div");
@@ -179,15 +182,16 @@ export class ChatComponent extends ComponentBase {
         chatWindow.style.zIndex = '1000';
         chatWindow.style.right = '12px'; // parent has 2px border
         chatWindow.style.bottom = '12px'; // parent has 2px border
-        chatWindow.style.height = '33%';
-        chatWindow.style.width = 'calc(33% - 2px)';
+        chatWindow.style.height = '66%';
+        chatWindow.style.width = 'calc(40% - 2px)';
         chatWindow.style.borderWidth = '1px';
-        chatWindow.style.borderStyle = 'solid';
+        chatWindow.style.borderStyle = 'none'; //'solid';
         chatWindow.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        chatWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+        //chatWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
 
         let chatHistory = container.ownerDocument.createElement("ul");
         chatHistory.style.color = "white";
+        chatHistory.style.textShadow = '1px 1px 2px rgb(0, 0, 0), -1px 1px 2px rgb(0, 0, 0), 1px -1px 2px rgb(0, 0, 0), -1px -1px 2px rgb(0, 0, 0)';
         chatHistory.style.marginTop = '10px';
         chatHistory.style.marginBottom = '10px';
         chatHistory.style.marginLeft = '5px';
@@ -215,10 +219,10 @@ export class ChatComponent extends ComponentBase {
         chatInput.style.width = '100%';
         chatInput.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
         chatInput.style.borderStyle = 'solid';
-        chatInput.style.borderBottomStyle = 'none';
-        chatInput.style.borderLeftStyle = 'none';
-        chatInput.style.borderRightStyle = 'none';
-        chatInput.style.borderTopColor = 'rgba(255, 255, 255, 0.1)';
+        // chatInput.style.borderBottomStyle = 'none';
+        // chatInput.style.borderLeftStyle = 'none';
+        // chatInput.style.borderRightStyle = 'none';
+        chatInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         chatInput.style.color = 'white';
         chatForm.appendChild(chatInput);
 
