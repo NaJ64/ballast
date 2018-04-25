@@ -37,7 +37,7 @@ export class CameraComponent extends ComponentBase {
         this.resetCamera = true;
         this.triggerClockwise = 0;
         this.triggerCounterClockwise = 0;
-        this.updateCamera(10, 10);
+        this.updateCamera(10, 5);
     }
 
     protected onAttach(parent: HTMLElement) {

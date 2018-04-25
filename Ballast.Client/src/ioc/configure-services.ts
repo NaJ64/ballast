@@ -13,6 +13,7 @@ import { HudComponent } from '../components/hud';
 import { MenuComponent} from '../components/menu';
 import { RootComponent } from '../components/root';
 import { SignInComponent } from '../components/sign-in';
+import { WorldComponent } from '../components/world';
 import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { PerspectiveTracker } from '../input/perspective-tracker';
@@ -90,6 +91,12 @@ function configureComponents(container: Container): Container {
         .inTransientScope();
     container.bind<() => SignInComponent>(TYPES_BALLAST.SignInComponentFactory)
         .toFactory(context => () => context.container.get<SignInComponent>(TYPES_BALLAST.SignInComponent));
+    // WorldComponent
+    container.bind<WorldComponent>(TYPES_BALLAST.WorldComponent)
+        .to(WorldComponent)
+        .inTransientScope();
+    container.bind<() => WorldComponent>(TYPES_BALLAST.WorldComponentFactory)
+        .toFactory(context => () => context.container.get<WorldComponent>(TYPES_BALLAST.WorldComponent));
     return container;
 }
 

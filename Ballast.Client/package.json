@@ -5,9 +5,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm run compile",
+    "build": "npm run compile && npm run copy",
     "compile": "tsc",
     "compile-watch": "tsc --watch",
+    "copy": "npm run copy-js && npm run copy-img",
+    "copy-img": "node ./node_modules/cpx/bin \"src/**/*.{jpg,png}\" \"dist\"",
+    "copy-js": "node ./node_modules/cpx/bin \"src/**/*.js\" \"dist\"",
     "prepare": "npm run build",
     "test": "jest",
     "test-single": "jest -- --args",
@@ -35,6 +38,7 @@
     "@types/jest": "^22.2.2",
     "@types/three": "^0.91.3",
     "@types/uuid": "^3.4.3",
+    "cpx": "^1.5.0",
     "jest": "^22.4.3",
     "ts-jest": "^22.4.2",
     "typescript": "^2.7.2"
