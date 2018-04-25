@@ -8,7 +8,7 @@ init:
   - cmd: git config --global core.autocrlf true
 install:
   # Get a later version of Node.js
-  - ps: Install-Product node 10.0.0
+  - ps: Install-Product node 8.8.1
   - cmd: npm -g install npm@5.4.2
   - cmd: npm -v
   # Install repo specific stuff here
