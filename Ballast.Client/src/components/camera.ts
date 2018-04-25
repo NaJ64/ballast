@@ -11,6 +11,8 @@ import { GameStateChangedEvent } from '../messaging/events/game/game-state-chang
 export class CameraComponent extends ComponentBase {
 
     private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
+    private readonly counterClockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+    private readonly clockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
     private readonly partialTurnsPerSecond: number;
     private readonly cameraV3: THREE.Vector3;
     private readonly orbitTo: THREE.Object3D;
@@ -34,6 +36,8 @@ export class CameraComponent extends ComponentBase {
         this.partialTurnsPerSecond = RenderingConstants.PIVOT_DURATION_SECONDS;
         this.cameraV3 = new THREE.Vector3();
         this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
+        this.counterClockwiseClickListener = this.onCounterClockwiseClick.bind(this);
+        this.clockwiseClickListener = this.onClockwiseClick.bind(this);
         this.resetCamera = true;
         this.triggerClockwise = 0;
         this.triggerCounterClockwise = 0;
@@ -106,10 +110,12 @@ export class CameraComponent extends ComponentBase {
             this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
         }
         if (this.counterClockwiseButton) {
-            this.counterClockwiseButton.onclick = event => this.onCounterClockwiseClick();
+            this.counterClockwiseButton.addEventListener('click', this.counterClockwiseClickListener);
+            //this.counterClockwiseButton.onclick = event => this.onCounterClockwiseClick();
         }
         if (this.clockwiseButton) {
-            this.clockwiseButton.onclick = event => this.onClockwiseClick();
+            this.clockwiseButton.addEventListener('click', this.clockwiseClickListener);
+            //this.clockwiseButton.onclick = event => this.onClockwiseClick();
         }
     }
 
@@ -118,14 +124,16 @@ export class CameraComponent extends ComponentBase {
             this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
         }
         if (this.counterClockwiseButton) {
-            this.counterClockwiseButton.onclick = null;
+            this.counterClockwiseButton.removeEventListener('click', this.counterClockwiseClickListener);
+            //this.counterClockwiseButton.onclick = null;
         }
         if (this.clockwiseButton) {
-            this.clockwiseButton.onclick = null;
+            this.clockwiseButton.removeEventListener('click', this.clockwiseClickListener);
+            //this.clockwiseButton.onclick = null;
         }
     }
 
-    private onCounterClockwiseClick() {
+    private onCounterClockwiseClick(ev: MouseEvent) {
         if (!!this.triggerClockwise) {
             this.triggerClockwise--;
         } else {
@@ -133,7 +141,7 @@ export class CameraComponent extends ComponentBase {
         }
     }
 
-    private onClockwiseClick() {
+    private onClockwiseClick(ev: MouseEvent) {
         if (!!this.triggerCounterClockwise) {
             this.triggerCounterClockwise--;
         } else {

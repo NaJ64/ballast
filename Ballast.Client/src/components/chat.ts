@@ -16,6 +16,9 @@ export class ChatComponent extends ComponentBase {
 
     private readonly chatService: IChatService;
     private readonly chatMessageReceivedHandler: (event: ChatMessageReceivedEvent) => Promise<void>;
+    private readonly chatInputFocusListener: (this: HTMLInputElement, ev: FocusEvent) => any;
+    private readonly chatInputBlurListener: (this: HTMLInputElement, ev: FocusEvent) => any;
+    private readonly chatFormSubmitListener: (this: HTMLInputElement, ev: Event) => any;
     private chatWindow?: HTMLDivElement;
     private chatHistory?: HTMLUListElement;
     private chatForm?: HTMLFormElement;
@@ -29,6 +32,9 @@ export class ChatComponent extends ComponentBase {
         super(viewport, eventBus);
         this.chatService = chatService;
         this.chatMessageReceivedHandler = this.onChatMessageReceivedAsync.bind(this);
+        this.chatInputFocusListener = this.onChatInputFocus.bind(this);
+        this.chatInputBlurListener = this.onChatInputBlur.bind(this);
+        this.chatFormSubmitListener = this.onChatFormSubmit.bind(this);
     }
 
     protected onAttach(parent: HTMLElement) {
@@ -50,26 +56,32 @@ export class ChatComponent extends ComponentBase {
     private subscribeToEvents() {
         this.eventBus.subscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
         if (this.chatInput) {
-            this.chatInput.onfocus = event => this.suspendKeyboardWatching();
-            this.chatInput.onblur = event => this.resumeKeyboardWatching();
+            //this.chatInput.onfocus = event => this.suspendKeyboardWatching();
+            this.chatInput.addEventListener('focus', this.chatInputFocusListener);
+            //this.chatInput.onblur = event => this.resumeKeyboardWatching();
+            this.chatInput.addEventListener('blur', this.chatInputBlurListener);
         }
         if (this.chatForm) {
-            this.chatForm.onsubmit = event => {
-                this.submitMessage();
-                event.preventDefault();
-                return false;
-            };
+            this.chatForm.addEventListener('submit', this.chatFormSubmitListener);
+            // this.chatForm.onsubmit = event => {
+            //     this.submitMessage();
+            //     event.preventDefault();
+            //     return false;
+            // };
         }
     }
 
     private unsubscribeFromEvents() {
         this.eventBus.unsubscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
         if (this.chatInput) {
-            this.chatInput.onfocus = null;
-            this.chatInput.onblur = null;
+            // this.chatInput.onfocus = null;
+            this.chatInput.removeEventListener('focus', this.chatInputFocusListener);
+            // this.chatInput.onblur = null;
+            this.chatInput.removeEventListener('blur', this.chatInputBlurListener);
         }
         if (this.chatForm) {
-            this.chatForm.onsubmit = null;
+            // this.chatForm.onsubmit = null;
+            this.chatForm.removeEventListener('submit', this.chatFormSubmitListener);
         }
     }
 
@@ -77,6 +89,20 @@ export class ChatComponent extends ComponentBase {
         console.log('got a message received event:');
         console.log(event);
         this.appendMessageToHistory(event.message);
+    }
+
+    private onChatInputFocus(ev: FocusEvent): any {
+        this.suspendKeyboardWatching();
+    }
+
+    private onChatInputBlur(ev: FocusEvent): any {
+        this.resumeKeyboardWatching();
+    }
+
+    private onChatFormSubmit(ev: Event): any {
+        this.submitMessage();
+        ev.preventDefault();
+        return false;
     }
 
     private submitMessage() {
