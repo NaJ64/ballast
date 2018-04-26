@@ -21,6 +21,7 @@ export class BoardComponent extends ComponentBase {
     private octagonGeometry!: THREE.RingGeometry;
     private circleGeometry!: THREE.RingGeometry;
     private tileMaterial!: THREE.MeshBasicMaterial;
+    private tileMeshes: THREE.Mesh[];
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -29,6 +30,7 @@ export class BoardComponent extends ComponentBase {
     ) {
         super(viewport, eventBus);
         this.perspectiveTracker = perspectiveTracker;
+        this.tileMeshes = [];
         this.cacheStaticAssets();
     }
 
@@ -81,11 +83,15 @@ export class BoardComponent extends ComponentBase {
         // Check to see if we have a new game/board (using id)
         let boardId = renderingContext && renderingContext.game && renderingContext.game.board.id;
         if (!boardId) {
-            // remove old assets (?)
+            // remove old assets 
+            this.removeAllTileMeshes(renderingContext);
         }
 
         // Check if we have a new board to draw
         if (!!boardId && this.currentBoardId != boardId) {
+            
+            // remove old assets 
+            this.removeAllTileMeshes(renderingContext);
 
             // Render the tiles
             let game = <Game>renderingContext.game;
@@ -118,8 +124,16 @@ export class BoardComponent extends ComponentBase {
         x *= colSpacing;
         z *= rowSpacing;
         let newTileMesh = this.createTileMesh(tile.tileShape);
+        this.tileMeshes.push(newTileMesh);
         newTileMesh.position.set(x, 0, z);
         renderingContext.scene.add(newTileMesh);
+    }
+
+    private removeAllTileMeshes(renderingContext: RenderingContext) {
+        let tileMeshes = this.tileMeshes;
+        for (let tileMesh of tileMeshes) {
+            renderingContext.scene.remove(tileMesh);
+        }
     }
 
     private createTileMesh(tileShape: TileShape) {
