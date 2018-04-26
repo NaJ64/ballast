@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as THREE_ext from '../extensions/water-material';
 import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
@@ -10,7 +11,8 @@ import { IEventBus } from '../messaging/event-bus';
 export class WorldComponent extends ComponentBase {
 
     private directionalLight!: THREE.DirectionalLight;
-    private water!: THREE.Mesh;
+    private water!: THREE_ext.Water;
+    private waterMesh!: THREE.Mesh;
     private waterTexture!: THREE.Texture;
     private waterGeometry!: THREE.PlaneBufferGeometry;
     private skybox!: THREE.Mesh;
@@ -38,8 +40,8 @@ export class WorldComponent extends ComponentBase {
 
     private createPlaceholderWater(directionalLight: THREE.DirectionalLight) {
         // Dimensions for the ocean
-        let height = 120/500;
-        let width = 120/500;
+        let height = 256;
+        let width = 256;
         let waterGeometry = new THREE.PlaneBufferGeometry(width * 500, height * 500, 10, 10);
         let waterMaterial = new THREE.MeshBasicMaterial({ color: 0x000033, side: THREE.FrontSide });
 		let waterMesh = new THREE.Mesh(
@@ -60,13 +62,13 @@ export class WorldComponent extends ComponentBase {
     }
 
     private createWaterGeometry() {
-        let width = 2000;
-        let height = 2000;
+        let width = 100;
+        let height = 100;
         let meshMirrorGeometry = new THREE.PlaneBufferGeometry(width * 500, height * 500, 10, 10);
         return meshMirrorGeometry;
     }
 
-    private createWater(
+    private createWaterMesh(
         renderer: THREE.Renderer,
         camera: THREE.Camera,
         scene: THREE.Scene,
@@ -77,25 +79,26 @@ export class WorldComponent extends ComponentBase {
         let waterNormals = this.waterTexture;
         let meshMirrorGeometry = this.waterGeometry;
 
-        // // Create the water effect
-		// let water = new THREE.Water(renderer, camera, scene, {
-		// 	textureWidth: 512, 
-		// 	textureHeight: 512,
-		// 	waterNormals: waterNormals,
-		// 	alpha: 	1.0,
-		// 	sunDirection: directionalLight.position.normalize(),
-		// 	sunColor: 0xffffff,
-		// 	waterColor: 0x001e0f,
-		// 	distortionScale: 50.0
-        // });
+        // Create the water effect
+		let water = new THREE_ext.Water(renderer, camera, scene, {
+			textureWidth: 512, 
+			textureHeight: 512,
+			waterNormals: waterNormals,
+			alpha: 	1.0,
+			sunDirection: directionalLight.position.normalize(),
+			sunColor: 0xffffff,
+			waterColor: 0x001e0f,
+			distortionScale: 50.0
+        });
+        this.water = water;
 
-        let testMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, side: THREE.FrontSide });
+        //let testMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, side: THREE.FrontSide });
         
 		let meshMirror = new THREE.Mesh(
 			meshMirrorGeometry, 
-			testMaterial //water.material
+			water.material // testMaterial
 		);
-		//meshMirror.add(water);
+		meshMirror.add(water);
         meshMirror.rotation.x = (Math.PI * -0.5);
         meshMirror.position.add(new THREE.Vector3(0,-0.5,0));
         
@@ -136,23 +139,25 @@ export class WorldComponent extends ComponentBase {
 
     }
 
-
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
 
         if (this.isFirstRender()) {
 
-            this.water = this.createWater(
+            this.waterMesh = this.createWaterMesh(
                 renderingContext.renderer,
                 renderingContext.camera,
                 renderingContext.scene,
                 this.directionalLight
             );
 
-            renderingContext.scene.add(this.water);
+            renderingContext.scene.add(this.waterMesh);
             renderingContext.scene.add(this.directionalLight);
             renderingContext.scene.add(this.skybox);
             
         }
+        
+        this.water.material.uniforms.time.value += 1.0 / 60.0;
+		this.water.render();
 
     }
 
