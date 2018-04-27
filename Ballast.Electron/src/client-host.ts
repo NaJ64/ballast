@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as url from 'url';
 
 export interface ClientHostOptions {
+    contentRootDirectory: string;
+    startPage: string;
     displayDev: boolean;
     displayMenu: boolean;
     width: number;
@@ -13,15 +15,17 @@ export class ClientHost {
 
     private win!: Electron.BrowserWindow | null;
     private options: ClientHostOptions;
-    private contentRootPath: string;
-    private indexHtml: string;
+    private contentRootDirectory: string;
+    private startPage: string;
 
     public constructor(options: ClientHostOptions) {
 
         // save options
         this.options = options;
-        this.contentRootPath = path.resolve('dist'); //this.resolvePackageContentRoot('ballast-client') || "";
-        this.indexHtml = this.resolvePackageIndexHtml(this.contentRootPath) || "";
+
+        // Locate the start page within the content root directory
+        this.contentRootDirectory = path.resolve(this.options.contentRootDirectory); //this.resolvePackageContentRoot('ballast-client') || "";
+        this.startPage = this.resolveStartPage(this.contentRootDirectory, this.options.startPage) || "";
 
         // This method will be called when Electron has finished
         // initialization and is ready to create browser windows.
@@ -40,15 +44,12 @@ export class ClientHost {
                 // Create a new path to return 
                 let requestedFilePath = request.url;
 
-                // // Prepend the server url
-                // requestedFilePath = this.options.server + requestedFilePath.substring(15);
-
                 // Update/transform file path requested
                 requestedFilePath = this.transformFileUrlToFilePath(request.url);
 
                 // Make sure the file is being requested from the content root
-                if (!requestedFilePath.toLowerCase().startsWith(this.contentRootPath.toLowerCase())) {
-                    requestedFilePath = this.contentRootPath + '\\' + requestedFilePath.substring(3);
+                if (!requestedFilePath.toLowerCase().startsWith(this.contentRootDirectory.toLowerCase())) {
+                    requestedFilePath = this.contentRootDirectory + '\\' + requestedFilePath.substring(3);
                 }
 
                 // Return the file path
@@ -102,7 +103,7 @@ export class ClientHost {
 
         // and load the index.html of the app.
         this.win.loadURL(url.format({
-            pathname: this.indexHtml,
+            pathname: this.startPage,
             protocol: 'file:',
             slashes: true
         }));
@@ -150,10 +151,10 @@ export class ClientHost {
         return path.resolve(distFolderPath);
     }
 
-    private resolvePackageIndexHtml(contentRoot: string): string | undefined {
+    private resolveStartPage(contentRoot: string, startPage: string): string | undefined {
         if (!contentRoot || contentRoot == "")
             return "";
-        return path.resolve(path.join(contentRoot, 'index.html'));
+        return path.resolve(path.join(contentRoot, startPage));
     }
 
 }
