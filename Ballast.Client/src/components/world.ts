@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as THREE_ext from '../extensions/water-material';
+import * as THREE_EXT from '../extensions/water-material';
 import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
@@ -11,7 +11,7 @@ import { IEventBus } from '../messaging/event-bus';
 export class WorldComponent extends ComponentBase {
 
     private directionalLight!: THREE.DirectionalLight;
-    private water!: THREE_ext.Water;
+    private water!: THREE_EXT.Water;
     private waterMesh!: THREE.Mesh;
     private waterTexture!: THREE.Texture;
     private waterGeometry!: THREE.PlaneBufferGeometry;
@@ -33,24 +33,9 @@ export class WorldComponent extends ComponentBase {
     }
 
     private createDirectionalLight() {
-        let directionalLight = new THREE.DirectionalLight(0xffff55, 1);
+        let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(-600, 300, 600);
         return directionalLight;
-    }
-
-    private createPlaceholderWater(directionalLight: THREE.DirectionalLight) {
-        // Dimensions for the ocean
-        let height = 256;
-        let width = 256;
-        let waterGeometry = new THREE.PlaneBufferGeometry(width * 500, height * 500, 10, 10);
-        let waterMaterial = new THREE.MeshBasicMaterial({ color: 0x000033, side: THREE.FrontSide });
-		let waterMesh = new THREE.Mesh(
-			waterGeometry, 
-			waterMaterial
-        );
-        waterMesh.rotation.x = (Math.PI * -0.5);
-        waterMesh.position.add(new THREE.Vector3(0,-0.5,0));
-        return waterMesh;
     }
 
     private createWaterTexture() {
@@ -80,7 +65,7 @@ export class WorldComponent extends ComponentBase {
         let meshMirrorGeometry = this.waterGeometry;
 
         // Create the water effect
-		let water = new THREE_ext.Water(renderer, camera, scene, {
+		let water = new THREE_EXT.Water(renderer, camera, scene, {
 			textureWidth: 512, 
 			textureHeight: 512,
 			waterNormals: waterNormals,
@@ -150,9 +135,9 @@ export class WorldComponent extends ComponentBase {
                 this.directionalLight
             );
 
-            renderingContext.scene.add(this.waterMesh);
-            renderingContext.scene.add(this.directionalLight);
             renderingContext.scene.add(this.skybox);
+            renderingContext.scene.add(this.directionalLight);
+            renderingContext.scene.add(this.waterMesh);
             
         }
         
@@ -161,12 +146,8 @@ export class WorldComponent extends ComponentBase {
 
     }
 
-    public onAttach(parent: HTMLElement) {
+    protected onAttach(parent: HTMLElement) { }
 
-    }
-
-    protected onDetach(parent: HTMLElement) {
-
-    }
+    protected onDetach(parent: HTMLElement) { }
 
 }

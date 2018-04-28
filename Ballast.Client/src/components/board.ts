@@ -39,7 +39,7 @@ export class BoardComponent extends ComponentBase {
         this.squareGeometry = this.createSquareGeometry();
         this.octagonGeometry = this.createOctagonGeometry();
         this.hexagonGeometry = this.createHexagonGeometry();
-        this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.FrontSide });
+        this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide });
     }
 
     private createCircleGeometry() {
