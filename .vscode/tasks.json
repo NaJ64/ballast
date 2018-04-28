@@ -74,6 +74,20 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Ballast.Electron - Install/Build (NPM)",
+            "identifier": "electron-npm-install",
+            "group": "build",
+            "dependsOn": [
+                "client-npm-install"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Electron"
+            },
+            "command": "npm install",
+            "problemMatcher": "$tsc"
+        },
+        {
             "label": "Ballast.Core - Compile/Watch (TypeScript)",
             "identifier": "core-tsc-watch",
             "options": {
@@ -167,6 +181,39 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Ballast.Electron - Compile/Watch (TypeScript)",
+            "identifier": "electron-tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Electron"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run compile-watch",
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "label": "Ballast.Electron - Bundle/Watch (Webpack)",
+            "identifier": "electron-webpack-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Electron"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run bundle-watch",
+            "problemMatcher": "$eslint-stylish"
+        },
+        {
+            "label": "Ballast.Electron - Run (Electron)",
+            "identifier": "electron-run",
+            "options": {
+                "cwd": "${workspaceFolder}/Ballast.Electron"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm start",
+            "problemMatcher": "$eslint-stylish"
+        },
+        {
             "label": "Ballast - Run/Watch",
             "identifier": "watch",
             "group": {
@@ -188,7 +235,29 @@
             "type": "shell",
             "command": "echo",
             "args": [
-                "Ballast - Watch task was stopped"
+                "Ballast - Run/Watch task was stopped"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Ballast - Run/Watch (Native)",
+            "identifier": "watch-native",
+            "group": "build",
+            "dependsOn": [
+                "core-tsc-watch",
+                "client-tsc-watch",
+                "electron-tsc-watch",
+                "electron-webpack-watch",
+                "electron-run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "Ballast - Run/Watch (Native) task was stopped"
             ],
             "problemMatcher": []
         }

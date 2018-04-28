@@ -1,7 +1,7 @@
 var watch = !(process.argv.indexOf("--no-watch") >= 0)
 const path = require('path');
 const config = {
-    entry: './dist/index.js',
+    entry: './dist/app.js',
     output: {
         filename: 'index.js',
         path: path.resolve('./wwwroot/')
