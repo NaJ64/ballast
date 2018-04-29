@@ -10,8 +10,6 @@ import { IChatService } from '../services/chat/chat-service';
 import { IChatMessage } from '../services/chat/chat-message';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
-type InputFocusEvent = ((this: HTMLElement, event: FocusEvent) => any) | null;
-
 @injectable()
 export class ChatComponent extends ComponentBase {
 
@@ -20,10 +18,10 @@ export class ChatComponent extends ComponentBase {
     private readonly chatInputFocusListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatInputBlurListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatFormSubmitListener: (this: HTMLInputElement, ev: Event) => any;
-    private chatWindow: HTMLDivElement;
-    private chatHistory: HTMLUListElement;
-    private chatForm: HTMLFormElement;
-    private chatInput: HTMLInputElement;
+    private readonly chatWindow: HTMLDivElement;
+    private readonly chatHistory: HTMLUListElement;
+    private readonly chatForm: HTMLFormElement;
+    private readonly chatInput: HTMLInputElement;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport, 

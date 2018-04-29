@@ -12,13 +12,13 @@ import { Game, Board, Tile, CubicCoordinates, TileShape } from 'ballast-core';
 @injectable()
 export class BoardComponent extends ComponentBase {
 
+    private readonly tiles: Map<CubicCoordinates, THREE.Mesh>;
+    private readonly circleGeometry: THREE.RingGeometry;
+    private readonly squareGeometry: THREE.RingGeometry;
+    private readonly hexagonGeometry: THREE.RingGeometry;
+    private readonly octagonGeometry: THREE.RingGeometry;
+    private readonly tileMaterial: THREE.MeshBasicMaterial;
     private currentBoard?: Board;
-    private tiles: Map<CubicCoordinates, THREE.Mesh>;
-    private circleGeometry: THREE.RingGeometry;
-    private squareGeometry: THREE.RingGeometry;
-    private hexagonGeometry: THREE.RingGeometry;
-    private octagonGeometry: THREE.RingGeometry;
-    private tileMaterial: THREE.MeshBasicMaterial;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,

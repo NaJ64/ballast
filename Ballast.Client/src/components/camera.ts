@@ -23,12 +23,12 @@ export class CameraComponent extends ComponentBase {
     // Orbit flags/triggers 
     private readonly orbitTarget: THREE.Object3D;
     private readonly orbitAnimationDuration: number;
+    private orbitDirections: number;
     private orbitRadians: number;
     private orbitClock?: THREE.Clock;
     private orbitClockwise?: boolean;
     private triggerClockwiseOrbit?: number;
     private triggerCounterClockwiseOrbit?: number;
-    private orbitDirections: number;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -137,11 +137,11 @@ export class CameraComponent extends ComponentBase {
         this.currentGame = <Game>renderingContext.game;
         this.orbitDirections = this.currentGame && this.currentGame.board.tileShape.possibleDirections || 8;
         if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 6) {
-            this.orbitDirections = RenderingConstants.SIXTH_TURN_RADIANS;
+            this.orbitRadians = RenderingConstants.SIXTH_TURN_RADIANS;
         } else if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 4) {
-            this.orbitDirections = RenderingConstants.QUARTER_TURN_RADIANS;
+            this.orbitRadians = RenderingConstants.QUARTER_TURN_RADIANS;
         } else {
-            this.orbitDirections = RenderingConstants.EIGHTH_TURN_RADIANS;
+            this.orbitRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
         }
 
         // Update camera pivot orientation

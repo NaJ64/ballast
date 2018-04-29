@@ -11,18 +11,18 @@ import { PerspectiveTracker } from '../input/perspective-tracker';
 @injectable()
 export class WorldComponent extends ComponentBase {
 
-    private directionalLight: THREE.DirectionalLight;
-    private water: THREE_EXT.Water;
-    private waterMesh: THREE.Mesh;
-    private waterTexture: THREE.Texture;
-    private waterGeometry: THREE.PlaneBufferGeometry;
-    private skybox: THREE.Mesh;
+    private readonly directionalLight: THREE.DirectionalLight;
+    private readonly water: THREE_EXT.Water;
+    private readonly waterMesh: THREE.Mesh;
+    private readonly waterTexture: THREE.Texture;
+    private readonly waterGeometry: THREE.PlaneBufferGeometry;
+    private readonly skybox: THREE.Mesh;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
-        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker
-    ) {
+        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker) {
+
         super(viewport, eventBus, perspectiveTracker);
         this.skybox = this.createSkybox();
         this.directionalLight = this.createDirectionalLight();
@@ -31,6 +31,7 @@ export class WorldComponent extends ComponentBase {
         let water = this.createWater(this.directionalLight, this.waterTexture, this.waterGeometry);
         this.water = water["0"];
         this.waterMesh = water["1"];
+
     }
 
     private createSkybox() {
