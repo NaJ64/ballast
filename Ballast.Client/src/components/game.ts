@@ -21,20 +21,20 @@ export class GameComponent extends ComponentBase {
     private readonly vesselPivot: THREE.Object3D;
 
     // Buttons & click listeners
-    private clockwiseButton: HTMLButtonElement;
+    private readonly clockwiseButton: HTMLButtonElement;
     private readonly clockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
-    private counterClockwiseButton: HTMLButtonElement;
+    private readonly counterClockwiseButton: HTMLButtonElement;
     private readonly counterClockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
 
     // Rotation flags/triggers 
     private readonly rotationTarget: THREE.Object3D;
     private readonly rotationAnimationDuration: number;
+    private rotationDirections: number;
     private rotationRadians: number;
     private rotationClock?: THREE.Clock;
     private rotationClockwise?: boolean;
     private triggerClockwiseRotation?: number;
     private triggerCounterClockwiseRotation?: number;
-    private rotationDirections: number;
 
     // Current game / state
     private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
