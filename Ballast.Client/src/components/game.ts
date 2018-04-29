@@ -16,38 +16,35 @@ import { WorldComponent } from './world';
 @injectable()
 export class GameComponent extends ComponentBase {
 
-    // Services / child components
-    private readonly world: WorldComponent;
-    private readonly board: BoardComponent;
+    // Vessel object(s)
+    private readonly vessel: THREE.Mesh;
+    private readonly vesselPivot: THREE.Object3D;
+
+    // Buttons & click listeners
+    private clockwiseButton: HTMLButtonElement;
+    private readonly clockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+    private counterClockwiseButton: HTMLButtonElement;
+    private readonly counterClockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+
+    // Rotation flags/triggers 
+    private readonly rotationTarget: THREE.Object3D;
+    private readonly rotationAnimationDuration: number;
+    private rotationRadians: number;
+    private rotationClock?: THREE.Clock;
+    private rotationClockwise?: boolean;
+    private triggerClockwiseRotation?: number;
+    private triggerCounterClockwiseRotation?: number;
+    private rotationDirections: number;
 
     // Current game / state
+    private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
     private currentGame?: Game;
     private currentVessel?: Vessel;
     private currentTile?: Tile;
 
-    // Vessel object(s)
-    private readonly vessel: THREE.Mesh;
-    private readonly vesselPivot: THREE.Object3D;
-    private readonly vesselPivotTarget: THREE.Object3D;
-
-    // Rotation flags/triggers 
-    private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
-    private rotationDirections: number;
-    private resetAllObjects: boolean;
-    private rotationRadians: number;
-    private rotationClock?: THREE.Clock;
-    private rotateClockwise?: boolean;
-    private rotationAnimationDuration: number;
-    private triggerClockwise?: number;
-    private triggerCounterClockwise?: number;
-
-    // Clockwise button
-    private clockwiseButton: HTMLButtonElement;
-    private readonly clockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
-
-    // Counter-clockwise button
-    private counterClockwiseButton: HTMLButtonElement;
-    private readonly counterClockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+    // Child components
+    private readonly world: WorldComponent;
+    private readonly board: BoardComponent;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -63,7 +60,6 @@ export class GameComponent extends ComponentBase {
         let vesselObjects = this.createVesselObjects();
         this.vessel = vesselObjects["0"];
         this.vesselPivot = vesselObjects["1"];
-        this.vesselPivotTarget = vesselObjects["2"];
 
         // Create buttons & click listeners
         let buttons = this.createRotationButtons()
@@ -72,12 +68,14 @@ export class GameComponent extends ComponentBase {
         this.clockwiseButton = buttons["1"];
         this.clockwiseClickListener = this.onClockwiseClick.bind(this);
         
-        // Trigger(s) for object rotation reset / initial positioning
-        this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
+        // Trigger(s) & properties for object rotation animation(s)
+        this.rotationTarget = this.createRotationTarget();
         this.rotationAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
         this.rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default to 8 directions
         this.rotationDirections = 8; // Default to 8 directions
-        this.resetAllObjects = true;
+
+        // Game state update listener
+        this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
 
         // Create child components
         this.world = worldFactory();
@@ -85,7 +83,7 @@ export class GameComponent extends ComponentBase {
 
     }
 
-    private createVesselObjects(): [THREE.Mesh, THREE.Object3D, THREE.Object3D] {
+    private createVesselObjects(): [THREE.Mesh, THREE.Object3D] {
         // Create vessel mesh
         let vesselGeometry = new THREE.DodecahedronGeometry(1);
         //let vesselGeometry = new THREE.SphereGeometry( 1, 24, 24 );
@@ -96,11 +94,14 @@ export class GameComponent extends ComponentBase {
         vesselPivot.position.set(0, 0, 0);
         vesselPivot.rotation.reorder('YXZ');
         vesselPivot.add(vessel);
-        // Create vessel pivot rotation target object
-        let vesselPivotTarget = new THREE.Object3D();
-        vesselPivotTarget.rotation.reorder('YXZ');
         // Return all objects
-        return [vessel, vesselPivot, vesselPivotTarget];
+        return [vessel, vesselPivot];
+    }
+
+    private createRotationTarget() {
+        let rotationTarget = new THREE.Object3D();
+        rotationTarget.rotation.reorder('YXZ');
+        return rotationTarget;
     }
 
     private createRotationButtons(): [HTMLButtonElement, HTMLButtonElement] {
@@ -205,7 +206,7 @@ export class GameComponent extends ComponentBase {
 
         // Reset objects if we have a new game
         let isNewGame = (renderingContext.game && (!this.currentGame || this.currentGame.id != renderingContext.game.id)) || false;
-        if (isNewGame || this.resetAllObjects) {
+        if (isNewGame) {
             this.resetGame(renderingContext);
         }
 
@@ -216,15 +217,9 @@ export class GameComponent extends ComponentBase {
         let dIsDown = renderingContext.keyboard.dIsDown();
 
         // Apply rotation animation
-        let left = leftIsDown || aIsDown || !!this.triggerCounterClockwise;
-        let right = rightIsDown || dIsDown || !!this.triggerClockwise;
+        let left = leftIsDown || aIsDown || !!this.triggerCounterClockwiseRotation;
+        let right = rightIsDown || dIsDown || !!this.triggerClockwiseRotation;
         this.applyRotation(renderingContext, left, right);
-
-        // Get total possible directions of movement
-        //let directions = renderingContext.game && renderingContext.game.board.tileShape.possibleDirections || undefined;
-        // TODO: This needs to be updated to trigger a movemement to an adjacent tile based on relative direction
-        //       Relative direction can be retrieved from the perspective tracker using "getRotation()" (for a rotationMatrix4)
-        //       Or from the rendering context by using 
 
         // Trigger for movement
         let forward = (renderingContext.keyboard.upArrowIsDown() || renderingContext.keyboard.wIsDown());
@@ -237,9 +232,17 @@ export class GameComponent extends ComponentBase {
             this.vesselPivot.position.add(movement);
         }
 
+        // Get total possible directions of movement
+        //let directions = renderingContext.game && renderingContext.game.board.tileShape.possibleDirections || undefined;
+        // TODO: This needs to be updated to trigger a movemement to an adjacent tile based on relative direction
+        //       Relative direction can be retrieved from the perspective tracker using "getRotation()" (for a rotationMatrix4)
+        //       Or from the rendering context by using 
+
     }
 
     private resetGame(renderingContext: RenderingContext) {
+
+        // Store info from new game state
         this.currentGame = <Game>renderingContext.game;
         this.rotationDirections = this.currentGame && this.currentGame.board.tileShape.possibleDirections || 8;
         if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 6) {
@@ -249,11 +252,14 @@ export class GameComponent extends ComponentBase {
         } else {
             this.rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
         }
-        this.vessel.position.set(0, 0, 0);
+        
+        // Update vessel pivot orientation
         let initialY = RenderingConstants.INITIAL_ORIENTATION_RADIANS;
         this.vesselPivot.rotation.set(0, initialY, 0);
-        this.vesselPivotTarget.rotation.set(0, initialY, 0);
-        this.resetAllObjects = false;
+        this.rotationTarget.rotation.set(0, initialY, 0);
+
+        // Update vessel properties
+        this.vessel.position.set(0, 0, 0);
     }
 
     private applyRotation(renderingContext: RenderingContext, left: boolean, right: boolean) {
@@ -270,17 +276,17 @@ export class GameComponent extends ComponentBase {
         // Check if we need to trigger a new orbit
         let triggerNewRotation = !midRotation && (!right && left || !left && right);
         if (triggerNewRotation) {
-            this.rotateClockwise = right;
+            this.rotationClockwise = right;
             let thetaRadians = this.rotationRadians;
-            if (this.rotateClockwise)
+            if (this.rotationClockwise)
                 thetaRadians *= -1;
             this.rotationClock = new THREE.Clock();
-            this.vesselPivotTarget.rotateY(thetaRadians);
-            if (!!this.triggerClockwise && this.rotateClockwise) {
-                this.triggerClockwise--;
+            this.rotationTarget.rotateY(thetaRadians);
+            if (!!this.triggerClockwiseRotation && this.rotationClockwise) {
+                this.triggerClockwiseRotation--;
             }
-            if (!!this.triggerCounterClockwise && !this.rotateClockwise) {
-                this.triggerCounterClockwise--;
+            if (!!this.triggerCounterClockwiseRotation && !this.rotationClockwise) {
+                this.triggerCounterClockwiseRotation--;
             }
         }
 
@@ -293,11 +299,11 @@ export class GameComponent extends ComponentBase {
 
                 // Move directly to final orientation
                 this.vesselPivot.rotation.setFromVector3(
-                    (<THREE.Object3D>this.vesselPivotTarget).rotation.toVector3()
+                    (<THREE.Object3D>this.rotationTarget).rotation.toVector3()
                 );
 
                 // finished rotating
-                this.rotateClockwise = undefined;
+                this.rotationClockwise = undefined;
                 this.rotationClock = undefined;
 
             } else {
@@ -307,7 +313,7 @@ export class GameComponent extends ComponentBase {
 
                 // Convert partial turns to radians
                 let thetaRadians = partialTurns * this.rotationRadians;
-                if (this.rotateClockwise)
+                if (this.rotationClockwise)
                     thetaRadians *= -1;
 
                 // Rotate our camera pivot object
@@ -320,24 +326,24 @@ export class GameComponent extends ComponentBase {
     }
 
     private onCounterClockwiseClick(ev: MouseEvent) {
-        if (!!this.triggerClockwise) {
-            this.triggerClockwise--;
+        if (!!this.triggerClockwiseRotation) {
+            this.triggerClockwiseRotation--;
         } else {
-            if (!this.triggerCounterClockwise) {
-                this.triggerCounterClockwise = 0;
+            if (!this.triggerCounterClockwiseRotation) {
+                this.triggerCounterClockwiseRotation = 0;
             }
-            this.triggerCounterClockwise++;
+            this.triggerCounterClockwiseRotation++;
         }
     }
 
     private onClockwiseClick(ev: MouseEvent) {
-        if (!!this.triggerCounterClockwise) {
-            this.triggerCounterClockwise--;
+        if (!!this.triggerCounterClockwiseRotation) {
+            this.triggerCounterClockwiseRotation--;
         } else {
-            if (!this.triggerClockwise) {
-                this.triggerClockwise = 0;
+            if (!this.triggerClockwiseRotation) {
+                this.triggerClockwiseRotation = 0;
             }
-            this.triggerClockwise++;
+            this.triggerClockwiseRotation++;
         }
     }
 

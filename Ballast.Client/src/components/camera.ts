@@ -10,49 +10,70 @@ import { IEventBus } from '../messaging/event-bus';
 import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
+@injectable()
 export class CameraComponent extends ComponentBase {
 
+    // Current game / state
     private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
-    private readonly partialTurnsPerSecond: number;
-    private readonly cameraV3: THREE.Vector3;
-    private readonly orbitTo: THREE.Object3D;
     private currentGame?: Game;
-    private triggerClockwise: number;
-    private triggerCounterClockwise: number;
-    private partialTurnRadians: number;
-    private orbitClockwise?: boolean;
+
+    // Camera object(s)
+    private readonly cameraPosition: THREE.Vector3;
+
+    // Orbit flags/triggers 
+    private readonly orbitTarget: THREE.Object3D;
+    private readonly orbitAnimationDuration: number;
+    private orbitRadians: number;
     private orbitClock?: THREE.Clock;
-    private resetCamera?: boolean;
+    private orbitClockwise?: boolean;
+    private triggerClockwiseOrbit?: number;
+    private triggerCounterClockwiseOrbit?: number;
+    private orbitDirections: number;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker) {
 
+        // Base constructor
         super(viewport, eventBus, perspectiveTracker);
-        this.orbitTo = new THREE.Object3D();
-        this.orbitTo.rotation.reorder('YXZ');
-        this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default to 8 directions
-        this.partialTurnsPerSecond = 1 / RenderingConstants.PIVOT_DURATION_SECONDS;
-        this.cameraV3 = new THREE.Vector3();
+
+        // Setup camera orientation/position
+        this.cameraPosition = this.createCameraPosition();
+
+        // Trigger(s) & properties for camera orbit animation
+        this.orbitTarget = this.createOrbitTarget();
+        this.orbitAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
+        this.orbitRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default to 8 directions
+        this.orbitDirections = 8; // Default to 8 directions
+
+        // Game state update listener
         this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
-        this.resetCamera = true;
-        this.triggerClockwise = 0;
-        this.triggerCounterClockwise = 0;
-        this.updateCamera(10, 5);
 
     }
 
-    protected onAttach(parent: HTMLElement) {
+    private createOrbitTarget() {
+        let cameraPivotTarget = new THREE.Object3D();
+        cameraPivotTarget.rotation.reorder('YXZ');
+        return cameraPivotTarget;
+    }
+
+    private createCameraPosition() {
+        return new THREE.Vector3();
+    }
+
+    protected onAttach(parent: HTMLElement, renderingContext: RenderingContext) {
+
+        // Subscribe to all events
         this.subscribeToEvents();
+        
     }
 
-    public dispose(): void { 
-        this.unsubscribeFromEvents();
-    }
+    protected onDetach(parent: HTMLElement, renderingContext: RenderingContext) {
 
-    protected onDetach() {
+        // Unsubscribe from all events
         this.unsubscribeFromEvents();
+
     }
 
     private subscribeToEvents() {
@@ -64,39 +85,37 @@ export class CameraComponent extends ComponentBase {
     }
 
     private onCounterClockwiseClick(ev: MouseEvent) {
-        if (!!this.triggerClockwise) {
-            this.triggerClockwise--;
+        if (!!this.triggerClockwiseOrbit) {
+            this.triggerClockwiseOrbit--;
         } else {
-            this.triggerCounterClockwise++;
+            if (!this.triggerCounterClockwiseOrbit) {
+                this.triggerCounterClockwiseOrbit = 0;
+            }
+            this.triggerCounterClockwiseOrbit++;
         }
     }
 
     private onClockwiseClick(ev: MouseEvent) {
-        if (!!this.triggerCounterClockwise) {
-            this.triggerCounterClockwise--;
+        if (!!this.triggerCounterClockwiseOrbit) {
+            this.triggerCounterClockwiseOrbit--;
         } else {
-            this.triggerClockwise++;
+            if (!this.triggerClockwiseOrbit) {
+                this.triggerClockwiseOrbit = 0;
+            }
+            this.triggerClockwiseOrbit++;
         }
     }
 
     public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
-        this.cameraV3.set(0, newOrbitHeight, newOrbitRadius);
+        this.cameraPosition.set(0, newOrbitHeight, newOrbitRadius);
     }
 
     public render(parent: HTMLElement, renderingContext: RenderingContext) {
 
-        // If the camera reset flag has been set, re-orient camera back to start
-        if (this.resetCamera) {
-            let initialY = 0;
-            this.orbitTo.rotation.set(0, 0, 0);
-            renderingContext.cameraPivot.rotation.set(0, 0, 0);
-            this.resetCamera = false;
-        }
-
-        // Update camera properties
-        if (!renderingContext.camera.position.equals(this.cameraV3)) {
-            renderingContext.camera.position.copy(this.cameraV3);
-            renderingContext.camera.lookAt(renderingContext.camera.parent.position);
+        // Reset objects if we have a new game
+        let isNewGame = (renderingContext.game && (!this.currentGame || this.currentGame.id != renderingContext.game.id)) || false;
+        if (isNewGame) {
+            this.resetCamera(renderingContext);
         }
 
         // Get input
@@ -108,7 +127,40 @@ export class CameraComponent extends ComponentBase {
         // Use arrows or WASD or buttons
         let left = false; // leftIsDown || aIsDown || !!this.triggerCounterClockwise;
         let right = false;  // rightIsDown || dIsDown || !!this.triggerClockwise;
+        this.applyOrbit(renderingContext, left, right);
 
+
+
+    }
+
+    private resetCamera(renderingContext: RenderingContext) {
+
+        // Store info from new game state
+        this.currentGame = <Game>renderingContext.game;
+        this.orbitDirections = this.currentGame && this.currentGame.board.tileShape.possibleDirections || 8;
+        if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 6) {
+            this.orbitDirections = RenderingConstants.SIXTH_TURN_RADIANS;
+        } else if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 4) {
+            this.orbitDirections = RenderingConstants.QUARTER_TURN_RADIANS;
+        } else {
+            this.orbitDirections = RenderingConstants.EIGHTH_TURN_RADIANS;
+        }
+
+        // Update camera pivot orientation
+        renderingContext.cameraPivot.rotation.set(0, 0, 0);
+        this.orbitTarget.rotation.set(0, 0, 0);
+        
+        // Update camera properties
+        this.updateCamera(10, 5); // TODO:  Update these coordinates to come from a default (same as constructor)
+        if (!renderingContext.camera.position.equals(this.cameraPosition)) {
+            renderingContext.camera.position.copy(this.cameraPosition);
+            renderingContext.camera.lookAt(renderingContext.camera.parent.position);
+        }
+
+    }
+
+    private applyOrbit(renderingContext: RenderingContext, left: boolean, right: boolean) {
+        
         // Determine if we are mid-orbit 
         let inOrbit = !!this.orbitClock;
 
@@ -122,16 +174,16 @@ export class CameraComponent extends ComponentBase {
         let triggerNewOrbit = !inOrbit && (!right && left || !left && right);
         if (triggerNewOrbit) {
             this.orbitClockwise = left; // Reverse direction
-            let thetaRadians = this.partialTurnRadians;
+            let thetaRadians = this.orbitRadians;
             if (!this.orbitClockwise) // pivot direction needs to be opposite of perspective rotation
                 thetaRadians *= -1;
             this.orbitClock = new THREE.Clock();
-            this.orbitTo.rotateY(thetaRadians);
-            if (!!this.triggerClockwise && !this.orbitClockwise) {
-                this.triggerClockwise--;
+            this.orbitTarget.rotateY(thetaRadians);
+            if (!!this.triggerClockwiseOrbit && !this.orbitClockwise) {
+                this.triggerClockwiseOrbit--;
             }
-            if (!!this.triggerCounterClockwise && this.orbitClockwise) {
-                this.triggerCounterClockwise--;
+            if (!!this.triggerCounterClockwiseOrbit && this.orbitClockwise) {
+                this.triggerCounterClockwiseOrbit--;
             }
         }
 
@@ -140,11 +192,11 @@ export class CameraComponent extends ComponentBase {
 
             // Check if we have reached the end of the orbit / quarter turn animation
             let totalOrbitDelta = (this.orbitClock as THREE.Clock).getElapsedTime();
-            if (totalOrbitDelta >= (1 / this.partialTurnsPerSecond)) {
+            if (totalOrbitDelta >= (this.orbitAnimationDuration)) {
 
                 // Move directly to final orientation
                 renderingContext.cameraPivot.rotation.setFromVector3(
-                    (<THREE.Object3D>this.orbitTo).rotation.toVector3()
+                    (<THREE.Object3D>this.orbitTarget).rotation.toVector3()
                 );
 
                 // finished rotating
@@ -154,10 +206,10 @@ export class CameraComponent extends ComponentBase {
             } else {
 
                 // Calculate how much of a partial turn we need to rotate by
-                let partialTurns = this.partialTurnsPerSecond * orbitDelta;
+                let partialTurns = (1 / this.orbitAnimationDuration) * orbitDelta;
 
                 // Convert partial turns to radians
-                let thetaRadians = partialTurns * this.partialTurnRadians;
+                let thetaRadians = partialTurns * this.orbitRadians;
                 if (!this.orbitClockwise)
                     thetaRadians *= -1;
 
@@ -171,18 +223,7 @@ export class CameraComponent extends ComponentBase {
     }
 
     private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
-        let newGame = (!!event.game && (!this.currentGame || this.currentGame.id != event.game.id));
-        if (newGame) {
-            this.currentGame = event.game;
-            if (event.game && event.game.board.tileShape.possibleDirections == 6) {
-                this.partialTurnRadians = RenderingConstants.SIXTH_TURN_RADIANS;
-            } else if (event.game && event.game.board.tileShape.possibleDirections == 4){
-                this.partialTurnRadians = RenderingConstants.QUARTER_TURN_RADIANS;
-            } else {
-                this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
-            }
-            this.resetCamera = true;
-        }
+        // Do something here
     }
 
 }
