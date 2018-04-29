@@ -1,5 +1,14 @@
 import { Container, injectable } from 'inversify';
-import { Board, BoardGenerator, BoardType, TileShape, Game } from 'ballast-core';
+import {
+    Board,
+    BoardGenerator,
+    BoardType,
+    TileShape,
+    Game,
+    Vessel,
+    Tile,
+    CubicCoordinates
+} from 'ballast-core';
 import * as uuid from 'uuid';
 import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
@@ -52,7 +61,7 @@ export class BallastClient implements IDisposable {
         var rootComponentFactory = this.inversifyContainer.get<() => RootComponent>(TYPES_BALLAST.RootComponentFactory);
         this.rootComponent = rootComponentFactory();
         this.rootComponent.attach(root);
-        this.viewport.startRenderLoop();        
+        this.viewport.startRenderLoop();
         return this;
     }
 
@@ -61,11 +70,22 @@ export class BallastClient implements IDisposable {
         let gameId = uuid.v4();
         let boardGenerator = new BoardGenerator();
         let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Hexagon, 7);
-        let game = Game.fromObject({id: gameId, board: board });
+        let vessel1Id = uuid.v4();
+        let vessel1Coords = (<Tile>board.getTile([0, 0, 0])).cubicCoordinates;
+        let vessel1 = Vessel.fromObject({ id: vessel1Id, cubicCoordinates: vessel1Coords });
+        let vessel2Id = uuid.v4();
+        let vessel2Coords = (<Tile>board.getTile([-2, 0, 2])).cubicCoordinates;
+        let vessel2 = Vessel.fromObject({ id: vessel2Id, cubicCoordinates: vessel2Coords });
+        let game = Game.fromObject({ id: gameId, board: board, vessels: [vessel1, vessel2] });
         // Trigger new game state changed event
-        let gameStateChanged = new GameStateChangedEvent(game);
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);
-        await eventBus.publishAsync(gameStateChanged);
+        await eventBus.publishAsync(new GameStateChangedEvent(game));
+        setTimeout(() => {
+            let newCoords = CubicCoordinates.fromObject({ x: 1, y: -1, z: 0 });
+            let newVessel1 = Vessel.fromObject({ id: vessel1.id, cubicCoordinates: newCoords });
+            let updatedGame = Game.fromObject({ id: gameId, board: board, vessels: [newVessel1, vessel2] })
+            eventBus.publishAsync(new GameStateChangedEvent(updatedGame)); // Fire and forget
+        }, 5000);
     }
 
     public dispose() {

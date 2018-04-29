@@ -6,3 +6,4 @@ export * from './game';
 export * from './offset-coordinates';
 export * from './tile';
 export * from './tile-shape';
+export * from './vessel';

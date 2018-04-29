@@ -79,13 +79,6 @@ export class PerspectiveTracker {
         return turns;
     }
 
-    public getRotation(subject?: THREE.Object3D) {
-        let object = subject || this.renderingContext.cameraPivot;
-        var rotationE = object.rotation.clone();
-        rotationE.setFromQuaternion(this.objectQ.setFromEuler(rotationE).inverse());
-        return rotationE;
-    }
-
     public getTurns(subject?: THREE.Object3D) {
         return this.getHalfTurns(subject) / 2;
     }
@@ -142,11 +135,11 @@ export class PerspectiveTracker {
         return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar, subject, directions);
     }
     
-    // public getLeftScaled(scalar: number, subject?: THREE.Object3D): THREE.Vector3 {
-    //     return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar, subject);
-    // }
+    public getLeftScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar, subject, directions);
+    }
     
-    // public getRightScaled(scalar: number, subject?: THREE.Object3D): THREE.Vector3 {
-    //     return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar, subject);
-    // }
+    public getRightScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
+        return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar, subject, directions);
+    }
 }

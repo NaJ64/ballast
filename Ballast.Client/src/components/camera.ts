@@ -8,6 +8,7 @@ import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/event-bus';
 import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
+import { PerspectiveTracker } from '../input/perspective-tracker';
 
 export class CameraComponent extends ComponentBase {
 
@@ -25,9 +26,10 @@ export class CameraComponent extends ComponentBase {
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
-        @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus
-    ) {
-        super(viewport, eventBus);
+        @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
+        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker) {
+
+        super(viewport, eventBus, perspectiveTracker);
         this.orbitTo = new THREE.Object3D();
         this.orbitTo.rotation.reorder('YXZ');
         this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default to 8 directions
@@ -38,6 +40,7 @@ export class CameraComponent extends ComponentBase {
         this.triggerClockwise = 0;
         this.triggerCounterClockwise = 0;
         this.updateCamera(10, 5);
+
     }
 
     protected onAttach(parent: HTMLElement) {
@@ -53,15 +56,11 @@ export class CameraComponent extends ComponentBase {
     }
 
     private subscribeToEvents() {
-        if (this.gameStateChangedHandler) {
-            this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
-        }
+        this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
     }
 
     private unsubscribeFromEvents() {
-        if (this.gameStateChangedHandler) {
-            this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
-        }
+        this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
     }
 
     private onCounterClockwiseClick(ev: MouseEvent) {
@@ -82,21 +81,6 @@ export class CameraComponent extends ComponentBase {
 
     public updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
         this.cameraV3.set(0, newOrbitHeight, newOrbitRadius);
-    }
-
-    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
-        let newGame = (!!event.game && (!this.currentGame || this.currentGame.id != event.game.id));
-        if (newGame) {
-            this.currentGame = event.game;
-            if (event.game && event.game.board.tileShape.possibleDirections == 6) {
-                this.partialTurnRadians = RenderingConstants.SIXTH_TURN_RADIANS;
-            } else if (event.game && event.game.board.tileShape.possibleDirections == 4){
-                this.partialTurnRadians = RenderingConstants.QUARTER_TURN_RADIANS;
-            } else {
-                this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
-            }
-            this.resetCamera = true;
-        }
     }
 
     public render(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -184,6 +168,21 @@ export class CameraComponent extends ComponentBase {
 
         }
 
+    }
+
+    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
+        let newGame = (!!event.game && (!this.currentGame || this.currentGame.id != event.game.id));
+        if (newGame) {
+            this.currentGame = event.game;
+            if (event.game && event.game.board.tileShape.possibleDirections == 6) {
+                this.partialTurnRadians = RenderingConstants.SIXTH_TURN_RADIANS;
+            } else if (event.game && event.game.board.tileShape.possibleDirections == 4){
+                this.partialTurnRadians = RenderingConstants.QUARTER_TURN_RADIANS;
+            } else {
+                this.partialTurnRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
+            }
+            this.resetCamera = true;
+        }
     }
 
 }

@@ -68,4 +68,21 @@ export class RenderingContext {
         return this.frameDelta;
     }
 
+    public attachCameraToObject(object: THREE.Object3D) {
+        if (this.cameraPivot.parent != object) {
+            this.scene.remove(this.cameraPivot);
+            object.add(this.cameraPivot);
+        }
+        return object;
+    }
+
+    public detachCameraFromObject(object: THREE.Object3D) {
+        if (this.cameraPivot.parent == object) {
+            object.remove(this.cameraPivot);
+            this.scene.add(this.cameraPivot);
+        }
+        return object;
+    }
+    
+
 }
