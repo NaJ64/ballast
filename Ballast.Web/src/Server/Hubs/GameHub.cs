@@ -6,9 +6,9 @@ namespace Ballast.Server.Hubs
 {
     public class GameHub : Hub
     {
-        public Task PublishGameState()
-        {
-            //return Clients.All.SendAsync("receiveMessage");    
-        }
+        // public Task PublishGameState()
+        // {
+        //     //return Clients.All.SendAsync("receiveMessage");    
+        // }
     }
 }
