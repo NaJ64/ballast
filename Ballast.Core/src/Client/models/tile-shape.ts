@@ -27,7 +27,7 @@ export class TileShape implements ITileShape {
 
     public static Octagon: TileShape = new TileShape({
         value: 1,
-        name: 'Octagonal',
+        name: 'Octagon',
         doubleIncrement: true,
         hasDirectionNorth: true,
         hasDirectionSouth: true,
@@ -41,7 +41,7 @@ export class TileShape implements ITileShape {
 
     public static Hexagon: TileShape = new TileShape({
         value: 2,
-        name: 'Hexagonal',
+        name: 'Hexagon',
         applyHexRowScaling: true,
         hasDirectionWest: true,
         hasDirectionEast: true,

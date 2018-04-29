@@ -1,9 +1,7 @@
 namespace Ballast.Core.Models.Interfaces
 {
-    public interface ITileShape
+    public interface ITileShape : IStaticListType
     {
-        int Value { get; }
-        string Name { get; }
         bool? ApplyHexRowScaling { get; }
         bool? DoubleIncrement { get; }
         bool? HasDirectionNorth { get; }

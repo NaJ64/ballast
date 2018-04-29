@@ -1,9 +1,7 @@
 namespace Ballast.Core.Models.Interfaces
 {
-    public interface ITerrain
+    public interface ITerrain : IStaticListType
     {
-        int Value { get; }
-        string Name { get; }
         bool Passable { get; }
     }
 }

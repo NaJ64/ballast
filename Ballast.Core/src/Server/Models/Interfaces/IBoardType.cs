@@ -1,9 +1,7 @@
 namespace Ballast.Core.Models.Interfaces
 {
-    public interface IBoardType
+    public interface IBoardType : IStaticListType
     {
-        int Value { get; }
-        string Name { get; }
         bool CenterOrigin { get; }
     }
 }
