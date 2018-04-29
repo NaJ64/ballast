@@ -21,8 +21,8 @@ export class WorldComponent extends ComponentBase {
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
-        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker
-    ) {
+        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker) {
+
         super(viewport, eventBus, perspectiveTracker);
         this.skybox = this.createSkybox();
         this.directionalLight = this.createDirectionalLight();
@@ -31,6 +31,7 @@ export class WorldComponent extends ComponentBase {
         let water = this.createWater(this.directionalLight, this.waterTexture, this.waterGeometry);
         this.water = water["0"];
         this.waterMesh = water["1"];
+        
     }
 
     private createSkybox() {

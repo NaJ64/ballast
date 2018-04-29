@@ -10,8 +10,6 @@ import { IChatService } from '../services/chat/chat-service';
 import { IChatMessage } from '../services/chat/chat-message';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
-type InputFocusEvent = ((this: HTMLElement, event: FocusEvent) => any) | null;
-
 @injectable()
 export class ChatComponent extends ComponentBase {
 
