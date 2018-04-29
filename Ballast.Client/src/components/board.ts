@@ -12,34 +12,27 @@ import { Game, Board, Tile, CubicCoordinates, TileShape } from 'ballast-core';
 @injectable()
 export class BoardComponent extends ComponentBase {
 
-    private readonly perspectiveTracker: PerspectiveTracker;
-    private currentBoardId?: string;
-    private inverted?: boolean;
-
-    private squareGeometry!: THREE.RingGeometry;
-    private hexagonGeometry!: THREE.RingGeometry;
-    private octagonGeometry!: THREE.RingGeometry;
-    private circleGeometry!: THREE.RingGeometry;
-    private tileMaterial!: THREE.MeshBasicMaterial;
-    private tileMeshes: THREE.Mesh[];
+    private currentBoard?: Board;
+    private tiles: Map<CubicCoordinates, THREE.Mesh>;
+    private circleGeometry: THREE.RingGeometry;
+    private squareGeometry: THREE.RingGeometry;
+    private hexagonGeometry: THREE.RingGeometry;
+    private octagonGeometry: THREE.RingGeometry;
+    private tileMaterial: THREE.MeshBasicMaterial;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
-        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker
-    ) {
-        super(viewport, eventBus);
-        this.perspectiveTracker = perspectiveTracker;
-        this.tileMeshes = [];
-        this.cacheStaticAssets();
-    }
+        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker) {
 
-    private cacheStaticAssets() {
+        super(viewport, eventBus, perspectiveTracker);
+        this.tiles = new Map<CubicCoordinates, THREE.Mesh>();
         this.circleGeometry = this.createCircleGeometry();
         this.squareGeometry = this.createSquareGeometry();
         this.octagonGeometry = this.createOctagonGeometry();
         this.hexagonGeometry = this.createHexagonGeometry();
-        this.tileMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.FrontSide });
+        this.tileMaterial = this.createTileMaterial();
+
     }
 
     private createCircleGeometry() {
@@ -66,6 +59,10 @@ export class BoardComponent extends ComponentBase {
         return new THREE.RingGeometry(innerRadius, outerRadius, 6, 1, Math.PI / 2);
     }
 
+    private createTileMaterial() {
+        return new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide });
+    }
+
     private getTileInnerRadius(outerRadius: number) {
         return outerRadius - (RenderingConstants.TILE_BORDER_WIDTH / 2);
     }
@@ -78,35 +75,47 @@ export class BoardComponent extends ComponentBase {
         return (apothem / Math.cos(Math.PI / sides));
     }
 
+    protected onAttach(parent: HTMLElement, renderingContext: RenderingContext) { 
+        // Do something (?)
+    }
+
+    protected onDetach(parent: HTMLElement, renderingContext: RenderingContext) {
+        // If we have any tiles in the scene, we need to remove them
+        this.removeAllTiles(renderingContext);
+    }
+
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
 
         // Check to see if we have a new game/board (using id)
-        let boardId = renderingContext && renderingContext.game && renderingContext.game.board.id;
-        if (!boardId) {
-            // remove old assets 
-            this.removeAllTileMeshes(renderingContext);
-        }
+        let isNewBoard = (
+            renderingContext.game && 
+            renderingContext.game.board && 
+            (!this.currentBoard || this.currentBoard.id != renderingContext.game.board.id)) || false;
 
         // Check if we have a new board to draw
-        if (!!boardId && this.currentBoardId != boardId) {
-            
-            // remove old assets 
-            this.removeAllTileMeshes(renderingContext);
-
-            // Render the tiles
-            let game = <Game>renderingContext.game;
-            game.board.tileMap.forEach((tile, cubicXYZ, item) => {
-                this.drawTile(renderingContext, tile);
-            });
-
+        if (isNewBoard) {
+            this.resetBoard(renderingContext);
         }
-
-        // Update board id
-        this.currentBoardId = boardId;
 
     }
 
-    private drawTile(renderingContext: RenderingContext, tile: Tile) {
+    private resetBoard(renderingContext: RenderingContext) {
+
+        // Store the current board
+        this.currentBoard = (<Game>renderingContext.game).board;
+            
+        // remove old assets 
+        this.removeAllTiles(renderingContext);
+
+        // Render the tiles
+        let game = <Game>renderingContext.game;
+        game.board.tileMap.forEach((tile, cubicXYZ, item) => {
+            this.addTile(renderingContext, tile);
+        });
+
+    }
+
+    private addTile(renderingContext: RenderingContext, tile: Tile) {
         let offsetHex = tile.cubicCoordinates.toOffset();
         let x = offsetHex.col;
         let z = offsetHex.row;
@@ -124,16 +133,17 @@ export class BoardComponent extends ComponentBase {
         x *= colSpacing;
         z *= rowSpacing;
         let newTileMesh = this.createTileMesh(tile.tileShape);
-        this.tileMeshes.push(newTileMesh);
         newTileMesh.position.set(x, 0, z);
+        this.tiles.set(tile.cubicCoordinates, newTileMesh);
         renderingContext.scene.add(newTileMesh);
     }
 
-    private removeAllTileMeshes(renderingContext: RenderingContext) {
-        let tileMeshes = this.tileMeshes;
+    private removeAllTiles(renderingContext: RenderingContext) {
+        let tileMeshes = Array.from(this.tiles.values());
         for (let tileMesh of tileMeshes) {
             renderingContext.scene.remove(tileMesh);
         }
+        this.tiles.clear();
     }
 
     private createTileMesh(tileShape: TileShape) {
@@ -153,6 +163,13 @@ export class BoardComponent extends ComponentBase {
         let tileMesh = new THREE.Mesh(tileGeometry, this.tileMaterial);
         tileMesh.rotation.x = (Math.PI / -2); // Lay shape flat along X and Z axis
         return tileMesh;
+    }
+
+    public getTilePosition(cubicCoordinates: CubicCoordinates) {
+        let tile = this.tiles.get(cubicCoordinates);
+        if (tile) {
+            return tile.position;
+        }
     }
 
 }

@@ -7,6 +7,7 @@ import { ComponentBase } from './component-base';
 import { CameraComponent } from './camera';
 import { ChatComponent } from './chat';
 import { GameComponent } from './game';
+import { PerspectiveTracker } from '../input/perspective-tracker';
 
 @injectable()
 export class RootComponent extends ComponentBase {
@@ -18,11 +19,12 @@ export class RootComponent extends ComponentBase {
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
+        @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
         @inject(TYPES_BALLAST.CameraComponentFactory) cameraFactory: () => CameraComponent,
         @inject(TYPES_BALLAST.ChatComponentFactory) chatFactory: () => ChatComponent,
         @inject(TYPES_BALLAST.GameComponentFactory) gameFactory: () => GameComponent
     ) {
-        super(viewport, eventBus);
+        super(viewport, eventBus, perspectiveTracker);
         this.camera = cameraFactory();
         this.chat = chatFactory();
         this.game = gameFactory();
