@@ -129,8 +129,6 @@ export class CameraComponent extends ComponentBase {
         let right = false;  // rightIsDown || dIsDown || !!this.triggerClockwise;
         this.applyOrbit(renderingContext, left, right);
 
-
-
     }
 
     private resetCamera(renderingContext: RenderingContext) {
