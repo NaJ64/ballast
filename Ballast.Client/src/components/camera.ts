@@ -1,13 +1,12 @@
 import * as THREE from 'three';
 import { injectable, inject } from 'inversify';
-import { Game } from 'ballast-core';
+import { Game, GameStateChangedEvent } from 'ballast-core';
 import { TYPES_BALLAST } from '../ioc/types';
 import { RenderingConstants } from '../rendering/rendering-constants';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from '../messaging/event-bus';
-import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
 @injectable()

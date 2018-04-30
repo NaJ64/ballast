@@ -1,8 +1,8 @@
 import 'jest';
 import 'reflect-metadata';
 
-import { IEventBus } from '../messaging/event-bus';
-import { LocalEventBus } from '../messaging/local-event-bus';
+import { IEventBus } from '../../messaging/event-bus';
+import { LocalEventBus } from '../../messaging/local-event-bus';
 import { IChatService } from 'ballast-core';
 import { SignalRChatService } from './signalr-chat-service';
 import { ISignalRServiceOptions } from './signalr-service-options';

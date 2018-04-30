@@ -1,18 +1,18 @@
 import { injectable, inject } from 'inversify';
-import { IChatMessage, IChatService } from 'ballast-core';
+import { IChatMessage, IChatService, ChatMessageReceivedEvent } from 'ballast-core';
+import { IChatClientService } from '../services/chat-client-service';
 import { TYPES_BALLAST } from '../ioc/types';
 import { IEventBus } from '../messaging/event-bus';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
-import { ChatMessageReceivedEvent } from '../messaging/events/services/chat-message-received';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
 @injectable()
 export class ChatComponent extends ComponentBase {
 
-    private readonly chatService: IChatService;
+    private readonly chatService: IChatClientService;
     private readonly chatMessageReceivedHandler: (event: ChatMessageReceivedEvent) => Promise<void>;
     private readonly chatInputFocusListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatInputBlurListener: (this: HTMLInputElement, ev: FocusEvent) => any;
@@ -26,7 +26,7 @@ export class ChatComponent extends ComponentBase {
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport, 
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
-        @inject(TYPES_BALLAST.IChatService) chatService: IChatService
+        @inject(TYPES_BALLAST.IChatClientService) chatService: IChatClientService
     ) {
         super(viewport, eventBus, perspectiveTracker);
         this.chatService = chatService;

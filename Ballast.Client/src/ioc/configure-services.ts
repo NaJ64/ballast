@@ -1,5 +1,6 @@
 import { Container } from 'inversify';
 import { IChatService } from 'ballast-core';
+import { IChatClientService } from '../services/chat-client-service';
 import { TYPES_BALLAST } from './types';
 import { BallastBootstrapper } from '../app/ballast-bootstrapper';
 import { BallastClient } from '../app/ballast-client';
@@ -18,8 +19,8 @@ import { WorldComponent } from '../components/world';
 import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { PerspectiveTracker } from '../input/perspective-tracker';
-import { SignalRChatService } from '../services/signalr-chat-service';
-import { ISignalRServiceOptions } from '../services/signalr-service-options';
+import { SignalRChatService } from '../services/signalr/signalr-chat-service';
+import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
@@ -132,7 +133,7 @@ function configureClientServices(container: Container, client: BallastClient): C
         .toFactory(context => () => context.container.get<ISignalRServiceOptions>(TYPES_BALLAST.ISignalRServiceOptions));
     container.bind<ISignalRServiceOptions>(TYPES_BALLAST.ISignalRServiceOptions)
         .toDynamicValue(context => client.getSignalRServiceOptions());
-    container.bind<IChatService>(TYPES_BALLAST.IChatService)
+    container.bind<IChatClientService>(TYPES_BALLAST.IChatClientService)
         .to(SignalRChatService)
         .inSingletonScope();
     return container;

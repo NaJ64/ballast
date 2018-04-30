@@ -1,5 +1,5 @@
 import { EventBase } from '../../event';
-import { Game } from 'ballast-core';
+import { Game } from '../../../models/game';
 
 export class GameStateChangedEvent extends EventBase {
 
