@@ -17,7 +17,7 @@ namespace Ballast.Core.Models
             {
                 throw new Exception("Provided object coordinate(s) do not match constraint 'x + y + z = 0'");
             }
-            Z = x;
+            X = x;
             Y = y;
             Z = z;
         }
