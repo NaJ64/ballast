@@ -7,18 +7,18 @@ import {
     Game,
     Vessel,
     Tile,
-    CubicCoordinates
+    CubicCoordinates,
+    IDisposable
 } from 'ballast-core';
 import * as uuid from 'uuid';
 import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
 import { RootComponent } from '../components/root';
-import { IDisposable } from '../interfaces/idisposable';
 import { GameStateChangedEvent } from '../messaging/events/game/game-state-changed';
 import { IEventBus } from '../messaging/event-bus';
 import { LocalEventBus } from '../messaging/local-event-bus';
-import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
+import { ISignalRServiceOptions } from '../services/signalr-service-options';
 
 @injectable()
 export class BallastClient implements IDisposable {

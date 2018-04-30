@@ -39,7 +39,16 @@ export class CubicCoordinates implements ICubicCoordinates {
         var x = object.col - (object.row - (object.row & 1)) / 2;
         var z = object.row;
         var y = -1 * (x + z);
-        return new CubicCoordinates({x: x, y: y, z: z });
+        return new CubicCoordinates({ x: x, y: y, z: z });
+    }
+
+    public static fromOrderedTriple(orderedTriple: number[]) {
+        if (orderedTriple.length < 3)
+            throw new Error('Length of ordered pair must be 3 (or greater)');
+        let x = orderedTriple[0];
+        let y = orderedTriple[1];
+        let z = orderedTriple[2];
+        return CubicCoordinates.fromObject({ x: x, y: y, z: z });
     }
 
     public equals(object: ICubicCoordinates) {

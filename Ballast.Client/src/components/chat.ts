@@ -1,4 +1,5 @@
 import { injectable, inject } from 'inversify';
+import { IChatMessage, IChatService } from 'ballast-core';
 import { TYPES_BALLAST } from '../ioc/types';
 import { IEventBus } from '../messaging/event-bus';
 import { ComponentBase } from './component-base';
@@ -6,8 +7,6 @@ import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { ChatMessageReceivedEvent } from '../messaging/events/services/chat-message-received';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IChatService } from '../services/chat/chat-service';
-import { IChatMessage } from '../services/chat/chat-message';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
 @injectable()
@@ -165,7 +164,7 @@ export class ChatComponent extends ComponentBase {
     private appendMessageToHistory(message: IChatMessage) {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
-            let timestampDate = new Date(message.timestamp);
+            let timestampDate = new Date(message.timestampText);
             let messageDisplay = `${timestampDate.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })} [${message.from}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);
@@ -215,7 +214,7 @@ export class ChatComponent extends ComponentBase {
         await this.chatService.sendMessageAsync({
             channel: channel,
             from: from,
-            timestamp: timestamp,
+            timestampText: timestamp.toISOString(),
             text: text
         });
     }

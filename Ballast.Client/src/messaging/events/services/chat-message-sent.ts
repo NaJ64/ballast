@@ -1,5 +1,5 @@
 import { EventBase } from '../../event';
-import { IChatMessage } from '../../../services/chat/chat-message';
+import { IChatMessage } from 'ballast-core';
 
 export class ChatMessageSentEvent extends EventBase {
 

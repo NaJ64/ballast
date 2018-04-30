@@ -1,6 +1,6 @@
 using System;
 
-namespace Ballast.Core.Chat 
+namespace Ballast.Core.ValueObjects
 {
     public class ChatMessage
     {

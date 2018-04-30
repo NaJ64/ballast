@@ -1,10 +1,11 @@
 using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class TileShape : StaticListTypeBase, ITileShape
+    public class TileShape : StaticListTypeBase<TileShape>, ITileShape
     {
 
         public static TileShape Square = new TileShape(
@@ -66,6 +67,21 @@ namespace Ballast.Core.Models
         public bool? HasDirectionSouthWest { get; private set; }
         public bool? HasDirectionSouthEast { get; private set; }
 
+        public TileShape() { } // Default paremeter-less constructor for model-binding
+        private TileShape(ITileShape state) : this(
+            value: state.Value, 
+            name: state.Name, 
+            applyHexRowScaling: state.ApplyHexRowScaling,
+            doubleIncrement: state.DoubleIncrement,
+            hasDirectionNorth: state.HasDirectionNorth,
+            hasDirectionSouth: state.HasDirectionSouth,
+            hasDirectionWest: state.HasDirectionWest,
+            hasDirectionEast: state.HasDirectionEast,
+            hasDirectionNorthWest: state.HasDirectionNorthWest,
+            hasDirectionNorthEast: state.HasDirectionNorthEast,
+            hasDirectionSouthWest: state.HasDirectionSouthWest,
+            hasDirectionSouthEast: state.HasDirectionSouthEast
+        ) { }
         private TileShape(
             int value,
             string name,
@@ -92,6 +108,22 @@ namespace Ballast.Core.Models
             HasDirectionSouthWest = hasDirectionSouthWest;
             HasDirectionSouthEast = hasDirectionSouthEast;
         }
+
+        public static IEnumerable<TileShape> List() => new [] {
+            TileShape.Square,
+            TileShape.Octagon,
+            TileShape.Hexagon,
+            TileShape.Circle
+        };
+
+        public static TileShape FromObject(ITileShape state) =>
+            new TileShape(state);
+
+        public static TileShape FromValue(int value) =>
+            TileShape.List().Single(x => x.Value == value);
+
+        public static TileShape FromString(string name) =>
+            TileShape.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
 
     }
 }

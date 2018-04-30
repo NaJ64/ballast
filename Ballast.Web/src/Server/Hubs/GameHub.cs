@@ -1,4 +1,4 @@
-using Ballast.Core.Chat;
+using Ballast.Core.ValueObjects;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
@@ -6,9 +6,9 @@ namespace Ballast.Server.Hubs
 {
     public class GameHub : Hub
     {
-        // public Task PublishGameState()
-        // {
-        //     //return Clients.All.SendAsync("receiveMessage");    
-        // }
+        public Task RequestVesselMove(VesselMoveRequest vesselMoveRequest)
+        {
+            return Clients.All.SendAsync("requestVesselMove");
+        }
     }
 }

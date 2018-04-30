@@ -1,4 +1,4 @@
-using Ballast.Core.Chat;
+using Ballast.Core.ValueObjects;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 

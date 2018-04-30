@@ -79,10 +79,10 @@ export class BoardGenerator implements IBoardGenerator {
 
         // Create new board 
         let board = Board.fromObject({ 
-            boardType: useBoardType,
+            boardTypeValue: useBoardType.value,
             id: id,
             tiles: tiles,
-            tileShape: useTileShape
+            tileShapeValue: useTileShape.value
         });
 
         // return the board
@@ -102,8 +102,8 @@ export class BoardGenerator implements IBoardGenerator {
                 );
                 rectangle.push(Tile.fromObject({
                     cubicCoordinates: cubicCoordinates,
-                    tileShape: tileShape,
-                    terrain: Terrain.Water
+                    tileShapeValue: tileShape.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }
@@ -126,8 +126,8 @@ export class BoardGenerator implements IBoardGenerator {
                 );
                 square.push(Tile.fromObject({
                     cubicCoordinates: cubicCoordinates,
-                    tileShape: TileShape.Square,
-                    terrain: Terrain.Water
+                    tileShapeValue: TileShape.Square.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }
@@ -158,8 +158,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagon,
-                    terrain: Terrain.Water
+                    tileShapeValue: TileShape.Octagon.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }
@@ -176,8 +176,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagon,
-                    terrain: Terrain.Water
+                    tileShapeValue: TileShape.Octagon.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }
@@ -195,8 +195,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: TileShape.Octagon,
-                    terrain: Terrain.Water
+                    tileShapeValue: TileShape.Octagon.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }
@@ -230,8 +230,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: tileShape,
-                    terrain: Terrain.Water
+                    tileShapeValue: tileShape.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }
@@ -246,8 +246,8 @@ export class BoardGenerator implements IBoardGenerator {
                 cubicCoordinates: CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
                 ),
-                tileShape: tileShape,
-                terrain: Terrain.Water
+                tileShapeValue: tileShape.value,
+                terrainValue: Terrain.Water.value
             }));
         }
 
@@ -263,8 +263,8 @@ export class BoardGenerator implements IBoardGenerator {
                     cubicCoordinates: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
                     ),
-                    tileShape: tileShape,
-                    terrain: Terrain.Water
+                    tileShapeValue: tileShape.value,
+                    terrainValue: Terrain.Water.value
                 }));
             }
         }

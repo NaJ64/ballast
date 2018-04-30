@@ -1,11 +1,10 @@
 import { injectable, inject } from 'inversify';
 import * as signalR from '@aspnet/signalr';
-import { TYPES_BALLAST } from '../../ioc/types';
-import { IEventBus } from '../../messaging/event-bus';
-import { IChatMessage } from '../chat/chat-message';
-import { ChatMessageReceivedEvent } from '../../messaging/events/services/chat-message-received';
-import { ChatMessageSentEvent } from '../../messaging/events/services/chat-message-sent';
-import { IChatService } from '../chat/chat-service';
+import { IChatMessage, IChatService } from 'ballast-core';
+import { TYPES_BALLAST } from '../ioc/types';
+import { IEventBus } from '../messaging/event-bus';
+import { ChatMessageReceivedEvent } from '../messaging/events/services/chat-message-received';
+import { ChatMessageSentEvent } from '../messaging/events/services/chat-message-sent';
 import { ISignalRServiceOptions } from './signalr-service-options';
 import { SignalRServiceBase } from './signalr-service-base';
 
