@@ -1,21 +1,14 @@
-import { IGameService } from 'ballast-core';
+import { IGameService, IGame } from 'ballast-core';
 import { IClientService } from './client-service';
 
 export interface IGameClientService extends IGameService, IClientService {
 
     /**
-     * Gets a boolean value indicating whether or not the service is currently connected to the server
+     * Receives an updated game object then raises an event indicating the game state has changed
+     * 
+     * (NOTE: This method is intended to be invoked in response to the server pushing data down to client)
+     * @param update 
      */
-    isConnected: boolean;
-
-    /**
-     * Initiates the service connection back to the server
-     */
-    connectAsync(): Promise<void>;
-
-    /**
-     * Terminates the current service connection
-     */
-    disconnectAsync(): Promise<void>;
+    receiveGameStateUpdateAsync(update: IGame): Promise<void>;
 
 }

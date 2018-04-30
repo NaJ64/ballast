@@ -60,6 +60,7 @@ namespace Ballast.Server
             app.UseSignalR(routes => 
             {
                 routes.MapHub<ChatHub>("/chathub");
+                routes.MapHub<GameHub>("/gamehub");
             });
 
             app.UseDefaultFiles();
