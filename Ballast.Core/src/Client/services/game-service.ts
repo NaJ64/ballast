@@ -6,6 +6,6 @@ export interface IGameService {
      * Submits a request to perform a vessel move / position update
      * @param request 
      */
-    requestVesselMoveAsync(request: IVesselMoveRequest): Promise<void>;
+    moveVesselAsync(request: IVesselMoveRequest): Promise<void>;
 
 }

@@ -13,17 +13,17 @@ namespace Ballast.Core.Models
 
         public bool CenterOrigin { get; private set; }
 
-        public BoardType() { } // Default paremeter-less constructor for model-binding
-        private BoardType(IBoardType state) : this(
-            value: state.Value, 
-            name: state.Name, 
-            centerOrigin: state.CenterOrigin
-        ) { }
         private BoardType(int value, string name, bool centerOrigin) : base(value, name)
         {
             CenterOrigin = centerOrigin;
         }
 
+        private BoardType(IBoardType state) : this(
+            value: state.Value, 
+            name: state.Name, 
+            centerOrigin: state.CenterOrigin
+        ) { }
+        
         public static IEnumerable<BoardType> List() => new[] {
             BoardType.Rectangle,
             BoardType.RegularPolygon

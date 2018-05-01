@@ -97,11 +97,11 @@ export class BoardGenerator implements IBoardGenerator {
             let row = rowIndex * increment;
             for (let colIndex = 0; colIndex < columnCount; colIndex++) {
                 let col = colIndex * increment;
-                let cubicCoordinates = CubicCoordinates.fromOffset(
+                let cubicOrderedTriple = CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
-                );
+                ).toOrderedTriple();
                 rectangle.push(Tile.fromObject({
-                    cubicCoordinates: cubicCoordinates,
+                    cubicOrderedTriple: cubicOrderedTriple,
                     tileShapeValue: tileShape.value,
                     terrainValue: Terrain.Water.value
                 }));
@@ -121,11 +121,11 @@ export class BoardGenerator implements IBoardGenerator {
             let row = (rowIndex * increment) - centerOffset;
             for (let colIndex = 0; colIndex < sideLength; colIndex++) {
                 let col = (colIndex * increment) - centerOffset;
-                let cubicCoordinates = CubicCoordinates.fromOffset(
+                let cubicOrderedTriple = CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
-                );
+                ).toOrderedTriple();
                 square.push(Tile.fromObject({
-                    cubicCoordinates: cubicCoordinates,
+                    cubicOrderedTriple: cubicOrderedTriple,
                     tileShapeValue: TileShape.Square.value,
                     terrainValue: Terrain.Water.value
                 }));
@@ -155,9 +155,9 @@ export class BoardGenerator implements IBoardGenerator {
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 octagon.push(Tile.fromObject({
-                    cubicCoordinates: CubicCoordinates.fromOffset(
+                    cubicOrderedTriple: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
-                    ),
+                    ).toOrderedTriple(),
                     tileShapeValue: TileShape.Octagon.value,
                     terrainValue: Terrain.Water.value
                 }));
@@ -173,9 +173,9 @@ export class BoardGenerator implements IBoardGenerator {
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = (colIndex * increment) - centerOffset;
                 octagon.push(Tile.fromObject({
-                    cubicCoordinates: CubicCoordinates.fromOffset(
+                    cubicOrderedTriple: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
-                    ),
+                    ).toOrderedTriple(),
                     tileShapeValue: TileShape.Octagon.value,
                     terrainValue: Terrain.Water.value
                 }));
@@ -192,9 +192,9 @@ export class BoardGenerator implements IBoardGenerator {
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 octagon.push(Tile.fromObject({
-                    cubicCoordinates: CubicCoordinates.fromOffset(
+                    cubicOrderedTriple: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
-                    ),
+                    ).toOrderedTriple(),
                     tileShapeValue: TileShape.Octagon.value,
                     terrainValue: Terrain.Water.value
                 }));
@@ -227,9 +227,9 @@ export class BoardGenerator implements IBoardGenerator {
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(Tile.fromObject({
-                    cubicCoordinates: CubicCoordinates.fromOffset(
+                    cubicOrderedTriple: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
-                    ),
+                    ).toOrderedTriple(),
                     tileShapeValue: tileShape.value,
                     terrainValue: Terrain.Water.value
                 }));
@@ -243,9 +243,9 @@ export class BoardGenerator implements IBoardGenerator {
         for(let colIndex = 0; colIndex < rowLength; colIndex++) {
             let col = (colIndex * increment) - centerOffset;
             hexagon.push(Tile.fromObject({
-                cubicCoordinates: CubicCoordinates.fromOffset(
+                cubicOrderedTriple: CubicCoordinates.fromOffset(
                     OffsetCoordinates.fromObject({ row: row, col: col })
-                ),
+                ).toOrderedTriple(),
                 tileShapeValue: tileShape.value,
                 terrainValue: Terrain.Water.value
             }));
@@ -260,9 +260,9 @@ export class BoardGenerator implements IBoardGenerator {
             for(let colIndex = 0; colIndex < rowLength; colIndex++) {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(Tile.fromObject({
-                    cubicCoordinates: CubicCoordinates.fromOffset(
+                    cubicOrderedTriple: CubicCoordinates.fromOffset(
                         OffsetCoordinates.fromObject({ row: row, col: col })
-                    ),
+                    ).toOrderedTriple(),
                     tileShapeValue: tileShape.value,
                     terrainValue: Terrain.Water.value
                 }));

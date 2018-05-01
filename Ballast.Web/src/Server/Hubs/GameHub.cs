@@ -1,4 +1,5 @@
 using Ballast.Core.Models;
+using Ballast.Core.Services;
 using Ballast.Core.ValueObjects;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -8,15 +9,17 @@ namespace Ballast.Server.Hubs
 {
     public class GameHub : Hub
     {
-        public Task RequestVesselMove(VesselMoveRequest vesselMoveRequest)
+        public Task MoveVessel(VesselMoveRequest vesselMoveRequest)
         {
             var gameId = Guid.NewGuid();
-            //var board = new Board(BoardType.RegularPolygon.Value, gameId,,);
-            var gameState = new Game(gameId, null, new Vessel[] { }) 
-            {
-
-            };
-            return Clients.All.SendAsync("receiveGameStateUpdate", gameState);
+            var boardGenerator = new BoardGenerator();
+            var board = boardGenerator.CreateBoard(gameId, BoardType.RegularPolygon, TileShape.Circle, 7);
+            var game = Game.FromProperties(
+                id: gameId, 
+                board: board,
+                vessels: new Vessel[] { }
+            );
+            return Clients.All.SendAsync("gameStateChanged", game);
         }
     }
 }

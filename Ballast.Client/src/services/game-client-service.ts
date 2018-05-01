@@ -9,6 +9,6 @@ export interface IGameClientService extends IGameService, IClientService {
      * (NOTE: This method is intended to be invoked in response to the server pushing data down to client)
      * @param update 
      */
-    receiveGameStateUpdateAsync(update: IGame): Promise<void>;
+    updateGameStateAsync(update: IGame): Promise<void>;
 
 }

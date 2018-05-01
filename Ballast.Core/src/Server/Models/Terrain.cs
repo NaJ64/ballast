@@ -14,17 +14,17 @@ namespace Ballast.Core.Models
     
         public bool Passable { get; private set; }
 
-        public Terrain() { } // Default paremeter-less constructor for model-binding
-        private Terrain(ITerrain state) : this(
-            value: state.Value, 
-            name: state.Name, 
-            passable: state.Passable
-        ) { }
         private Terrain(int value, string name, bool passable) : base(value, name) 
         {
             Passable = passable;
         }
 
+        private Terrain(ITerrain state) : this(
+            value: state.Value, 
+            name: state.Name, 
+            passable: state.Passable
+        ) { }
+        
         public static IEnumerable<Terrain> List() => new [] {
             Terrain.Water,
             Terrain.Coast,

@@ -11,6 +11,7 @@ import { IEventBus } from '../messaging/event-bus';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { BoardComponent } from './board';
 import { WorldComponent } from './world';
+import { IGameClientService } from '../services/game-client-service';
 
 @injectable()
 export class GameComponent extends ComponentBase {
@@ -36,6 +37,7 @@ export class GameComponent extends ComponentBase {
     private triggerCounterClockwiseRotation?: number;
 
     // Current game / state
+    private readonly gameService: IGameClientService;
     private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
     private currentGame?: Game;
     private currentVessel?: Vessel;
@@ -49,6 +51,7 @@ export class GameComponent extends ComponentBase {
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
+        @inject(TYPES_BALLAST.IGameClientService) gameClientService: IGameClientService,
         @inject(TYPES_BALLAST.BoardComponentFactory) worldFactory: () => WorldComponent,
         @inject(TYPES_BALLAST.WorldComponentFactory) boardFactory: () => BoardComponent) {
 
@@ -74,6 +77,7 @@ export class GameComponent extends ComponentBase {
         this.rotationDirections = 8; // Default to 8 directions
 
         // Game state update listener
+        this.gameService = gameClientService;
         this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
 
         // Create child components
@@ -181,9 +185,19 @@ export class GameComponent extends ComponentBase {
         // Notify game component finished loading
         this.eventBus.publishAsync(new GameComponentLoadedEvent());
 
+        // Connect to the chat service/hub
+        if (!this.gameService.isConnected) {
+            this.gameService.connectAsync(); // Fire and forget
+        }
+
     }
 
     protected onDetach(parent: HTMLElement, renderingContext: RenderingContext) {
+
+        // Disconnect from the chat service/hub
+        if (this.gameService.isConnected) {
+            this.gameService.disconnectAsync(); // Fire and forget
+        }
 
         // Remove camera pivot from the vessel object
         renderingContext.detachCameraFromObject(this.vesselPivot);
@@ -237,12 +251,28 @@ export class GameComponent extends ComponentBase {
         //       Relative direction can be retrieved from the perspective tracker using "getRotation()" (for a rotationMatrix4)
         //       Or from the rendering context by using 
 
+        let test = (renderingContext.keyboard.shiftIsDown());
+        if (test && this.currentGame && this.currentVessel) {
+            let sourceTile = this.currentVessel.cubicOrderedTriple;
+            let targetTile = this.currentVessel.cubicOrderedTriple;
+            let timestamp = new Date(Date.now());
+            this.gameService.moveVesselAsync({ 
+                gameId: this.currentGame.id,
+                boardId: this.currentGame.board.id,
+                vesselId: this.currentVessel.id,
+                timestampText: timestamp.toISOString(),
+                sourceOrderedTriple: sourceTile,
+                targetOrderedTriple: targetTile
+            });
+        }
+
     }
 
     private resetGame(renderingContext: RenderingContext) {
 
         // Store info from new game state
         this.currentGame = <Game>renderingContext.game;
+        this.currentVessel = this.currentGame && this.currentGame.vessels[0]; // TODO:  Fix this
         this.rotationDirections = this.currentGame && this.currentGame.board.tileShape.possibleDirections || 8;
         if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 6) {
             this.rotationRadians = RenderingConstants.SIXTH_TURN_RADIANS;

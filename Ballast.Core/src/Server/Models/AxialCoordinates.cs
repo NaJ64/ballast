@@ -8,35 +8,32 @@ namespace Ballast.Core.Models
         public int X { get; private set; }
         public int Z { get; private set; }
 
-        private AxialCoordinates(IAxialCoordinates state) : this(state.X, state.Z) { }
-
         private AxialCoordinates(int x, int z)
         {
             X = x;
             Z = z;
         }
 
+        private AxialCoordinates(IAxialCoordinates state) : this(
+            x: state.X, 
+            z: state.Z
+        ) { }
+
         public static AxialCoordinates FromProperties(int x, int z) => new AxialCoordinates(
             x: x,
             z: z
         );
 
-        public static AxialCoordinates FromObject(IAxialCoordinates state)
-        {
-            return new AxialCoordinates(state);
-        }
+        public static AxialCoordinates FromObject(IAxialCoordinates state) =>
+            new AxialCoordinates(state);
 
-        public static AxialCoordinates FromCubic(ICubicCoordinates state)
-        {
-            return AxialCoordinates.FromObject(state);
-        }
+        public static AxialCoordinates FromCubic(ICubicCoordinates state) =>
+            AxialCoordinates.FromObject(state);
 
-        public static AxialCoordinates FromOffset(IOffsetCoordinates state)
-        {
-            return AxialCoordinates.FromCubic(
+        public static AxialCoordinates FromOffset(IOffsetCoordinates state) =>
+            AxialCoordinates.FromCubic(
                 CubicCoordinates.FromOffset(state)
             );
-        }
 
         public static AxialCoordinates FromOrderedPair(int[] orderedPair)
         {

@@ -9,18 +9,20 @@ namespace Ballast.Core.Models
         public int Y { get; private set; }
         public int Z { get; private set; }
 
-        private CubicCoordinates(ICubicCoordinates state) : this(state.X, state.Y, state.Z) { }
-
         private CubicCoordinates(int x, int y, int z)
         {
             if ((x + y + z) != 0)
-            {
                 throw new Exception("Provided object coordinate(s) do not match constraint 'x + y + z = 0'");
-            }
             X = x;
             Y = y;
             Z = z;
         }
+
+        private CubicCoordinates(ICubicCoordinates state) : this(
+            x: state.X, 
+            y: state.Y, 
+            z: state.Z
+        ) { }
 
         public static CubicCoordinates FromProperties(int x, int y, int z) => new CubicCoordinates(
             x: x,

@@ -5,19 +5,20 @@ namespace Ballast.Core.Models
 {
     public class OffsetCoordinates : IOffsetCoordinates
     {
+
         public int Row { get; private set; }
         public int Col { get; private set; }
-
-        private OffsetCoordinates(IOffsetCoordinates state): this(
-            col: state.Col,
-            row: state.Row
-        ) { }
 
         private OffsetCoordinates(int col, int row) 
         {
             Col = col;
             Row = row;        
         }
+
+        private OffsetCoordinates(IOffsetCoordinates state): this(
+            col: state.Col,
+            row: state.Row
+        ) { }
 
         public static OffsetCoordinates FromObject(IOffsetCoordinates state) => new OffsetCoordinates(state);
 
@@ -33,11 +34,9 @@ namespace Ballast.Core.Models
             var row = state.Z;
             return new OffsetCoordinates(col: col, row: row);
         }
-
         
         public static OffsetCoordinates FromCubic(ICubicCoordinates state) =>
             OffsetCoordinates.FromAxial(state);
-
         
         public static OffsetCoordinates FromOrderedPair(int[] orderedPair) {
             if (orderedPair.Length < 2)

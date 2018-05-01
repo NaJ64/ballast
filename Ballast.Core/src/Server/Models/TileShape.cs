@@ -67,21 +67,6 @@ namespace Ballast.Core.Models
         public bool? HasDirectionSouthWest { get; private set; }
         public bool? HasDirectionSouthEast { get; private set; }
 
-        public TileShape() { } // Default paremeter-less constructor for model-binding
-        private TileShape(ITileShape state) : this(
-            value: state.Value, 
-            name: state.Name, 
-            applyHexRowScaling: state.ApplyHexRowScaling,
-            doubleIncrement: state.DoubleIncrement,
-            hasDirectionNorth: state.HasDirectionNorth,
-            hasDirectionSouth: state.HasDirectionSouth,
-            hasDirectionWest: state.HasDirectionWest,
-            hasDirectionEast: state.HasDirectionEast,
-            hasDirectionNorthWest: state.HasDirectionNorthWest,
-            hasDirectionNorthEast: state.HasDirectionNorthEast,
-            hasDirectionSouthWest: state.HasDirectionSouthWest,
-            hasDirectionSouthEast: state.HasDirectionSouthEast
-        ) { }
         private TileShape(
             int value,
             string name,
@@ -108,6 +93,21 @@ namespace Ballast.Core.Models
             HasDirectionSouthWest = hasDirectionSouthWest;
             HasDirectionSouthEast = hasDirectionSouthEast;
         }
+
+        private TileShape(ITileShape state) : this(
+            value: state.Value, 
+            name: state.Name, 
+            applyHexRowScaling: state.ApplyHexRowScaling,
+            doubleIncrement: state.DoubleIncrement,
+            hasDirectionNorth: state.HasDirectionNorth,
+            hasDirectionSouth: state.HasDirectionSouth,
+            hasDirectionWest: state.HasDirectionWest,
+            hasDirectionEast: state.HasDirectionEast,
+            hasDirectionNorthWest: state.HasDirectionNorthWest,
+            hasDirectionNorthEast: state.HasDirectionNorthEast,
+            hasDirectionSouthWest: state.HasDirectionSouthWest,
+            hasDirectionSouthEast: state.HasDirectionSouthEast
+        ) { }
 
         public static IEnumerable<TileShape> List() => new [] {
             TileShape.Square,

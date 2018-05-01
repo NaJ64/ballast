@@ -11,14 +11,14 @@ import { IChatClientService } from '../chat-client-service';
 export class SignalRChatService extends SignalRServiceBase implements IChatClientService {
 
     private sender?: string;
-    private receiveMessageHandler: (message: IChatMessage) => void;
+    private messageReceivedHandler: (message: IChatMessage) => void;
 
     public constructor(
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRServiceOptions
     ) {
         super(eventBus, serviceOptionsFactory);
-        this.receiveMessageHandler = this.onReceiveMessage.bind(this);
+        this.messageReceivedHandler = this.onMessageReceived.bind(this);
     }
 
     protected getHubName() {
@@ -26,14 +26,14 @@ export class SignalRChatService extends SignalRServiceBase implements IChatClien
     }
 
     protected subscribeToHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.on('receiveMessage', this.receiveMessageHandler);
+        hubConnection.on('messageReceived', this.messageReceivedHandler);
     }
 
     protected unsubscribeFromHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.off('receiveMessage', this.receiveMessageHandler);
+        hubConnection.off('messageReceived', this.messageReceivedHandler);
     }
 
-    private onReceiveMessage(message: IChatMessage) {
+    private onMessageReceived(message: IChatMessage) {
         this.receiveMessageAsync(message); // Fire and forget
     }
 

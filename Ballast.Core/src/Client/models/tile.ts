@@ -3,7 +3,7 @@ import { ITileShape, TileShape } from './tile-shape';
 import { ITerrain, Terrain } from './terrain';
 
 export interface ITile {
-    cubicCoordinates: ICubicCoordinates;
+    cubicOrderedTriple: number[];
     tileShapeValue: number;
     terrainValue: number;
     inactive?: boolean;
@@ -11,6 +11,7 @@ export interface ITile {
 
 export class Tile implements ITile {
 
+    public readonly cubicOrderedTriple: number[]
     public readonly cubicCoordinates: CubicCoordinates;
     public readonly tileShape: TileShape;
     public readonly tileShapeValue: number;
@@ -19,7 +20,8 @@ export class Tile implements ITile {
     public readonly inactive: boolean;
     
     private constructor(state: ITile) {
-        this.cubicCoordinates = CubicCoordinates.fromObject(state.cubicCoordinates);
+        this.cubicOrderedTriple = state.cubicOrderedTriple;
+        this.cubicCoordinates = CubicCoordinates.fromOrderedTriple(state.cubicOrderedTriple);
         this.tileShapeValue = state.tileShapeValue;
         this.tileShape = TileShape.fromValue(this.tileShapeValue);
         this.terrainValue = state.terrainValue;

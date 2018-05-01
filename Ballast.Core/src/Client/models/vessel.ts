@@ -2,17 +2,19 @@ import { ICubicCoordinates, CubicCoordinates } from "./cubic-coordinates";
 
 export interface IVessel {
     id: string;
-    cubicCoordinates: ICubicCoordinates;
+    cubicOrderedTriple: number[];
 }
 
 export class Vessel implements IVessel {
 
     public readonly id: string;
+    public readonly cubicOrderedTriple: number[];
     public readonly cubicCoordinates: CubicCoordinates;
 
     private constructor(state: IVessel) {
         this.id = state.id;
-        this.cubicCoordinates = CubicCoordinates.fromObject(state.cubicCoordinates);
+        this.cubicOrderedTriple = state.cubicOrderedTriple;
+        this.cubicCoordinates = CubicCoordinates.fromOrderedTriple(state.cubicOrderedTriple);
     }
 
     public static fromObject(object: IVessel) {

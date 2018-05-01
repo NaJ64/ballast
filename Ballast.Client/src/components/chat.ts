@@ -164,7 +164,7 @@ export class ChatComponent extends ComponentBase {
     private appendMessageToHistory(message: IChatMessage) {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
-            let timestampDate = new Date(message.timestampText);
+            let timestampDate = new Date(message.timestampText + 'Z');
             let messageDisplay = `${timestampDate.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })} [${message.from}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);

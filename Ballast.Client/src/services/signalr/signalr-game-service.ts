@@ -11,14 +11,14 @@ import { IGameClientService } from '../game-client-service';
 export class SignalRGameService extends SignalRServiceBase implements IGameClientService {
 
     private sender?: string;
-    private receiveGameStateUpdateHandler: (update: IGame) => void;
+    private gameStateChangedHandler: (update: IGame) => void;
 
     public constructor(
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRServiceOptions
     ) {
         super(eventBus, serviceOptionsFactory);
-        this.receiveGameStateUpdateHandler = this.onReceiveGameStateUpdate.bind(this);
+        this.gameStateChangedHandler = this.onGameStateChanged.bind(this);
     }
 
     protected getHubName() {
@@ -26,25 +26,25 @@ export class SignalRGameService extends SignalRServiceBase implements IGameClien
     }
 
     protected subscribeToHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.on('receiveGameStateUpdate', this.receiveGameStateUpdateHandler);
+        hubConnection.on('gameStateChanged', this.gameStateChangedHandler);
     }
 
     protected unsubscribeFromHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.off('receiveGameStateUpdate', this.receiveGameStateUpdateHandler);
+        hubConnection.off('gameStateChanged', this.gameStateChangedHandler);
     }
 
-    private onReceiveGameStateUpdate(update: IGame) {
-        this.receiveGameStateUpdateAsync(update); // Fire and forget
+    private onGameStateChanged(update: IGame) {
+        this.updateGameStateAsync(update); // Fire and forget
     }
 
-    public async requestVesselMoveAsync(request: IVesselMoveRequest): Promise<void> {
+    public async moveVesselAsync(request: IVesselMoveRequest): Promise<void> {
         if (!this.isConnected) {
             await this.connectAsync();
         }
-        await this.invokeOnHubAsync('requestVesselMove', request);
+        await this.invokeOnHubAsync('moveVessel', request);
     }
 
-    public async receiveGameStateUpdateAsync(update: IGame) {
+    public async updateGameStateAsync(update: IGame) {
         if (!this.isConnected) {
             await this.connectAsync();
         }
