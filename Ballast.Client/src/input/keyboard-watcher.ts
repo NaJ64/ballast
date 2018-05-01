@@ -1,5 +1,5 @@
 import { BallastViewport } from '../app/ballast-viewport';
-import { IDisposable } from '../interfaces/idisposable';
+import { IDisposable } from 'ballast-core';
 import { IEventBus } from '../messaging/event-bus';
 
 const ENTER: number = 13;

@@ -1,26 +1,24 @@
 import { injectable, inject } from 'inversify';
 import * as signalR from '@aspnet/signalr';
+import { IChatMessage, IChatService, ChatMessageSentEvent, ChatMessageReceivedEvent } from 'ballast-core';
 import { TYPES_BALLAST } from '../../ioc/types';
 import { IEventBus } from '../../messaging/event-bus';
-import { IChatMessage } from '../chat/chat-message';
-import { ChatMessageReceivedEvent } from '../../messaging/events/services/chat-message-received';
-import { ChatMessageSentEvent } from '../../messaging/events/services/chat-message-sent';
-import { IChatService } from '../chat/chat-service';
 import { ISignalRServiceOptions } from './signalr-service-options';
 import { SignalRServiceBase } from './signalr-service-base';
+import { IChatClientService } from '../chat-client-service';
 
 @injectable()
-export class SignalRChatService extends SignalRServiceBase implements IChatService {
+export class SignalRChatService extends SignalRServiceBase implements IChatClientService {
 
     private sender?: string;
-    private receiveMessageHandler: (message: IChatMessage) => void;
+    private messageReceivedHandler: (message: IChatMessage) => void;
 
     public constructor(
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRServiceOptions
     ) {
         super(eventBus, serviceOptionsFactory);
-        this.receiveMessageHandler = this.onReceiveMessage.bind(this);
+        this.messageReceivedHandler = this.onMessageReceived.bind(this);
     }
 
     protected getHubName() {
@@ -28,14 +26,14 @@ export class SignalRChatService extends SignalRServiceBase implements IChatServi
     }
 
     protected subscribeToHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.on('receiveMessage', this.receiveMessageHandler);
+        hubConnection.on('messageReceived', this.messageReceivedHandler);
     }
 
     protected unsubscribeFromHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.off('receiveMessage', this.receiveMessageHandler);
+        hubConnection.off('messageReceived', this.messageReceivedHandler);
     }
 
-    private onReceiveMessage(message: IChatMessage) {
+    private onMessageReceived(message: IChatMessage) {
         this.receiveMessageAsync(message); // Fire and forget
     }
 

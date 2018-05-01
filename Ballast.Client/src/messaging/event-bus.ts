@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
+import { IDisposable } from 'ballast-core';
 import { IEvent } from './event';
-import { IDisposable } from '../interfaces/idisposable';
 
 export type AsyncEventHandler<TEvent extends IEvent> = (event: TEvent) => Promise<void>
 

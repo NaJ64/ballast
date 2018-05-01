@@ -1,4 +1,4 @@
-using Ballast.Core.Chat;
+using Ballast.Core.ValueObjects;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
@@ -8,7 +8,7 @@ namespace Ballast.Server.Hubs
     {
         public Task SendMessage(ChatMessage message)
         {
-            return Clients.All.SendAsync("receiveMessage", message);    
+            return Clients.All.SendAsync("messageReceived", message);    
         }
     }
 }

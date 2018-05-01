@@ -1,20 +1,32 @@
+using Ballast.Core.Models.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class Vessel
+    public class Vessel : IVessel
     {
-        public Guid Id { get; set; }
-        public bool Active { get; set; }
-        public Team Team { get; set; }
-        public VesselType VesselType { get; set; }
-        public Player Captain { get; set; }
-        public Player Radioman { get; set; }
-        public IEnumerable<VesselPosition> PositionHistory { get; set; }
-        public int RemainingHP { get; set; }
-        public int Kills { get; set; }
+
+        public Guid Id { get; private set; }
+        public int[] CubicOrderedTriple => CubicCoordinates.ToOrderedTriple();
+        public CubicCoordinates CubicCoordinates { get; private set; }
+
+        private Vessel(Guid id, int[] cubicOrderedTriple)
+        {
+            Id = id;
+            CubicCoordinates = CubicCoordinates.FromOrderedTriple(cubicOrderedTriple);
+        }
+
+        private Vessel(IVessel state) : this(
+            id: state.Id,
+            cubicOrderedTriple: state.CubicOrderedTriple
+        ) {}
+
+        public static Vessel FromProperties(Guid id, int[] cubicOrderedTriple) => new Vessel(
+            id: id,
+            cubicOrderedTriple: cubicOrderedTriple
+        );
+
+        public static Vessel FromObject(IVessel state) => new Vessel(state);
 
     }
 }

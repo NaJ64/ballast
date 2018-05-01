@@ -1,52 +1,44 @@
+using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class Terrain
+    public class Terrain : StaticListTypeBase<Terrain>, ITerrain
     {
-        public static Terrain Water => new Terrain(0, "Water", true);
-        public static Terrain DeepWater => new Terrain(1, "DeepWater", true);
-        public static Terrain ShallowWater => new Terrain(2, "ShallowWater", true);
-        public static Terrain Coast => new Terrain(3, "Coast", false);
-        public static Terrain Grass => new Terrain(4, "Grass", false);
-        public static Terrain Forest => new Terrain(5, "Forest", false);
-        public static Terrain Mountain => new Terrain(6, "Mountain", false);
-
-        public int Value { get; private set; }
-        public string Name { get; private set; }
+    
+        public static Terrain Water = new Terrain(value: 0, name: "Water", passable: false );
+        public static Terrain Coast = new Terrain(value: 1, name: "Coast", passable: true );
+        public static Terrain Land = new Terrain(value: 2, name: "Land", passable: true );
+    
         public bool Passable { get; private set; }
 
-        private Terrain(int value, string name, bool passable)
+        private Terrain(int value, string name, bool passable) : base(value, name) 
         {
-            Value = value;
-            Name = name;
             Passable = passable;
         }
 
-        public static IEnumerable<Terrain> List()
-        {
-            // alternately, use a dictionary keyed by value
-            return new[] {
-                Water, 
-                DeepWater, 
-                ShallowWater, 
-                Coast, 
-                Grass, 
-                Forest, 
-                Mountain
-            };
-        }
+        private Terrain(ITerrain state) : this(
+            value: state.Value, 
+            name: state.Name, 
+            passable: state.Passable
+        ) { }
+        
+        public static IEnumerable<Terrain> List() => new [] {
+            Terrain.Water,
+            Terrain.Coast,
+            Terrain.Land
+        };
 
-        public static Terrain FromString(string value)
-        {
-            return List().Single(x => String.Equals(x.Name, value, StringComparison.OrdinalIgnoreCase));
-        }
+        public static Terrain FromObject(ITerrain state) =>
+            new Terrain(state);
 
-        public static Terrain FromValue(int value)
-        {
-            return List().Single(x => x.Value == value);
-        }
+        public static Terrain FromValue(int value) =>
+            Terrain.List().Single(x => x.Value == value);
+
+        public static Terrain FromString(string name) =>
+            Terrain.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
+
     }
 }

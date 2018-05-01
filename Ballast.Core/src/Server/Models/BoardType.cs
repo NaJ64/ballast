@@ -1,40 +1,42 @@
+using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class BoardType
+    public class BoardType : StaticListTypeBase<BoardType>, IBoardType
     {
-        public static BoardType Square => new BoardType(0, "Square");
-        public static BoardType Octagon => new BoardType(1, "Octagon");
 
-        public int Value { get; private set; }
-        public string Name { get; private set; }
+        public static BoardType Rectangle = new BoardType(value: 0, name: "Rectangle", centerOrigin: false);
+        public static BoardType RegularPolygon = new BoardType(value: 1, name: "RegularPolygon", centerOrigin: true);
 
-        private BoardType(int value, string name)
+        public bool CenterOrigin { get; private set; }
+
+        private BoardType(int value, string name, bool centerOrigin) : base(value, name)
         {
-            Value = value;
-            Name = name;
+            CenterOrigin = centerOrigin;
         }
 
-        public static IEnumerable<BoardType> List()
-        {
-            // alternately, use a dictionary keyed by value
-            return new[] {
-                Square,
-                Octagon
-            };
-        }
+        private BoardType(IBoardType state) : this(
+            value: state.Value, 
+            name: state.Name, 
+            centerOrigin: state.CenterOrigin
+        ) { }
+        
+        public static IEnumerable<BoardType> List() => new[] {
+            BoardType.Rectangle,
+            BoardType.RegularPolygon
+        };
 
-        public static BoardType FromString(string text)
-        {
-            return List().Single(x => String.Equals(x.Name, text, StringComparison.OrdinalIgnoreCase));
-        }
+        public static BoardType FromObject(IBoardType state) =>
+            new BoardType(state);
 
-        public static BoardType FromValue(int value)
-        {
-            return List().Single(x => x.Value == value);
-        }
+        public static BoardType FromValue(int value) =>
+            BoardType.List().Single(x => x.Value == value);
+
+        public static BoardType FromString(string name) =>
+            BoardType.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
+
     }
 }

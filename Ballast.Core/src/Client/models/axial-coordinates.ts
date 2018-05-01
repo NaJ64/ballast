@@ -1,7 +1,7 @@
 import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates } from './offset-coordinates';
 
-export interface IAxialCoordinates { 
+export interface IAxialCoordinates {
     x: number;
     z: number;
 }
@@ -32,6 +32,14 @@ export class AxialCoordinates implements IAxialCoordinates {
         return AxialCoordinates.fromCubic(
             CubicCoordinates.fromOffset(object)
         );
+    }
+
+    public static fromOrderedPair(orderedPair: number[]) {
+        if (orderedPair.length < 2)
+            throw new Error('Length of ordered pair must be 2 (or greater)');
+        let x = orderedPair[0];
+        let z = orderedPair[1];
+        return AxialCoordinates.fromObject({ x: x, z: z });
     }
 
     public equals(object: IAxialCoordinates) {

@@ -1,57 +1,46 @@
+using Ballast.Core.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class Board
+    public class Board : IBoard
     {
-        // Test Comment here
-        public BoardType Type { get; private set; }
-        public IEnumerable<BoardSpace> Spaces { get; private set; }
-        public IDictionary<int, IList<BoardSpace>> Rows { get; private set; }
-        public IDictionary<int, IList<BoardSpace>> Columns { get; private set; }
-        public IEnumerable<Vessel> Vessels { get; private set; }
 
-        public Board(BoardType type, (int Rows, int Columns) dimensions, bool? autoTerrain = false) 
+        private readonly IEnumerable<Tile> _tiles;
+
+        public int BoardTypeValue => BoardType.Value;
+        public Guid Id { get; private set; }
+        public IEnumerable<ITile> Tiles => _tiles;
+        public int TileShapeValue => TileShape.Value;
+
+        public BoardType BoardType { get; private set; }
+        public TileShape TileShape { get; private set; }
+
+        private Board(int boardTypeValue, Guid id, IEnumerable<ITile> tiles, int tileShapeValue)
         {
-            var spaces = GenerateSpaces(dimensions.Rows, dimensions.Columns);
-            Spaces = spaces.All;
-            Rows = spaces.Rows;
-            Columns = spaces.Columns;
+            BoardType = BoardType.FromValue(boardTypeValue);
+            Id = id;
+            _tiles = tiles.Select(x => Tile.FromObject(x));
+            TileShape = TileShape.FromValue(tileShapeValue);
         }
 
-        private (IEnumerable<BoardSpace> All, IDictionary<int, IList<BoardSpace>> Rows, IDictionary<int, IList<BoardSpace>> Columns) GenerateSpaces(int rowCount, int columnCount)
-        {
-            var defaultTerrain = Terrain.Water;
-            var allSpaces = new List<BoardSpace>();
-            var rowSpaces = new Dictionary<int, IList<BoardSpace>>();
-            var colSpaces = new Dictionary<int, IList<BoardSpace>>();
-            for(var col = 0; col < columnCount; col++)
-            {
-                colSpaces[col] = new List<BoardSpace>();
-            } 
-            for(var row = 0; row < rowCount; row++)
-            {
-                rowSpaces[row] = new List<BoardSpace>();
-                for(var col = 0; col < columnCount; col++)
-                {
-                    var space = new BoardSpace((row, col), defaultTerrain);  
-                    rowSpaces[row].Add(space);
-                    colSpaces[col].Add(space);
-                    allSpaces.Add(space);
-                }  
-            }
-            foreach(var space in allSpaces)
-            {
-                space.SetAdjacents(allSpaces);
-            }
-            return (allSpaces, rowSpaces, colSpaces);
-        }
+        private Board(IBoard state) : this(
+            boardTypeValue: state.BoardTypeValue,
+            id: state.Id,
+            tiles: state.Tiles,
+            tileShapeValue: state.TileShapeValue
+        ) { }
+        
+        public static Board FromObject(IBoard state) => new Board(state);
 
-        private void SetTerrain(Terrain terrain, int row, int column)
-        {
-            
-        }
+        public static Board FromProperties(int boardTypeValue, Guid id, IEnumerable<ITile> tiles, int tileShapeValue) => new Board(
+            boardTypeValue: boardTypeValue,
+            id: id,
+            tiles:tiles,
+            tileShapeValue: tileShapeValue
+        );
 
     }
 }
