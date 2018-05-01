@@ -65,6 +65,9 @@ export class CameraComponent extends ComponentBase {
 
         // Subscribe to all events
         this.subscribeToEvents();
+
+        // Initial camera reset
+        this.resetCamera(renderingContext);
         
     }
 

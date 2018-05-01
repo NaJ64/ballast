@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as uuid from 'uuid';
 import { injectable, inject } from 'inversify';
 import { Game, Tile, Vessel, GameStateChangedEvent } from 'ballast-core';
 import { TYPES_BALLAST } from '../ioc/types';
@@ -69,7 +70,7 @@ export class GameComponent extends ComponentBase {
         this.counterClockwiseClickListener = this.onCounterClockwiseClick.bind(this);
         this.clockwiseButton = buttons["1"];
         this.clockwiseClickListener = this.onClockwiseClick.bind(this);
-        
+
         // Trigger(s) & properties for object rotation animation(s)
         this.rotationTarget = this.createRotationTarget();
         this.rotationAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
@@ -252,14 +253,14 @@ export class GameComponent extends ComponentBase {
         //       Or from the rendering context by using 
 
         let test = (renderingContext.keyboard.shiftIsDown());
-        if (test && this.currentGame && this.currentVessel) {
-            let sourceTile = this.currentVessel.cubicOrderedTriple;
-            let targetTile = this.currentVessel.cubicOrderedTriple;
+        if (test) {
+            let sourceTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
+            let targetTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
             let timestamp = new Date(Date.now());
-            this.gameService.moveVesselAsync({ 
-                gameId: this.currentGame.id,
-                boardId: this.currentGame.board.id,
-                vesselId: this.currentVessel.id,
+            this.gameService.moveVesselAsync({
+                gameId: uuid.v4(),
+                boardId: uuid.v4(),
+                vesselId: uuid.v4(),
                 timestampText: timestamp.toISOString(),
                 sourceOrderedTriple: sourceTile,
                 targetOrderedTriple: targetTile
@@ -281,7 +282,7 @@ export class GameComponent extends ComponentBase {
         } else {
             this.rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
         }
-        
+
         // Update vessel pivot orientation
         let initialY = RenderingConstants.INITIAL_ORIENTATION_RADIANS;
         this.vesselPivot.rotation.set(0, initialY, 0);
@@ -289,6 +290,7 @@ export class GameComponent extends ComponentBase {
 
         // Update vessel properties
         this.vessel.position.set(0, 0, 0);
+        this.vesselPivot.position.set(0, 0, 0);
     }
 
     private applyRotation(renderingContext: RenderingContext, left: boolean, right: boolean) {
