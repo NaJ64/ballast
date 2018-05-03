@@ -1,6 +1,6 @@
-import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
-import { ITileShape, TileShape } from './tile-shape';
+import { CubicCoordinates, ICubicCoordinates } from './cubic-coordinates';
 import { ITerrain, Terrain } from './terrain';
+import { ITileShape, TileShape } from './tile-shape';
 
 export interface ITile {
     cubicCoordinates: ICubicCoordinates;

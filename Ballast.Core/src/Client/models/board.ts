@@ -1,6 +1,6 @@
+import { BoardType, IBoardType } from './board-type';
 import { ITile, Tile } from './tile';
 import { ITileShape, TileShape } from './tile-shape';
-import { IBoardType, BoardType } from './board-type';
 
 export interface IBoard {
     boardType: IBoardType;

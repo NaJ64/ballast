@@ -1,12 +1,12 @@
-import * as THREE from 'three';
-import * as THREE_EXT from '../extensions/water-material';
-import { injectable, inject } from 'inversify';
-import { TYPES_BALLAST } from '../ioc/types';
-import { ComponentBase } from './component-base';
-import { RenderingContext } from '../rendering/rendering-context';
-import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from 'ballast-core';
+import { inject, injectable } from 'inversify';
+import * as THREE from 'three';
+import { BallastViewport } from '../app/ballast-viewport';
+import * as THREE_EXT from '../extensions/water-material';
 import { PerspectiveTracker } from '../input/perspective-tracker';
+import { TYPES_BALLAST } from '../ioc/types';
+import { RenderingContext } from '../rendering/rendering-context';
+import { ComponentBase } from './component-base';
 
 @injectable()
 export class WorldComponent extends ComponentBase {

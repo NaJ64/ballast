@@ -1,4 +1,4 @@
-import { IBoard, Board } from './board';
+import { Board, IBoard } from './board';
 import { IVessel, Vessel } from './vessel';
 
 export interface IGame {

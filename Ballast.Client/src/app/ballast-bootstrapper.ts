@@ -1,7 +1,5 @@
-import { Container, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { BallastClient } from './ballast-client';
-import { BallastViewport } from './ballast-viewport';
-import { configureServices } from '../ioc/configure-services';
 
 @injectable()
 export class BallastBootstrapper {

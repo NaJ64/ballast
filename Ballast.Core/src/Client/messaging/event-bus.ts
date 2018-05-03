@@ -1,4 +1,3 @@
-import { injectable } from 'inversify';
 import { IDisposable } from '../interfaces/disposable';
 import { IEvent } from './event';
 

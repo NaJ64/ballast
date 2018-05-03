@@ -1,5 +1,5 @@
-import 'reflect-metadata';
 import { BallastBootstrapper } from 'ballast-client';
+import 'reflect-metadata';
 
 let server = 'https://ballast.azurewebsites.net'
 let bootstrapper = new BallastBootstrapper(document)

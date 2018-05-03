@@ -1,5 +1,5 @@
-import * as THREE from 'three';
 import { Game } from 'ballast-core';
+import * as THREE from 'three';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 
 export class RenderingContext {

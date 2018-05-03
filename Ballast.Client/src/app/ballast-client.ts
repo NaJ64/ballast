@@ -1,23 +1,11 @@
+import { BoardGenerator, BoardType, Game, GameStateChangedEvent, IDisposable, IEventBus, LocalEventBus, Tile, TileShape, Vessel } from 'ballast-core';
 import { Container, injectable } from 'inversify';
-import {
-    Board,
-    BoardGenerator,
-    BoardType,
-    TileShape,
-    Game,
-    Vessel,
-    Tile,
-    CubicCoordinates,
-    GameStateChangedEvent,
-    IDisposable
-} from 'ballast-core';
 import * as uuid from 'uuid';
-import { BallastViewport } from './ballast-viewport';
+import { RootComponent } from '../components/root';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
-import { RootComponent } from '../components/root';
-import { IEventBus, LocalEventBus } from 'ballast-core';
 import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
+import { BallastViewport } from './ballast-viewport';
 
 @injectable()
 export class BallastClient implements IDisposable {

@@ -1,5 +1,5 @@
+import { AsyncEventHandler, IEvent, IEventBus } from 'ballast-core';
 import { injectable } from 'inversify';
-import { IEvent, IEventBus, AsyncEventHandler } from 'ballast-core';
 
 interface EventSubscription<TEvent extends IEvent> {
     key: Symbol;

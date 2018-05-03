@@ -1,4 +1,4 @@
-import { IGameService, IGame } from 'ballast-core';
+import { IGame, IGameService } from 'ballast-core';
 import { IClientService } from './client-service';
 
 export interface IGameClientService extends IGameService, IClientService {

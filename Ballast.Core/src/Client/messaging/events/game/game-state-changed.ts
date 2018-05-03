@@ -1,5 +1,5 @@
-import { EventBase } from '../../event-base';
 import { Game } from '../../../models/game';
+import { EventBase } from '../../event-base';
 
 export class GameStateChangedEvent extends EventBase {
 

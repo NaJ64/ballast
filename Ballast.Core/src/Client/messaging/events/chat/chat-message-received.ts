@@ -1,5 +1,5 @@
-import { EventBase } from '../../event-base';
 import { IChatMessage } from '../../../value-objects';
+import { EventBase } from '../../event-base';
 
 export class ChatMessageReceivedEvent extends EventBase {
 

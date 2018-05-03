@@ -1,10 +1,10 @@
-import { injectable, inject } from 'inversify';
 import * as signalR from '@aspnet/signalr';
-import { IGame, Game, IGameService, GameStateChangedEvent, IVesselMoveRequest, IEventBus } from 'ballast-core';
+import { Game, GameStateChangedEvent, IEventBus, IGame, IVesselMoveRequest } from 'ballast-core';
+import { inject, injectable } from 'inversify';
 import { TYPES_BALLAST } from '../../ioc/types';
-import { ISignalRServiceOptions } from './signalr-service-options';
-import { SignalRServiceBase } from './signalr-service-base';
 import { IGameClientService } from '../game-client-service';
+import { SignalRServiceBase } from './signalr-service-base';
+import { ISignalRServiceOptions } from './signalr-service-options';
 
 @injectable()
 export class SignalRGameService extends SignalRServiceBase implements IGameClientService {

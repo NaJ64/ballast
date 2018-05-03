@@ -1,18 +1,17 @@
+import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel } from 'ballast-core';
+import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import * as uuid from 'uuid';
-import { injectable, inject } from 'inversify';
-import { Game, Tile, Vessel, GameStateChangedEvent } from 'ballast-core';
+import { BallastViewport } from '../app/ballast-viewport';
+import { PerspectiveTracker } from '../input/perspective-tracker';
 import { TYPES_BALLAST } from '../ioc/types';
-import { ComponentBase } from './component-base';
+import { GameComponentLoadedEvent } from '../messaging/events/components/game-component-loaded';
 import { RenderingConstants } from '../rendering/rendering-constants';
 import { RenderingContext } from '../rendering/rendering-context';
-import { GameComponentLoadedEvent } from '../messaging/events/components/game-component-loaded';
-import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from 'ballast-core';
-import { PerspectiveTracker } from '../input/perspective-tracker';
-import { BoardComponent } from './board';
-import { WorldComponent } from './world';
 import { IGameClientService } from '../services/game-client-service';
+import { BoardComponent } from './board';
+import { ComponentBase } from './component-base';
+import { WorldComponent } from './world';
 
 @injectable()
 export class GameComponent extends ComponentBase {

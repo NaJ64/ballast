@@ -1,6 +1,6 @@
+import { compose } from 'throwback';
 import { RenderingStep } from '../app/ballast-viewport';
 import { RenderingContext } from './rendering-context';
-import { compose } from 'throwback';
 
 export class RenderingMiddleware {
 

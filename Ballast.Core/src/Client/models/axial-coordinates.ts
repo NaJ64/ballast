@@ -1,4 +1,4 @@
-import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
+import { CubicCoordinates, ICubicCoordinates } from './cubic-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates } from './offset-coordinates';
 
 export interface IAxialCoordinates {

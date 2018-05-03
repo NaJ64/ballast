@@ -1,13 +1,11 @@
-import { injectable, inject } from 'inversify';
-import { IChatMessage, IChatService, ChatMessageReceivedEvent } from 'ballast-core';
-import { IChatClientService } from '../services/chat-client-service';
-import { TYPES_BALLAST } from '../ioc/types';
-import { IEventBus } from 'ballast-core';
-import { ComponentBase } from './component-base';
-import { RenderingContext } from '../rendering/rendering-context';
-import { KeyboardWatcher } from '../input/keyboard-watcher';
+import { ChatMessageReceivedEvent, IChatMessage, IEventBus } from 'ballast-core';
+import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
+import { TYPES_BALLAST } from '../ioc/types';
+import { RenderingContext } from '../rendering/rendering-context';
+import { IChatClientService } from '../services/chat-client-service';
+import { ComponentBase } from './component-base';
 
 @injectable()
 export class ChatComponent extends ComponentBase {
