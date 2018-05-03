@@ -3,19 +3,17 @@ import { ITileShape, TileShape } from './tile-shape';
 import { IBoardType, BoardType } from './board-type';
 
 export interface IBoard {
-    boardTypeValue: number;
+    boardType: IBoardType;
     id: string;
     tiles: ITile[];
-    tileShapeValue: number;
+    tileShape: ITileShape;
 }
 
 export class Board implements IBoard {
 
     public readonly boardType: BoardType;
-    public readonly boardTypeValue: number;
     public readonly id: string;
     public readonly tileShape: TileShape;
-    public readonly tileShapeValue: number;
     public readonly tileMap: Map<string, Tile>;
 
     private cachedTiles?: Tile[];
@@ -31,11 +29,9 @@ export class Board implements IBoard {
     }
 
     private constructor(state: IBoard) {
-        this.boardTypeValue = state.boardTypeValue;
-        this.boardType = BoardType.fromValue(this.boardTypeValue);
+        this.boardType = BoardType.fromObject(state.boardType);
         this.id = state.id;
-        this.tileShapeValue = state.tileShapeValue;
-        this.tileShape = TileShape.fromValue(state.tileShapeValue);
+        this.tileShape = TileShape.fromObject(state.tileShape);
         this.tileMap = new Map(this.mapTiles(state.tiles));
     }
 

@@ -5,7 +5,7 @@ import { TYPES_BALLAST } from './types';
 import { BallastBootstrapper } from '../app/ballast-bootstrapper';
 import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { LocalEventBus } from '../messaging/local-event-bus';
 import { BoardComponent } from '../components/board';
 import { CameraComponent } from '../components/camera';

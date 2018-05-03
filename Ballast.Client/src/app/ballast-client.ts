@@ -16,7 +16,7 @@ import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
 import { RootComponent } from '../components/root';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { LocalEventBus } from '../messaging/local-event-bus';
 import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 
@@ -71,11 +71,11 @@ export class BallastClient implements IDisposable {
         let boardGenerator = new BoardGenerator();
         let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Octagon, 3);
         let vessel1Id = uuid.v4();
-        let vessel1Coords = (<Tile>board.getTile([0, 0, 0])).cubicOrderedTriple;
-        let vessel1 = Vessel.fromObject({ id: vessel1Id, cubicOrderedTriple: vessel1Coords });
+        let vessel1Coords = (<Tile>board.getTile([0, 0, 0])).cubicCoordinates;
+        let vessel1 = Vessel.fromObject({ id: vessel1Id, cubicCoordinates: vessel1Coords });
         let vessel2Id = uuid.v4();
-        let vessel2Coords = (<Tile>board.getTile([-2, 2, 0])).cubicOrderedTriple;
-        let vessel2 = Vessel.fromObject({ id: vessel2Id, cubicOrderedTriple: vessel2Coords });
+        let vessel2Coords = (<Tile>board.getTile([-2, 2, 0])).cubicCoordinates;
+        let vessel2 = Vessel.fromObject({ id: vessel2Id, cubicCoordinates: vessel2Coords });
         let game = Game.fromObject({ id: gameId, board: board, vessels: [vessel1, vessel2] });
         // Trigger new game state changed event
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);

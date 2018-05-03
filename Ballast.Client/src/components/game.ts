@@ -8,7 +8,7 @@ import { RenderingConstants } from '../rendering/rendering-constants';
 import { RenderingContext } from '../rendering/rendering-context';
 import { GameComponentLoadedEvent } from '../messaging/events/components/game-component-loaded';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { BoardComponent } from './board';
 import { WorldComponent } from './world';

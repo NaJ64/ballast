@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import * as signalR from '@aspnet/signalr';
 import { TYPES_BALLAST } from '../../ioc/types';
-import { IEventBus } from '../../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { ISignalRServiceOptions } from './signalr-service-options';
 
 @injectable()

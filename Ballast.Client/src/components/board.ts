@@ -5,7 +5,7 @@ import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { RenderingConstants } from '../rendering/rendering-constants';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { Game, Board, Tile, CubicCoordinates, TileShape } from 'ballast-core';
 

@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { IChatMessage, IChatService, ChatMessageReceivedEvent } from 'ballast-core';
 import { IChatClientService } from '../services/chat-client-service';
 import { TYPES_BALLAST } from '../ioc/types';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
