@@ -6,7 +6,6 @@ import { BallastBootstrapper } from '../app/ballast-bootstrapper';
 import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
 import { IEventBus } from 'ballast-core';
-import { LocalEventBus } from '../messaging/local-event-bus';
 import { BoardComponent } from '../components/board';
 import { CameraComponent } from '../components/camera';
 import { ChatComponent } from '../components/chat';

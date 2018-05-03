@@ -16,8 +16,7 @@ import { BallastViewport } from './ballast-viewport';
 import { configureServices } from '../ioc/configure-services';
 import { TYPES_BALLAST } from '../ioc/types';
 import { RootComponent } from '../components/root';
-import { IEventBus } from 'ballast-core';
-import { LocalEventBus } from '../messaging/local-event-bus';
+import { IEventBus, LocalEventBus } from 'ballast-core';
 import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 
 @injectable()
