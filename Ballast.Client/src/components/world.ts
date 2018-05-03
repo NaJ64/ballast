@@ -5,7 +5,7 @@ import { TYPES_BALLAST } from '../ioc/types';
 import { ComponentBase } from './component-base';
 import { RenderingContext } from '../rendering/rendering-context';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 
 @injectable()

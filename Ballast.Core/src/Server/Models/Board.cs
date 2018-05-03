@@ -9,37 +9,36 @@ namespace Ballast.Core.Models
     {
 
         private readonly IEnumerable<Tile> _tiles;
+        private readonly BoardType _boardType;
+        private readonly TileShape _tileShape;
 
-        public int BoardTypeValue => BoardType.Value;
         public Guid Id { get; private set; }
         public IEnumerable<ITile> Tiles => _tiles;
-        public int TileShapeValue => TileShape.Value;
+        public IBoardType BoardType => _boardType;
+        public ITileShape TileShape => _tileShape;
 
-        public BoardType BoardType { get; private set; }
-        public TileShape TileShape { get; private set; }
-
-        private Board(int boardTypeValue, Guid id, IEnumerable<ITile> tiles, int tileShapeValue)
+        private Board(IBoardType boardType, Guid id, IEnumerable<ITile> tiles, ITileShape tileShape)
         {
-            BoardType = BoardType.FromValue(boardTypeValue);
-            Id = id;
+            _boardType = Models.BoardType.FromValue(boardType.Value);
             _tiles = tiles.Select(x => Tile.FromObject(x));
-            TileShape = TileShape.FromValue(tileShapeValue);
+            _tileShape = Models.TileShape.FromValue(tileShape.Value);
+            Id = id;
         }
 
         private Board(IBoard state) : this(
-            boardTypeValue: state.BoardTypeValue,
+            boardType: state.BoardType,
             id: state.Id,
             tiles: state.Tiles,
-            tileShapeValue: state.TileShapeValue
+            tileShape: state.TileShape
         ) { }
         
         public static Board FromObject(IBoard state) => new Board(state);
 
-        public static Board FromProperties(int boardTypeValue, Guid id, IEnumerable<ITile> tiles, int tileShapeValue) => new Board(
-            boardTypeValue: boardTypeValue,
+        public static Board FromProperties(IBoardType boardType, Guid id, IEnumerable<ITile> tiles, ITileShape tileShape) => new Board(
+            boardType: boardType,
             id: id,
             tiles:tiles,
-            tileShapeValue: tileShapeValue
+            tileShape: tileShape
         );
 
     }

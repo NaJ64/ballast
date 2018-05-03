@@ -71,10 +71,10 @@ namespace Ballast.Core.Services
 
             // Create new board 
             var board = Board.FromProperties(
-                boardTypeValue: useBoardType.Value,
+                boardType: useBoardType,
                 id: id,
                 tiles: tiles,
-                tileShapeValue: useTileShape.Value
+                tileShape: useTileShape
             );
 
             // return the board
@@ -92,13 +92,13 @@ namespace Ballast.Core.Services
                 for (var colIndex = 0; colIndex < columnCount; colIndex++)
                 {
                     var col = colIndex * increment;
-                    var cubicOrderedTriple = CubicCoordinates.FromOffset(
+                    var cubicCoordinates = CubicCoordinates.FromOffset(
                         OffsetCoordinates.FromProperties(row: row, col: col)
-                    ).ToOrderedTriple();
+                    );
                     rectangle.Add(Tile.FromProperties(
-                        cubicOrderedTriple: cubicOrderedTriple,
-                        tileShapeValue: tileShape.Value,
-                        terrainValue: Terrain.Water.Value
+                        cubicCoordinates: cubicCoordinates,
+                        tileShape: tileShape,
+                        terrain: Terrain.Water
                     ));
                 }
             }
@@ -119,13 +119,13 @@ namespace Ballast.Core.Services
                 for (var colIndex = 0; colIndex < sideLength; colIndex++)
                 {
                     var col = (colIndex * increment) - centerOffset;
-                    var cubicOrderedTriple = CubicCoordinates.FromOffset(
+                    var cubicCoordinates = CubicCoordinates.FromOffset(
                         OffsetCoordinates.FromProperties(row: row, col: col)
-                    ).ToOrderedTriple();
+                    );
                     square.Add(Tile.FromProperties(
-                        cubicOrderedTriple: cubicOrderedTriple,
-                        tileShapeValue: TileShape.Square.Value,
-                        terrainValue: Terrain.Water.Value
+                        cubicCoordinates: cubicCoordinates,
+                        tileShape: TileShape.Square,
+                        terrain: Terrain.Water
                     ));
                 }
             }
@@ -156,11 +156,11 @@ namespace Ballast.Core.Services
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
                     octagon.Add(Tile.FromProperties(
-                        cubicOrderedTriple: CubicCoordinates.FromOffset(
+                        cubicCoordinates: CubicCoordinates.FromOffset(
                             OffsetCoordinates.FromProperties(row: row, col: col)
-                        ).ToOrderedTriple(),
-                        tileShapeValue: TileShape.Octagon.Value,
-                        terrainValue: Terrain.Water.Value
+                        ),
+                        tileShape: TileShape.Octagon,
+                        terrain: Terrain.Water
                     ));
                 }
             }
@@ -177,11 +177,11 @@ namespace Ballast.Core.Services
                 {
                     var col = (colIndex * increment) - centerOffset;
                     octagon.Add(Tile.FromProperties(
-                        cubicOrderedTriple: CubicCoordinates.FromOffset(
+                        cubicCoordinates: CubicCoordinates.FromOffset(
                             OffsetCoordinates.FromProperties(row: row, col: col)
-                        ).ToOrderedTriple(),
-                        tileShapeValue: TileShape.Octagon.Value,
-                        terrainValue: Terrain.Water.Value
+                        ),
+                        tileShape: TileShape.Octagon,
+                        terrain: Terrain.Water
                     ));
                 }
             }
@@ -199,11 +199,11 @@ namespace Ballast.Core.Services
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
                     octagon.Add(Tile.FromProperties(
-                        cubicOrderedTriple: CubicCoordinates.FromOffset(
+                        cubicCoordinates: CubicCoordinates.FromOffset(
                             OffsetCoordinates.FromProperties(row: row, col: col)
-                        ).ToOrderedTriple(),
-                        tileShapeValue: TileShape.Octagon.Value,
-                        terrainValue: Terrain.Water.Value
+                        ),
+                        tileShape: TileShape.Octagon,
+                        terrain: Terrain.Water
                     ));
                 }
             }
@@ -238,11 +238,11 @@ namespace Ballast.Core.Services
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
                     hexagon.Add(Tile.FromProperties(
-                        cubicOrderedTriple: CubicCoordinates.FromOffset(
+                        cubicCoordinates: CubicCoordinates.FromOffset(
                             OffsetCoordinates.FromProperties(row: topRow, col: col)
-                        ).ToOrderedTriple(),
-                        tileShapeValue: tileShape.Value,
-                        terrainValue: Terrain.Water.Value
+                        ),
+                        tileShape: tileShape,
+                        terrain: Terrain.Water
                     ));
                 }
             }
@@ -255,11 +255,11 @@ namespace Ballast.Core.Services
             {
                 var col = (colIndex * increment) - centerOffset;
                 hexagon.Add(Tile.FromProperties(
-                    cubicOrderedTriple: CubicCoordinates.FromOffset(
+                    cubicCoordinates: CubicCoordinates.FromOffset(
                         OffsetCoordinates.FromProperties(row: middleRow, col: col)
-                    ).ToOrderedTriple(),
-                    tileShapeValue: tileShape.Value,
-                    terrainValue: Terrain.Water.Value
+                    ),
+                    tileShape: tileShape,
+                    terrain: Terrain.Water
                 ));
             }
 
@@ -274,11 +274,11 @@ namespace Ballast.Core.Services
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
                     hexagon.Add(Tile.FromProperties(
-                        cubicOrderedTriple: CubicCoordinates.FromOffset(
+                        cubicCoordinates: CubicCoordinates.FromOffset(
                             OffsetCoordinates.FromProperties(row: bottomRow, col: col)
-                        ).ToOrderedTriple(),
-                        tileShapeValue: tileShape.Value,
-                        terrainValue: Terrain.Water.Value
+                        ),
+                        tileShape: tileShape,
+                        terrain: Terrain.Water
                     ));
                 }
             }

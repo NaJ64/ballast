@@ -5,38 +5,34 @@ namespace Ballast.Core.Models
     public class Tile : ITile 
     {
 
-        public int[] CubicOrderedTriple => CubicCoordinates.ToOrderedTriple();
-        public bool? Inactive { get; private set; }
-        public int TileShapeValue => TileShape.Value;
-        public int TerrainValue => Terrain.Value;
+        private readonly CubicCoordinates _cubicCoordinates;
+        private readonly TileShape _tileShape;
+        private readonly Terrain _terrain;
         
-        public CubicCoordinates CubicCoordinates { get; private set; }
-        public TileShape TileShape { get; private set; }
-        public Terrain Terrain { get; private set; }
+        public ICubicCoordinates CubicCoordinates => _cubicCoordinates;
+        public ITileShape TileShape => _tileShape;
+        public ITerrain Terrain => _terrain;
 
-        private Tile(int[] cubicOrderedTriple, int tileShapeValue, int terrainValue, bool? inactive = null)
+        private Tile(ICubicCoordinates cubicCoordinates, ITileShape tileShape, ITerrain terrain)
         {
-            CubicCoordinates = CubicCoordinates.FromOrderedTriple(cubicOrderedTriple);
-            TileShape = Models.TileShape.FromValue(tileShapeValue);
-            Terrain = Terrain.FromValue(terrainValue);
-            Inactive = inactive ?? false;
+            _cubicCoordinates = Models.CubicCoordinates.FromObject(cubicCoordinates);
+            _tileShape = Models.TileShape.FromObject(tileShape);
+            _terrain = Models.Terrain.FromObject(terrain);
         }
 
         private Tile(ITile state) : this(
-            cubicOrderedTriple: state.CubicOrderedTriple,
-            tileShapeValue: state.TileShapeValue,
-            terrainValue: state.TerrainValue,
-            inactive: state.Inactive
+            cubicCoordinates: state.CubicCoordinates,
+            tileShape: state.TileShape,
+            terrain: state.Terrain
         ) { }
 
         public static Tile FromObject(ITile state) => new Tile(state);
 
-        public static Tile FromProperties(int[] cubicOrderedTriple, int tileShapeValue, int terrainValue, bool? inactive = null) => 
+        public static Tile FromProperties(ICubicCoordinates cubicCoordinates, ITileShape tileShape, ITerrain terrain) => 
             new Tile(
-                cubicOrderedTriple: cubicOrderedTriple,
-                tileShapeValue: tileShapeValue,
-                terrainValue: terrainValue,
-                inactive: inactive
+                cubicCoordinates: cubicCoordinates,
+                tileShape: tileShape,
+                terrain: terrain
             );
 
     }

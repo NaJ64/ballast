@@ -1,8 +1,7 @@
 import { injectable, inject } from 'inversify';
 import * as signalR from '@aspnet/signalr';
-import { IGame, Game, IGameService, GameStateChangedEvent, IVesselMoveRequest } from 'ballast-core';
+import { IGame, Game, IGameService, GameStateChangedEvent, IVesselMoveRequest, IEventBus } from 'ballast-core';
 import { TYPES_BALLAST } from '../../ioc/types';
-import { IEventBus } from '../../messaging/event-bus';
 import { ISignalRServiceOptions } from './signalr-service-options';
 import { SignalRServiceBase } from './signalr-service-base';
 import { IGameClientService } from '../game-client-service';

@@ -17,9 +17,9 @@ namespace Ballast.Core.Models
 
         private Game(Guid id, IBoard board, IEnumerable<IVessel> vessels)
         {
-            Id = id;
             _board = Models.Board.FromObject(board);
             _vessels = vessels.Select(x => Vessel.FromObject(x));
+            Id = id;
         }
         
         private Game(IGame state): this(

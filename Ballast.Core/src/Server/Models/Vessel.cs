@@ -6,24 +6,25 @@ namespace Ballast.Core.Models
     public class Vessel : IVessel
     {
 
-        public Guid Id { get; private set; }
-        public int[] CubicOrderedTriple => CubicCoordinates.ToOrderedTriple();
-        public CubicCoordinates CubicCoordinates { get; private set; }
+        private readonly CubicCoordinates _cubicCoordinates;
 
-        private Vessel(Guid id, int[] cubicOrderedTriple)
+        public Guid Id { get; private set; }
+        public ICubicCoordinates CubicCoordinates => _cubicCoordinates;
+
+        private Vessel(Guid id, ICubicCoordinates cubicCoordinates)
         {
+            _cubicCoordinates = Models.CubicCoordinates.FromObject(cubicCoordinates);
             Id = id;
-            CubicCoordinates = CubicCoordinates.FromOrderedTriple(cubicOrderedTriple);
         }
 
         private Vessel(IVessel state) : this(
             id: state.Id,
-            cubicOrderedTriple: state.CubicOrderedTriple
+            cubicCoordinates: state.CubicCoordinates
         ) {}
 
-        public static Vessel FromProperties(Guid id, int[] cubicOrderedTriple) => new Vessel(
+        public static Vessel FromProperties(Guid id, ICubicCoordinates cubicCoordinates) => new Vessel(
             id: id,
-            cubicOrderedTriple: cubicOrderedTriple
+            cubicCoordinates: cubicCoordinates
         );
 
         public static Vessel FromObject(IVessel state) => new Vessel(state);

@@ -4,7 +4,7 @@ import { GameStateChangedEvent } from 'ballast-core';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { RenderingContext } from '../rendering/rendering-context';
 import { RenderingMiddleware } from '../rendering/rendering-middleware';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 
 export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
 

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { injectable, inject } from 'inversify';
 import { IDisposable } from 'ballast-core';
 import { TYPES_BALLAST } from '../ioc/types';
-import { IEventBus } from '../messaging/event-bus';
+import { IEventBus } from 'ballast-core';
 import { BallastViewport } from '../app/ballast-viewport';
 import { RenderingContext } from '../rendering/rendering-context';
 import { PerspectiveTracker } from '../input/perspective-tracker';
