@@ -1,4 +1,4 @@
-import { EventBase } from '../../event';
+import { EventBase } from '../../event-base';
 import { IChatMessage } from '../../../value-objects';
 
 export class ChatMessageSentEvent extends EventBase {

@@ -43,24 +43,24 @@ export class LocalEventBus implements IEventBus {
         this.subscriptions.clear();
     }
 
-    public async publishAsync<TEvent extends IEvent>(event: TEvent): Promise<void> {
+    public async publishAsync<TEvent extends IEvent>(evt: TEvent): Promise<void> {
         // Get all subscribers for the current event key
-        let subscriptions = this.getSubscriptions<TEvent>(event.id);
+        let subscriptions = this.getSubscriptions<TEvent>(evt.id);
         // Loop through the subscribers
         for(let subscription of subscriptions) {
             // invoke the handler(s)
-            await subscription.asyncHandler(event);
+            await subscription.asyncHandler(evt);
         }
     }
     
-    public subscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (event: TEvent) => Promise<void>) {
+    public subscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (evt: TEvent) => Promise<void>) {
         // Get all subscribers for the current event key
         let subscriptions = this.getSubscriptions<TEvent>(key);
         // Add a new handler
         subscriptions.push({ key: key, asyncHandler: asyncHandler });
     }
     
-    public unsubscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (event: TEvent) => Promise<void>) {
+    public unsubscribe<TEvent extends IEvent>(key: Symbol, asyncHandler: (evt: TEvent) => Promise<void>) {
         // Get all subscribers for the current event key
         let subscriptions = this.getSubscriptions<TEvent>(key);
         // Find an index to remove where subscription.handler has reference equality
