@@ -1,5 +1,6 @@
-import 'jest';
 import 'reflect-metadata';
+
+import 'jest';
 import * as uuid from 'uuid';
 import { BoardType } from '../models/board-type';
 import { TileShape } from '../models/tile-shape';

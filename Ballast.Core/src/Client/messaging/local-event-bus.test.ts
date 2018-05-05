@@ -1,5 +1,6 @@
-import 'jest';
 import 'reflect-metadata';
+
+import 'jest';
 import { IEvent } from './event';
 import { IEventBus } from './event-bus';
 import { LocalEventBus } from './local-event-bus';

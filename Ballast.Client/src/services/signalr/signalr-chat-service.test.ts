@@ -1,6 +1,7 @@
+import 'reflect-metadata';
+
 import { IChatService, IEventBus } from 'ballast-core';
 import 'jest';
-import 'reflect-metadata';
 import { LocalEventBus } from '../../messaging/local-event-bus';
 import { SignalRChatService } from './signalr-chat-service';
 
