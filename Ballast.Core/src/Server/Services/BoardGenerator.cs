@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Ballast.Core.Services
 {
-    public class BoardGenerator
+    public class BoardGenerator : IBoardGenerator
     {
 
         public Board CreateBoard(

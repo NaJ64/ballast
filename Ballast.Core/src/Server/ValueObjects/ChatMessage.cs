@@ -1,8 +1,9 @@
+using Ballast.Core.ValueObjects.Interfaces;
 using System;
 
 namespace Ballast.Core.ValueObjects
 {
-    public class ChatMessage
+    public class ChatMessage : IChatMessage
     {
         public string From { get; set; }
         public string Channel { get; set; }
