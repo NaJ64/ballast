@@ -1,4 +1,4 @@
-import { ICubicCoordinates, CubicCoordinates } from "./cubic-coordinates";
+import { CubicCoordinates, ICubicCoordinates } from "./cubic-coordinates";
 
 export interface IVessel {
     id: string;

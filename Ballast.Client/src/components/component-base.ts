@@ -1,11 +1,9 @@
-import * as THREE from 'three';
-import { injectable, inject } from 'inversify';
-import { IDisposable } from 'ballast-core';
-import { TYPES_BALLAST } from '../ioc/types';
-import { IEventBus } from 'ballast-core';
+import { IDisposable, IEventBus } from 'ballast-core';
+import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
-import { RenderingContext } from '../rendering/rendering-context';
 import { PerspectiveTracker } from '../input/perspective-tracker';
+import { TYPES_BALLAST } from '../ioc/types';
+import { RenderingContext } from '../rendering/rendering-context';
 
 @injectable()
 export abstract class ComponentBase implements IDisposable {

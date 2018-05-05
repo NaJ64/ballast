@@ -1,10 +1,8 @@
-import * as THREE from 'three';
+import { GameStateChangedEvent, IEventBus } from 'ballast-core';
 import { injectable } from 'inversify';
-import { GameStateChangedEvent } from 'ballast-core';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { RenderingContext } from '../rendering/rendering-context';
 import { RenderingMiddleware } from '../rendering/rendering-middleware';
-import { IEventBus } from 'ballast-core';
 
 export type RenderingStep = (renderingContext: RenderingContext, next: () => void) => void;
 

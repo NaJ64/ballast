@@ -1,13 +1,12 @@
+import { Board, CubicCoordinates, Game, IEventBus, Tile, TileShape } from 'ballast-core';
+import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
-import { injectable, inject } from 'inversify';
-import { TYPES_BALLAST } from '../ioc/types';
-import { ComponentBase } from './component-base';
-import { RenderingContext } from '../rendering/rendering-context';
-import { RenderingConstants } from '../rendering/rendering-constants';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from 'ballast-core';
 import { PerspectiveTracker } from '../input/perspective-tracker';
-import { Game, Board, Tile, CubicCoordinates, TileShape } from 'ballast-core';
+import { TYPES_BALLAST } from '../ioc/types';
+import { RenderingConstants } from '../rendering/rendering-constants';
+import { RenderingContext } from '../rendering/rendering-context';
+import { ComponentBase } from './component-base';
 
 @injectable()
 export class BoardComponent extends ComponentBase {

@@ -1,6 +1,4 @@
-import { BallastViewport } from '../app/ballast-viewport';
 import { IDisposable } from 'ballast-core';
-import { IEventBus } from 'ballast-core';
 
 const ENTER: number = 13;
 const SHIFT: number = 16;

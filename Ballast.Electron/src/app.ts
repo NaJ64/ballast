@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+
 import { BallastBootstrapper } from 'ballast-client';
 
 let server = 'https://ballast.azurewebsites.net'

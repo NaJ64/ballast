@@ -1,5 +1,5 @@
-import { IChatMessage } from '../value-objects';
 import { IDisposable } from '../interfaces/disposable';
+import { IChatMessage } from '../value-objects';
 
 export interface IChatService extends IDisposable {
 

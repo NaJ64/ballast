@@ -1,4 +1,3 @@
-import { injectable } from 'inversify';
 import { IDisposable } from '../interfaces/disposable';
 import { IEvent } from './event';
 
@@ -17,14 +16,14 @@ export interface IEventBus extends IDisposable {
      * Publishes an event to all subscribers for the specified event type
      * 
      * Event type is determined by the "id" property of the event being published
-     * @param event
+     * @param evt
      * The event to publish
      */
-    publishAsync<TEvent extends IEvent>(event: TEvent): Promise<void>;
+    publishAsync<TEvent extends IEvent>(evt: TEvent): Promise<void>;
 
     /**
      * Registers a new event subscription for the specified event type
-     * @param event
+     * @param type
      * A symbol uniquely identifying the event
      * @param handler
      * A new handler to be invoked when a new event is published
@@ -33,7 +32,7 @@ export interface IEventBus extends IDisposable {
 
     /**
      * Removes the event subscription for the specified event type
-     * @param event
+     * @param type
      * A symbol uniquely identifying the event
      * @param handler
      * An existing handler for the current event

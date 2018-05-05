@@ -8,7 +8,7 @@ namespace Ballast.Core.Models
     public class TileShape : StaticListTypeBase<TileShape>, ITileShape
     {
 
-        public static TileShape Square = new TileShape(
+        public readonly static TileShape Square = new TileShape(
             value: 0,
             name: "Square",
             doubleIncrement: true,
@@ -18,7 +18,7 @@ namespace Ballast.Core.Models
             hasDirectionEast: true
         );
 
-        public static TileShape Octagon = new TileShape(
+        public readonly static TileShape Octagon = new TileShape(
             value: 1,
             name: "Octagon",
             doubleIncrement: true,
@@ -32,7 +32,7 @@ namespace Ballast.Core.Models
             hasDirectionSouthEast: true
         );
 
-        public static TileShape Hexagon = new TileShape(
+        public readonly static TileShape Hexagon = new TileShape(
             value: 2,
             name: "Hexagon",
             applyHexRowScaling: true,
@@ -44,7 +44,7 @@ namespace Ballast.Core.Models
             hasDirectionSouthEast: true
         );
 
-        public static TileShape Circle = new TileShape(
+        public readonly static TileShape Circle = new TileShape(
             value: 3,
             name: "Circle",
             applyHexRowScaling: true,

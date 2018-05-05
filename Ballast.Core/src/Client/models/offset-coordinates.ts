@@ -1,5 +1,5 @@
-import { IAxialCoordinates, AxialCoordinates } from './axial-coordinates';
-import { ICubicCoordinates, CubicCoordinates } from './cubic-coordinates';
+import { AxialCoordinates, IAxialCoordinates } from './axial-coordinates';
+import { CubicCoordinates, ICubicCoordinates } from './cubic-coordinates';
 
 export interface IOffsetCoordinates  {
     col: number;

@@ -1,27 +1,26 @@
+import { IEventBus } from 'ballast-core';
 import { Container } from 'inversify';
-import { IChatClientService } from '../services/chat-client-service';
-import { IGameClientService } from '../services/game-client-service';
-import { TYPES_BALLAST } from './types';
 import { BallastBootstrapper } from '../app/ballast-bootstrapper';
 import { BallastClient } from '../app/ballast-client';
 import { BallastViewport } from '../app/ballast-viewport';
-import { IEventBus } from 'ballast-core';
-import { LocalEventBus } from '../messaging/local-event-bus';
 import { BoardComponent } from '../components/board';
 import { CameraComponent } from '../components/camera';
 import { ChatComponent } from '../components/chat';
 import { GameComponent } from '../components/game';
 import { HudComponent } from '../components/hud';
-import { MenuComponent} from '../components/menu';
+import { MenuComponent } from '../components/menu';
 import { RootComponent } from '../components/root';
 import { SignInComponent } from '../components/sign-in';
 import { WorldComponent } from '../components/world';
-import { RenderingContext } from '../rendering/rendering-context';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { PerspectiveTracker } from '../input/perspective-tracker';
-import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
+import { RenderingContext } from '../rendering/rendering-context';
+import { IChatClientService } from '../services/chat-client-service';
+import { IGameClientService } from '../services/game-client-service';
 import { SignalRChatService } from '../services/signalr/signalr-chat-service';
 import { SignalRGameService } from '../services/signalr/signalr-game-service';
+import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
+import { TYPES_BALLAST } from './types';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);

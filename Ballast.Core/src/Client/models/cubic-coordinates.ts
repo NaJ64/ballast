@@ -1,4 +1,4 @@
-import { IAxialCoordinates, AxialCoordinates } from './axial-coordinates';
+import { AxialCoordinates, IAxialCoordinates } from './axial-coordinates';
 import { IOffsetCoordinates, OffsetCoordinates } from './offset-coordinates';
 
 export interface ICubicCoordinates extends IAxialCoordinates {

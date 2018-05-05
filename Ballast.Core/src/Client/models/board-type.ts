@@ -1,4 +1,3 @@
-
 export interface IBoardType { 
     value: number;
     name: string;

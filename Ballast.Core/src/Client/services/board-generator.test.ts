@@ -1,10 +1,10 @@
-import 'jest';
 import 'reflect-metadata';
+
+import 'jest';
 import * as uuid from 'uuid';
-import { BoardGenerator } from './board-generator';
-import { Board } from '../models/board';
 import { BoardType } from '../models/board-type';
 import { TileShape } from '../models/tile-shape';
+import { BoardGenerator } from './board-generator';
 
 // Rectangle of squares
 let boardGenerator = new BoardGenerator();

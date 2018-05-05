@@ -1,11 +1,10 @@
-import { IBoard, Board } from '../models/board';
-import { IBoardType, BoardType } from '../models/board-type';
+import { Board, IBoard } from '../models/board';
+import { BoardType, IBoardType } from '../models/board-type';
+import { CubicCoordinates } from '../models/cubic-coordinates';
+import { OffsetCoordinates } from '../models/offset-coordinates';
+import { Terrain } from '../models/terrain';
 import { ITile, Tile } from '../models/tile';
 import { ITileShape, TileShape } from '../models/tile-shape';
-import { IAxialCoordinates, AxialCoordinates } from '../models/axial-coordinates';
-import { ICubicCoordinates, CubicCoordinates } from '../models/cubic-coordinates';
-import { IOffsetCoordinates, OffsetCoordinates} from '../models/offset-coordinates';
-import { ITerrain, Terrain } from '../models/terrain';
 
 export interface IBoardGenerator {
     createBoard(        

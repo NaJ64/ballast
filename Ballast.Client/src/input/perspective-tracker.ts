@@ -1,5 +1,5 @@
+import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
-import { injectable, inject } from 'inversify';
 import { TYPES_BALLAST } from '../ioc/types';
 import { RenderingConstants } from "../rendering/rendering-constants";
 import { RenderingContext } from "../rendering/rendering-context";
