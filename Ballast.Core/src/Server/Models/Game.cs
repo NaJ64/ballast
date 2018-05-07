@@ -1,4 +1,3 @@
-using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +34,6 @@ namespace Ballast.Core.Models
             board: board,
             vessels: vessels
         );
-
+        
     }
 }

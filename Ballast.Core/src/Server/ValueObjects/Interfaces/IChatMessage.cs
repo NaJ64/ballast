@@ -1,4 +1,4 @@
-namespace Ballast.Core.ValueObjects.Interfaces
+namespace Ballast.Core.ValueObjects
 {
     public interface IChatMessage
     {

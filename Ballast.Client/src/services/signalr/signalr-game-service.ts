@@ -1,5 +1,5 @@
 import * as signalR from '@aspnet/signalr';
-import { Game, GameStateChangedEvent, IEventBus, IGame, IVesselMoveRequest } from 'ballast-core';
+import { Game, GameStateChangedEvent, IEventBus, IGame, IVesselMoveRequest, ICreateVesselOptions, ITileShape } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { TYPES_BALLAST } from '../../ioc/types';
 import { IGameClientService } from '../game-client-service';
@@ -36,13 +36,6 @@ export class SignalRGameService extends SignalRServiceBase implements IGameClien
         this.updateGameStateAsync(update); // Fire and forget
     }
 
-    public async moveVesselAsync(request: IVesselMoveRequest): Promise<void> {
-        if (!this.isConnected) {
-            await this.connectAsync();
-        }
-        await this.invokeOnHubAsync('moveVessel', request);
-    }
-
     public async updateGameStateAsync(update: IGame) {
         if (!this.isConnected) {
             await this.connectAsync();
@@ -51,5 +44,31 @@ export class SignalRGameService extends SignalRServiceBase implements IGameClien
         let gameStateChanged = new GameStateChangedEvent(game);
         await this.eventBus.publishAsync(gameStateChanged);
     }
+
+    public async moveVesselAsync(request: IVesselMoveRequest): Promise<void> {
+        if (!this.isConnected) {
+            await this.connectAsync();
+        }
+        await this.invokeOnHubAsync('moveVessel', request);
+    }
+
+    public createNewGameAsync(vesselOptions: ICreateVesselOptions, boardSize?: number, boardShape?: ITileShape): Promise<void>;
+    public createNewGameAsync(vesselOptions: ICreateVesselOptions[], boardSize?: number, boardShape?: ITileShape): Promise<void>;
+    public async createNewGameAsync(vesselOptions: ICreateVesselOptions | ICreateVesselOptions[], boardSize?: number, boardShape?: ITileShape): Promise<void> {
+        let vesselOptionsArray: ICreateVesselOptions[];
+        if (Array.isArray(vesselOptions)) {
+            vesselOptionsArray = vesselOptions;
+        } else {
+            vesselOptionsArray = [vesselOptions];
+        }
+        let params = [
+            vesselOptionsArray,
+            boardSize || null,
+            boardShape || null
+        ];
+        await this.invokeOnHubAsync('createNewGame', params);
+    }
+
+
 
 }

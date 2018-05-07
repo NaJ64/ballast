@@ -1,5 +1,3 @@
-using Ballast.Core.Models.Interfaces;
-
 namespace Ballast.Core.Models
 {
     public class Tile : ITile 

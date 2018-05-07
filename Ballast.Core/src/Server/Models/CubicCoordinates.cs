@@ -1,4 +1,3 @@
-using Ballast.Core.Models.Interfaces;
 using System;
 
 namespace Ballast.Core.Models

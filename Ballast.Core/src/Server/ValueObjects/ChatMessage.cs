@@ -1,4 +1,4 @@
-using Ballast.Core.ValueObjects.Interfaces;
+using Ballast.Core.ValueObjects;
 using System;
 
 namespace Ballast.Core.ValueObjects

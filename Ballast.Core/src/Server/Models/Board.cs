@@ -1,4 +1,3 @@
-using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +39,16 @@ namespace Ballast.Core.Models
             tiles:tiles,
             tileShape: tileShape
         );
+
+        public ICubicCoordinates GetRandomPassableCoordinates()
+        {
+            var passables = _tiles.Where(x => x.Terrain.Passable);
+            var index = new Random().Next(1, passables.Count());
+            return passables.ElementAt(index).CubicCoordinates;
+        }
+
+        public ITile GetTileFromCoordinates(ICubicCoordinates cubicCoordinates) =>
+            _tiles.SingleOrDefault(x => x.CubicCoordinates.Equals(cubicCoordinates));
 
     }
 }

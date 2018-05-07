@@ -1,5 +1,4 @@
 using Ballast.Core.Models;
-using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

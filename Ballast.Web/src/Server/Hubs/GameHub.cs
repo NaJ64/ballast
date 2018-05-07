@@ -9,7 +9,7 @@ namespace Ballast.Server.Hubs
 {
     public class GameHub : Hub
     {
-        public Task MoveVessel(VesselMoveRequest vesselMoveRequest)
+        public Task MoveVesselAsync(VesselMoveRequest vesselMoveRequest)
         {
             var gameId = Guid.NewGuid();
             var boardGenerator = new BoardGenerator();
