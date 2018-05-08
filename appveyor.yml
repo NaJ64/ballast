@@ -39,8 +39,8 @@ test_script:
   # restore packages for our unit tests
   - cmd: cd ./Ballast.Core
   - cmd: npm test
-  - cmd: cd ../Ballast.Client
-  - cmd: npm test
+  # - cmd: cd ../Ballast.Client
+  # - cmd: npm test
   - cmd: cd ../
 on_finish :
   # any cleanup in here
