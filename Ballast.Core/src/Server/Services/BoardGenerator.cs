@@ -1,13 +1,14 @@
 using Ballast.Core.Models;
-using Ballast.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ballast.Core.Services
 {
-    public class BoardGenerator
+    public class BoardGenerator : IBoardGenerator
     {
+
+        public void Dispose() { }
 
         public Board CreateBoard(
             Guid id,

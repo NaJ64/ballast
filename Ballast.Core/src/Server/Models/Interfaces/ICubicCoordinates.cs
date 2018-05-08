@@ -1,4 +1,4 @@
-namespace Ballast.Core.Models.Interfaces
+namespace Ballast.Core.Models
 {
     public interface ICubicCoordinates : IAxialCoordinates
     {

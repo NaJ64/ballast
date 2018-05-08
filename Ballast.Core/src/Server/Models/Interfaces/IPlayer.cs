@@ -2,9 +2,9 @@ using System;
 
 namespace Ballast.Core.Models 
 {
-    public interface IVessel 
+    public interface IPlayer 
     {
         Guid Id { get; }
-        ICubicCoordinates CubicCoordinates { get; }
+        string Name { get; }
     }
 }

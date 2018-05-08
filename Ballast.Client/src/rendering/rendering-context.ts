@@ -11,6 +11,7 @@ export class RenderingContext {
     public readonly camera: THREE.PerspectiveCamera;
     public readonly cameraPivot: THREE.Object3D;
     public readonly clock: THREE.Clock;
+    public userName?: string;
 
     public get game() {
         return this.currentGame;

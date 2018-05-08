@@ -11,6 +11,10 @@
     <Content Remove="node_modules\**\*" />
     <Content Remove="src\Client\**\*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0-preview2-final" />
+  </ItemGroup>
   
   <PropertyGroup>
     <DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**</DefaultItemExcludes>

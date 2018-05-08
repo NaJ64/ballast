@@ -1,4 +1,4 @@
-﻿using Ballast.Server.Hubs;
+﻿using Ballast.Web.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Ballast.Server
+namespace Ballast.Web
 {
     public class Startup
     {
@@ -38,6 +38,8 @@ namespace Ballast.Server
             //     .AllowAnyMethod()
             //     .AllowCredentials()
             // ));
+
+            services.AddBallast();
 
             services.AddSignalR();
             

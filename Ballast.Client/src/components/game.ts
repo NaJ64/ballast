@@ -1,4 +1,4 @@
-import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel } from 'ballast-core';
+import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel, TileShape, ICreateVesselOptions } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import * as uuid from 'uuid';
@@ -253,17 +253,20 @@ export class GameComponent extends ComponentBase {
 
         let test = (renderingContext.keyboard.shiftIsDown());
         if (test) {
-            let sourceTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
-            let targetTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
-            let timestamp = new Date(Date.now());
-            this.gameService.moveVesselAsync({
-                gameId: uuid.v4(),
-                boardId: uuid.v4(),
-                vesselId: uuid.v4(),
-                timestampText: timestamp.toISOString(),
-                sourceOrderedTriple: sourceTile,
-                targetOrderedTriple: targetTile
-            });
+            // let sourceTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
+            // let targetTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
+            // let timestamp = new Date(Date.now());
+            // this.gameService.moveVesselAsync({
+            //     gameId: uuid.v4(),
+            //     boardId: uuid.v4(),
+            //     vesselId: uuid.v4(),
+            //     timestampText: timestamp.toISOString(),
+            //     sourceOrderedTriple: sourceTile,
+            //     targetOrderedTriple: targetTile
+            // });
+            this.gameService.createNewGameAsync({
+                requestedName: 'Red October'
+            } as ICreateVesselOptions, 5, TileShape.Square);
         }
 
     }

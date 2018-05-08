@@ -1,5 +1,3 @@
-using Ballast.Core.Models.Interfaces;
-
 namespace Ballast.Core.Models
 {
     public abstract class StaticListTypeBase<TSelf> : IStaticListType where TSelf : StaticListTypeBase<TSelf>

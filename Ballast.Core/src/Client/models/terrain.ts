@@ -6,9 +6,9 @@ export interface ITerrain {
 
 export class Terrain implements ITerrain {
 
-    public static Water: Terrain = new Terrain({ value: 0, name: 'Water', passable: false });
-    public static Coast: Terrain = new Terrain({ value: 1, name: 'Coast', passable: true });
-    public static Land: Terrain = new Terrain({ value: 2, name: 'Land', passable: true });
+    public static Water: Terrain = new Terrain({ value: 0, name: 'Water', passable: true });
+    public static Coast: Terrain = new Terrain({ value: 1, name: 'Coast', passable: false });
+    public static Land: Terrain = new Terrain({ value: 2, name: 'Land', passable: false });
     
     public readonly value: number;
     public readonly name: string;

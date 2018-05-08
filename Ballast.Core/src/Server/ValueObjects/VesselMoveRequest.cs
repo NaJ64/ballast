@@ -2,7 +2,7 @@ using System;
 
 namespace Ballast.Core.ValueObjects
 {
-    public class VesselMoveRequest
+    public class VesselMoveRequest : IVesselMoveRequest
     {
         public Guid GameId { get; set; }
         public Guid BoardId { get; set; }

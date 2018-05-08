@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ballast.Core.Models.Interfaces
+namespace Ballast.Core.Models
 {
     public interface IBoard
     {

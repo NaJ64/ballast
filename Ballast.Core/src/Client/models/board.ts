@@ -1,4 +1,5 @@
 import { BoardType, IBoardType } from './board-type';
+import { CubicCoordinates, ICubicCoordinates } from './cubic-coordinates';
 import { ITile, Tile } from './tile';
 import { ITileShape, TileShape } from './tile-shape';
 
@@ -45,6 +46,17 @@ export class Board implements IBoard {
             let item: [string, Tile] = [ tile.cubicCoordinates.toOrderedTriple().toLocaleString(), tile ];
             yield item;
         }
+    }
+
+    public getRandomPassableCoordinates(): ICubicCoordinates {
+        let passables = this.tiles
+            .filter(x => !!x.terrain.passable);
+        let index = Math.floor(Math.random() * Math.floor(passables.length));
+        return passables[index].cubicCoordinates;
+    }
+
+    public getTileFromCoordinates(cubicCoordinates: ICubicCoordinates) {
+        this.tiles.find(x => x.cubicCoordinates.equals(cubicCoordinates));
     }
 
 }
