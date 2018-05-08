@@ -17,9 +17,20 @@ namespace Ballast.Web.Hubs
             _chatServiceFactory = chatServiceFactory;
         }
 
+        public async override Task OnConnectedAsync()
+        {
+            await base.OnConnectedAsync();
+        }
+
+        public async override Task OnDisconnectedAsync(Exception exception)
+        {
+            await base.OnDisconnectedAsync(exception);
+        }
+
         public Task SendMessage(Guid invocationId, ChatMessage message)
         {
             return Clients.All.SendAsync("messageReceived", message);    
         }
+        
     }
 }

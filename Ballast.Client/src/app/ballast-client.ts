@@ -63,7 +63,7 @@ export class BallastClient implements IDisposable {
         let vessel2Id = uuid.v4();
         let vessel2Coords = (<Tile>board.getTile([-2, 2, 0])).cubicCoordinates;
         let vessel2 = Vessel.fromObject({ id: vessel2Id, cubicCoordinates: vessel2Coords });
-        let game = Game.fromObject({ id: gameId, board: board, vessels: [vessel1, vessel2] });
+        let game = Game.fromObject({ id: gameId, board: board, vessels: [vessel1, vessel2], players: [] });
         // Trigger new game state changed event
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);
         await eventBus.publishAsync(new GameStateChangedEvent(game));

@@ -206,10 +206,16 @@ export class ChatComponent extends ComponentBase {
     }
 
     private async sendMessageFromTextAsync(text: string) {
+        let game = this.viewport.getRenderingContext().game;
+        let gameId: string | null = null;
+        if (game) {
+            gameId = game.id;
+        }
         let channel = 'global';
         let from = 'anonymous';
         let timestamp = new Date(Date.now());
         await this.chatService.sendMessageAsync({
+            gameId: gameId,
             channel: channel,
             from: from,
             timestampText: timestamp.toISOString(),

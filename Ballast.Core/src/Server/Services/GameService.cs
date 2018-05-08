@@ -31,8 +31,17 @@ namespace Ballast.Core.Services
             _games.Clear();
         }
 
-        public Task<IGame> CreateNewGameAsync(ICreateVesselOptions vesselOptions, int? boardSize = null, ITileShape boardShape = null) =>
-            CreateNewGameAsync(new List<ICreateVesselOptions>() { vesselOptions }, boardSize, boardShape);
+        public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
+
+        public Task RemoveGameAsync(Guid gameId)
+        {
+            if (_games.ContainsKey(gameId))
+                _games.Remove(gameId);
+            return Task.CompletedTask;
+        }
+
+        public async Task<IGame> CreateNewGameAsync(ICreateVesselOptions vesselOptions, int? boardSize = null, ITileShape boardShape = null) =>
+            await CreateNewGameAsync(new List<ICreateVesselOptions>() { vesselOptions }, boardSize, boardShape);
         
         public async Task<IGame> CreateNewGameAsync(IEnumerable<ICreateVesselOptions> vesselOptions, int? boardSize = null, ITileShape boardShape = null)
         {
@@ -51,7 +60,8 @@ namespace Ballast.Core.Services
                 );
 
             var vessels = CreateVessels(vesselOptions, board);
-            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels); 
+            var players = new List<IPlayer>();
+            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players); 
             _games[gameId] = game;
             return await Task.FromResult(game);
         }

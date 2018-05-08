@@ -7,7 +7,7 @@ namespace Ballast.Core.Models
     {
         Guid Id { get; }
         IBoard Board { get; }
-        IEnumerable<IVessel> Vessels { get;}
-
+        IEnumerable<IVessel> Vessels { get; }
+        IEnumerable<IPlayer> Players { get; }
     }
 }
