@@ -7,9 +7,9 @@ namespace Ballast.Core.Models
     public class Terrain : StaticListTypeBase<Terrain>, ITerrain
     {
     
-        public readonly static Terrain Water = new Terrain(value: 0, name: "Water", passable: false );
-        public readonly static Terrain Coast = new Terrain(value: 1, name: "Coast", passable: true );
-        public readonly static Terrain Land = new Terrain(value: 2, name: "Land", passable: true );
+        public readonly static Terrain Water = new Terrain(value: 0, name: "Water", passable: true );
+        public readonly static Terrain Coast = new Terrain(value: 1, name: "Coast", passable: false );
+        public readonly static Terrain Land = new Terrain(value: 2, name: "Land", passable: false );
     
         public bool Passable { get; private set; }
 

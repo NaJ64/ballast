@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Ballast.Core.Services
 {
-    public interface IGameService
+    public interface IGameService : IDisposable
     {
         Task MoveVesselAsync(IVesselMoveRequest request);
         Task<IGame> CreateNewGameAsync(ICreateVesselOptions vesselOptions, int? boardSize = null, ITileShape boardShape = null);

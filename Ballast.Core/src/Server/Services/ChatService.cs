@@ -6,6 +6,7 @@ namespace Ballast.Core.Services
 {
     public class ChatService : IChatService
     {
+        public void Dispose() { }
         public Task SendMessageAsync(IChatMessage message) 
         {
             throw new NotImplementedException();

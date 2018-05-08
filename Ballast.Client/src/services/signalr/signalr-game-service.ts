@@ -20,11 +20,11 @@ export class SignalRGameService extends SignalRServiceBase implements IGameClien
         return 'gamehub';
     }
 
-    protected subscribe(hubConnection: signalR.HubConnection) {
+    protected afterSubscribe(hubConnection: signalR.HubConnection) {
         hubConnection.on('gameStateChanged', this.onGameStateChanged.bind(this));
     }
 
-    protected unsubscribe(hubConnection: signalR.HubConnection) {
+    protected beforeUnsubscribe(hubConnection: signalR.HubConnection) {
         hubConnection.off('gameStateChanged');
     }
 
@@ -57,9 +57,11 @@ export class SignalRGameService extends SignalRServiceBase implements IGameClien
         let args = [
             vesselOptionsArray,
             boardSize || null,
-            boardShape || null
+            boardShape && boardShape.value || null
         ];
-        return await this.createInvocationAsync<IGame>('createNewGame', ...args);
+        let newGame = await this.createInvocationAsync<IGame>('createNewGame', ...args);
+        this.eventBus.publishAsync(new GameStateChangedEvent(Game.fromObject(newGame)));
+        return newGame;
     }
 
 }

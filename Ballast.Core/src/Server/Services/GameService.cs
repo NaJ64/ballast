@@ -26,6 +26,11 @@ namespace Ballast.Core.Services
             _games = new Dictionary<Guid, Game>();
         }
 
+        public void Dispose() 
+        { 
+            _games.Clear();
+        }
+
         public Task<IGame> CreateNewGameAsync(ICreateVesselOptions vesselOptions, int? boardSize = null, ITileShape boardShape = null) =>
             CreateNewGameAsync(new List<ICreateVesselOptions>() { vesselOptions }, boardSize, boardShape);
         

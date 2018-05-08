@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Ballast.Core.Services
 {
-    public interface IBoardGenerator
+    public interface IBoardGenerator : IDisposable
     {
         Board CreateBoard(
             Guid id,

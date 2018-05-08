@@ -56,7 +56,7 @@ export class BallastClient implements IDisposable {
         // Create a test game / board
         let gameId = uuid.v4();
         let boardGenerator = new BoardGenerator();
-        let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Octagon, 3);
+        let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Hexagon, 3);
         let vessel1Id = uuid.v4();
         let vessel1Coords = (<Tile>board.getTile([0, 0, 0])).cubicCoordinates;
         let vessel1 = Vessel.fromObject({ id: vessel1Id, cubicCoordinates: vessel1Coords });

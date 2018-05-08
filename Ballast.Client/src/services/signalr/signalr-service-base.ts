@@ -23,8 +23,8 @@ export abstract class SignalRServiceBase implements IDisposable {
     protected hubConnection?: signalR.HubConnection;
 
     protected abstract get hubName(): string;
-    protected subscribe(hubConnection: signalR.HubConnection): void { }
-    protected unsubscribe(hubConnection: signalR.HubConnection): void { }
+    protected afterSubscribe(hubConnection: signalR.HubConnection): void { }
+    protected beforeUnsubscribe(hubConnection: signalR.HubConnection): void { }
     protected onDispose() { }
 
     public constructor(
@@ -76,6 +76,36 @@ export abstract class SignalRServiceBase implements IDisposable {
 
     protected registerHubMethod(method: string) {
         this.methods.set(method, method);
+        this.registerCallbackForHubMethod(method);
+    }
+
+    private registerCallbackForHubMethod(methodName: string) {
+        // Do not proceed unless are have a hub connection
+        if (!this.hubConnection) {
+            return;
+        }
+        // Register fulfillment (callback) subscription for the current method
+        let callback = `${methodName}Callback`;
+        this.subscriptions.set(callback, callback);
+        this.hubConnection.on(callback, (invocationId: string, reason?: null | string, value?: null | any) => {
+            // Get the list of all currently running/live method invocations
+            let currentInvocations = this.getInvocationList(methodName);
+            let foundInvocation = currentInvocations.get(invocationId);
+            if (!foundInvocation) {
+                return;
+            }
+            let resolve = foundInvocation["0"] as SignalRServiceInvocationResolver<any>;
+            let reject = foundInvocation["1"] as SignalRServiceInvocationRejector;
+            if (!!reason) {
+                // Reject the promise
+                reject(reason);
+            } else {
+                // Resolve the promise
+                resolve(value || undefined);
+            }
+            // Remove from the list of invocations (promise has reached fulfilled state)
+            currentInvocations.delete(invocationId);
+        });
     }
 
     protected resubscribeToHubEvents() {
@@ -86,50 +116,21 @@ export abstract class SignalRServiceBase implements IDisposable {
             throw new Error('Cannot (re)subscribe to hub events without a hub connection');
         }
         // Iterate through registered hub methods
-        this.methods.forEach((methodName) => {
-            // Do not proceed unless are have a hub connection
-            if (!this.hubConnection) {
-                return;
-            }
-            // Register fulfillment (callback) subscription for the current method
-            let callback = `${methodName}Callback`;
-            this.subscriptions.set(callback, callback);
-            this.hubConnection.on(callback, (invocationId: string, reason?: null | string, value?: null | any) => {
-                // Get the list of all currently running/live method invocations
-                let currentInvocations = this.getInvocationList(methodName);
-                let foundInvocation = currentInvocations.get(invocationId);
-                if (!foundInvocation) {
-                    return;
-                }
-                let resolve = foundInvocation["0"] as SignalRServiceInvocationResolver<any>;
-                let reject = foundInvocation["1"] as SignalRServiceInvocationRejector;
-                if (!!reason) {
-                    // Reject the promise
-                    reject(reason);
-                } else {
-                    // Resolve the promise
-                    resolve(value || undefined);
-                }
-                // Remove from the list of invocations (promise has reached fulfilled state)
-                currentInvocations.delete(invocationId);
-            });
-        });
-        if (this.hubConnection) {
-            this.subscribe(this.hubConnection);
+        this.methods.forEach(methodName => this.registerCallbackForHubMethod(methodName));
+        if (this.isConnected) {
+            this.afterSubscribe(<signalR.HubConnection>this.hubConnection);
         }
     }
 
     protected unsubscribeFromHubEvents() {
         if (this.isConnected) {
+            this.beforeUnsubscribe(<signalR.HubConnection>this.hubConnection);
             let subscriptions = Array.from(this.subscriptions.keys());
             for (let subscription of subscriptions) {
                 (<signalR.HubConnection>this.hubConnection).off(subscription);
             }
         }
         this.subscriptions.clear();
-        if (this.hubConnection) {
-            this.unsubscribe(this.hubConnection);
-        }
     }
 
     protected createInvocationId() {

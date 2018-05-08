@@ -8,6 +8,8 @@ namespace Ballast.Core.Services
     public class BoardGenerator : IBoardGenerator
     {
 
+        public void Dispose() { }
+
         public Board CreateBoard(
             Guid id,
             IBoardType boardType,

@@ -22,11 +22,11 @@ export class SignalRChatService extends SignalRServiceBase implements IChatClien
         return 'chathub';
     }
 
-    protected subscribe(hubConnection: signalR.HubConnection) {
+    protected afterSubscribe(hubConnection: signalR.HubConnection) {
         hubConnection.on('messageReceived', this.onMessageReceived.bind(this));
     }
 
-    protected unsubscribe(hubConnection: signalR.HubConnection) {
+    protected beforeUnsubscribe(hubConnection: signalR.HubConnection) {
         hubConnection.off('messageReceived');
     }
 

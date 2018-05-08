@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Net;
 
-namespace Ballast.Server
+namespace Ballast.Web
 {
     public static class KestrelConfiguration
     {
