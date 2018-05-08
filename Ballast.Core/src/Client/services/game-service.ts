@@ -26,7 +26,7 @@ export interface IGameService {
         vesselOptions: ICreateVesselOptions,
         boardSize: number | undefined,
         boardShape: ITileShape | undefined
-    ): Promise<void>;
+    ): Promise<IGame>;
 
     /**
      * Requests a new game using the specified options
@@ -43,6 +43,6 @@ export interface IGameService {
         vesselOptions: ICreateVesselOptions[],
         boardSize: number | undefined,
         boardShape: ITileShape | undefined
-    ): Promise<void>;
+    ): Promise<IGame>;
 
 }

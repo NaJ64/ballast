@@ -9,37 +9,30 @@ import { ISignalRServiceOptions } from './signalr-service-options';
 @injectable()
 export class SignalRGameService extends SignalRServiceBase implements IGameClientService {
 
-    private sender?: string;
-    private gameStateChangedHandler: (update: IGame) => void;
-
     public constructor(
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRServiceOptions
     ) {
         super(eventBus, serviceOptionsFactory);
-        this.gameStateChangedHandler = this.onGameStateChanged.bind(this);
     }
 
-    protected getHubName() {
+    protected get hubName() {
         return 'gamehub';
     }
 
-    protected subscribeToHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.on('gameStateChanged', this.gameStateChangedHandler);
+    protected subscribe(hubConnection: signalR.HubConnection) {
+        hubConnection.on('gameStateChanged', this.onGameStateChanged.bind(this));
     }
 
-    protected unsubscribeFromHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.off('gameStateChanged', this.gameStateChangedHandler);
+    protected unsubscribe(hubConnection: signalR.HubConnection) {
+        hubConnection.off('gameStateChanged');
     }
 
     private onGameStateChanged(update: IGame) {
-        this.updateGameStateAsync(update); // Fire and forget
+        this.changeGameStateAsync(update); // Fire and forget
     }
 
-    public async updateGameStateAsync(update: IGame) {
-        if (!this.isConnected) {
-            await this.connectAsync();
-        }
+    public async changeGameStateAsync(update: IGame) {
         let game = Game.fromObject(update);
         let gameStateChanged = new GameStateChangedEvent(game);
         await this.eventBus.publishAsync(gameStateChanged);
@@ -49,26 +42,24 @@ export class SignalRGameService extends SignalRServiceBase implements IGameClien
         if (!this.isConnected) {
             await this.connectAsync();
         }
-        await this.invokeOnHubAsync('moveVessel', request);
+        await (<signalR.HubConnection>this.hubConnection).invoke('moveVessel', request);
     }
 
-    public createNewGameAsync(vesselOptions: ICreateVesselOptions, boardSize?: number, boardShape?: ITileShape): Promise<void>;
-    public createNewGameAsync(vesselOptions: ICreateVesselOptions[], boardSize?: number, boardShape?: ITileShape): Promise<void>;
-    public async createNewGameAsync(vesselOptions: ICreateVesselOptions | ICreateVesselOptions[], boardSize?: number, boardShape?: ITileShape): Promise<void> {
+    public createNewGameAsync(vesselOptions: ICreateVesselOptions, boardSize?: number, boardShape?: ITileShape): Promise<IGame>;
+    public createNewGameAsync(vesselOptions: ICreateVesselOptions[], boardSize?: number, boardShape?: ITileShape): Promise<IGame>;
+    public async createNewGameAsync(vesselOptions: ICreateVesselOptions | ICreateVesselOptions[], boardSize?: number, boardShape?: ITileShape): Promise<IGame> {
         let vesselOptionsArray: ICreateVesselOptions[];
         if (Array.isArray(vesselOptions)) {
             vesselOptionsArray = vesselOptions;
         } else {
             vesselOptionsArray = [vesselOptions];
         }
-        let params = [
+        let args = [
             vesselOptionsArray,
             boardSize || null,
             boardShape || null
         ];
-        await this.invokeOnHubAsync('createNewGame', params);
+        return await this.createInvocationAsync<IGame>('createNewGame', ...args);
     }
-
-
 
 }

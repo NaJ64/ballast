@@ -10,26 +10,24 @@ import { ISignalRServiceOptions } from './signalr-service-options';
 export class SignalRChatService extends SignalRServiceBase implements IChatClientService {
 
     private sender?: string;
-    private messageReceivedHandler: (message: IChatMessage) => void;
 
     public constructor(
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRServiceOptions
     ) {
         super(eventBus, serviceOptionsFactory);
-        this.messageReceivedHandler = this.onMessageReceived.bind(this);
     }
 
-    protected getHubName() {
+    protected get hubName() {
         return 'chathub';
     }
 
-    protected subscribeToHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.on('messageReceived', this.messageReceivedHandler);
+    protected subscribe(hubConnection: signalR.HubConnection) {
+        hubConnection.on('messageReceived', this.onMessageReceived.bind(this));
     }
 
-    protected unsubscribeFromHubEvents(hubConnection: signalR.HubConnection) {
-        hubConnection.off('messageReceived', this.messageReceivedHandler);
+    protected unsubscribe(hubConnection: signalR.HubConnection) {
+        hubConnection.off('messageReceived');
     }
 
     private onMessageReceived(message: IChatMessage) {
@@ -37,10 +35,7 @@ export class SignalRChatService extends SignalRServiceBase implements IChatClien
     }
 
     public async sendMessageAsync(message: IChatMessage): Promise<void> {
-        if (!this.isConnected) {
-            await this.connectAsync();
-        }
-        await this.invokeOnHubAsync('sendMessage', message);
+        this.createInvocationAsync('sendMessage', message); // Fire and forget
         let chatMessageSent = new ChatMessageSentEvent(message);
         await this.eventBus.publishAsync(chatMessageSent);
     }
