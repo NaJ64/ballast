@@ -6,5 +6,7 @@ namespace Ballast.Core.Models
     {
         Guid Id { get; }
         ICubicCoordinates CubicCoordinates { get; }
+        IPlayer Captain { get; }
+        IPlayer Radioman { get; }
     }
 }

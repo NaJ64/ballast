@@ -19,7 +19,14 @@ namespace Ballast.Web.Hubs
         public GameHub(IEventBus eventBus, Func<IGameService> gameServiceFactory) : base(eventBus)
         {
             _gameService = gameServiceFactory();
-            _defaultGame = _gameService.CreateNewGameAsync(new List<CreateVesselOptions>()).GetAwaiter().GetResult(); // Create a default (global) game
+            var gameOptions = new CreateGameOptions() 
+            {
+                VesselOptions = new CreateVesselOptions[0]
+            };
+            _defaultGame = _gameService // Create a default (global) game
+                .CreateGameAsync(gameOptions)
+                .GetAwaiter()
+                .GetResult();
         }
 
         public async override Task OnConnectedAsync()
@@ -51,7 +58,13 @@ namespace Ballast.Web.Hubs
             try
             {
                 var useBoardShape = boardShape != null ? TileShape.FromValue((int)boardShape) : null;
-                var value = await _gameService.CreateNewGameAsync(vesselOptions, boardSize, useBoardShape);
+                var createGameOptions = new CreateGameOptions()
+                {
+                    VesselOptions = vesselOptions,
+                    BoardSize = boardSize,
+                    BoardShapeValue = useBoardShape.Value
+                };
+                var value = await _gameService.CreateGameAsync(createGameOptions);
                 await ResolveValueAsync(Clients.Caller, nameof(CreateNewGame), invocationId, value);
             }
             catch (Exception ex)
@@ -72,8 +85,6 @@ namespace Ballast.Web.Hubs
                 await RejectAsync(Clients.Caller, nameof(GetAllGames), invocationId, ex.Message);
             }
         }
-
-        public async Task RemoveGame(Guid gameId) => await _gameService.RemoveGameAsync(gameId);
 
     }
 }

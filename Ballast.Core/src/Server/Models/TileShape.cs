@@ -9,7 +9,7 @@ namespace Ballast.Core.Models
 
         public readonly static TileShape Square = new TileShape(
             value: 0,
-            name: "Square",
+            name: nameof(Square),
             doubleIncrement: true,
             hasDirectionNorth: true,
             hasDirectionSouth: true,
@@ -19,7 +19,7 @@ namespace Ballast.Core.Models
 
         public readonly static TileShape Octagon = new TileShape(
             value: 1,
-            name: "Octagon",
+            name: nameof(Octagon),
             doubleIncrement: true,
             hasDirectionNorth: true,
             hasDirectionSouth: true,
@@ -33,7 +33,7 @@ namespace Ballast.Core.Models
 
         public readonly static TileShape Hexagon = new TileShape(
             value: 2,
-            name: "Hexagon",
+            name: nameof(Hexagon),
             applyHexRowScaling: true,
             hasDirectionWest: true,
             hasDirectionEast: true,
@@ -45,7 +45,7 @@ namespace Ballast.Core.Models
 
         public readonly static TileShape Circle = new TileShape(
             value: 3,
-            name: "Circle",
+            name: nameof(Circle),
             applyHexRowScaling: true,
             hasDirectionWest: true,
             hasDirectionEast: true,

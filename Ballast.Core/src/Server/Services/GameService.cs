@@ -33,24 +33,23 @@ namespace Ballast.Core.Services
 
         public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
 
-        public Task RemoveGameAsync(Guid gameId)
+        public async Task<IGame> GetGameAsync(Guid gameId)
         {
             if (_games.ContainsKey(gameId))
-                _games.Remove(gameId);
-            return Task.CompletedTask;
+                return await Task.FromResult(_games[gameId]);
+            return null;
         }
 
-        public async Task<IGame> CreateNewGameAsync(ICreateVesselOptions vesselOptions, int? boardSize = null, ITileShape boardShape = null) =>
-            await CreateNewGameAsync(new List<ICreateVesselOptions>() { vesselOptions }, boardSize, boardShape);
-        
-        public async Task<IGame> CreateNewGameAsync(IEnumerable<ICreateVesselOptions> vesselOptions, int? boardSize = null, ITileShape boardShape = null)
+        public async Task<IGame> CreateGameAsync(CreateGameOptions options)
         {
             var gameId = Guid.NewGuid();
-            var useBoardSize = boardSize ?? DEFAULT_BOARD_SIZE;
+            var useBoardSize = options.BoardSize ?? DEFAULT_BOARD_SIZE;
             if (useBoardSize % 2 == 0)
                 useBoardSize++;
             var useBoardType = DEFAULT_BOARD_TYPE;
-            var useTileShape = boardShape ?? DEFAULT_TILE_SHAPE;
+            var useTileShape = (options.BoardShapeValue != null) 
+                ? Models.TileShape.FromValue((int)options.BoardShapeValue)
+                : DEFAULT_TILE_SHAPE;
 
             var board = _boardGenerator.CreateBoard(
                 id: Guid.NewGuid(), 
@@ -59,14 +58,33 @@ namespace Ballast.Core.Services
                 columnsOrSideLength: useBoardSize
                 );
 
-            var vessels = CreateVessels(vesselOptions, board);
-            var players = new List<IPlayer>();
+            var player1Id = Guid.NewGuid();
+            var player1Name = "Test Player 1";
+            var players = new List<Player>()
+            {
+                Player.FromProperties(
+                    id: player1Id,
+                    name: player1Name
+                )
+            };
+            var vessels = CreateVessels(options.VesselOptions, board, players[0], players[0]);
             var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players); 
             _games[gameId] = game;
             return await Task.FromResult(game);
         }
 
-        private IEnumerable<Vessel> CreateVessels(IEnumerable<ICreateVesselOptions> createVesselOptions, Board board)
+        public Task<IGame> StartGameAsync(Guid gameId) => throw new NotImplementedException();
+
+        public Task<IGame> EndGameAsync(Guid gameId) => throw new NotImplementedException();
+
+        public Task DeleteGameAsync(Guid gameId)
+        {
+            if (_games.ContainsKey(gameId))
+                _games.Remove(gameId);
+            return Task.CompletedTask;
+        }
+
+        private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board, Player captain, Player radioman)
         {
             var vessels = new List<Vessel>();
             foreach(var vesselOptions in createVesselOptions) 
@@ -77,17 +95,29 @@ namespace Ballast.Core.Services
                     : board.GetRandomPassableCoordinates();
                 var vessel = Vessel.FromProperties(
                     id: vesselId,
-                    cubicCoordinates: startingCoordinates
+                    cubicCoordinates: startingCoordinates,
+                    captain: captain,
+                    radioman: radioman
                 );
                 vessels.Add(vessel);
             }
             return vessels;
         }
 
-        public Task MoveVesselAsync(IVesselMoveRequest request)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<IGame> AddPlayerToGameAsync(AddPlayerOptions options) => throw new NotImplementedException();
+
+        public Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options) => throw new NotImplementedException();
+
+        public Task<IVessel> AddPlayerToVesselAsync(AddPlayerOptions options) => throw new NotImplementedException();
+
+        public Task<IVessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options) => throw new NotImplementedException();
+
+        public Task<IVessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options) => throw new NotImplementedException();
+
+        public Task<IVessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) => throw new NotImplementedException();
+
+
+        public Task MoveVesselAsync(VesselMoveRequest request) => throw new NotImplementedException();
         
     }
 }
