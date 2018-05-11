@@ -116,8 +116,153 @@ namespace Ballast.Core.Services
 
         public Task<IVessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
+        public Task MoveVesselAsync(VesselMoveRequest request) 
+        {
+            // Locate game matching id from request
+            var gameId = request.GameId;
+            if (gameId == default(Guid))
+                throw new ArgumentNullException(nameof(request.GameId));
+            var game = _games.ContainsKey(gameId) ? _games[gameId] : null;
+            if (game == null)
+                throw new KeyNotFoundException($"Could not locate game with id '{gameId}'");
 
-        public Task MoveVesselAsync(VesselMoveRequest request) => throw new NotImplementedException();
-        
+            // Make sure we have a valid board
+            var board = game?.Board != null ? Board.FromObject(game.Board) : null;
+            if (board == null)
+                throw new KeyNotFoundException($"Game id '{gameId}' contains invalid board data!");
+
+            // Locate vessel matching id from request
+            var vesselId = request.VesselId;
+            if (vesselId == default(Guid))
+                throw new ArgumentNullException(nameof(request.VesselId));
+            var foundVessel = game.Vessels.SingleOrDefault(x => x.Id == vesselId);
+            if (foundVessel == null)
+                throw new KeyNotFoundException($"Could not locate vessel with id '{vesselId}'");
+            var vessel = Vessel.FromObject(foundVessel);
+
+            // Derive current coordinates from request
+            var requestStartCoordinates = CubicCoordinates.FromOrderedTriple(request.SourceOrderedTriple);
+            var actualStartCoordinates = vessel.CubicCoordinates;
+
+            // Make sure starting position matches current known position for vessel
+            if (requestStartCoordinates.Equals(actualStartCoordinates))
+                throw new InvalidOperationException("Requested vessel movement(s) must originate from current vessel position");
+            var requestStartTile = Tile.FromObject(board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x)));
+
+            // Determine if request specifies only cardinal directions or an actual set of tile coordinates
+            ICubicCoordinates targetCoordinates = null;
+            var doubleIncrement = game.Board.TileShape.DoubleIncrement ?? false;
+            var useCardinalDirections = !request.TargetOrderedTriple.Any();
+            if (!useCardinalDirections) 
+            {
+                // Get actual cubic coordinates
+                var requestTargetCoordinates = CubicCoordinates.FromOrderedTriple(request.TargetOrderedTriple);
+                // Verify that the target coordinates are one movement away from the current coordinates
+                var totalUnitDistance = GetTotalUnitDistance(
+                    doubleIncrement,
+                    actualStartCoordinates,
+                    requestTargetCoordinates
+                );
+                // Can't move multiple units and also must move at least 1 unit
+                if (totalUnitDistance != 1)
+                    throw new InvalidOperationException("Vessel movement must target a tile that is 1 unit away from current position");
+                // Use target coordinates from request
+                targetCoordinates = requestTargetCoordinates;
+            }
+            else 
+            {
+                // Get directions/movements
+                var north = request.Direction?.North ?? false;
+                var south = request.Direction?.South ?? false;
+                var west = request.Direction?.West ?? false;
+                var east = request.Direction?.East ?? false;
+                // Determine movement based on cardinal direction(s)
+                bool hasMovement = north || south || west || east;
+                // If no movement (must move at least 1 unit), throw error
+                if (!hasMovement)
+                    throw new InvalidOperationException("Vessel movement must target a tile that is 1 unit away from current position");
+                // Make sure we don't have any offsetting movements
+                if ((north && south) | (west && east))
+                    throw new InvalidOperationException("Vessel movement may not specify opposite cardinal directions at the same time");
+                // Calculate combined (diagonal) directions
+                var northWest = north && west;
+                var southWest = south && west;
+                var northEast = north && east;
+                var southEast = south && east;
+                // After assigning diagonals, reduce "due-____" directions
+                north = north && (!northWest && !northEast);
+                south = south && (!southWest && !southEast);
+                west = west && (!northWest && !southWest);
+                east = east && (!northEast && !southEast);
+                // Make sure the movement direction(s) are allowed by the current board/tile shape
+                if (north && (!board?.TileShape?.HasDirectionNorth ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit due North movement(s)");
+                if (south && (!board?.TileShape?.HasDirectionSouth ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit due South movement(s)");
+                if (west && (!board?.TileShape?.HasDirectionWest ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit due West movement(s)");
+                if (east && (!board?.TileShape?.HasDirectionEast ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit due East movement(s)");
+                if (northWest && (!board?.TileShape?.HasDirectionNorthWest ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit North-West movement(s)");
+                if (southWest && (!board?.TileShape?.HasDirectionSouthWest ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit South-West movement(s)");
+                if (northEast && (!board?.TileShape?.HasDirectionNorthEast ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit North-East movement(s)");
+                if (southEast && (!board?.TileShape?.HasDirectionSouthEast ?? false))
+                    throw new InvalidOperationException("Current board/tile shape does not permit South East movement(s)");
+                // Get the adjacent tile
+                Tile targetTile = null;
+                if (north)
+                    targetTile = GetNorthTile(board, requestStartCoordinates);
+                else if (south)
+                    targetTile = GetSouthTile(board, requestStartCoordinates);
+                else if (west)
+                    targetTile = GetWestTile(board, requestStartCoordinates);
+                else if (east)
+                    targetTile = GetEastTile(board, requestStartCoordinates);
+                else if (northWest)
+                    targetTile = GetNorthWestTile(board, requestStartCoordinates);
+                else if (southWest)
+                    targetTile = GetSouthWestTile(board, requestStartCoordinates);
+                else if (northEast)
+                    targetTile = GetNorthEastTile(board, requestStartCoordinates);
+                else if (southEast)
+                    targetTile = GetSouthEastTile(board, requestStartCoordinates);
+                // Make sure we obtained a valid tile, otherwise keep the vessel where it already is 
+                if (targetTile == null)
+                    targetTile = requestStartTile;
+                // Get new coordinates
+                targetCoordinates = targetTile.CubicCoordinates;
+            }
+            // Move the vessel to the new coordinates
+            game.UpdateVesselCoordinates(vesselId, targetCoordinates);
+            // TODO:  Do something with the new target coordinates
+
+            // Finished
+            return Task.CompletedTask;
+        }
+
+        private int GetTotalUnitDistance(bool doubleIncrement, ICubicCoordinates fromTileCoordinates, ICubicCoordinates toTileCoordinates)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Tile GetNorthTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetSouthTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetWestTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetEastTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetNorthWestTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetSouthWestTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetNorthEastTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
+        private Tile GetSouthEastTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+
     }
 }

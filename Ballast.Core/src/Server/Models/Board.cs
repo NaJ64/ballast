@@ -7,9 +7,9 @@ namespace Ballast.Core.Models
     public class Board : IBoard
     {
 
-        private readonly IEnumerable<Tile> _tiles;
-        private readonly BoardType _boardType;
-        private readonly TileShape _tileShape;
+        private IEnumerable<Tile> _tiles;
+        private BoardType _boardType;
+        private TileShape _tileShape;
 
         public Guid Id { get; private set; }
         public IEnumerable<ITile> Tiles => _tiles;

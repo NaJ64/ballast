@@ -39,6 +39,14 @@ namespace Ballast.Core.Models
             vessels: vessels,
             players: players
         );
+
+        public ICubicCoordinates UpdateVesselCoordinates(Guid vesselId, ICubicCoordinates cubicCoordinates)
+        {
+            var foundVessel = this._vessels.SingleOrDefault(x => x.Id == vesselId);
+            if (foundVessel == null)
+                throw new KeyNotFoundException($"Could not locate vessel with id '{vesselId}'");
+            return foundVessel.UpdateCoordinates(cubicCoordinates);
+        }
         
     }
 }

@@ -4,6 +4,7 @@ export * from './board-type';
 export * from './cubic-coordinates';
 export * from './game';
 export * from './offset-coordinates';
+export * from './player';
 export * from './tile';
 export * from './tile-shape';
 export * from './vessel';

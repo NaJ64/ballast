@@ -5,9 +5,9 @@ namespace Ballast.Core.Models
     public class Vessel : IVessel
     {
 
-        private readonly CubicCoordinates _cubicCoordinates;
-        private readonly Player _captain;
-        private readonly Player _radioman;
+        private CubicCoordinates _cubicCoordinates;
+        private Player _captain;
+        private Player _radioman;
 
         public Guid Id { get; private set; }
         public ICubicCoordinates CubicCoordinates => _cubicCoordinates;
@@ -37,6 +37,13 @@ namespace Ballast.Core.Models
         );
 
         public static Vessel FromObject(IVessel state) => new Vessel(state);
+
+        public ICubicCoordinates UpdateCoordinates(ICubicCoordinates cubicCoordinates)
+        {
+            _cubicCoordinates = Models.CubicCoordinates.FromObject(cubicCoordinates);
+            return CubicCoordinates;
+        }
+
 
     }
 }

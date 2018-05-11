@@ -1,4 +1,4 @@
-import { BoardGenerator, BoardType, Game, GameStateChangedEvent, IDisposable, IEventBus, LocalEventBus, Tile, TileShape, Vessel } from 'ballast-core';
+import { BoardGenerator, BoardType, Game, GameStateChangedEvent, IDisposable, IEventBus, LocalEventBus, Tile, TileShape, Vessel, IPlayer } from 'ballast-core';
 import { Container, injectable } from 'inversify';
 import * as uuid from 'uuid';
 import { RootComponent } from '../components/root';
@@ -59,10 +59,13 @@ export class BallastClient implements IDisposable {
         let board = boardGenerator.createBoard(gameId, BoardType.RegularPolygon, TileShape.Hexagon, 3);
         let vessel1Id = uuid.v4();
         let vessel1Coords = (<Tile>board.getTile([0, 0, 0])).cubicCoordinates;
-        let vessel1 = Vessel.fromObject({ id: vessel1Id, cubicCoordinates: vessel1Coords });
+        let players: IPlayer[] = [];
+        players.push({ id: uuid.v4(), name: 'player1' });
+        players.push({ id: uuid.v4(), name: 'player2' });
+        let vessel1 = Vessel.fromObject({ id: vessel1Id, cubicCoordinates: vessel1Coords, captain: players[0], radioman: players[0] });
         let vessel2Id = uuid.v4();
         let vessel2Coords = (<Tile>board.getTile([-2, 2, 0])).cubicCoordinates;
-        let vessel2 = Vessel.fromObject({ id: vessel2Id, cubicCoordinates: vessel2Coords });
+        let vessel2 = Vessel.fromObject({ id: vessel2Id, cubicCoordinates: vessel2Coords, captain: players[1], radioman: players[1] });
         let game = Game.fromObject({ id: gameId, board: board, vessels: [vessel1, vessel2], players: [] });
         // Trigger new game state changed event
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);
