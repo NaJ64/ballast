@@ -95,6 +95,36 @@ namespace Ballast.Core.Models
             return new int[] { X, Y, Z };
         }
 
+        public void AddXSubtractY(int units)
+        {
+            // Right
+        }
+
+        public void AddXSubtractZ(int units)
+        {
+            // Right + Up
+        }
+
+        public void AddYSubtractX(int units)
+        {
+            // Left
+        }
+
+        public void AddYSubtractZ(int units)
+        {
+            // Left + Up
+        }
+
+        public void AddZSubtractX(int units)
+        {
+            // Left + Down
+        }
+
+        public void AddZSubtractY(int units)
+        {
+            // Right + Down
+        }
+
     }
 
 }

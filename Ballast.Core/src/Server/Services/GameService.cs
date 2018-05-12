@@ -235,9 +235,9 @@ namespace Ballast.Core.Services
                 // Get new coordinates
                 targetCoordinates = targetTile.CubicCoordinates;
             }
+
             // Move the vessel to the new coordinates
             game.UpdateVesselCoordinates(vesselId, targetCoordinates);
-            // TODO:  Do something with the new target coordinates
 
             // Finished
             return Task.CompletedTask;
@@ -245,10 +245,25 @@ namespace Ballast.Core.Services
 
         private int GetTotalUnitDistance(bool doubleIncrement, ICubicCoordinates fromTileCoordinates, ICubicCoordinates toTileCoordinates)
         {
-            throw new NotImplementedException();
+            var x1 = fromTileCoordinates.X;
+            var y1 = fromTileCoordinates.Y;
+            var z1 = fromTileCoordinates.Z;
+            var x2 = toTileCoordinates.X;
+            var y2 = toTileCoordinates.Y;
+            var z2 = toTileCoordinates.Z;
+            var distance = Math.Max(Math.Max(x2 - x1, y2 - y1), z2 - z1);
+            if (doubleIncrement)
+               return Convert.ToInt32(distance / 2);
+            return distance;
         }
 
-        private Tile GetNorthTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetNorthTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            if (!doubleIncrement)
+                throw new Exception("Grid coordinate system does not support movement north without double-incrementation");
+            throw new NotImplementedException();
+        }
 
         private Tile GetSouthTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
 
