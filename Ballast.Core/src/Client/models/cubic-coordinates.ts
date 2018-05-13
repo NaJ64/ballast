@@ -86,4 +86,63 @@ export class CubicCoordinates implements ICubicCoordinates {
         return [this.x, this.y, this.z];
     }
 
+    public addXSubtractY(units: number){
+        // Right
+        return CubicCoordinates.fromObject({
+            x: this.x + units,
+            y: this.y - units,
+            z: this.z
+        });
+    }
+
+    public addXSubtractZ(units: number)
+    {
+        // Right + Up
+        return CubicCoordinates.fromObject({
+            x: this.x + units,
+            y: this.y,
+            z: this.z - units
+        });
+    }
+
+    public addYSubtractX(units: number)
+    {
+        // Left
+        return CubicCoordinates.fromObject({
+            x: this.x - units,
+            y: this.y + units,
+            z: this.z
+        });
+    }
+
+    public addYSubtractZ(units: number)
+    {
+        // Left + Up
+        return CubicCoordinates.fromObject({
+            x: this.x,
+            y: this.y + units,
+            z: this.z - units
+        });
+    }
+
+    public addZSubtractX(units: number)
+    {
+        // Left + Down
+        return CubicCoordinates.fromObject({
+            x: this.x - units,
+            y: this.y,
+            z: this.z + units
+        });
+    }
+
+    public addZSubtractY(units: number)
+    {
+        // Right + Down
+        return CubicCoordinates.fromObject({
+            x: this.x,
+            y: this.y - units,
+            z: this.z + units
+        });
+    }
+
 }

@@ -11,7 +11,7 @@ export interface IVessel {
 export class Vessel implements IVessel {
 
     public readonly id: string;
-    public readonly cubicCoordinates: CubicCoordinates;
+    public cubicCoordinates: CubicCoordinates;
     public readonly captain: Player;
     public readonly radioman: Player;
 
@@ -24,6 +24,12 @@ export class Vessel implements IVessel {
 
     public static fromObject(object: IVessel) {
         return new Vessel(object);
+    }
+    
+    public updateCoordinates(cubicCoordinates: ICubicCoordinates)
+    {
+        this.cubicCoordinates = CubicCoordinates.fromObject(cubicCoordinates);
+        return this.cubicCoordinates;
     }
 
 }

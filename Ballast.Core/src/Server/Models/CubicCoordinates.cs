@@ -98,49 +98,61 @@ namespace Ballast.Core.Models
         public CubicCoordinates AddXSubtractY(int units)
         {
             // Right
-            X += units;
-            Y -= units;
-            return this;
+            return CubicCoordinates.FromProperties(
+                x: X + units,
+                y: Y - units,
+                z: Z
+            );
         }
 
         public CubicCoordinates AddXSubtractZ(int units)
         {
             // Right + Up
-            X += units;
-            Z -= units;
-            return this;
+            return CubicCoordinates.FromProperties(
+                x: X + units,
+                y: Y,
+                z: Z - units
+            );
         }
 
         public CubicCoordinates AddYSubtractX(int units)
         {
             // Left
-            Y += units;
-            X -= units;
-            return this;
+            return CubicCoordinates.FromProperties(
+                x: X - units,
+                y: Y + units,
+                z: Z
+            );
         }
 
         public CubicCoordinates AddYSubtractZ(int units)
         {
             // Left + Up
-            Y += units;
-            Z -= units;
-            return this;
+            return CubicCoordinates.FromProperties(
+                x: X,
+                y: Y + units,
+                z: Z - units
+            );
         }
 
         public CubicCoordinates AddZSubtractX(int units)
         {
-            // Left + Down
-            Z += units;
-            X -= units;
-            return this;
+            // Left + Down            
+            return CubicCoordinates.FromProperties(
+                x: X - units,
+                y: Y,
+                z: Z + units
+            );
         }
 
         public CubicCoordinates AddZSubtractY(int units)
         {
             // Right + Down
-            Z += units;
-            Y -= units;
-            return this;
+            return CubicCoordinates.FromProperties(
+                x: X,
+                y: Y - units,
+                z: Z + units
+            );
         }
 
     }

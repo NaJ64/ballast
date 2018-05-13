@@ -1,6 +1,7 @@
 import { Board, IBoard } from './board';
 import { IPlayer, Player } from './player';
 import { IVessel, Vessel } from './vessel';
+import { CubicCoordinates, ICubicCoordinates } from './cubic-coordinates';
 
 export interface IGame {
     id: string;
@@ -25,6 +26,14 @@ export class Game implements IGame {
 
     public static fromObject(object: IGame) {
         return new Game(object);
+    }
+    
+    public updateVesselCoordinates(vesselId: string, cubicCoordinates: ICubicCoordinates)
+    {
+        var foundVessel = this.vessels.find(x => x.id == vesselId);
+        if (!foundVessel)
+            throw new Error(`Could not locate vessel with id '${vesselId}'`);
+        return foundVessel.updateCoordinates(cubicCoordinates);
     }
 
 }
