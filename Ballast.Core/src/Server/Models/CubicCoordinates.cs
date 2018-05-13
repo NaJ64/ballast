@@ -95,34 +95,52 @@ namespace Ballast.Core.Models
             return new int[] { X, Y, Z };
         }
 
-        public void AddXSubtractY(int units)
+        public CubicCoordinates AddXSubtractY(int units)
         {
             // Right
+            X += units;
+            Y -= units;
+            return this;
         }
 
-        public void AddXSubtractZ(int units)
+        public CubicCoordinates AddXSubtractZ(int units)
         {
             // Right + Up
+            X += units;
+            Z -= units;
+            return this;
         }
 
-        public void AddYSubtractX(int units)
+        public CubicCoordinates AddYSubtractX(int units)
         {
             // Left
+            Y += units;
+            X -= units;
+            return this;
         }
 
-        public void AddYSubtractZ(int units)
+        public CubicCoordinates AddYSubtractZ(int units)
         {
             // Left + Up
+            Y += units;
+            Z -= units;
+            return this;
         }
 
-        public void AddZSubtractX(int units)
+        public CubicCoordinates AddZSubtractX(int units)
         {
             // Left + Down
+            Z += units;
+            X -= units;
+            return this;
         }
 
-        public void AddZSubtractY(int units)
+        public CubicCoordinates AddZSubtractY(int units)
         {
             // Right + Down
+            Z += units;
+            Y -= units;
+            return this;
         }
 
     }

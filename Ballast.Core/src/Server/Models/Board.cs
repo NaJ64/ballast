@@ -47,7 +47,7 @@ namespace Ballast.Core.Models
             return passables.ElementAt(index).CubicCoordinates;
         }
 
-        public ITile GetTileFromCoordinates(ICubicCoordinates cubicCoordinates) =>
+        public Tile GetTileFromCoordinates(ICubicCoordinates cubicCoordinates) =>
             _tiles.SingleOrDefault(x => x.CubicCoordinates.Equals(cubicCoordinates));
 
     }

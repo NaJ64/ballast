@@ -262,22 +262,94 @@ namespace Ballast.Core.Services
             var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
             if (!doubleIncrement)
                 throw new Exception("Grid coordinate system does not support movement north without double-incrementation");
-            throw new NotImplementedException();
+            var newCoordinates = fromTileCoordinates
+                .AddXSubtractZ(1)
+                .AddYSubtractZ(1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
         }
 
-        private Tile GetSouthTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetSouthTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            if (!doubleIncrement)
+                throw new Exception("Grid coordinate system does not support movement south without double-incrementation");
+            var newCoordinates = fromTileCoordinates
+                .AddZSubtractX(1)
+                .AddZSubtractY(1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
-        private Tile GetWestTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetWestTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            CubicCoordinates newCoordinates = fromTileCoordinates
+                .AddYSubtractX(doubleIncrement ? 2 : 1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
-        private Tile GetEastTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetEastTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            CubicCoordinates newCoordinates = fromTileCoordinates
+                .AddXSubtractY(doubleIncrement ? 2 : 1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
-        private Tile GetNorthWestTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetNorthWestTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            CubicCoordinates newCoordinates = fromTileCoordinates
+                .AddYSubtractZ(doubleIncrement ? 2 : 1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
-        private Tile GetSouthWestTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetSouthWestTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            CubicCoordinates newCoordinates = fromTileCoordinates
+                .AddZSubtractX(doubleIncrement ? 2 : 1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
-        private Tile GetNorthEastTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetNorthEastTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            CubicCoordinates newCoordinates = fromTileCoordinates
+                .AddXSubtractZ(doubleIncrement ? 2 : 1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
-        private Tile GetSouthEastTile(Board board, CubicCoordinates fromTileCoordinates) => throw new NotImplementedException();
+        private Tile GetSouthEastTile(Board board, CubicCoordinates fromTileCoordinates)
+        {
+            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            CubicCoordinates newCoordinates = fromTileCoordinates
+                .AddZSubtractY(doubleIncrement ? 2 : 1);
+            var getTile = board.GetTileFromCoordinates(newCoordinates);
+            if (getTile == null)
+                throw new Exception("No tile exists for the requested position/cordinates");
+            return getTile;
+        }
 
     }
 }
