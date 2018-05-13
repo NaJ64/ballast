@@ -67,10 +67,16 @@ namespace Ballast.Core.Messaging
         private IList<(string key, Func<TEvent, Task> asyncHandler)> GetSubscriptions<TEvent>(string key) where TEvent: IEvent
         {
             // check if the current event signature/key already exists
-            if (_subscriptions.ContainsKey(key))
-                _subscriptions[key] = new List<Func<IEvent, Task>>(); // set to new collection
+            if (!_subscriptions.ContainsKey(key))
+                _subscriptions.Add(key, new List<Func<IEvent, Task>>()); // set to new collection
             // get the subscription list
-            var subscriptionList = _subscriptions[key].Select(asyncHandler => (key, asyncHandler));
+            var subscriptionList = _subscriptions[key]
+                .Select(asyncHandler => {
+                    // Deconstruct asyncHandler
+                    Func<TEvent, Task> handler = (evt) => asyncHandler.Invoke((TEvent)evt);
+                    return (key, handler);
+                })
+                .ToList();
             // Return the subscriptions
             return (IList<(string, Func<TEvent, Task>)>)subscriptionList;
         }

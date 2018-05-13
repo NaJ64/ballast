@@ -1,4 +1,4 @@
-import { Game } from 'ballast-core';
+import { Game, IGame } from 'ballast-core';
 import * as THREE from 'three';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 
@@ -17,7 +17,7 @@ export class RenderingContext {
         return this.currentGame;
     }
 
-    private currentGame?: Game;
+    private currentGame?: IGame;
     private frameDelta: number;
 
     public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
@@ -57,7 +57,7 @@ export class RenderingContext {
         return cameraPivot;
     }
 
-    public setCurrentGame(game?: Game) {
+    public setCurrentGame(game?: IGame) {
         this.currentGame = game;
     }
 

@@ -1,4 +1,5 @@
 using Ballast.Core.Messaging;
+using Ballast.Core.Messaging.Events.Game;
 using Ballast.Core.Models;
 using Ballast.Core.ValueObjects;
 using System;
@@ -58,19 +59,12 @@ namespace Ballast.Core.Services
                 columnsOrSideLength: useBoardSize
                 );
 
-            var player1Id = Guid.NewGuid();
-            var player1Name = "Test Player 1";
-            var players = new List<Player>()
-            {
-                Player.FromProperties(
-                    id: player1Id,
-                    name: player1Name
-                )
-            };
-            var vessels = CreateVessels(options.VesselOptions, board, players[0], players[0]);
+            var players = new List<Player>();
+            var vessels = CreateVessels(options.VesselOptions, board);
             var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players); 
             _games[gameId] = game;
-            return await Task.FromResult(game);
+            await _eventBus.PublishAsync(new GameStateChangedEvent(game));
+            return game;
         }
 
         public Task<IGame> StartGameAsync(Guid gameId) => throw new NotImplementedException();
@@ -84,7 +78,7 @@ namespace Ballast.Core.Services
             return Task.CompletedTask;
         }
 
-        private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board, Player captain, Player radioman)
+        private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board)
         {
             var vessels = new List<Vessel>();
             foreach(var vesselOptions in createVesselOptions) 
@@ -96,8 +90,8 @@ namespace Ballast.Core.Services
                 var vessel = Vessel.FromProperties(
                     id: vesselId,
                     cubicCoordinates: startingCoordinates,
-                    captain: captain,
-                    radioman: radioman
+                    captain: null,
+                    radioman: null
                 );
                 vessels.Add(vessel);
             }
@@ -116,7 +110,7 @@ namespace Ballast.Core.Services
 
         public Task<IVessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
-        public Task MoveVesselAsync(VesselMoveRequest request) 
+        public async Task MoveVesselAsync(VesselMoveRequest request) 
         {
             // Locate game matching id from request
             var gameId = request.GameId;
@@ -238,9 +232,11 @@ namespace Ballast.Core.Services
 
             // Move the vessel to the new coordinates
             game.UpdateVesselCoordinates(vesselId, targetCoordinates);
+            await _eventBus.PublishAsync(new VesselStateChangedEvent(game, vessel));
 
-            // Finished
-            return Task.CompletedTask;
+            // Finished changing game state
+            await _eventBus.PublishAsync(new GameStateChangedEvent(game));
+
         }
 
         private int GetTotalUnitDistance(bool doubleIncrement, ICubicCoordinates fromTileCoordinates, ICubicCoordinates toTileCoordinates)

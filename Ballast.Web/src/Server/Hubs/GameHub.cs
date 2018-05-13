@@ -62,7 +62,7 @@ namespace Ballast.Web.Hubs
                 {
                     VesselOptions = vesselOptions,
                     BoardSize = boardSize,
-                    BoardShapeValue = useBoardShape.Value
+                    BoardShapeValue = useBoardShape?.Value
                 };
                 var value = await _gameService.CreateGameAsync(createGameOptions);
                 await ResolveValueAsync(Clients.Caller, nameof(CreateNewGame), invocationId, value);

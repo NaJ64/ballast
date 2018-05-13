@@ -2,14 +2,14 @@ import { Game, IGame } from '../../../models/game';
 import { EventBase } from '../../event-base';
 import { Vessel, IVessel } from '../../../models/vessel';
 
-export class VesselMovedEvent extends EventBase {
+export class VesselStateChangedEvent extends EventBase {
 
-    public static readonly id: Symbol = Symbol.for('VesselMovedEvent');
+    public static readonly id: Symbol = Symbol.for('VesselStateChangedEvent');
 
     private readonly vesselId: string;
 
     public get id() {
-        return VesselMovedEvent.id;
+        return VesselStateChangedEvent.id;
     }
 
     public get vessel(): IVessel {

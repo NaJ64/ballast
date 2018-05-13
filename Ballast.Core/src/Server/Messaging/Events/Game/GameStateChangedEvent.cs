@@ -7,9 +7,9 @@ namespace Ballast.Core.Messaging.Events.Game
 
         public override string Id => nameof(GameStateChangedEvent);
 
-        public readonly Models.Game Game; 
+        public readonly IGame Game; 
 
-        public GameStateChangedEvent(Models.Game game) : base() {
+        public GameStateChangedEvent(Models.Game game = null) : base() {
             Game = game;
         }
 
