@@ -38,7 +38,7 @@ namespace Ballast.Core.Services
         {
             if (_games.ContainsKey(gameId))
                 return await Task.FromResult(_games[gameId]);
-            return null;
+            throw new KeyNotFoundException($"No game found for id {gameId}");
         }
 
         public async Task<IGame> CreateGameAsync(CreateGameOptions options)
@@ -61,20 +61,46 @@ namespace Ballast.Core.Services
 
             var players = new List<Player>();
             var vessels = CreateVessels(options.VesselOptions, board);
-            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players); 
+            var createdUtc = DateTime.UtcNow;
+            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc); 
             _games[gameId] = game;
             await _eventBus.PublishAsync(new GameStateChangedEvent(game));
             return game;
         }
 
-        public Task<IGame> StartGameAsync(Guid gameId) => throw new NotImplementedException();
+        public async Task<IGame> StartGameAsync(Guid gameId) 
+        {
+            if (_games.ContainsKey(gameId))
+            {
+                var game = _games[gameId];
+                game.Start();
+                return await Task.FromResult(game);
+            }
+            throw new KeyNotFoundException($"No game found for id {gameId}");
+        }
 
-        public Task<IGame> EndGameAsync(Guid gameId) => throw new NotImplementedException();
+        public async Task<IGame> EndGameAsync(Guid gameId)
+        {
+            if (_games.ContainsKey(gameId))
+            {
+                var game = _games[gameId];
+                game.End();
+                return await Task.FromResult(game);
+            }
+            throw new KeyNotFoundException($"No game found for id {gameId}");
+        }
 
         public Task DeleteGameAsync(Guid gameId)
         {
             if (_games.ContainsKey(gameId))
+            {
+                var game = _games[gameId];
+                // if (game.StartedUtc == null) 
+                //     game.Start();
+                // if (game.EndedUtc == null) 
+                //     game.End();
                 _games.Remove(gameId);
+            }
             return Task.CompletedTask;
         }
 

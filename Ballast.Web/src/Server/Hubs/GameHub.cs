@@ -29,6 +29,12 @@ namespace Ballast.Web.Hubs
                 .GetResult();
         }
 
+        public async Task GetTestGameId(Guid invocationId) 
+        {
+            var testGameId = _defaultGame.Id;
+            await ResolveValueAsync(Clients.Caller, nameof(GetTestGameId), invocationId, testGameId);
+        }
+
         public async override Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
