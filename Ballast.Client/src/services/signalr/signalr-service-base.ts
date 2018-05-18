@@ -52,8 +52,8 @@ export abstract class SignalRServiceBase implements IDisposable {
         let options = this.serviceOptionsFactory();
         let hubName = this.hubName;
         let hub = `${options.serverUrl}/${hubName}`;
-        let connectionOptions: signalR.IHubConnectionOptions = {};
-        let connection = new signalR.HubConnection(hub, connectionOptions);
+        let connectionBuilder = new signalR.HubConnectionBuilder();
+        let connection = connectionBuilder.withUrl(hub).build();
         return connection;
     }
 
