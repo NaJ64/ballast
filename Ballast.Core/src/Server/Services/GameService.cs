@@ -32,14 +32,21 @@ namespace Ballast.Core.Services
             _games.Clear();
         }
 
-        public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
-
-        public async Task<IGame> GetGameAsync(Guid gameId)
+        private async Task<Game> RetrieveGameByIdAsync(Guid gameId)
         {
             if (_games.ContainsKey(gameId))
                 return await Task.FromResult(_games[gameId]);
             throw new KeyNotFoundException($"No game found for id {gameId}");
         }
+
+        private async Task RemoveGameByIdAsync(Guid gameId)
+        {
+            var game = await RetrieveGameByIdAsync(gameId);
+            _games.Remove(gameId);
+        }
+        public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
+
+        public async Task<IGame> GetGameAsync(Guid gameId) => await RetrieveGameByIdAsync(gameId);
 
         public async Task<IGame> CreateGameAsync(CreateGameOptions options)
         {
@@ -70,39 +77,19 @@ namespace Ballast.Core.Services
 
         public async Task<IGame> StartGameAsync(Guid gameId) 
         {
-            if (_games.ContainsKey(gameId))
-            {
-                var game = _games[gameId];
-                game.Start();
-                return await Task.FromResult(game);
-            }
-            throw new KeyNotFoundException($"No game found for id {gameId}");
+            var game = await RetrieveGameByIdAsync(gameId);
+            game.Start();
+            return game;
         }
 
         public async Task<IGame> EndGameAsync(Guid gameId)
         {
-            if (_games.ContainsKey(gameId))
-            {
-                var game = _games[gameId];
-                game.End();
-                return await Task.FromResult(game);
-            }
-            throw new KeyNotFoundException($"No game found for id {gameId}");
+            var game = await RetrieveGameByIdAsync(gameId);
+            game.End();
+            return await Task.FromResult(game);
         }
 
-        public Task DeleteGameAsync(Guid gameId)
-        {
-            if (_games.ContainsKey(gameId))
-            {
-                var game = _games[gameId];
-                // if (game.StartedUtc == null) 
-                //     game.Start();
-                // if (game.EndedUtc == null) 
-                //     game.End();
-                _games.Remove(gameId);
-            }
-            return Task.CompletedTask;
-        }
+        public async Task DeleteGameAsync(Guid gameId) => await RemoveGameByIdAsync(gameId);
 
         private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board)
         {
@@ -124,7 +111,37 @@ namespace Ballast.Core.Services
             return vessels;
         }
 
-        public Task<IGame> AddPlayerToGameAsync(AddPlayerOptions options) => throw new NotImplementedException();
+        public async Task<IGame> AddPlayerToGameAsync(AddPlayerOptions options)
+        {
+            // Locate game matching id from request
+            var gameId = options.GameId;
+            if (gameId == default(Guid))
+                throw new ArgumentNullException(nameof(options.GameId));
+            var game = await RetrieveGameByIdAsync(options.GameId);
+            // Make sure the player doesn't already exist (by matching id)
+            var playerExists = game.Players.Any(x => x.Id == options.PlayerId);
+            if (playerExists)
+                throw new ArgumentException($"Player with id {options.PlayerId} already belongs to the requested game ({options.GameId})");
+            // Create the player and add to the game
+            var player = Models.Player.FromProperties(options.PlayerId, options.PlayerName);
+            game.AddPlayer(player);
+            // If a vessel id was provided, we want to add the player onto the specified vessel as well
+            if (options.VesselId != null) 
+            {
+                var vessel = game.Vessels.FirstOrDefault(x => x.Id == options.VesselId);
+                if (vessel == null)
+                    throw new ArgumentException($"Vessel with id {options.VesselId} was not found in the requested game ({options.GameId})");
+                if (!options.VesselRoleValues.Any())
+                    throw new ArgumentNullException("options.VesselRoleValues", "Can't add player to a vessel without specifying vessel role(s)");
+                var vesselRoles = options.VesselRoleValues.Select(x => Models.VesselRole.FromValue(x));
+                foreach(var vesselRole in vesselRoles) 
+                {
+                    game.SetVesselRole(vessel.Id, vesselRole, player);
+                }
+            }
+            // Return the updated game
+            return game;
+        }
 
         public Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
@@ -142,9 +159,7 @@ namespace Ballast.Core.Services
             var gameId = request.GameId;
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(request.GameId));
-            var game = _games.ContainsKey(gameId) ? _games[gameId] : null;
-            if (game == null)
-                throw new KeyNotFoundException($"Could not locate game with id '{gameId}'");
+            var game = await RetrieveGameByIdAsync(request.GameId);
 
             // Make sure we have a valid board
             var board = game?.Board != null ? Board.FromObject(game.Board) : null;

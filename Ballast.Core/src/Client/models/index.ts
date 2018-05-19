@@ -8,3 +8,4 @@ export * from './player';
 export * from './tile';
 export * from './tile-shape';
 export * from './vessel';
+export * from './vessel-role';

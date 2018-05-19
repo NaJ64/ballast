@@ -8,8 +8,8 @@ namespace Ballast.Core.Models
     {
 
         private readonly Board _board;
-        private readonly IEnumerable<Vessel> _vessels;
-        private readonly IEnumerable<Player> _players;
+        private IList<Vessel> _vessels;
+        private IList<Player> _players;
 
         public Guid Id { get; private set; }
         public IBoard Board => _board;
@@ -30,8 +30,8 @@ namespace Ballast.Core.Models
         )
         {
             _board = Models.Board.FromObject(board);
-            _vessels = vessels.Select(x => Vessel.FromObject(x));
-            _players = players.Select(x => Player.FromObject(x));
+            _vessels = vessels.Select(x => Vessel.FromObject(x)).ToList();
+            _players = players.Select(x => Player.FromObject(x)).ToList();
             Id = id;
             CreatedUtc = createdUtc ?? DateTime.UtcNow;
             StartedUtc = startedUtc;
@@ -79,7 +79,7 @@ namespace Ballast.Core.Models
         public DateTime Start()
         {
             if (StartedUtc != null)
-                throw new InvalidOperationException("Can't re-start after it has already begun!");
+                throw new InvalidOperationException("Can't re-start game after it has already begun!");
             var startedUtc = DateTime.UtcNow;
             StartedUtc = startedUtc;
             return startedUtc;
@@ -92,6 +92,24 @@ namespace Ballast.Core.Models
             var endedUtc = DateTime.UtcNow;
             EndedUtc = endedUtc;
             return endedUtc;
+        }
+
+        public Player AddPlayer(Player player) 
+        {
+            if (player == null || player.Id == default(Guid))
+                throw new ArgumentNullException("player.Id");
+            if (_players.Any(x => x.Id == player.Id))
+                throw new ArgumentException($"Player with id {player?.Id} already exists");
+            _players.Add(player);
+            return player;
+        }
+
+        public void SetVesselRole(Guid vesselId, VesselRole vesselRole, Player player)
+        {
+            var vessel = _vessels.FirstOrDefault(x => x.Id == vesselId);
+            if (vessel == null)
+                throw new KeyNotFoundException($"Could not find vessel for id {vesselId}");
+            vessel.SetVesselRole(vesselRole, player);
         }
         
     }

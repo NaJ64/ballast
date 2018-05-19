@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Ballast.Core.Models
 {
@@ -44,6 +45,20 @@ namespace Ballast.Core.Models
             return CubicCoordinates;
         }
 
+        public void SetVesselRole(VesselRole vesselRole, Player player)
+        {
+            if (vesselRole.Equals(VesselRole.Captain))
+            {
+                _captain = player;
+                return;
+            }
+            if (vesselRole.Equals(VesselRole.Radioman))
+            {
+                _radioman = player;
+                return;
+            }
+            throw new KeyNotFoundException($"Vessel role matching value '{vesselRole.Value}' does not exist on the current vessel");
+        }
 
     }
 }

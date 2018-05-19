@@ -1,5 +1,6 @@
 import { CubicCoordinates, ICubicCoordinates } from "./cubic-coordinates";
 import { IPlayer, Player } from './player';
+import { IVesselRole, VesselRole } from './vessel-role';
 
 export interface IVessel {
     id: string;
@@ -12,8 +13,8 @@ export class Vessel implements IVessel {
 
     public readonly id: string;
     public cubicCoordinates: CubicCoordinates;
-    public readonly captain: Player;
-    public readonly radioman: Player;
+    public captain: Player;
+    public radioman: Player;
 
     private constructor(state: IVessel) {
         this.id = state.id;
@@ -30,6 +31,21 @@ export class Vessel implements IVessel {
     {
         this.cubicCoordinates = CubicCoordinates.fromObject(cubicCoordinates);
         return this.cubicCoordinates;
+    }
+    
+    public setVesselRole(vesselRole: VesselRole, player: Player)
+    {
+        if (vesselRole.equals(VesselRole.Captain))
+        {
+            this.captain = player;
+            return;
+        }
+        if (vesselRole.equals(VesselRole.Radioman))
+        {
+            this.radioman = player;
+            return;
+        }
+        throw new Error(`Vessel role matching value '${vesselRole.value}' does not exist on the current vessel`);
     }
 
 }
