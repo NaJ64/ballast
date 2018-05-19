@@ -97,7 +97,7 @@ namespace Ballast.Core.Models
         public Player AddPlayer(Player player) 
         {
             if (player == null || player.Id == default(Guid))
-                throw new ArgumentNullException("player.Id");
+                throw new ArgumentNullException(nameof(player.Id));
             if (_players.Any(x => x.Id == player.Id))
                 throw new ArgumentException($"Player with id {player?.Id} already exists");
             _players.Add(player);
@@ -110,6 +110,26 @@ namespace Ballast.Core.Models
             if (vessel == null)
                 throw new KeyNotFoundException($"Could not find vessel for id {vesselId}");
             vessel.SetVesselRole(vesselRole, player);
+        }
+
+        public void RemovePlayerById(Guid playerId) 
+        {
+            if (playerId == default(Guid))
+                throw new ArgumentNullException(nameof(playerId));
+            var player = _players.FirstOrDefault(x => x.Id == playerId);
+            RemovePlayer(player);
+        }
+
+        public void RemovePlayer(Player player) 
+        {
+            if (player == null || player.Id == default(Guid))
+                throw new ArgumentNullException(nameof(player.Id));
+            foreach(var vessel in _vessels)
+            {
+               vessel.RemovePlayer(player); 
+            }
+            if (_players.Any(x => x.Id == player.Id))
+                _players.Remove(player);
         }
         
     }

@@ -132,7 +132,7 @@ namespace Ballast.Core.Services
                 if (vessel == null)
                     throw new ArgumentException($"Vessel with id {options.VesselId} was not found in the requested game ({options.GameId})");
                 if (!options.VesselRoleValues.Any())
-                    throw new ArgumentNullException("options.VesselRoleValues", "Can't add player to a vessel without specifying vessel role(s)");
+                    throw new ArgumentNullException(nameof(options.VesselRoleValues), "Can't add player to a vessel without specifying vessel role(s)");
                 var vesselRoles = options.VesselRoleValues.Select(x => Models.VesselRole.FromValue(x));
                 foreach(var vesselRole in vesselRoles) 
                 {
@@ -143,7 +143,14 @@ namespace Ballast.Core.Services
             return game;
         }
 
-        public Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options) => throw new NotImplementedException();
+        public async Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options)
+        {
+            var game = await RetrieveGameByIdAsync(options.GameId);
+            if (options.PlayerId == default(Guid))
+                throw new ArgumentNullException(nameof(options.PlayerId));
+            game.RemovePlayerById(options.PlayerId);
+            return game;
+        }
 
         public Task<IVessel> AddPlayerToVesselAsync(AddPlayerOptions options) => throw new NotImplementedException();
 

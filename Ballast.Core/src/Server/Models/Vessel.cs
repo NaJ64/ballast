@@ -60,5 +60,15 @@ namespace Ballast.Core.Models
             throw new KeyNotFoundException($"Vessel role matching value '{vesselRole.Value}' does not exist on the current vessel");
         }
 
+        public void RemovePlayer(Player player) 
+        {
+            if (player == null || player.Id == default(Guid))
+                throw new ArgumentNullException(nameof(player.Id));
+            if (_captain != null && _captain.Id == player.Id)
+                _captain = null;
+            if (_radioman != null && _radioman.Id == player.Id)
+                _radioman = null;
+        }
+
     }
 }

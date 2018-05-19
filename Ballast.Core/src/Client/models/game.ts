@@ -71,12 +71,32 @@ export class Game implements IGame {
         return player;
     }
 
-    public setVesselRole(vesselId: string, vesselRole : VesselRole, player: Player)
-    {
+    public setVesselRole(vesselId: string, vesselRole : VesselRole, player: Player) {
         var vessel = this.vessels.find(x => x.id == vesselId);
         if (!vessel)
             throw new Error(`Could not find vessel for id ${vesselId}`);
         vessel.setVesselRole(vesselRole, player);
+    }
+
+    public removePlayerById(playerId: string) {
+        if (!playerId)
+            throw new Error("Player id is required");
+        var player = this.players.find(x => x.id == playerId);
+        if (!!player) {
+            this.removePlayer(player);
+        }
+    }
+
+    public removePlayer(player: Player) {
+        if (!player || !player.id)
+            throw new Error("Player.id is required");
+        for(let vessel of this.vessels)
+        {
+           vessel.removePlayer(player); 
+        }
+        var playerIndex = this.players.findIndex(x => x.id == player.id);
+        if (playerIndex > 0)
+            this.players.splice(playerIndex, 1);
     }
 
 }
