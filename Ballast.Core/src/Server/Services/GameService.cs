@@ -44,6 +44,7 @@ namespace Ballast.Core.Services
             var game = await RetrieveGameByIdAsync(gameId);
             _games.Remove(gameId);
         }
+
         public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
 
         public async Task<IGame> GetGameAsync(Guid gameId) => await RetrieveGameByIdAsync(gameId);
@@ -90,26 +91,6 @@ namespace Ballast.Core.Services
         }
 
         public async Task DeleteGameAsync(Guid gameId) => await RemoveGameByIdAsync(gameId);
-
-        private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board)
-        {
-            var vessels = new List<Vessel>();
-            foreach(var vesselOptions in createVesselOptions) 
-            {
-                var vesselId = Guid.NewGuid();
-                var startingCoordinates = vesselOptions.StartOrderedTriple != null
-                    ? CubicCoordinates.FromOrderedTriple(vesselOptions.StartOrderedTriple)
-                    : board.GetRandomPassableCoordinates();
-                var vessel = Vessel.FromProperties(
-                    id: vesselId,
-                    cubicCoordinates: startingCoordinates,
-                    captain: null,
-                    radioman: null
-                );
-                vessels.Add(vessel);
-            }
-            return vessels;
-        }
 
         public async Task<IGame> AddPlayerToGameAsync(AddPlayerOptions options)
         {
@@ -285,6 +266,26 @@ namespace Ballast.Core.Services
             // Finished changing game state
             await _eventBus.PublishAsync(new GameStateChangedEvent(game));
 
+        }
+
+        private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board)
+        {
+            var vessels = new List<Vessel>();
+            foreach(var vesselOptions in createVesselOptions) 
+            {
+                var vesselId = Guid.NewGuid();
+                var startingCoordinates = vesselOptions.StartOrderedTriple != null
+                    ? CubicCoordinates.FromOrderedTriple(vesselOptions.StartOrderedTriple)
+                    : board.GetRandomPassableCoordinates();
+                var vessel = Vessel.FromProperties(
+                    id: vesselId,
+                    cubicCoordinates: startingCoordinates,
+                    captain: null,
+                    radioman: null
+                );
+                vessels.Add(vessel);
+            }
+            return vessels;
         }
 
         private int GetTotalUnitDistance(bool doubleIncrement, ICubicCoordinates fromTileCoordinates, ICubicCoordinates toTileCoordinates)

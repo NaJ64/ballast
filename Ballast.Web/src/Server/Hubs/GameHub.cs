@@ -29,12 +29,6 @@ namespace Ballast.Web.Hubs
                 .GetResult();
         }
 
-        public async Task GetTestGameId(Guid invocationId) 
-        {
-            var testGameId = _defaultGame.Id;
-            await ResolveValueAsync(Clients.Caller, nameof(GetTestGameId), invocationId, testGameId);
-        }
-
         public async override Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
@@ -45,52 +39,180 @@ namespace Ballast.Web.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public Task MoveVessel(VesselMoveRequest vesselMoveRequest)
+        public async Task GetTestGameId(Guid invocationId) 
         {
-            var gameId = Guid.NewGuid();
-            var boardGenerator = new BoardGenerator();
-            var board = boardGenerator.CreateBoard(gameId, BoardType.RegularPolygon, TileShape.Circle, 7);
-            var game = Game.FromProperties(
-                id: gameId,
-                board: board,
-                vessels: new List<Vessel>(),
-                players: new List<Player>()
-            );
-            return Clients.All.SendAsync("gameStateChanged", game);
+            var testGameId = _defaultGame.Id;
+            await ResolveValueAsync(Clients.Caller, nameof(GetTestGameId), invocationId, testGameId);
         }
 
-        public async Task CreateNewGame(Guid invocationId, CreateVesselOptions[] vesselOptions, int? boardSize = null, int? boardShape = null)
-        {
-            try
-            {
-                var useBoardShape = boardShape != null ? TileShape.FromValue((int)boardShape) : null;
-                var createGameOptions = new CreateGameOptions()
-                {
-                    VesselOptions = vesselOptions,
-                    BoardSize = boardSize,
-                    BoardShapeValue = useBoardShape?.Value
-                };
-                var value = await _gameService.CreateGameAsync(createGameOptions);
-                await ResolveValueAsync(Clients.Caller, nameof(CreateNewGame), invocationId, value);
-            }
-            catch (Exception ex)
-            {
-                await RejectAsync(Clients.Caller, nameof(CreateNewGame), invocationId, ex.Message);
-            }
-        }
-
-        public async Task GetAllGames(Guid invocationId)
+        public async Task GetAllGamesAsync(Guid invocationId)
         {
             try
             {
                 var value = await _gameService.GetAllGamesAsync();
-                await ResolveValueAsync(Clients.Caller, nameof(CreateNewGame), invocationId, value);
+                await ResolveValueAsync(Clients.Caller, nameof(GetAllGamesAsync), invocationId, value);
             }
             catch (Exception ex)
             {
-                await RejectAsync(Clients.Caller, nameof(GetAllGames), invocationId, ex.Message);
+                await RejectAsync(Clients.Caller, nameof(GetAllGamesAsync), invocationId, ex.Message);
             }
         }
 
+        public async Task GetGameAsync(Guid invocationId, Guid gameId)
+        {
+            try
+            {
+                var value = await _gameService.GetGameAsync(gameId);
+                await ResolveValueAsync(Clients.Caller, nameof(GetGameAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(GetGameAsync), invocationId, ex.Message);
+            }
+        }
+
+        public async Task CreateGameAsync(Guid invocationId, CreateGameOptions options)
+        {
+            try
+            {
+                var value = await _gameService.CreateGameAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(CreateGameAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(CreateGameAsync), invocationId, ex.Message);
+            }
+        }
+        
+        public async Task StartGameAsync(Guid invocationId, Guid gameId)
+        {
+            try
+            {
+                var value = await _gameService.StartGameAsync(gameId);
+                await ResolveValueAsync(Clients.Caller, nameof(StartGameAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(StartGameAsync), invocationId, ex.Message);
+            }
+        }
+
+        public async Task EndGameAsync(Guid invocationId, Guid gameId)
+        {
+            try
+            {
+                var value = await _gameService.EndGameAsync(gameId);
+                await ResolveValueAsync(Clients.Caller, nameof(EndGameAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(EndGameAsync), invocationId, ex.Message);
+            }
+        }
+
+        public async Task DeleteGameAsync(Guid invocationId, Guid gameId)
+        {
+            try
+            {
+                await _gameService.DeleteGameAsync(gameId);
+                await ResolveAsync(Clients.Caller, nameof(DeleteGameAsync), invocationId);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(DeleteGameAsync), invocationId, ex.Message);
+            }
+        }
+
+        public async Task AddPlayerToGameAsync(Guid invocationId, AddPlayerOptions options)
+        {
+            try
+            {
+                var value = await _gameService.AddPlayerToGameAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(AddPlayerToGameAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(AddPlayerToGameAsync), invocationId, ex.Message);
+            }
+        }
+
+        public async Task RemovePlayerFromGameAsync(Guid invocationId, RemovePlayerOptions options)
+        {
+            try
+            {
+                var value = await _gameService.RemovePlayerFromGameAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(RemovePlayerFromGameAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(RemovePlayerFromGameAsync), invocationId, ex.Message);
+            }
+        }
+        
+        public async Task AddPlayerToVesselAsync(Guid invocationId, AddPlayerOptions options)
+        {
+            try
+            {
+                var value = await _gameService.AddPlayerToVesselAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(AddPlayerToVesselAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(AddPlayerToVesselAsync), invocationId, ex.Message);
+            }
+        }
+        
+        public async Task RemovePlayerFromVesselAsync(Guid invocationId, RemovePlayerOptions options)
+        {
+            try
+            {
+                var value = await _gameService.RemovePlayerFromVesselAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(RemovePlayerFromVesselAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(RemovePlayerFromVesselAsync), invocationId, ex.Message);
+            }
+        }
+        
+        public async Task AddPlayerToVesselRoleAsync(Guid invocationId, AddPlayerOptions options)
+        {
+            try
+            {
+                var value = await _gameService.AddPlayerToVesselRoleAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(AddPlayerToVesselRoleAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(AddPlayerToVesselRoleAsync), invocationId, ex.Message);
+            }
+        }
+        
+        public async Task RemovePlayerFromVesselRoleAsync(Guid invocationId, RemovePlayerOptions options)
+        {
+            try
+            {
+                var value = await _gameService.RemovePlayerFromVesselRoleAsync(options);
+                await ResolveValueAsync(Clients.Caller, nameof(RemovePlayerFromVesselRoleAsync), invocationId, value);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(RemovePlayerFromVesselRoleAsync), invocationId, ex.Message);
+            }
+        }
+        
+        public async Task MoveVesselAsync(Guid invocationId, VesselMoveRequest request)
+        {
+            try
+            {
+                await _gameService.MoveVesselAsync(request);
+                await ResolveAsync(Clients.Caller, nameof(MoveVesselAsync), invocationId);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(MoveVesselAsync), invocationId, ex.Message);
+            }
+        }
+        
     }
 }
