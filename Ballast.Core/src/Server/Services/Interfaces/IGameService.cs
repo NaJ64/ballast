@@ -10,6 +10,9 @@ namespace Ballast.Core.Services
     public interface IGameService : IDisposable
     {
 
+
+        Task<Guid> GetTestGameIdAsync();
+
         Task<IEnumerable<IGame>> GetAllGamesAsync();
         Task<IGame> GetGameAsync(Guid gameId);
 

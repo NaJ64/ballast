@@ -14,19 +14,10 @@ namespace Ballast.Web.Hubs
     {
 
         private readonly IGameService _gameService;
-        private readonly IGame _defaultGame;
 
-        public GameHub(IEventBus eventBus, Func<IGameService> gameServiceFactory) : base(eventBus)
+        public GameHub(IEventBus eventBus, IGameService gameService) : base(eventBus)
         {
-            _gameService = gameServiceFactory();
-            var gameOptions = new CreateGameOptions() 
-            {
-                VesselOptions = new CreateVesselOptions[0]
-            };
-            _defaultGame = _gameService // Create a default (global) game
-                .CreateGameAsync(gameOptions)
-                .GetAwaiter()
-                .GetResult();
+            _gameService = gameService;
         }
 
         public async override Task OnConnectedAsync()
@@ -39,10 +30,10 @@ namespace Ballast.Web.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task GetTestGameId(Guid invocationId) 
+        public async Task GetTestGameIdAsync(Guid invocationId) 
         {
-            var testGameId = _defaultGame.Id;
-            await ResolveValueAsync(Clients.Caller, nameof(GetTestGameId), invocationId, testGameId);
+            var testGameId = await _gameService.GetTestGameIdAsync();
+            await ResolveValueAsync(Clients.Caller, nameof(GetTestGameIdAsync), invocationId, testGameId);
         }
 
         public async Task GetAllGamesAsync(Guid invocationId)

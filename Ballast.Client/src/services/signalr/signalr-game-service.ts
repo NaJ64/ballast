@@ -34,6 +34,10 @@ export class SignalRGameService extends SignalRServiceBase implements IGameServi
         this.eventBus.publishAsync(gameStateChanged); // Fire and forget
     }
 
+    public async getTestGameIdAsync() {
+        return await this.createInvocationAsync<string>("getTestGameIdAsync");
+    }
+
     public async getAllGamesAsync() {
         return await this.createInvocationAsync<IGame[]>('getAllGamesAsync');
     }

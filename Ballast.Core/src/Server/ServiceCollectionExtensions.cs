@@ -12,12 +12,12 @@ namespace Ballast.Core
             
             services.AddSingleton<IEventBus, LocalEventBus>();
 
-            services.AddTransient<IChatService, ChatService>();
+            services.AddSingleton<IChatService, ChatService>();
             services.AddSingleton<Func<IChatService>>(serviceProvider => () =>
                 serviceProvider.GetRequiredService<IChatService>()
             );
 
-            services.AddTransient<IGameService, GameService>();
+            services.AddSingleton<IGameService, GameService>();
             services.AddSingleton<Func<IGameService>>(serviceProvider => () =>
                 serviceProvider.GetRequiredService<IGameService>()
             );

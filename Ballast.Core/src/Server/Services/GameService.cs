@@ -19,12 +19,20 @@ namespace Ballast.Core.Services
         private readonly IEventBus _eventBus;
         private readonly IBoardGenerator _boardGenerator;
         private readonly IDictionary<Guid, Game> _games;
+        private readonly Game _defaultGame;
 
         public GameService(IEventBus eventBus, IBoardGenerator boardGenerator)
         {
             _eventBus = eventBus;
             _boardGenerator = boardGenerator;
             _games = new Dictionary<Guid, Game>();
+            var gameOptions = new CreateGameOptions() 
+            {
+                VesselOptions = new CreateVesselOptions[0]
+            };
+            _defaultGame = (Game)CreateGameAsync(gameOptions)
+                .GetAwaiter()
+                .GetResult();
         }
 
         public void Dispose() 
@@ -44,6 +52,8 @@ namespace Ballast.Core.Services
             var game = await RetrieveGameByIdAsync(gameId);
             _games.Remove(gameId);
         }
+
+        public async Task<Guid> GetTestGameIdAsync() => await Task.FromResult(_defaultGame.Id);
 
         public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
 
