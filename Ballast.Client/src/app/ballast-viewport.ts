@@ -22,10 +22,9 @@ export class BallastViewport {
         this.gameStyle = this.createGameStyle(this.root);
         this.canvas = this.createCanvas(this.root);
         this.keyboardWatcher = this.createKeyboardWatcher(this.root);
-        this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher);
         this.renderingMiddleware = new RenderingMiddleware();
         this.eventBus = eventBus;
-        this.subscribeToEvents();
+        this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher, this.eventBus);
     }
 
     public getRoot(): HTMLDivElement {
@@ -86,16 +85,8 @@ export class BallastViewport {
         return new KeyboardWatcher(root);
     }
 
-    private createRenderingContext(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
-        return new RenderingContext(canvas, keyboardWatcher);
-    }
-
-    private subscribeToEvents() {
-        this.eventBus.subscribe<GameStateChangedEvent>(GameStateChangedEvent.id, this.onGameStateChangedAsync.bind(this));
-    }
-
-    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
-        this.renderingContext.setCurrentGame(event.game);
+    private createRenderingContext(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher, eventBus: IEventBus) {
+        return new RenderingContext(canvas, keyboardWatcher, eventBus);
     }
 
     private resizeCanvas(canvas: HTMLCanvasElement) {

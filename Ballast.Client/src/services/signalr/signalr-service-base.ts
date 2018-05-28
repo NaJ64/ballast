@@ -108,6 +108,13 @@ export abstract class SignalRServiceBase implements IDisposable {
         });
     }
 
+    protected onConnectionClosed() {
+        // Try to re-open
+        if (this.hubConnection) {
+            this.hubConnection.start();
+        }
+    }
+
     protected resubscribeToHubEvents() {
         // Unsubscribe from all (if already subscribed)
         this.unsubscribeFromHubEvents();
@@ -120,6 +127,7 @@ export abstract class SignalRServiceBase implements IDisposable {
         if (this.isConnected) {
             this.afterSubscribe(<signalR.HubConnection>this.hubConnection);
         }
+        (<signalR.HubConnection>this.hubConnection).onclose = this.onConnectionClosed.bind(this);
     }
 
     protected unsubscribeFromHubEvents() {
@@ -147,6 +155,9 @@ export abstract class SignalRServiceBase implements IDisposable {
     protected async createInvocationAsync<TValue extends any>(method: string, ...args: any[]) {
         if (!this.methods.has(method)) {
             this.registerHubMethod(method);
+        }
+        if (!this.isConnected) {
+            await this.connectAsync();
         }
         return await new Promise<TValue>((resolve, reject) => {
             let invocationList = this.getInvocationList(method);

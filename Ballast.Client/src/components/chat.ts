@@ -163,7 +163,7 @@ export class ChatComponent extends ComponentBase {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
             let timestampDate = new Date(message.timestampText + 'Z');
-            let messageDisplay = `${timestampDate.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })} [${message.from}]:  ${message.text}`;
+            let messageDisplay = `[${message.from}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);
             this.chatHistory.scrollTop = this.chatHistory.scrollHeight

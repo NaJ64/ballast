@@ -11,6 +11,7 @@ import { IVessel } from '../models/vessel';
 export interface IGameService {
     getAllGamesAsync(): Promise<IGame[]>;
     getGameAsync(gameId: string): Promise<IGame>;
+    getTestGameIdAsync(): Promise<string>;
     createGameAsync(options: ICreateGameOptions): Promise<IGame>;
     startGameAsync(gameId: string): Promise<IGame>;
     endGameAsync(gameId: string): Promise<IGame>;

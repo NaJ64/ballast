@@ -1,4 +1,4 @@
-import { Game, IGame } from 'ballast-core';
+import { Game, IGame, IEventBus, GameStateChangedEvent } from 'ballast-core';
 import * as THREE from 'three';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 
@@ -17,12 +17,14 @@ export class RenderingContext {
         return this.currentGame;
     }
 
+    private readonly eventBus: IEventBus;
     private currentGame?: IGame;
     private frameDelta: number;
 
-    public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher) {
+    public constructor(canvas: HTMLCanvasElement, keyboardWatcher: KeyboardWatcher, eventBus: IEventBus) {
         this.canvas = canvas;
         this.keyboard = keyboardWatcher;
+        this.eventBus = eventBus;
         this.renderer = this.createRenderer(this.canvas);
         this.scene = this.createScene();
         this.camera = this.createCamera(this.canvas);
@@ -30,6 +32,7 @@ export class RenderingContext {
         this.clock = new THREE.Clock();
         this.frameDelta = 0;
         this.currentGame = undefined;
+        this.subscribeToEvents();
     }
 
     private createRenderer(canvas: HTMLCanvasElement): THREE.WebGLRenderer {
@@ -55,6 +58,14 @@ export class RenderingContext {
         cameraPivot.add(camera);
         scene.add(cameraPivot);
         return cameraPivot;
+    }
+
+    private subscribeToEvents() {
+        this.eventBus.subscribe<GameStateChangedEvent>(GameStateChangedEvent.id, this.onGameStateChangedAsync.bind(this));
+    }
+
+    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
+        this.setCurrentGame(event.game);
     }
 
     public setCurrentGame(game?: IGame) {

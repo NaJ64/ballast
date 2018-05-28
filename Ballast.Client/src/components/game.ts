@@ -185,10 +185,10 @@ export class GameComponent extends ComponentBase {
         // Notify game component finished loading
         this.eventBus.publishAsync(new GameComponentLoadedEvent());
 
-        // Connect to the chat service/hub
-        if (!this.gameService.isConnected) {
-            this.gameService.connectAsync(); // Fire and forget
-        }
+        // // Connect to the chat service/hub
+        // if (!this.gameService.isConnected) {
+        //     this.gameService.connectAsync(); // Fire and forget
+        // }
 
     }
 
