@@ -4,5 +4,7 @@ export * from './create-game-options';
 export * from './create-vessel-options';
 export * from './direction';
 export * from './end-game-result';
+export * from './player-sign-in-request';
+export * from './player-sign-out-request';
 export * from './remove-player-options';
 export * from './vessel-move-request';

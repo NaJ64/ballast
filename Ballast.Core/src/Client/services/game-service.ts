@@ -1,14 +1,12 @@
 import { IGame } from '../models/game';
-import { ICreateVesselOptions } from '../value-objects/create-vessel-options';
 import { IVesselMoveRequest } from '../value-objects/vessel-move-request';
-import { ITileShape } from '../models/tile-shape';
 import { IDisposable } from '../interfaces/disposable';
 import { ICreateGameOptions } from '../value-objects/create-game-options';
 import { IAddPlayerOptions } from '../value-objects/add-player-options';
 import { IRemovePlayerOptions } from '../value-objects/remove-player-options';
 import { IVessel } from '../models/vessel';
 
-export interface IGameService {
+export interface IGameService extends IDisposable {
     getAllGamesAsync(): Promise<IGame[]>;
     getGameAsync(gameId: string): Promise<IGame>;
     getTestGameIdAsync(): Promise<string>;
