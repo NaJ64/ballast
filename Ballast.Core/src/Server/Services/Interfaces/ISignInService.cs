@@ -9,5 +9,6 @@ namespace Ballast.Core.Services
     {
         Task<IPlayer> SignInAsync(PlayerSignInRequest request);
         Task SignOutAsync(PlayerSignOutRequest request);
+        Task<IPlayer> GetSignedInPlayerAsync(Guid playerId);
     }
 }

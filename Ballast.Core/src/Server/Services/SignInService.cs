@@ -53,6 +53,15 @@ namespace Ballast.Core.Services
             _players.Remove(playerId);
             await _eventBus.PublishAsync(new PlayerSignedOutEvent(player));
         }
+
+        public async Task<IPlayer> GetSignedInPlayerAsync(Guid playerId)
+        {
+            if (playerId.Equals(Guid.Empty))
+                throw new ArgumentNullException(nameof(playerId));
+            if (!_players.ContainsKey(playerId))
+                return null;
+            return await Task.FromResult(_players[playerId]);
+        }
         
         private string GetTempPlayerName()
         {

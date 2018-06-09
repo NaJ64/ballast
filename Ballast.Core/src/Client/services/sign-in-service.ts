@@ -16,4 +16,10 @@ export interface ISignInService extends IDisposable {
      * @param request 
      */
     signOutAsync(request: IPlayerSignOutRequest): Promise<void>;
+    
+    /**
+     * Retrieves a player using a specified player id (or null if the player does not exist)
+     * @param string 
+     */
+    getSignedInPlayerAsync(playerId: string): Promise<IPlayer | null>;
 }
