@@ -1,6 +1,7 @@
 using Ballast.Core.Messaging;
 using Ballast.Core.Services;
 using Ballast.Core.ValueObjects;
+using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -13,20 +14,19 @@ namespace Ballast.Web.Hubs
     {
 
         private readonly ISignInService _signInService;
-        private readonly IDictionary<string, Guid?> _playerConnections;
+        private readonly IPlayerConnectionRepository _playerConnections;
 
-        public SignInHub(IEventBus eventBus, ISignInService signInService) : base(eventBus)
+        public SignInHub(IEventBus eventBus, ISignInService signInService, IPlayerConnectionRepository playerConnections) : base(eventBus)
         {
             _signInService = signInService;
+            _playerConnections = playerConnections;
         }
 
         public async override Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
             var connectionId = Context.ConnectionId;
-            if (_playerConnections.ContainsKey(connectionId))
-                _playerConnections.Remove(connectionId);
-            _playerConnections.Add(connectionId, null);
+            _playerConnections.Add(connectionId);
         }
 
         public async Task SignInAsync(Guid invocationId, PlayerSignInRequest request)
@@ -34,11 +34,9 @@ namespace Ballast.Web.Hubs
             try
             {
                 var connectionId = Context.ConnectionId;
-                if (!_playerConnections.ContainsKey(connectionId))
-                    _playerConnections.Add(connectionId, null);
-                _playerConnections[connectionId] = null;
+                _playerConnections.SetPlayerId(connectionId, null);
                 var signedInPlayer = await _signInService.SignInAsync(request);
-                _playerConnections[connectionId] = signedInPlayer?.Id;
+                _playerConnections.SetPlayerId(connectionId, signedInPlayer?.Id);
                 await ResolveValueAsync(Clients.Caller, nameof(SignInAsync), invocationId, signedInPlayer);
             }
             catch (Exception ex)
@@ -52,9 +50,7 @@ namespace Ballast.Web.Hubs
             try
             {
                 var connectionId = Context.ConnectionId;
-                if (!_playerConnections.ContainsKey(connectionId))
-                    _playerConnections.Add(connectionId, null);
-                _playerConnections[connectionId] = null;
+                _playerConnections.Remove(connectionId);
                 await _signInService.SignOutAsync(request);
                 await ResolveAsync(Clients.Caller, nameof(SignOutAsync), invocationId);
             }
@@ -71,12 +67,10 @@ namespace Ballast.Web.Hubs
                 var signedInPlayer = await _signInService.GetSignedInPlayerAsync(playerId);
                 if (signedInPlayer == null)
                 {
-                    var connectionIds = _playerConnections
-                        .Where(x => x.Value?.Equals(playerId) ?? false)
-                        .Select(x => x.Key);
+                    var connectionIds = _playerConnections.GetAll(playerId);
                     foreach(var connectionId in connectionIds)
                     {
-                        _playerConnections[connectionId] = null;
+                        _playerConnections.SetPlayerId(connectionId, null);
                     }
                 }
                 await ResolveValueAsync(Clients.Caller, nameof(GetSignedInPlayerAsync), invocationId, signedInPlayer);
@@ -90,18 +84,15 @@ namespace Ballast.Web.Hubs
         public async override Task OnDisconnectedAsync(Exception exception)
         {
             var connectionId = Context.ConnectionId;
-            if (_playerConnections.ContainsKey(connectionId))
+            var playerId = _playerConnections.GetPlayerId(connectionId).GetValueOrDefault();
+            if (!playerId.Equals(Guid.Empty))
             {
-                var playerId = _playerConnections[connectionId].GetValueOrDefault();
-                if (!playerId.Equals(Guid.Empty))
-                {
-                    await _signInService.SignOutAsync(new PlayerSignOutRequest() {
-                        PlayerId = playerId.ToString(),
-                        TimestampText = DateTime.UtcNow.ToString()
-                    });
-                }
-                _playerConnections.Remove(connectionId);
+                await _signInService.SignOutAsync(new PlayerSignOutRequest() {
+                    PlayerId = playerId.ToString(),
+                    TimestampText = DateTime.UtcNow.ToString()
+                });
             }
+            _playerConnections.Remove(connectionId);
             await base.OnDisconnectedAsync(exception);
         }
 

@@ -22,6 +22,11 @@ namespace Ballast.Core
                 serviceProvider.GetRequiredService<IGameService>()
             );
 
+            services.AddSingleton<ISignInService, SignInService>();
+            services.AddSingleton<Func<ISignInService>>(serviceProvider => () =>
+                serviceProvider.GetRequiredService<ISignInService>()
+            );
+
             services.AddTransient<IBoardGenerator, BoardGenerator>();
 
             return services;

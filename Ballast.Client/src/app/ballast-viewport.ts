@@ -9,6 +9,7 @@ export type RenderingStep = (renderingContext: RenderingContext, next: () => voi
 @injectable()
 export class BallastViewport {
     
+    private readonly clientId: string;
     private readonly root: HTMLDivElement;
     private readonly gameStyle: HTMLStyleElement;
     private readonly canvas: HTMLCanvasElement;
@@ -18,6 +19,7 @@ export class BallastViewport {
     private readonly eventBus: IEventBus;
 
     public constructor(host: HTMLElement, clientId: string, eventBus: IEventBus) {
+        this.clientId = clientId;
         this.root = this.createRoot(host, clientId);
         this.gameStyle = this.createGameStyle(this.root);
         this.canvas = this.createCanvas(this.root);
@@ -25,6 +27,10 @@ export class BallastViewport {
         this.renderingMiddleware = new RenderingMiddleware();
         this.eventBus = eventBus;
         this.renderingContext = this.createRenderingContext(this.canvas, this.keyboardWatcher, this.eventBus);
+    }
+
+    public getClientId(): string {
+        return this.clientId;
     }
 
     public getRoot(): HTMLDivElement {

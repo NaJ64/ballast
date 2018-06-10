@@ -63,6 +63,7 @@ namespace Ballast.Web
             {
                 routes.MapHub<ChatHub>("/chathub");
                 routes.MapHub<GameHub>("/gamehub");
+                routes.MapHub<SignInHub>("/signinhub");
             });
 
             app.UseDefaultFiles();
