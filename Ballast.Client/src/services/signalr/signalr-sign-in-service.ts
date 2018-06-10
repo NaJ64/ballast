@@ -7,7 +7,7 @@ import { SignalRServiceBase } from './signalr-service-base';
 import { ISignalRServiceOptions } from './signalr-service-options';
 
 @injectable()
-export class SignalRSignInClientService extends SignalRServiceBase implements ISignInClientService {
+export class SignalRSignInService extends SignalRServiceBase implements ISignInClientService {
 
     public constructor(
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
