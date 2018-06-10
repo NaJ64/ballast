@@ -26,7 +26,7 @@ export class SignInComponent extends ComponentBase {
     protected onAttach(parent: HTMLElement, renderingContext: RenderingContext) {
         
         // Connect to the sign-in service/hub and initiate sign in
-        this.connectAndSignInAsync() // Fire and forget
+        //this.connectAndSignInAsync() // Fire and forget
         
     }
     

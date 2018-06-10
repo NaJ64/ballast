@@ -1,4 +1,4 @@
-import { BoardGenerator, BoardType, IGame, Game, GameStateChangedEvent, IDisposable, IEventBus, LocalEventBus, Tile, TileShape, Vessel, IPlayer } from 'ballast-core';
+import { Game, GameStateChangedEvent, IDisposable, IEventBus, LocalEventBus, IAddPlayerOptions, getUtcNow, IPlayer } from 'ballast-core';
 import { Container, injectable } from 'inversify';
 import * as uuid from 'uuid';
 import { RootComponent } from '../components/root';
@@ -7,6 +7,7 @@ import { TYPES_BALLAST } from '../ioc/types';
 import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 import { BallastViewport } from './ballast-viewport';
 import { IGameClientService } from '../services/game-client-service';
+import { ISignInClientService } from '../services/sign-in-client-service';
 
 @injectable()
 export class BallastClient implements IDisposable {
@@ -54,12 +55,30 @@ export class BallastClient implements IDisposable {
     }
 
     public async startTestAsync() {
+        let playerId = this.id;
+        let signInService = this.inversifyContainer.get<ISignInClientService>(TYPES_BALLAST.ISignInClientService);
+        let signedInPlayer: IPlayer | null = null;
+        if (!signInService.isConnected) {
+            await signInService.connectAsync();
+            signedInPlayer = await signInService.signInAsync({
+                playerId: playerId, 
+                playerName: null, 
+                timestampText: getUtcNow().toISOString()
+            });
+        }
         let gameService = this.inversifyContainer.get<IGameClientService>(TYPES_BALLAST.IGameClientService);
         if (!gameService.isConnected) {
             await gameService.connectAsync();
         }
         let testGameId = await gameService.getTestGameIdAsync();
-        let testGame = Game.fromObject(await gameService.getGameAsync(testGameId));
+        let addPlayerOptions: IAddPlayerOptions = {
+            playerId: playerId,
+            playerName: signedInPlayer ? signedInPlayer.name : null,
+            gameId: testGameId,
+            vesselId: null,
+            vesselRoleValues: []
+        };
+        let testGame = Game.fromObject(await gameService.addPlayerToGameAsync(addPlayerOptions));
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);
         await eventBus.publishAsync(new GameStateChangedEvent(testGame));
     }
