@@ -1,5 +1,6 @@
 using Ballast.Core.Messaging;
 using Ballast.Core.Messaging.Events.Game;
+using Ballast.Core.Messaging.Events.SignIn;
 using Ballast.Core.Models;
 using Ballast.Core.ValueObjects;
 using System;
@@ -33,11 +34,27 @@ namespace Ballast.Core.Services
             _defaultGame = (Game)CreateGameAsync(gameOptions)
                 .GetAwaiter()
                 .GetResult();
+            _eventBus.Subscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
         }
 
         public void Dispose() 
         { 
             _games.Clear();
+        }
+
+        private async Task OnPlayerSignedOutAsync(PlayerSignedOutEvent evt)
+        {
+            var playerId = evt.Player.Id;
+            var playerInGames = _games.Values.Where(x => x.Players.Any(y => y.Id.Equals(playerId)));
+            foreach(var game in playerInGames)
+            {
+                var removePlayerOptions = new RemovePlayerOptions()
+                {
+                    PlayerId = playerId,
+                    GameId = game.Id
+                };
+                await RemovePlayerFromGameAsync(removePlayerOptions);
+            }
         }
 
         private async Task<Game> RetrieveGameByIdAsync(Guid gameId)
@@ -130,6 +147,8 @@ namespace Ballast.Core.Services
                     game.SetVesselRole(vessel.Id, vesselRole, player);
                 }
             }
+            // Raise event for player added into game
+            await _eventBus.PublishAsync(new PlayerJoinedGameEvent(game, player));
             // Return the updated game
             return game;
         }
@@ -139,7 +158,10 @@ namespace Ballast.Core.Services
             var game = await RetrieveGameByIdAsync(options.GameId);
             if (options.PlayerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            game.RemovePlayerById(options.PlayerId);
+            var player = Player.FromObject(game.Players.SingleOrDefault(x => x.Id.Equals(options.PlayerId)));
+            game.RemovePlayer(player);
+            // Raise event for player left game
+            await _eventBus.PublishAsync(new PlayerLeftGameEvent(game, player));
             return game;
         }
 

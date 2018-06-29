@@ -19,6 +19,8 @@ namespace Ballast.Web.Hubs
         public GameHub(IEventBus eventBus, IGameService gameService) : base(eventBus)
         {
             _gameService = gameService;
+            _eventBus.Subscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
+            _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
         }
 
         public async override Task OnConnectedAsync()
@@ -29,6 +31,18 @@ namespace Ballast.Web.Hubs
         public async override Task OnDisconnectedAsync(Exception exception)
         {
             await base.OnDisconnectedAsync(exception);
+        }
+
+        public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
+        {
+            // TODO:  Lookup all clients that are already in the game and notify them
+            await Task.CompletedTask;
+        }
+
+        public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
+        {
+            // TODO:  Lookup all clients that are already in the game and notify them
+            await Task.CompletedTask;
         }
 
         public async Task GetTestGameIdAsync(Guid invocationId) 

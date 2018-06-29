@@ -1,9 +1,10 @@
+using Ballast.Web.Hubs;
 using System;
 using System.Collections.Generic;
 
 namespace Ballast.Web.Services
 {
-    public interface IPlayerConnectionRepository
+    public interface IPlayerConnectionRepository<TServiceHub> where TServiceHub : ServiceHubBase
     {
         Guid? GetPlayerId(string connectionId);
         Guid? SetPlayerId(string connectionId, Guid? playerId);

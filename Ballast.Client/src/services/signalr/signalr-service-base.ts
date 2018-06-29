@@ -72,6 +72,13 @@ export abstract class SignalRServiceBase implements IDisposable {
         this.resubscribeToHubEvents();
         await this.hubConnection.start();
         this.hubConnectionState = 'connected';
+        await this.registerClientAsync();
+    }
+
+    private async registerClientAsync() {
+        let options = this.serviceOptionsFactory();
+        let clientId = options.clientId;
+        await this.createInvocationAsync('registerClientAsync', clientId);
     }
 
     public async disconnectAsync() {

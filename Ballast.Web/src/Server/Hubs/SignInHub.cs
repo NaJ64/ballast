@@ -14,9 +14,9 @@ namespace Ballast.Web.Hubs
     {
 
         private readonly ISignInService _signInService;
-        private readonly IPlayerConnectionRepository _playerConnections;
+        private readonly IPlayerConnectionRepository<SignInHub> _playerConnections;
 
-        public SignInHub(IEventBus eventBus, ISignInService signInService, IPlayerConnectionRepository playerConnections) : base(eventBus)
+        public SignInHub(IEventBus eventBus, IPlayerConnectionRepository<SignInHub> playerConnections, ISignInService signInService) : base(eventBus)
         {
             _signInService = signInService;
             _playerConnections = playerConnections;

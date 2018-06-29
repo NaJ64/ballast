@@ -9,15 +9,15 @@ namespace Ballast.Core.Messaging.Events.Game
 
         public override string Id => nameof(VesselStateChangedEvent);
 
-        private readonly Guid vesselId;
+        private readonly Guid _vesselId;
 
         public IGame Game { get; private set; }
 
-        public IVessel Vessel => Game.Vessels.SingleOrDefault(x => x.Id == vesselId);
+        public IVessel Vessel => Game.Vessels.SingleOrDefault(x => x.Id == _vesselId);
 
         public VesselStateChangedEvent(Models.Game game, Vessel vessel) : base() {
             Game = game;
-            vesselId = vessel.Id;
+            _vesselId = vessel.Id;
         }
 
     }

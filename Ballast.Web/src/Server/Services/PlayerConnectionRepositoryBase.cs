@@ -1,15 +1,17 @@
+using Ballast.Web.Hubs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ballast.Web.Services
 {
-    public class PlayerConnectionRepository : IPlayerConnectionRepository
+    public abstract class PlayerConnectionRepositoryBase<TServiceHub> : IPlayerConnectionRepository<TServiceHub> 
+        where TServiceHub : ServiceHubBase
     {
 
         private readonly IDictionary<string, Guid?> _playerConnections;
 
-        public PlayerConnectionRepository() 
+        public PlayerConnectionRepositoryBase() 
         {
             _playerConnections = new Dictionary<string, Guid?>();
         }

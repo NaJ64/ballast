@@ -25,8 +25,8 @@ export class BallastClient implements IDisposable {
         this.id = uuid.v4();
         this.eventBus = new LocalEventBus();
         this.viewport = new BallastViewport(host, this.id, this.eventBus);
+        this.signalRServiceOptions = { serverUrl: serverUrl, clientId: this.id };
         this.inversifyContainer = configureServices(new Container(), this);
-        this.signalRServiceOptions = { serverUrl: serverUrl };
     }
 
     public getId(): string {
