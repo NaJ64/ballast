@@ -21,7 +21,7 @@ namespace Ballast.Web.Hubs
             try
             {
                 // TODO: Map the Context.ConnectionId and clientId together
-                RegisterClientConnection(Context.ConnectionId, clientId);
+                await OnClientRegisteredAsync(Context.ConnectionId, clientId);
                 await ResolveAsync(Clients.Caller, nameof(RegisterClientAsync), invocationId);
             }
             catch (Exception ex)
@@ -30,9 +30,10 @@ namespace Ballast.Web.Hubs
             }
         }
 
-        public virtual void RegisterClientConnection(string connectionId, Guid clientId)
+        public virtual Task OnClientRegisteredAsync(string connectionId, Guid clientId)
         {
             // Override me
+            return Task.CompletedTask;
         }
 
         protected async Task ResolveAsync(IClientProxy client, string clientMethodName, Guid invocationId) =>

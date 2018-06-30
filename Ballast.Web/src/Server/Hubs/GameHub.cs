@@ -3,6 +3,7 @@ using Ballast.Core.Messaging;
 using Ballast.Core.Messaging.Events.Game;
 using Ballast.Core.Services;
 using Ballast.Core.ValueObjects;
+using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,12 @@ namespace Ballast.Web.Hubs
     {
 
         private readonly IGameService _gameService;
+        private readonly IPlayerConnectionRepository<GameHub> _playerConnections;
 
-        public GameHub(IEventBus eventBus, IGameService gameService) : base(eventBus)
+        public GameHub(IEventBus eventBus, IPlayerConnectionRepository<GameHub> playerConnections, IGameService gameService) : base(eventBus)
         {
             _gameService = gameService;
+            _playerConnections = playerConnections;
             _eventBus.Subscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
             _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
         }
@@ -26,23 +29,54 @@ namespace Ballast.Web.Hubs
         public async override Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
+            _playerConnections.Add(Context.ConnectionId);
         }
 
         public async override Task OnDisconnectedAsync(Exception exception)
         {
+            _playerConnections.Remove(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
+        }
+
+        public async override Task OnClientRegisteredAsync(string connectionId, Guid clientId)
+        {
+            _playerConnections.SetPlayerId(connectionId, clientId);
+            await Task.CompletedTask;
         }
 
         public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
         {
-            // TODO:  Lookup all clients that are already in the game and notify them
-            await Task.CompletedTask;
+            // Lookup all clients that are already in the game and notify them
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
+            foreach(var connectionId in connectionIds)
+            {
+                await Clients.Client(connectionId).SendAsync("PlayerJoinedGame", evt);
+            }
         }
 
         public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
         {
-            // TODO:  Lookup all clients that are already in the game and notify them
-            await Task.CompletedTask;
+            // Lookup all clients that are already in the game and notify them
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
+            foreach(var connectionId in connectionIds)
+            {
+                await Clients.Client(connectionId).SendAsync("PlayerLeftGame", evt);
+            }
+        }
+
+        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(IGame game)
+        {
+            var foundGame = await _gameService.GetGameAsync(game.Id);
+            var playerConnectionIdList = new List<string>();
+            foreach(var player in foundGame.Players)
+            {
+                // This method returns a list of connections by client id
+                // but since the game only allows one connection per id right now
+                // it should be okay to just grab the first one
+                var connectionId = _playerConnections.GetAll(player.Id).FirstOrDefault();
+                playerConnectionIdList.Add(connectionId);
+            }
+            return playerConnectionIdList;
         }
 
         public async Task GetTestGameIdAsync(Guid invocationId) 

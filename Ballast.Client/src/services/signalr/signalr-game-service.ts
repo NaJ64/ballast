@@ -1,5 +1,5 @@
 import * as signalR from '@aspnet/signalr';
-import { Game, GameStateChangedEvent, IEventBus, IGame, IGameService, ICreateGameOptions, IAddPlayerOptions, IRemovePlayerOptions, IVessel, IVesselMoveRequest } from 'ballast-core';
+import { Game, GameStateChangedEvent, IAddPlayerOptions, ICreateGameOptions, IEventBus, IGame, IGameService, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IRemovePlayerOptions, IVessel, IVesselMoveRequest, PlayerJoinedGameEvent, PlayerLeftGameEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { TYPES_BALLAST } from '../../ioc/types';
 import { IGameClientService } from '../game-client-service';
@@ -21,17 +21,31 @@ export class SignalRGameService extends SignalRServiceBase implements IGameServi
     }
 
     protected afterSubscribe(hubConnection: signalR.HubConnection) {
-        hubConnection.on('gameStateChanged', this.onGameStateChanged.bind(this));
+        hubConnection.on('GameStateChanged', this.onGameStateChanged.bind(this));
+        hubConnection.on('PlayerJoinedGame', this.onPlayerJoinedGame.bind(this));
+        hubConnection.on('PlayerLeftGame', this.onPlayerLeftGame.bind(this));
     }
 
     protected beforeUnsubscribe(hubConnection: signalR.HubConnection) {
-        hubConnection.off('gameStateChanged');
+        hubConnection.off('GameStateChanged');
+        hubConnection.off('PlayerJoinedGame');
+        hubConnection.off('PlayerLeftGame');
     }
 
     private onGameStateChanged(update: IGame) {
         let game = Game.fromObject(update);
         let gameStateChanged = new GameStateChangedEvent(game);
         this.eventBus.publishAsync(gameStateChanged); // Fire and forget
+    }
+
+    private onPlayerJoinedGame(evt: IPlayerJoinedGameEvent) {
+        let playerJoinedGame = new PlayerJoinedGameEvent(evt.game, evt.player);
+        this.eventBus.publishAsync(playerJoinedGame); // Fire and forget
+    }
+
+    private onPlayerLeftGame(evt: IPlayerLeftGameEvent) {
+        let playerLeftGame = new PlayerLeftGameEvent(evt.game, evt.player);
+        this.eventBus.publishAsync(playerLeftGame); // Fire and forget
     }
 
     public async getTestGameIdAsync() {

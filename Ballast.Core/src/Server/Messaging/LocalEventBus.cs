@@ -8,11 +8,11 @@ namespace Ballast.Core.Messaging
     public class LocalEventBus : IEventBus , IDisposable
     {
 
-        private readonly IDictionary<string, IList<Func<IEvent, Task>>> _subscriptions;
+        private readonly IDictionary<string, IList<Delegate>> _subscriptions;
 
         public LocalEventBus() 
         {
-            _subscriptions = new Dictionary<string, IList<Func<IEvent, Task>>>();
+            _subscriptions = new Dictionary<string, IList<Delegate>>();
         }
 
         public void Dispose()
@@ -24,7 +24,7 @@ namespace Ballast.Core.Messaging
             _subscriptions.Clear();
         }
 
-        public IEnumerable<Func<TEvent, Task>> GetHandlers<TEvent>(string key) where TEvent : IEvent
+        public IEnumerable<Func<TEvent, Task>> GetHandlers<TEvent>(string key) where TEvent : EventBase
         {
             // get subscription list
             var subscriptions = GetSubscriptions<TEvent>(key);
@@ -32,7 +32,7 @@ namespace Ballast.Core.Messaging
             return subscriptions.Select(x => x.asyncHandler);
         }
 
-        public async Task PublishAsync<TEvent>(TEvent evt) where TEvent : IEvent
+        public async Task PublishAsync<TEvent>(TEvent evt) where TEvent : EventBase
         {
             // Get all subscribers for the current event key
             var subscriptions = GetSubscriptions<TEvent>(evt.Id);
@@ -44,15 +44,16 @@ namespace Ballast.Core.Messaging
             }
         }
 
-        public void Subscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : IEvent
+        public void Subscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : EventBase
         {
             // Get all subscribers for the current event key
             var subscriptions = GetSubscriptions<TEvent>(key);
             // Add a new handler
-            subscriptions.Add((key: key, asyncHandler: asyncHandler));
+            _subscriptions[key].Add(asyncHandler);
+            //subscriptions.Add((key: key, asyncHandler: asyncHandler));
         }
 
-        public void Unsubscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : IEvent
+        public void Unsubscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : EventBase
         {
             // Get all subscribers for the current event key
             var subscriptions = GetSubscriptions<TEvent>(key);
@@ -61,19 +62,20 @@ namespace Ballast.Core.Messaging
             // If the handler index was obtained
             if (!remove.Equals(default((string, Func<TEvent, Task>))))
                 // remove the subscription from the collection
-                subscriptions.Remove(remove);
+                _subscriptions[key].Remove(remove.asyncHandler);
+                //subscriptions.Remove(remove);
         }
             
-        private IList<(string key, Func<TEvent, Task> asyncHandler)> GetSubscriptions<TEvent>(string key) where TEvent: IEvent
+        private IEnumerable<(string key, Func<TEvent, Task> asyncHandler)> GetSubscriptions<TEvent>(string key) where TEvent: EventBase
         {
             // check if the current event signature/key already exists
             if (!_subscriptions.ContainsKey(key))
-                _subscriptions.Add(key, new List<Func<IEvent, Task>>()); // set to new collection
+                _subscriptions.Add(key, new List<Delegate>()); // set to new collection
             // get the subscription list
             var subscriptionList = _subscriptions[key]
                 .Select(asyncHandler => {
                     // Deconstruct asyncHandler
-                    Func<TEvent, Task> handler = (evt) => asyncHandler.Invoke((TEvent)evt);
+                    Func<TEvent, Task> handler = (evt) => ((Func<TEvent, Task>)asyncHandler).Invoke((TEvent)evt);
                     return (key, handler);
                 })
                 .ToList();
