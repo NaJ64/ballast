@@ -26,6 +26,12 @@ namespace Ballast.Web.Hubs
             _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
         }
 
+        ~GameHub()
+        {
+            _eventBus.Unsubscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
+            _eventBus.Unsubscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
+        }
+
         public async override Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
@@ -50,7 +56,8 @@ namespace Ballast.Web.Hubs
             var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
             foreach(var connectionId in connectionIds)
             {
-                await Clients.Client(connectionId).SendAsync("PlayerJoinedGame", evt);
+                var client = Clients.Client(connectionId);
+                await client?.SendAsync("PlayerJoinedGame", evt);
             }
         }
 
@@ -60,7 +67,8 @@ namespace Ballast.Web.Hubs
             var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
             foreach(var connectionId in connectionIds)
             {
-                await Clients.Client(connectionId).SendAsync("PlayerLeftGame", evt);
+                var client = Clients.Client(connectionId);
+                await client?.SendAsync("PlayerLeftGame", evt);
             }
         }
 
@@ -74,7 +82,8 @@ namespace Ballast.Web.Hubs
                 // but since the game only allows one connection per id right now
                 // it should be okay to just grab the first one
                 var connectionId = _playerConnections.GetAll(player.Id).FirstOrDefault();
-                playerConnectionIdList.Add(connectionId);
+                if (connectionId != null)
+                    playerConnectionIdList.Add(connectionId);
             }
             return playerConnectionIdList;
         }
