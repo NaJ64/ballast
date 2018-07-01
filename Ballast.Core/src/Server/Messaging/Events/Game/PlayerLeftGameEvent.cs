@@ -7,7 +7,7 @@ namespace Ballast.Core.Messaging.Events.Game
     public class PlayerLeftGameEvent : EventBase 
     {
 
-        public override string Id => nameof(PlayerJoinedGameEvent);
+        public override string Id => nameof(PlayerLeftGameEvent);
 
         private readonly Player _player;
 

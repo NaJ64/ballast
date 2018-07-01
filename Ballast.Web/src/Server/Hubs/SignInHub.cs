@@ -1,6 +1,7 @@
 using Ballast.Core.Messaging;
 using Ballast.Core.Services;
 using Ballast.Core.ValueObjects;
+using Ballast.Web.HubMethods;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;

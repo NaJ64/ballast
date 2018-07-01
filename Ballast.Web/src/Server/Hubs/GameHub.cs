@@ -3,6 +3,7 @@ using Ballast.Core.Messaging;
 using Ballast.Core.Messaging.Events.Game;
 using Ballast.Core.Services;
 using Ballast.Core.ValueObjects;
+using Ballast.Web.HubMethods;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -15,21 +16,15 @@ namespace Ballast.Web.Hubs
     public class GameHub : ServiceHubBase
     {
 
-        private readonly IGameService _gameService;
         private readonly IPlayerConnectionRepository<GameHub> _playerConnections;
+        private readonly IGameService _gameService;
+        private readonly GameHubMethods _hubMethods;
 
-        public GameHub(IEventBus eventBus, IPlayerConnectionRepository<GameHub> playerConnections, IGameService gameService) : base(eventBus)
+        public GameHub(IEventBus eventBus, IPlayerConnectionRepository<GameHub> playerConnections, IGameService gameService, GameHubMethods hubMethods) : base(eventBus)
         {
             _gameService = gameService;
             _playerConnections = playerConnections;
-            _eventBus.Subscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
-            _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
-        }
-
-        ~GameHub()
-        {
-            _eventBus.Unsubscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
-            _eventBus.Unsubscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
+            _hubMethods = hubMethods;
         }
 
         public async override Task OnConnectedAsync()
@@ -50,43 +45,30 @@ namespace Ballast.Web.Hubs
             await Task.CompletedTask;
         }
 
-        public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
-        {
-            // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
-            foreach(var connectionId in connectionIds)
-            {
-                var client = Clients.Client(connectionId);
-                await client?.SendAsync("PlayerJoinedGame", evt);
-            }
-        }
+        // public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
+        // {
+        //     // Lookup all clients that are already in the game and notify them
+        //     var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
+        //     foreach(var connectionId in connectionIds)
+        //     {
+        //         var client = Clients.Client(connectionId);
+        //         await client?.SendAsync("PlayerJoinedGame", evt);
+        //     }
+        // }
 
-        public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
-        {
-            // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
-            foreach(var connectionId in connectionIds)
-            {
-                var client = Clients.Client(connectionId);
-                await client?.SendAsync("PlayerLeftGame", evt);
-            }
-        }
+        // public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
+        // {
+        //     // Lookup all clients that are already in the game and notify them
+        //     var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
+        //     foreach(var connectionId in connectionIds)
+        //     {
+        //         var client = Clients.Client(connectionId);
+        //         await client?.SendAsync("PlayerLeftGame", evt);
+        //     }
+        // }
 
-        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(IGame game)
-        {
-            var foundGame = await _gameService.GetGameAsync(game.Id);
-            var playerConnectionIdList = new List<string>();
-            foreach(var player in foundGame.Players)
-            {
-                // This method returns a list of connections by client id
-                // but since the game only allows one connection per id right now
-                // it should be okay to just grab the first one
-                var connectionId = _playerConnections.GetAll(player.Id).FirstOrDefault();
-                if (connectionId != null)
-                    playerConnectionIdList.Add(connectionId);
-            }
-            return playerConnectionIdList;
-        }
+        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(IGame game) =>
+            await _hubMethods.GetPlayerConnectionsForGameAsync(game);
 
         public async Task GetTestGameIdAsync(Guid invocationId) 
         {
