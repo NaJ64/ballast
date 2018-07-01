@@ -17,9 +17,11 @@ import { PerspectiveTracker } from '../input/perspective-tracker';
 import { RenderingContext } from '../rendering/rendering-context';
 import { IChatClientService } from '../services/chat-client-service';
 import { IGameClientService } from '../services/game-client-service';
+import { ISignInClientService } from '../services/sign-in-client-service';
 import { SignalRChatService } from '../services/signalr/signalr-chat-service';
 import { SignalRGameService } from '../services/signalr/signalr-game-service';
 import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
+import { SignalRSignInService } from '../services/signalr/signalr-sign-in-service';
 import { TYPES_BALLAST } from './types';
 
 export function configureServices(container: Container, client: BallastClient): Container {
@@ -138,6 +140,9 @@ function configureClientServices(container: Container, client: BallastClient): C
         .inSingletonScope();
     container.bind<IGameClientService>(TYPES_BALLAST.IGameClientService)
         .to(SignalRGameService)
+        .inSingletonScope();
+    container.bind<ISignInClientService>(TYPES_BALLAST.ISignInClientService)
+        .to(SignalRSignInService)
         .inSingletonScope();
     return container;
 }

@@ -21,6 +21,7 @@ export abstract class SignalRServiceBase implements IDisposable {
     protected readonly subscriptions: Map<string, string>;
     protected readonly invocations: Map<string, Map<string, any>>;
     protected hubConnection?: signalR.HubConnection;
+    protected hubConnectionState: 'disconnected' | 'connected' | 'connecting';
 
     protected abstract get hubName(): string;
     protected afterSubscribe(hubConnection: signalR.HubConnection): void { }
@@ -35,6 +36,7 @@ export abstract class SignalRServiceBase implements IDisposable {
         this.methods = new Map<string, string>();
         this.subscriptions = new Map<string, string>();
         this.invocations = new Map<string, Map<string, any>>();
+        this.hubConnectionState = 'disconnected';
     }
 
     public dispose() {
@@ -45,33 +47,47 @@ export abstract class SignalRServiceBase implements IDisposable {
     }
 
     public get isConnected() {
-        return (!!this.hubConnection);
+        return (!!this.hubConnection && this.hubConnectionState == 'connected');
+    }
+
+    public get isConnecting() {
+        return (!!this.hubConnection && this.hubConnectionState == 'connecting');
     }
 
     public createHubConnection() {
         let options = this.serviceOptionsFactory();
         let hubName = this.hubName;
         let hub = `${options.serverUrl}/${hubName}`;
-        let connectionOptions: signalR.IHubConnectionOptions = {};
-        let connection = new signalR.HubConnection(hub, connectionOptions);
+        let connectionBuilder = new signalR.HubConnectionBuilder();
+        let connection = connectionBuilder.withUrl(hub).build();
         return connection;
     }
 
     public async connectAsync() {
-        if (this.isConnected || this.hubConnection) {
+        if (this.isConnected) {
             await this.disconnectAsync();
         }
+        this.hubConnectionState = 'connecting';
         this.hubConnection = this.createHubConnection();
         this.resubscribeToHubEvents();
         await this.hubConnection.start();
+        this.hubConnectionState = 'connected';
+        await this.registerClientAsync();
+    }
+
+    private async registerClientAsync() {
+        let options = this.serviceOptionsFactory();
+        let clientId = options.clientId;
+        await this.createInvocationAsync('registerClientAsync', clientId);
     }
 
     public async disconnectAsync() {
-        if (this.isConnected || this.hubConnection) {
+        if (this.hubConnection) {
             this.unsubscribeFromHubEvents();
             await (<signalR.HubConnection>this.hubConnection).stop();
         }
         this.hubConnection = undefined;
+        this.hubConnectionState = 'disconnected';
     }
 
     protected registerHubMethod(method: string) {
@@ -108,26 +124,35 @@ export abstract class SignalRServiceBase implements IDisposable {
         });
     }
 
+    protected onConnectionClosed() {
+        // Try to re-open
+        this.hubConnectionState = 'disconnected';
+        if (this.hubConnection) {
+            this.hubConnectionState = 'connecting';
+            this.hubConnection.start()
+                .then(() => this.hubConnectionState = 'connected');
+        }
+    }
+
     protected resubscribeToHubEvents() {
         // Unsubscribe from all (if already subscribed)
         this.unsubscribeFromHubEvents();
         // Make sure we have a hub connection instance
-        if (!this.isConnected) {
+        if (!this.hubConnection) {
             throw new Error('Cannot (re)subscribe to hub events without a hub connection');
         }
         // Iterate through registered hub methods
         this.methods.forEach(methodName => this.registerCallbackForHubMethod(methodName));
-        if (this.isConnected) {
-            this.afterSubscribe(<signalR.HubConnection>this.hubConnection);
-        }
+        this.afterSubscribe(this.hubConnection);
+        this.hubConnection.onclose = this.onConnectionClosed.bind(this);
     }
 
     protected unsubscribeFromHubEvents() {
-        if (this.isConnected) {
-            this.beforeUnsubscribe(<signalR.HubConnection>this.hubConnection);
+        if (this.hubConnection) {
+            this.beforeUnsubscribe(this.hubConnection);
             let subscriptions = Array.from(this.subscriptions.keys());
             for (let subscription of subscriptions) {
-                (<signalR.HubConnection>this.hubConnection).off(subscription);
+                this.hubConnection.off(subscription);
             }
         }
         this.subscriptions.clear();
@@ -148,6 +173,12 @@ export abstract class SignalRServiceBase implements IDisposable {
         if (!this.methods.has(method)) {
             this.registerHubMethod(method);
         }
+        if (this.isConnecting) {
+            throw new Error('Invocation could not be created because the service is still attempting to establish a connection')
+        }
+        if (!this.isConnected) {
+            await this.connectAsync();
+        }
         return await new Promise<TValue>((resolve, reject) => {
             let invocationList = this.getInvocationList(method);
             let invocationId = this.createInvocationId();
@@ -157,9 +188,12 @@ export abstract class SignalRServiceBase implements IDisposable {
     }
 
     private async invokeOnHubAsync(method: string, invocationId: string, ...args: any[]) {
+        if (this.isConnecting) {
+            throw new Error('Invocation could not take place because the service is still attempting to establish a connection')
+        }
         if (!this.isConnected) {
             await this.connectAsync()
-        }
+        } 
         if (this.isConnected) {
             let invocationIdPlusArgs = (<any[]>[invocationId]).concat(args);
             await (<signalR.HubConnection>this.hubConnection).invoke(method, ...invocationIdPlusArgs);

@@ -9,5 +9,8 @@ namespace Ballast.Core.Models
         IBoard Board { get; }
         IEnumerable<IVessel> Vessels { get; }
         IEnumerable<IPlayer> Players { get; }
+        DateTime CreatedUtc { get; }
+        DateTime? StartedUtc { get; }
+        DateTime? EndedUtc { get; }
     }
 }

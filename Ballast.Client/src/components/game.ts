@@ -1,4 +1,4 @@
-import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel, TileShape, ICreateVesselOptions } from 'ballast-core';
+import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel, TileShape, ICreateVesselOptions, ICreateGameOptions } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import * as uuid from 'uuid';
@@ -185,10 +185,10 @@ export class GameComponent extends ComponentBase {
         // Notify game component finished loading
         this.eventBus.publishAsync(new GameComponentLoadedEvent());
 
-        // Connect to the chat service/hub
-        if (!this.gameService.isConnected) {
-            this.gameService.connectAsync(); // Fire and forget
-        }
+        // // Connect to the chat service/hub
+        // if (!this.gameService.isConnected) {
+        //     this.gameService.connectAsync(); // Fire and forget
+        // }
 
     }
 
@@ -264,9 +264,6 @@ export class GameComponent extends ComponentBase {
             //     sourceOrderedTriple: sourceTile,
             //     targetOrderedTriple: targetTile
             // });
-            this.gameService.createNewGameAsync({
-                requestedName: 'Red October'
-            } as ICreateVesselOptions, 5, TileShape.Square);
         }
 
     }

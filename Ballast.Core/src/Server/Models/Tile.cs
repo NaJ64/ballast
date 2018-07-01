@@ -3,9 +3,9 @@ namespace Ballast.Core.Models
     public class Tile : ITile 
     {
 
-        private readonly CubicCoordinates _cubicCoordinates;
-        private readonly TileShape _tileShape;
-        private readonly Terrain _terrain;
+        private CubicCoordinates _cubicCoordinates;
+        private TileShape _tileShape;
+        private Terrain _terrain;
         
         public ICubicCoordinates CubicCoordinates => _cubicCoordinates;
         public ITileShape TileShape => _tileShape;

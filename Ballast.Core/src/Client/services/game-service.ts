@@ -1,48 +1,24 @@
 import { IGame } from '../models/game';
-import { ICreateVesselOptions } from '../value-objects/create-vessel-options';
 import { IVesselMoveRequest } from '../value-objects/vessel-move-request';
-import { ITileShape } from '../models/tile-shape';
+import { IDisposable } from '../interfaces/disposable';
+import { ICreateGameOptions } from '../value-objects/create-game-options';
+import { IAddPlayerOptions } from '../value-objects/add-player-options';
+import { IRemovePlayerOptions } from '../value-objects/remove-player-options';
+import { IVessel } from '../models/vessel';
 
-export interface IGameService {
-    
-    /**
-     * Submits a request to perform a vessel move / position update
-     * @param request 
-     */
+export interface IGameService extends IDisposable {
+    getAllGamesAsync(): Promise<IGame[]>;
+    getGameAsync(gameId: string): Promise<IGame>;
+    getTestGameIdAsync(): Promise<string>;
+    createGameAsync(options: ICreateGameOptions): Promise<IGame>;
+    startGameAsync(gameId: string): Promise<IGame>;
+    endGameAsync(gameId: string): Promise<IGame>;
+    deleteGameAsync(gameId: string): Promise<void>;
+    addPlayerToGameAsync(options: IAddPlayerOptions): Promise<IGame>;
+    removePlayerFromGameAsync(options: IRemovePlayerOptions): Promise<IGame>;
+    addPlayerToVesselAsync(options: IAddPlayerOptions): Promise<IVessel>;
+    removePlayerFromVesselAsync(options: IRemovePlayerOptions): Promise<IVessel>;
+    addPlayerToVesselRoleAsync(options: IAddPlayerOptions): Promise<IVessel>;
+    removePlayerFromVesselRoleAsync(options: IRemovePlayerOptions): Promise<IVessel>;
     moveVesselAsync(request: IVesselMoveRequest): Promise<void>;
-
-    /**
-     * Requests a new game using the specified options
-     * @param vesselOptions 
-     * Single-vessel options for initial game configuration
-     * @param boardSize 
-     * (Optional) Initial board size (must be an odd integer)
-     * If not specified, the default board size will be used
-     * @param boardShape 
-     * (Optional) Initial board/tile shape
-     * If not specified a default board/tile shape will be used
-     */
-    createNewGameAsync(
-        vesselOptions: ICreateVesselOptions,
-        boardSize: number | undefined,
-        boardShape: ITileShape | undefined
-    ): Promise<IGame>;
-
-    /**
-     * Requests a new game using the specified options
-     * @param vesselOptions 
-     * Multiple vessel options for initial game configuration
-     * @param boardSize 
-     * (Optional) Initial board size (must be an odd integer)
-     * If not specified, the default board size will be used
-     * @param boardShape 
-     * (Optional) Initial board/tile shape
-     * If not specified a default board/tile shape will be used
-     */
-    createNewGameAsync(
-        vesselOptions: ICreateVesselOptions[],
-        boardSize: number | undefined,
-        boardShape: ITileShape | undefined
-    ): Promise<IGame>;
-
 }

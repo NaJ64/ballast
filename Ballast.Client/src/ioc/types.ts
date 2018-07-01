@@ -39,7 +39,8 @@ const TYPES_BALLAST = {
     ISignalRServiceOptions: Symbol.for('ISignalRServiceOptions'),
     ISignalRServiceOptionsFactory: Symbol.for('ISignalRServiceOptionsFactory'),
     IChatClientService: Symbol.for("IChatClientService"),
-    IGameClientService: Symbol.for("IGameClientService")
+    IGameClientService: Symbol.for("IGameClientService"),
+    ISignInClientService: Symbol.for("ISignInClientService")
 
 };
 

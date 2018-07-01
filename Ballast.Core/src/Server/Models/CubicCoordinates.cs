@@ -95,6 +95,66 @@ namespace Ballast.Core.Models
             return new int[] { X, Y, Z };
         }
 
+        public CubicCoordinates AddXSubtractY(int units)
+        {
+            // Right
+            return CubicCoordinates.FromProperties(
+                x: X + units,
+                y: Y - units,
+                z: Z
+            );
+        }
+
+        public CubicCoordinates AddXSubtractZ(int units)
+        {
+            // Right + Up
+            return CubicCoordinates.FromProperties(
+                x: X + units,
+                y: Y,
+                z: Z - units
+            );
+        }
+
+        public CubicCoordinates AddYSubtractX(int units)
+        {
+            // Left
+            return CubicCoordinates.FromProperties(
+                x: X - units,
+                y: Y + units,
+                z: Z
+            );
+        }
+
+        public CubicCoordinates AddYSubtractZ(int units)
+        {
+            // Left + Up
+            return CubicCoordinates.FromProperties(
+                x: X,
+                y: Y + units,
+                z: Z - units
+            );
+        }
+
+        public CubicCoordinates AddZSubtractX(int units)
+        {
+            // Left + Down            
+            return CubicCoordinates.FromProperties(
+                x: X - units,
+                y: Y,
+                z: Z + units
+            );
+        }
+
+        public CubicCoordinates AddZSubtractY(int units)
+        {
+            // Right + Down
+            return CubicCoordinates.FromProperties(
+                x: X,
+                y: Y - units,
+                z: Z + units
+            );
+        }
+
     }
 
 }

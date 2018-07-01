@@ -1,4 +1,4 @@
-import { Game } from '../../../models/game';
+import { Game, IGame } from '../../../models/game';
 import { EventBase } from '../../event-base';
 
 export class GameStateChangedEvent extends EventBase {
@@ -9,7 +9,7 @@ export class GameStateChangedEvent extends EventBase {
         return GameStateChangedEvent.id;
     }
 
-    public readonly game?: Game; 
+    public readonly game?: IGame; 
 
     public constructor(game?: Game) {
         super();

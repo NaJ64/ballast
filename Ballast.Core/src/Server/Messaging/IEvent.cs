@@ -6,7 +6,7 @@ namespace Ballast.Core.Messaging
     public interface IEvent 
     {
         
-        Guid Id { get; }
+        string Id { get; }
 
     }
 }

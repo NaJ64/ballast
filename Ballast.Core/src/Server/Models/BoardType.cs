@@ -7,8 +7,8 @@ namespace Ballast.Core.Models
     public class BoardType : StaticListTypeBase<BoardType>, IBoardType
     {
 
-        public readonly static BoardType Rectangle = new BoardType(value: 0, name: "Rectangle", centerOrigin: false);
-        public readonly static BoardType RegularPolygon = new BoardType(value: 1, name: "RegularPolygon", centerOrigin: true);
+        public readonly static BoardType Rectangle = new BoardType(value: 0, name: nameof(Rectangle), centerOrigin: false);
+        public readonly static BoardType RegularPolygon = new BoardType(value: 1, name: nameof(RegularPolygon), centerOrigin: true);
 
         public bool CenterOrigin { get; private set; }
 

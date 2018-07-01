@@ -6,6 +6,6 @@ namespace Ballast.Core.Services
 {
     public interface IChatService : IDisposable
     {
-        Task SendMessageAsync(IChatMessage message);
+        Task SendMessageAsync(ChatMessage message);
     }
 }

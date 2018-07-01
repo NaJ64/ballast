@@ -3,7 +3,7 @@ using System;
 
 namespace Ballast.Core.ValueObjects
 {
-    public class ChatMessage : IChatMessage
+    public class ChatMessage
     {
         public Guid? GameId { get; set; }
         public string From { get; set; }

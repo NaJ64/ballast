@@ -1,4 +1,5 @@
 using Ballast.Core.Messaging;
+using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
@@ -13,6 +14,26 @@ namespace Ballast.Web.Hubs
         public ServiceHubBase(IEventBus eventBus) 
         {
             _eventBus = eventBus;
+        }
+
+        public async Task RegisterClientAsync(Guid invocationId, Guid clientId)
+        {
+            try
+            {
+                // TODO: Map the Context.ConnectionId and clientId together
+                await OnClientRegisteredAsync(Context.ConnectionId, clientId);
+                await ResolveAsync(Clients.Caller, nameof(RegisterClientAsync), invocationId);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(RegisterClientAsync), invocationId, ex.Message);
+            }
+        }
+
+        public virtual Task OnClientRegisteredAsync(string connectionId, Guid clientId)
+        {
+            // Override me
+            return Task.CompletedTask;
         }
 
         protected async Task ResolveAsync(IClientProxy client, string clientMethodName, Guid invocationId) =>
