@@ -1,8 +1,9 @@
 import { IGame } from '../../../models/game';
 import { IPlayer } from '../../../models/player';
+import { IEvent } from '../../event';
 import { EventBase } from '../../event-base';
 
-export interface IPlayerJoinedGameEvent {
+export interface IPlayerJoinedGameEvent extends IEvent {
     readonly game: IGame;
     readonly player: IPlayer;
 }

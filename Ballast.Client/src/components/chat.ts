@@ -1,4 +1,4 @@
-import { ChatMessageReceivedEvent, IChatMessage, IEventBus } from 'ballast-core';
+import { ChatMessageReceivedEvent, IChatMessage, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
@@ -12,6 +12,8 @@ export class ChatComponent extends ComponentBase {
 
     private readonly chatService: IChatClientService;
     private readonly chatMessageReceivedHandler: (event: ChatMessageReceivedEvent) => Promise<void>;
+    private readonly playerJoinedGameEventHandler: (event: IPlayerJoinedGameEvent) => Promise<void>;
+    private readonly playerLeftGameEventHandler: (event: IPlayerLeftGameEvent) => Promise<void>;
     private readonly chatInputFocusListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatInputBlurListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatFormSubmitListener: (this: HTMLInputElement, ev: Event) => any;
@@ -34,6 +36,8 @@ export class ChatComponent extends ComponentBase {
         this.chatForm = chatElements["2"];
         this.chatInput = chatElements["3"];
         this.chatMessageReceivedHandler = this.onChatMessageReceivedAsync.bind(this);
+        this.playerJoinedGameEventHandler = this.onPlayerJoinedGameAsync.bind(this);
+        this.playerLeftGameEventHandler = this.onPlayerLeftGameAsync.bind(this);
         this.chatInputFocusListener = this.onChatInputFocus.bind(this);
         this.chatInputBlurListener = this.onChatInputBlur.bind(this);
         this.chatFormSubmitListener = this.onChatFormSubmit.bind(this);
@@ -143,6 +147,8 @@ export class ChatComponent extends ComponentBase {
 
     private subscribeToEvents() {
         this.eventBus.subscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
+        this.eventBus.subscribe(PlayerJoinedGameEvent.id, this.playerJoinedGameEventHandler);
+        this.eventBus.subscribe(PlayerLeftGameEvent.id, this.playerLeftGameEventHandler);
         this.chatInput.addEventListener('focus', this.chatInputFocusListener);
         this.chatInput.addEventListener('blur', this.chatInputBlurListener);
         this.chatForm.addEventListener('submit', this.chatFormSubmitListener);
@@ -155,18 +161,39 @@ export class ChatComponent extends ComponentBase {
         this.chatForm.removeEventListener('submit', this.chatFormSubmitListener);
     }
 
-    private async onChatMessageReceivedAsync(event: ChatMessageReceivedEvent) {
-        this.appendMessageToHistory(event.message);
+    private async onChatMessageReceivedAsync(evt: ChatMessageReceivedEvent) {
+        this.appendMessageToHistory(evt.message);
+    }
+
+    private async onPlayerJoinedGameAsync(evt: IPlayerJoinedGameEvent) {
+        let messageText = `[${evt.player.name}] has joined the game`;
+        this.appendGameNotificationToHistory(messageText);
+    }
+
+    private async onPlayerLeftGameAsync(evt: IPlayerLeftGameEvent) {
+        let messageText = `[${evt.player.name}] has left the game`;
+        this.appendGameNotificationToHistory(messageText);
+    }
+
+    private appendGameNotificationToHistory(notification: string) {
+        if (this.chatHistory) {
+            let item = this.chatHistory.ownerDocument.createElement('li');
+            //let timestampDate = new Date(Date.now());
+            let messageDisplay = `${notification}`;
+            item.innerText = messageDisplay;
+            this.chatHistory.appendChild(item);
+            this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+        }
     }
 
     private appendMessageToHistory(message: IChatMessage) {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
-            let timestampDate = new Date(message.timestampText + 'Z');
+            //let timestampDate = new Date(message.timestampText + 'Z');
             let messageDisplay = `[${message.from}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);
-            this.chatHistory.scrollTop = this.chatHistory.scrollHeight
+            this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
         }
     }
 
