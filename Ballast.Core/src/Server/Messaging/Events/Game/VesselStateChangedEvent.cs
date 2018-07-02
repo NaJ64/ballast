@@ -15,7 +15,8 @@ namespace Ballast.Core.Messaging.Events.Game
 
         public IVessel Vessel => Game.Vessels.SingleOrDefault(x => x.Id == _vesselId);
 
-        public VesselStateChangedEvent(Models.Game game, Vessel vessel) : base() {
+        public VesselStateChangedEvent(Models.Game game, Vessel vessel) : base() 
+        {
             Game = game;
             _vesselId = vessel.Id;
         }

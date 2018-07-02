@@ -10,7 +10,7 @@ export interface IPlayerJoinedGameEvent extends IEvent {
 
 export class PlayerJoinedGameEvent extends EventBase implements IPlayerJoinedGameEvent {
 
-    public static readonly id: Symbol = Symbol.for('PlayerJoinedGameEvent');
+    public static readonly id: string = 'PlayerJoinedGameEvent';
 
     public get id() {
         return PlayerJoinedGameEvent.id;
@@ -19,8 +19,9 @@ export class PlayerJoinedGameEvent extends EventBase implements IPlayerJoinedGam
     public readonly game: IGame; 
     public readonly player: IPlayer; 
 
-    public constructor(game: IGame, player: IPlayer) {
-        super();
+    public constructor(game: IGame, player: IPlayer)
+    public constructor(game: IGame, player: IPlayer, isoDateTime?: string) {
+        super(isoDateTime);
         this.game = game;
         this.player = player;
     }

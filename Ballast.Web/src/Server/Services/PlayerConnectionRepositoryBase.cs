@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace Ballast.Web.Services
 {
-    public abstract class PlayerConnectionRepositoryBase<TServiceHub> : IPlayerConnectionRepository<TServiceHub> 
+    public class PlayerConnectionRepository<TServiceHub> : IPlayerConnectionRepository<TServiceHub> 
         where TServiceHub : ServiceHubBase
     {
 
         private readonly IDictionary<string, Guid?> _playerConnections;
 
-        public PlayerConnectionRepositoryBase() 
+        public PlayerConnectionRepository() 
         {
             _playerConnections = new Dictionary<string, Guid?>();
         }

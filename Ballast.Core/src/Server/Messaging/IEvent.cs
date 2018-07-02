@@ -7,6 +7,7 @@ namespace Ballast.Core.Messaging
     {
         
         string Id { get; }
+        string IsoDateTime { get; }
 
     }
 }

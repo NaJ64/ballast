@@ -9,11 +9,11 @@ namespace Ballast.Web.Hubs
     public abstract class ServiceHubBase : Hub
     {
 
-        protected readonly IEventBus _eventBus;
+        protected readonly IPlayerConnectionRepository _playerConnections;
 
-        public ServiceHubBase(IEventBus eventBus) 
+        public ServiceHubBase(IPlayerConnectionRepository playerConnections) 
         {
-            _eventBus = eventBus;
+            _playerConnections = playerConnections;
         }
 
         public async Task RegisterClientAsync(Guid invocationId, Guid clientId)

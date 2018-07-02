@@ -1,9 +1,14 @@
 import { IChatMessage } from '../../../value-objects';
+import { IEvent } from '../../event';
 import { EventBase } from '../../event-base';
 
-export class ChatMessageReceivedEvent extends EventBase {
+export interface IChatMessageReceivedEvent extends IEvent {
+    readonly message: IChatMessage;
+}
 
-    public static readonly id: Symbol = Symbol.for('ChatMessageReceivedEvent');
+export class ChatMessageReceivedEvent extends EventBase implements IChatMessageReceivedEvent {
+
+    public static readonly id: string = 'ChatMessageReceivedEvent';
 
     public get id() {
         return ChatMessageReceivedEvent.id;
@@ -11,8 +16,9 @@ export class ChatMessageReceivedEvent extends EventBase {
 
     public readonly message: IChatMessage; 
 
-    public constructor(message: IChatMessage) {
-        super();
+    public constructor(message: IChatMessage) 
+    public constructor(message: IChatMessage, isoDateTime?: string) {
+        super(isoDateTime);
         this.message = message;
     }
 

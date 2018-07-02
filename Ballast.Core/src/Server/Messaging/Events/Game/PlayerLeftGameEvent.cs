@@ -15,7 +15,8 @@ namespace Ballast.Core.Messaging.Events.Game
 
         public IPlayer Player => _player;
 
-        public PlayerLeftGameEvent(Models.Game game, Player player) : base() {
+        public PlayerLeftGameEvent(Models.Game game, Player player) : base() 
+        {
             Game = game;
             _player = player;
         }

@@ -10,7 +10,7 @@ export interface IPlayerLeftGameEvent extends IEvent {
 
 export class PlayerLeftGameEvent extends EventBase implements IPlayerLeftGameEvent {
 
-    public static readonly id: Symbol = Symbol.for('PlayerLeftGameEvent');
+    public static readonly id: string = 'PlayerLeftGameEvent';
 
     public get id() {
         return PlayerLeftGameEvent.id;
@@ -19,8 +19,9 @@ export class PlayerLeftGameEvent extends EventBase implements IPlayerLeftGameEve
     public readonly game: IGame; 
     public readonly player: IPlayer; 
 
-    public constructor(game: IGame, player: IPlayer) {
-        super();
+    public constructor(game: IGame, player: IPlayer)
+    public constructor(game: IGame, player: IPlayer, isoDateTime?: string) {
+        super(isoDateTime);
         this.game = game;
         this.player = player;
     }

@@ -15,7 +15,8 @@ namespace Ballast.Core.Messaging.Events.Game
 
         public IPlayer Player => Game.Players.SingleOrDefault(x => x.Id == _playerId);
 
-        public PlayerJoinedGameEvent(Models.Game game, Player player) : base() {
+        public PlayerJoinedGameEvent(Models.Game game, Player player) : base() 
+        {
             Game = game;
             _playerId = player.Id;
         }
