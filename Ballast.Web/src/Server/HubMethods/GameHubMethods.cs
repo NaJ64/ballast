@@ -1,4 +1,3 @@
-using Ballast.Core.Messaging;
 using Ballast.Core.Messaging.Events.Game;
 using Ballast.Core.Models;
 using Ballast.Core.Services;
@@ -15,15 +14,17 @@ namespace Ballast.Web.HubMethods
     {
 
         private readonly IGameService _gameService;
-        private readonly IPlayerConnectionRepository<GameHub> _playerConnections;
 
-        public GameHubMethods(IHubContext<GameHub> hubContext, IGameService gameService, IPlayerConnectionRepository<GameHub> playerConnections) : base(hubContext)
+        public GameHubMethods(
+            IHubContext<GameHub> hubContext, 
+            IPlayerConnectionRepository<GameHub> playerConnections, 
+            IGameService gameService
+        ) : base(hubContext, playerConnections)
         {
             _gameService = gameService;
-            _playerConnections = playerConnections;
         }
 
-        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(IGame game)
+        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(IGame game)
         {
             var foundGame = await _gameService.GetGameAsync(game.Id);
             var playerConnectionIdList = new List<string>();

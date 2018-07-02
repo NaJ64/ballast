@@ -68,6 +68,7 @@ namespace Ballast.Web
             });
 
             app.UseDefaultFiles();
+            
             app.UseStaticFiles();
 
             app.StartBallast();

@@ -8,9 +8,10 @@ namespace Ballast.Core.Messaging.Events.Game
 
         public override string Id => nameof(GameStateChangedEvent);
 
-        public IGame Game { get; private set; } 
-
-        public GameStateChangedEvent(Models.Game game = null) : base() {
+        public IGame Game { get; set; } 
+        
+        public GameStateChangedEvent(Models.Game game = null) : base() 
+        {
             Game = game;
         }
 

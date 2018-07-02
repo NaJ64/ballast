@@ -1,3 +1,4 @@
 export interface IEvent {
-    id: Symbol;
+    id: string;
+    isoDateTime: string;
 }

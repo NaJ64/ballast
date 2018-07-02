@@ -14,12 +14,16 @@ namespace Ballast.Web.Hubs
     public class SignInHub : ServiceHubBase
     {
 
-        private readonly IPlayerConnectionRepository<SignInHub> _playerConnections;
+        private readonly SignInHubMethods _hubMethods;
         private readonly ISignInService _signInService;
 
-        public SignInHub(IEventBus eventBus, IPlayerConnectionRepository<SignInHub> playerConnections, ISignInService signInService) : base(eventBus)
+        public SignInHub(
+            IPlayerConnectionRepository<SignInHub> playerConnections, 
+            SignInHubMethods hubMethods,
+            ISignInService signInService
+        ) : base(playerConnections)
         {
-            _playerConnections = playerConnections;
+            _hubMethods = hubMethods;
             _signInService = signInService;
         }
 

@@ -4,10 +4,11 @@ import 'jest';
 import { IEvent } from './event';
 import { IEventBus } from './event-bus';
 import { LocalEventBus } from './local-event-bus';
+import { getUtcNow } from '../utility/date-helpers';
 
 let handled = 0;
-let eventKey = Symbol.for('TestEvent');
-let event: IEvent = { id: eventKey };
+let eventKey = 'TestEvent';
+let event: IEvent = { id: eventKey, isoDateTime: getUtcNow().toISOString() };
 let handler1 = (event: IEvent) => {
     return new Promise<void>((resolve, reject) => {
         handled += 1;

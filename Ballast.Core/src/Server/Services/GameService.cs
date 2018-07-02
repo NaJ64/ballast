@@ -39,6 +39,7 @@ namespace Ballast.Core.Services
 
         public void Dispose() 
         { 
+            _eventBus.Unsubscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
             _games.Clear();
         }
 
@@ -155,10 +156,14 @@ namespace Ballast.Core.Services
 
         public async Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options)
         {
-            var game = await RetrieveGameByIdAsync(options.GameId);
-            if (options.PlayerId == default(Guid))
+            var gameId = options?.GameId ?? Guid.Empty;
+            if (gameId == default(Guid))
+                throw new ArgumentNullException(nameof(options.GameId));
+            var game = await RetrieveGameByIdAsync(gameId);
+            var playerId = options?.PlayerId;
+            if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            var player = Player.FromObject(game.Players.SingleOrDefault(x => x.Id.Equals(options.PlayerId)));
+            var player = Player.FromObject(game.Players.SingleOrDefault(x => x.Id.Equals(playerId)));
             game.RemovePlayer(player);
             // Raise event for player left game
             await _eventBus.PublishAsync(new PlayerLeftGameEvent(game, player));

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 namespace Ballast.Web.Services
 {
-    public interface IPlayerConnectionRepository<TServiceHub> where TServiceHub : ServiceHubBase
+
+    public interface IPlayerConnectionRepository
     {
         Guid? GetPlayerId(string connectionId);
         Guid? SetPlayerId(string connectionId, Guid? playerId);
@@ -13,5 +14,9 @@ namespace Ballast.Web.Services
         void Add(string connectionId, Guid? playerId = null);
         void Remove(string connectionId);
     }
+
+    public interface IPlayerConnectionRepository<TServiceHub> : IPlayerConnectionRepository 
+        where TServiceHub : ServiceHubBase { }
+
 }
 

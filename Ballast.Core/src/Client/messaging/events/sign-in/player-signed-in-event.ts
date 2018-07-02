@@ -1,22 +1,25 @@
 import { IPlayer } from '../../../models/player';
-import { getUtcNow } from '../../../utility/date-helpers';
+import { IEvent } from '../../event';
 import { EventBase } from '../../event-base';
 
-export class PlayerSignedInEvent extends EventBase {
+export interface IPlayerSignedInEvent extends IEvent {
+    readonly player: IPlayer;
+}
 
-    public static readonly id: Symbol = Symbol.for('PlayerSignedInEvent');
+export class PlayerSignedInEvent extends EventBase implements IPlayerSignedInEvent {
+
+    public static readonly id: string = 'PlayerSignedInEvent';
 
     public get id() {
         return PlayerSignedInEvent.id;
     }
 
-    public readonly player?: IPlayer; 
-    public readonly timeStamp?: Date;
+    public readonly player: IPlayer; 
 
-    public constructor(player?: IPlayer) {
-        super();
+    public constructor(player: IPlayer)
+    public constructor(player: IPlayer, isoDateTime?: string) {
+        super(isoDateTime);
         this.player = player;
-        this.timeStamp = getUtcNow();
     }
 
 }
