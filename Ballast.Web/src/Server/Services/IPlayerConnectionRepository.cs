@@ -1,4 +1,4 @@
-using Ballast.Web.Hubs;
+using Ballast.Web;
 using System;
 using System.Collections.Generic;
 
