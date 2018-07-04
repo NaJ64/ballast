@@ -4,6 +4,7 @@ using Ballast.Core.Services;
 using Ballast.Web.Hubs;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,9 +25,12 @@ namespace Ballast.Web.HubMethods
             _gameService = gameService;
         }
 
-        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Game game)
+        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Game game) => 
+            await GetPlayerConnectionsForGameAsync(game.Id);
+            
+        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Guid gameId)
         {
-            var foundGame = await _gameService.GetGameAsync(game.Id);
+            var foundGame = await _gameService.GetGameAsync(gameId);
             var playerConnectionIdList = new List<string>();
             foreach(var player in foundGame.Players)
             {

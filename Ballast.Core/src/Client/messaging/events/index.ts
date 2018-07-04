@@ -1,4 +1,3 @@
-export * from './chat-message-received';
 export * from './chat-message-sent';
 export * from './game-state-changed';
 export * from './player-joined-game';

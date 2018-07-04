@@ -52,6 +52,19 @@ namespace Ballast.Web.Hubs
             await Task.CompletedTask;
         }
 
+        public async Task SendMessageAsync(Guid invocationId, ChatMessage message)
+        {
+            try
+            {
+                await _chatService.SendMessageAsync(message);
+                await ResolveAsync(Clients.Caller, nameof(SendMessageAsync), invocationId);
+            }
+            catch (Exception ex)
+            {
+                await RejectAsync(Clients.Caller, nameof(SendMessageAsync), invocationId, ex.Message);
+            }
+        }
+
         public Task SendMessage(Guid invocationId, ChatMessage message)
         {
             return Clients.All.SendAsync("messageReceived", message);    

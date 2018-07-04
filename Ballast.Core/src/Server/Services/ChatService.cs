@@ -1,5 +1,6 @@
 using Ballast.Core.ValueObjects;
 using Ballast.Core.Messaging;
+using Ballast.Core.Messaging.Events;
 using System;
 using System.Threading.Tasks;
 
@@ -15,14 +16,12 @@ namespace Ballast.Core.Services
             _eventBus = eventBus;
         }
 
-        public void Dispose() 
-        { 
-            
-        }
+        public void Dispose() { }
 
-        public Task SendMessageAsync(ChatMessage message) 
+        public async Task SendMessageAsync(ChatMessage message) 
         {
-            throw new NotImplementedException();
+            await _eventBus.PublishAsync(ChatMessageSentEvent.FromMessage(message));
+            //throw new NotImplementedException();
         }
     }
 }
