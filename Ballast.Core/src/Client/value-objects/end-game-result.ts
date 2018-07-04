@@ -1,3 +1,1 @@
-export interface IEndGameResult {
-    
-}
+export interface IEndGameResult { }

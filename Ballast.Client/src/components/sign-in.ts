@@ -43,7 +43,7 @@ export class SignInComponent extends ComponentBase {
         let signInRequest: IPlayerSignInRequest = {
             playerId: this.viewport.getClientId(),
             playerName: null,
-            timestampText: getUtcNow().toISOString()
+            isoDateTime: getUtcNow().toISOString()
         };
         if (!this.signInClientService.isConnected) {
             await this.signInClientService.connectAsync();
@@ -54,7 +54,7 @@ export class SignInComponent extends ComponentBase {
     protected async signOutAndDisconnectAsync() {
         let signOutRequest: IPlayerSignOutRequest = {
             playerId: this.viewport.getClientId(),
-            timestampText: getUtcNow().toISOString()
+            isoDateTime: getUtcNow().toISOString()
         }
         if (this.signInClientService.isConnected) {
             await this.signInClientService.signOutAsync(signOutRequest);

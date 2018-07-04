@@ -1,6 +1,5 @@
 using Ballast.Core.Messaging;
-using Ballast.Core.Messaging.Events.Game;
-using Ballast.Core.Messaging.Events.SignIn;
+using Ballast.Core.Messaging.Events;
 using Ballast.Core.Models;
 using Ballast.Core.ValueObjects;
 using System;
@@ -14,8 +13,8 @@ namespace Ballast.Core.Services
     {
 
         private static int DEFAULT_BOARD_SIZE = 5;
-        private static IBoardType DEFAULT_BOARD_TYPE = BoardType.RegularPolygon;
-        private static ITileShape DEFAULT_TILE_SHAPE = TileShape.Hexagon;
+        private static BoardType DEFAULT_BOARD_TYPE = BoardType.RegularPolygon;
+        private static TileShape DEFAULT_TILE_SHAPE = TileShape.Hexagon;
 
         private readonly IEventBus _eventBus;
         private readonly IBoardGenerator _boardGenerator;
@@ -73,11 +72,11 @@ namespace Ballast.Core.Services
 
         public async Task<Guid> GetTestGameIdAsync() => await Task.FromResult(_defaultGame.Id);
 
-        public async Task<IEnumerable<IGame>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
+        public async Task<IEnumerable<Game>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
 
-        public async Task<IGame> GetGameAsync(Guid gameId) => await RetrieveGameByIdAsync(gameId);
+        public async Task<Game> GetGameAsync(Guid gameId) => await RetrieveGameByIdAsync(gameId);
 
-        public async Task<IGame> CreateGameAsync(CreateGameOptions options)
+        public async Task<Game> CreateGameAsync(CreateGameOptions options)
         {
             var gameId = Guid.NewGuid();
             var useBoardSize = options.BoardSize ?? DEFAULT_BOARD_SIZE;
@@ -100,18 +99,18 @@ namespace Ballast.Core.Services
             var createdUtc = DateTime.UtcNow;
             var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc); 
             _games[gameId] = game;
-            await _eventBus.PublishAsync(new GameStateChangedEvent(game));
+            await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));
             return game;
         }
 
-        public async Task<IGame> StartGameAsync(Guid gameId) 
+        public async Task<Game> StartGameAsync(Guid gameId) 
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.Start();
             return game;
         }
 
-        public async Task<IGame> EndGameAsync(Guid gameId)
+        public async Task<Game> EndGameAsync(Guid gameId)
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.End();
@@ -120,7 +119,7 @@ namespace Ballast.Core.Services
 
         public async Task DeleteGameAsync(Guid gameId) => await RemoveGameByIdAsync(gameId);
 
-        public async Task<IGame> AddPlayerToGameAsync(AddPlayerOptions options)
+        public async Task<Game> AddPlayerToGameAsync(AddPlayerOptions options)
         {
             // Locate game matching id from request
             var gameId = options.GameId;
@@ -149,12 +148,12 @@ namespace Ballast.Core.Services
                 }
             }
             // Raise event for player added into game
-            await _eventBus.PublishAsync(new PlayerJoinedGameEvent(game, player));
+            await _eventBus.PublishAsync(PlayerJoinedGameEvent.FromPlayerInGame(game, player));
             // Return the updated game
             return game;
         }
 
-        public async Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options)
+        public async Task<Game> RemovePlayerFromGameAsync(RemovePlayerOptions options)
         {
             var gameId = options?.GameId ?? Guid.Empty;
             if (gameId == default(Guid))
@@ -163,20 +162,20 @@ namespace Ballast.Core.Services
             var playerId = options?.PlayerId;
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            var player = Player.FromObject(game.Players.SingleOrDefault(x => x.Id.Equals(playerId)));
+            var player = game.Players.SingleOrDefault(x => x.Id.Equals(playerId));
             game.RemovePlayer(player);
             // Raise event for player left game
-            await _eventBus.PublishAsync(new PlayerLeftGameEvent(game, player));
+            await _eventBus.PublishAsync(PlayerLeftGameEvent.FromPlayerInGame(game, player));
             return game;
         }
 
-        public Task<IVessel> AddPlayerToVesselAsync(AddPlayerOptions options) => throw new NotImplementedException();
+        public Task<Vessel> AddPlayerToVesselAsync(AddPlayerOptions options) => throw new NotImplementedException();
 
-        public Task<IVessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options) => throw new NotImplementedException();
+        public Task<Vessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
-        public Task<IVessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options) => throw new NotImplementedException();
+        public Task<Vessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options) => throw new NotImplementedException();
 
-        public Task<IVessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) => throw new NotImplementedException();
+        public Task<Vessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
         public async Task MoveVesselAsync(VesselMoveRequest request) 
         {
@@ -187,7 +186,7 @@ namespace Ballast.Core.Services
             var game = await RetrieveGameByIdAsync(request.GameId);
 
             // Make sure we have a valid board
-            var board = game?.Board != null ? Board.FromObject(game.Board) : null;
+            var board = game?.Board != null ? game.Board : null;
             if (board == null)
                 throw new KeyNotFoundException($"Game id '{gameId}' contains invalid board data!");
 
@@ -198,7 +197,7 @@ namespace Ballast.Core.Services
             var foundVessel = game.Vessels.SingleOrDefault(x => x.Id == vesselId);
             if (foundVessel == null)
                 throw new KeyNotFoundException($"Could not locate vessel with id '{vesselId}'");
-            var vessel = Vessel.FromObject(foundVessel);
+            var vessel = foundVessel;
 
             // Derive current coordinates from request
             var requestStartCoordinates = CubicCoordinates.FromOrderedTriple(request.SourceOrderedTriple);
@@ -207,10 +206,10 @@ namespace Ballast.Core.Services
             // Make sure starting position matches current known position for vessel
             if (requestStartCoordinates.Equals(actualStartCoordinates))
                 throw new InvalidOperationException("Requested vessel movement(s) must originate from current vessel position");
-            var requestStartTile = Tile.FromObject(board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x)));
+            var requestStartTile = board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x));
 
             // Determine if request specifies only cardinal directions or an actual set of tile coordinates
-            ICubicCoordinates targetCoordinates = null;
+            CubicCoordinates targetCoordinates = null;
             var doubleIncrement = game.Board.TileShape.DoubleIncrement ?? false;
             var useCardinalDirections = !request.TargetOrderedTriple.Any();
             if (!useCardinalDirections) 
@@ -301,7 +300,7 @@ namespace Ballast.Core.Services
             await _eventBus.PublishAsync(new VesselStateChangedEvent(game, vessel));
 
             // Finished changing game state
-            await _eventBus.PublishAsync(new GameStateChangedEvent(game));
+            await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));
 
         }
 
@@ -325,7 +324,7 @@ namespace Ballast.Core.Services
             return vessels;
         }
 
-        private int GetTotalUnitDistance(bool doubleIncrement, ICubicCoordinates fromTileCoordinates, ICubicCoordinates toTileCoordinates)
+        private int GetTotalUnitDistance(bool doubleIncrement, CubicCoordinates fromTileCoordinates, CubicCoordinates toTileCoordinates)
         {
             var x1 = fromTileCoordinates.X;
             var y1 = fromTileCoordinates.Y;

@@ -13,22 +13,22 @@ namespace Ballast.Core.Services
 
         Task<Guid> GetTestGameIdAsync();
 
-        Task<IEnumerable<IGame>> GetAllGamesAsync();
-        Task<IGame> GetGameAsync(Guid gameId);
+        Task<IEnumerable<Game>> GetAllGamesAsync();
+        Task<Game> GetGameAsync(Guid gameId);
 
-        Task<IGame> CreateGameAsync(CreateGameOptions options);
-        Task<IGame> StartGameAsync(Guid gameId);
-        Task<IGame> EndGameAsync(Guid gameId);
+        Task<Game> CreateGameAsync(CreateGameOptions options);
+        Task<Game> StartGameAsync(Guid gameId);
+        Task<Game> EndGameAsync(Guid gameId);
         Task DeleteGameAsync(Guid gameId);
 
-        Task<IGame> AddPlayerToGameAsync(AddPlayerOptions options);
-        Task<IGame> RemovePlayerFromGameAsync(RemovePlayerOptions options);
+        Task<Game> AddPlayerToGameAsync(AddPlayerOptions options);
+        Task<Game> RemovePlayerFromGameAsync(RemovePlayerOptions options);
 
-        Task<IVessel> AddPlayerToVesselAsync(AddPlayerOptions options);
-        Task<IVessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options);
+        Task<Vessel> AddPlayerToVesselAsync(AddPlayerOptions options);
+        Task<Vessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options);
 
-        Task<IVessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options);
-        Task<IVessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options);
+        Task<Vessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options);
+        Task<Vessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options);
 
         Task MoveVesselAsync(VesselMoveRequest request);
 

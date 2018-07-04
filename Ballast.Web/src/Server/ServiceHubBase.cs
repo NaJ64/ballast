@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
 
-namespace Ballast.Web.Hubs
+namespace Ballast.Web
 {
     public abstract class ServiceHubBase : Hub
     {

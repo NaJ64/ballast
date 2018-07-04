@@ -9,8 +9,8 @@ namespace Ballast.Core.Services
     {
         Board CreateBoard(
             Guid id,
-            IBoardType boardType,
-            ITileShape tileShape,
+            BoardType boardType,
+            TileShape tileShape,
             int columnsOrSideLength,
             int? rows = null,
             decimal? landToWaterRatio = null

@@ -1,5 +1,5 @@
 using Ballast.Core.Messaging;
-using Ballast.Core.Messaging.Events.SignIn;
+using Ballast.Core.Messaging.Events;
 using Ballast.Core.Models;
 using Ballast.Core.ValueObjects;
 using System;
@@ -26,7 +26,7 @@ namespace Ballast.Core.Services
             _players.Clear();
         }
 
-        public async Task<IPlayer> SignInAsync(PlayerSignInRequest request)
+        public async Task<Player> SignInAsync(PlayerSignInRequest request)
         {
             var playerIdString = request?.PlayerId ?? throw new ArgumentNullException(nameof(request.PlayerId));
             var playerId = Guid.Parse(playerIdString);
@@ -38,7 +38,7 @@ namespace Ballast.Core.Services
                     name: playerName
                 );
                 _players.Add(playerId, player);
-                await _eventBus.PublishAsync(new PlayerSignedInEvent(player));
+                await _eventBus.PublishAsync(PlayerSignedInEvent.FromPlayer(player));
             }
             return _players[playerId];
         }
@@ -51,10 +51,10 @@ namespace Ballast.Core.Services
                 throw new KeyNotFoundException($"Player id not found ({playerId})");
             var player = _players[playerId];
             _players.Remove(playerId);
-            await _eventBus.PublishAsync(new PlayerSignedOutEvent(player));
+            await _eventBus.PublishAsync(PlayerSignedOutEvent.FromPlayer(player));
         }
 
-        public async Task<IPlayer> GetSignedInPlayerAsync(Guid playerId)
+        public async Task<Player> GetSignedInPlayerAsync(Guid playerId)
         {
             if (playerId.Equals(Guid.Empty))
                 throw new ArgumentNullException(nameof(playerId));

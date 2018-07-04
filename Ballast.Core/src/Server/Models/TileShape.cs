@@ -4,7 +4,22 @@ using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class TileShape : StaticListTypeBase<TileShape>, ITileShape
+
+    public class TileShapeState : StaticListTypeStateBase
+    {
+        public bool? ApplyHexRowScaling { get; set; }
+        public bool? DoubleIncrement { get; set; }
+        public bool? HasDirectionNorth { get; set; }
+        public bool? HasDirectionSouth { get; set; }
+        public bool? HasDirectionWest { get; set; }
+        public bool? HasDirectionEast { get; set; }
+        public bool? HasDirectionNorthWest { get; set; }
+        public bool? HasDirectionNorthEast { get; set; }
+        public bool? HasDirectionSouthWest { get; set; }
+        public bool? HasDirectionSouthEast { get; set; }
+    }
+
+    public class TileShape : StaticListTypeBase<TileShape>
     {
 
         public readonly static TileShape Square = new TileShape(
@@ -93,21 +108,6 @@ namespace Ballast.Core.Models
             HasDirectionSouthEast = hasDirectionSouthEast;
         }
 
-        private TileShape(ITileShape state) : this(
-            value: state.Value, 
-            name: state.Name, 
-            applyHexRowScaling: state.ApplyHexRowScaling,
-            doubleIncrement: state.DoubleIncrement,
-            hasDirectionNorth: state.HasDirectionNorth,
-            hasDirectionSouth: state.HasDirectionSouth,
-            hasDirectionWest: state.HasDirectionWest,
-            hasDirectionEast: state.HasDirectionEast,
-            hasDirectionNorthWest: state.HasDirectionNorthWest,
-            hasDirectionNorthEast: state.HasDirectionNorthEast,
-            hasDirectionSouthWest: state.HasDirectionSouthWest,
-            hasDirectionSouthEast: state.HasDirectionSouthEast
-        ) { }
-
         public static IEnumerable<TileShape> List() => new [] {
             TileShape.Square,
             TileShape.Octagon,
@@ -115,14 +115,15 @@ namespace Ballast.Core.Models
             TileShape.Circle
         };
 
-        public static TileShape FromObject(ITileShape state) =>
-            new TileShape(state);
-
         public static TileShape FromValue(int value) =>
             TileShape.List().Single(x => x.Value == value);
 
         public static TileShape FromString(string name) =>
             TileShape.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
 
+        public static implicit operator TileShape(TileShapeState state) =>
+            TileShape.FromValue(state.Value);
+
     }
+
 }

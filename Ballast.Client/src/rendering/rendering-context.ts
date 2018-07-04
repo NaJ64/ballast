@@ -1,4 +1,4 @@
-import { Game, IGame, IEventBus, GameStateChangedEvent } from 'ballast-core';
+import { GameStateChangedEvent, IEventBus, IGame } from 'ballast-core';
 import * as THREE from 'three';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 

@@ -17,9 +17,9 @@ namespace Ballast.Web
             services.AddSingleton<SignInHubMethods>();
             services.AddSingleton<GameHubMethods>();
 
-            services.AddSingleton<IPlayerConnectionRepository<ChatHub>, PlayerConnectionRepository<ChatHub>>();
-            services.AddSingleton<IPlayerConnectionRepository<GameHub>, PlayerConnectionRepository<GameHub>>();
-            services.AddSingleton<IPlayerConnectionRepository<SignInHub>, PlayerConnectionRepository<SignInHub>>();
+            services.AddSingleton<IPlayerConnectionRepository<ChatHub>, LocalPlayerConnectionRepository<ChatHub>>();
+            services.AddSingleton<IPlayerConnectionRepository<GameHub>, LocalPlayerConnectionRepository<GameHub>>();
+            services.AddSingleton<IPlayerConnectionRepository<SignInHub>, LocalPlayerConnectionRepository<SignInHub>>();
 
             services.AddSingleton<ServiceHubEventDispatcher>(serviceProvider => 
                 ServiceHubEventDispatcher.GetInstance(serviceProvider));

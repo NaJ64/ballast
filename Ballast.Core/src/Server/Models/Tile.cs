@@ -1,37 +1,37 @@
 namespace Ballast.Core.Models
 {
-    public class Tile : ITile 
+
+    public class TileState 
+    {
+        public CubicCoordinates CubicCoordinates { get; set; }
+        public TileShape TileShape { get; set; }
+        public Terrain Terrain { get; set; }
+    }
+
+    public class Tile
     {
 
-        private CubicCoordinates _cubicCoordinates;
-        private TileShape _tileShape;
-        private Terrain _terrain;
-        
-        public ICubicCoordinates CubicCoordinates => _cubicCoordinates;
-        public ITileShape TileShape => _tileShape;
-        public ITerrain Terrain => _terrain;
+        public CubicCoordinates CubicCoordinates { get; private set; }
+        public TileShape TileShape { get; private set; }
+        public Terrain Terrain { get; private set; }
 
-        private Tile(ICubicCoordinates cubicCoordinates, ITileShape tileShape, ITerrain terrain)
+        private Tile(CubicCoordinates cubicCoordinates, TileShape tileShape, Terrain terrain)
         {
-            _cubicCoordinates = Models.CubicCoordinates.FromObject(cubicCoordinates);
-            _tileShape = Models.TileShape.FromObject(tileShape);
-            _terrain = Models.Terrain.FromObject(terrain);
+            CubicCoordinates = cubicCoordinates;
+            TileShape = tileShape;
+            Terrain = terrain;
         }
 
-        private Tile(ITile state) : this(
-            cubicCoordinates: state.CubicCoordinates,
-            tileShape: state.TileShape,
-            terrain: state.Terrain
-        ) { }
-
-        public static Tile FromObject(ITile state) => new Tile(state);
-
-        public static Tile FromProperties(ICubicCoordinates cubicCoordinates, ITileShape tileShape, ITerrain terrain) => 
+        public static Tile FromProperties(CubicCoordinates cubicCoordinates, TileShape tileShape, Terrain terrain) => 
             new Tile(
                 cubicCoordinates: cubicCoordinates,
                 tileShape: tileShape,
                 terrain: terrain
             );
 
+        public static implicit operator Tile(TileState state) =>
+            new Tile(state.CubicCoordinates, state.TileShape, state.Terrain);
+
     }
+
 }

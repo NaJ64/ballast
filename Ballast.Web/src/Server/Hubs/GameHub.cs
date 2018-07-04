@@ -1,6 +1,6 @@
 using Ballast.Core.Models;
 using Ballast.Core.Messaging;
-using Ballast.Core.Messaging.Events.Game;
+using Ballast.Core.Messaging.Events;
 using Ballast.Core.Services;
 using Ballast.Core.ValueObjects;
 using Ballast.Web.HubMethods;

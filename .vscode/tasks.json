@@ -167,7 +167,11 @@
             "label": "Ballast.Web - Run/Watch (.NET Core)",
             "identifier": "web-dotnet-watch-run",
             "options": {
-                "cwd": "${workspaceFolder}/Ballast.Web"
+                "cwd": "${workspaceFolder}/Ballast.Web",
+                "env": {
+                    "ASPNETCORE_ENVIRONMENT": "Development",
+                    "ASPNETCORE_URLS": "http://localhost:80;https://localhost:443"
+                }
             },
             "isBackground": true,
             "type": "process",

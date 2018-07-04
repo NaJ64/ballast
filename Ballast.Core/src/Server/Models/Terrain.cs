@@ -4,7 +4,13 @@ using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class Terrain : StaticListTypeBase<Terrain>, ITerrain
+
+    public class TerrainState : StaticListTypeStateBase
+    {
+        public bool Passable { get; set; }
+    }
+
+    public class Terrain : StaticListTypeBase<Terrain>
     {
     
         public readonly static Terrain Water = new Terrain(value: 0, name: nameof(Water), passable: true );
@@ -18,20 +24,11 @@ namespace Ballast.Core.Models
             Passable = passable;
         }
 
-        private Terrain(ITerrain state) : this(
-            value: state.Value, 
-            name: state.Name, 
-            passable: state.Passable
-        ) { }
-        
         public static IEnumerable<Terrain> List() => new [] {
             Terrain.Water,
             Terrain.Coast,
             Terrain.Land
         };
-
-        public static Terrain FromObject(ITerrain state) =>
-            new Terrain(state);
 
         public static Terrain FromValue(int value) =>
             Terrain.List().Single(x => x.Value == value);
@@ -39,5 +36,9 @@ namespace Ballast.Core.Models
         public static Terrain FromString(string name) =>
             Terrain.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
 
+        public static implicit operator Terrain(TerrainState state) =>
+            Terrain.FromValue(state.Value);
+
     }
+
 }

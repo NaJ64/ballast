@@ -7,8 +7,8 @@ namespace Ballast.Core.Services
 {
     public interface ISignInService : IDisposable
     {
-        Task<IPlayer> SignInAsync(PlayerSignInRequest request);
+        Task<Player> SignInAsync(PlayerSignInRequest request);
         Task SignOutAsync(PlayerSignOutRequest request);
-        Task<IPlayer> GetSignedInPlayerAsync(Guid playerId);
+        Task<Player> GetSignedInPlayerAsync(Guid playerId);
     }
 }

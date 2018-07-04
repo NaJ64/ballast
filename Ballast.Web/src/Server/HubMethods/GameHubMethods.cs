@@ -1,4 +1,4 @@
-using Ballast.Core.Messaging.Events.Game;
+using Ballast.Core.Messaging.Events;
 using Ballast.Core.Models;
 using Ballast.Core.Services;
 using Ballast.Web.Hubs;
@@ -24,7 +24,7 @@ namespace Ballast.Web.HubMethods
             _gameService = gameService;
         }
 
-        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(IGame game)
+        private async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Game game)
         {
             var foundGame = await _gameService.GetGameAsync(game.Id);
             var playerConnectionIdList = new List<string>();
