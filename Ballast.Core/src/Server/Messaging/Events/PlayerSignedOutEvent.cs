@@ -1,7 +1,7 @@
 using Ballast.Core.Models;
 using System;
 
-namespace Ballast.Core.Messaging.Events.SignIn
+namespace Ballast.Core.Messaging.Events
 {
     public class PlayerSignedOutEvent : EventBase 
     {

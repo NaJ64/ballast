@@ -1,7 +1,7 @@
 using Ballast.Core.Models;
 using System;
 
-namespace Ballast.Core.Messaging.Events.Game
+namespace Ballast.Core.Messaging.Events
 {
     public class GameStateChangedEvent : EventBase 
     {

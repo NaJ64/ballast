@@ -1,5 +1,5 @@
 using Ballast.Core.Messaging;
-using Ballast.Core.Messaging.Events.SignIn;
+using Ballast.Core.Messaging.Events;
 using Ballast.Core.Models;
 using Ballast.Core.ValueObjects;
 using System;

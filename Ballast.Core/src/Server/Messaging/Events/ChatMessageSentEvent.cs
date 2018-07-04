@@ -1,6 +1,6 @@
 using Ballast.Core.ValueObjects;
 
-namespace Ballast.Core.Messaging.Events.Game
+namespace Ballast.Core.Messaging.Events
 {
     public class ChatMessageSentEvent : EventBase 
     {

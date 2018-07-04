@@ -1,4 +1,4 @@
-using Ballast.Core.Messaging.Events.Game;
+using Ballast.Core.Messaging.Events;
 using Ballast.Core.Models;
 using Ballast.Core.Services;
 using Ballast.Web.Hubs;

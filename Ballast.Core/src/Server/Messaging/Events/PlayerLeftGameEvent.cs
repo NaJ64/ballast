@@ -2,7 +2,7 @@ using Ballast.Core.Models;
 using System;
 using System.Linq;
 
-namespace Ballast.Core.Messaging.Events.Game
+namespace Ballast.Core.Messaging.Events
 {
     public class PlayerLeftGameEvent : EventBase 
     {
