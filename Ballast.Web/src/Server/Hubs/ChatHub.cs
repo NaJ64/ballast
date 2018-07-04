@@ -65,10 +65,6 @@ namespace Ballast.Web.Hubs
             }
         }
 
-        public Task SendMessage(Guid invocationId, ChatMessage message)
-        {
-            return Clients.All.SendAsync("messageReceived", message);    
-        }
         
     }
 }

@@ -192,7 +192,7 @@ export class ChatComponent extends ComponentBase {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
             //let timestampDate = new Date(message.timestampText + 'Z');
-            let messageDisplay = `[${message.from}]:  ${message.text}`;
+            let messageDisplay = `[${message.fromPlayerName}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);
             this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
@@ -236,16 +236,17 @@ export class ChatComponent extends ComponentBase {
 
     private async sendMessageFromTextAsync(text: string) {
         let game = this.viewport.getRenderingContext().game;
+        let playerId = this.viewport.getClientId();
         let gameId: string | null = null;
         if (game) {
             gameId = game.id;
         }
         let channel = 'global';
-        let from = 'anonymous';
         await this.chatService.sendMessageAsync({
             gameId: gameId,
             channel: channel,
-            from: from,
+            fromPlayerId: playerId,
+            fromPlayerName: undefined,
             isoDateTime: getUtcNow().toISOString(),
             text: text
         });

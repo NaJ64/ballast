@@ -3,6 +3,7 @@ using Ballast.Core.Services;
 using Ballast.Web.Hubs;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Ballast.Web.HubMethods
@@ -23,14 +24,14 @@ namespace Ballast.Web.HubMethods
 
         public async Task OnChatMessageSentAsync(ChatMessageSentEvent evt)
         {
-            await Task.CompletedTask;
-            // // Lookup all clients that are already in the game and notify them
-            // var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
-            // foreach(var connectionId in connectionIds)
-            // {
-            //     var client = _hubContext.Clients.Client(connectionId);
-            //     await client?.SendAsync("PlayerLeftGame", evt);
-            // }
+            // Lookup all clients that are already in the game and notify them
+            var connectionIds = _playerConnections.GetAll();
+            foreach(var connectionId in connectionIds)
+            {
+                var playerId = _playerConnections.GetPlayerId(connectionId);
+                var client = _hubContext.Clients.Client(connectionId);
+                await client?.SendAsync("ChatMessageSent", evt);
+            }
         }
 
     }

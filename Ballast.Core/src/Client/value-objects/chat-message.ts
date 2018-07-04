@@ -1,7 +1,8 @@
 export interface IChatMessage {
     gameId: string | null;
     channel: string;
-    from: string;
+    fromPlayerId: string;
+    fromPlayerName?: string;
     text: string;
     isoDateTime: string;
 }

@@ -44,8 +44,8 @@ export class SignalRChatService extends SignalRServiceBase implements IChatClien
 
     public async sendMessageAsync(message: IChatMessage): Promise<void> {
         await this.createInvocationAsync('sendMessageAsync', message);
-        let chatMessageSent = ChatMessageSentEvent.fromMessage(message);
-        await this.eventBus.publishAsync(chatMessageSent);
+        // let chatMessageSent = ChatMessageSentEvent.fromMessage(message);
+        // await this.eventBus.publishAsync(chatMessageSent);
     }
 
     // public async receiveMessageAsync(message: IChatMessage) {
