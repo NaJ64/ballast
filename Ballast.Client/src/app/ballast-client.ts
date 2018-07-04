@@ -80,7 +80,7 @@ export class BallastClient implements IDisposable {
         };
         let testGame = Game.fromObject(await gameService.addPlayerToGameAsync(addPlayerOptions));
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);
-        await eventBus.publishAsync(new GameStateChangedEvent(testGame));
+        await eventBus.publishAsync(GameStateChangedEvent.fromGame(testGame));
     }
 
     // public async startTestAsync(): Promise<void> {

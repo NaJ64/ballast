@@ -16,10 +16,21 @@ export class ChatMessageReceivedEvent extends EventBase implements IChatMessageR
 
     public readonly message: IChatMessage; 
 
-    public constructor(message: IChatMessage) 
-    public constructor(message: IChatMessage, isoDateTime?: string) {
-        super(isoDateTime);
-        this.message = message;
+    private constructor(state: IChatMessageReceivedEvent) {
+        super(state.isoDateTime);
+        this.message = state.message;
+    }
+
+    public static fromObject(object: IChatMessageReceivedEvent) {
+        return new ChatMessageReceivedEvent(object);
+    }
+
+    public static fromMessage(message: IChatMessage) {
+        return new ChatMessageReceivedEvent({
+            id: ChatMessageReceivedEvent.id,
+            isoDateTime: EventBase.getIsoDateTime(),
+            message: message
+        });
     }
 
 }

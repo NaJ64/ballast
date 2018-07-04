@@ -1,4 +1,4 @@
-import { IPlayer } from '../../models/player';
+import { IPlayer, Player } from '../../models/player';
 import { IEvent } from '../event';
 import { EventBase } from '../event-base';
 
@@ -16,10 +16,21 @@ export class PlayerSignedInEvent extends EventBase implements IPlayerSignedInEve
 
     public readonly player: IPlayer; 
 
-    public constructor(player: IPlayer)
-    public constructor(player: IPlayer, isoDateTime?: string) {
-        super(isoDateTime);
-        this.player = player;
+    private constructor(state: IPlayerSignedInEvent) {
+        super(state.isoDateTime);
+        this.player = Player.fromObject(state.player);
+    }
+
+    public static fromObject(object: IPlayerSignedInEvent) {
+        return new PlayerSignedInEvent(object);
+    }
+
+    public static fromPlayer(player: IPlayer) {
+        return new PlayerSignedInEvent({
+            id: PlayerSignedInEvent.id,
+            isoDateTime: EventBase.getIsoDateTime(),
+            player: player
+        });
     }
 
 }

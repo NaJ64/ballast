@@ -34,18 +34,18 @@ export class SignalRGameService extends SignalRServiceBase implements IGameServi
 
     private onGameStateChanged(update: IGame) {
         let game = Game.fromObject(update);
-        let gameStateChanged = new GameStateChangedEvent(game);
+        let gameStateChanged = GameStateChangedEvent.fromGame(game);
         this.eventBus.publishAsync(gameStateChanged); // Fire and forget
     }
 
     private onPlayerJoinedGame(evt: IPlayerJoinedGameEvent) {
-        let playerJoinedGame = new PlayerJoinedGameEvent(evt.game, evt.player);
+        let playerJoinedGame = PlayerJoinedGameEvent.fromObject(evt);
         //alert('player joined game');
         this.eventBus.publishAsync(playerJoinedGame); // Fire and forget
     }
 
     private onPlayerLeftGame(evt: IPlayerLeftGameEvent) {
-        let playerLeftGame = new PlayerLeftGameEvent(evt.game, evt.player);
+        let playerLeftGame = PlayerLeftGameEvent.fromObject(evt);
         //alert('player left game');
         this.eventBus.publishAsync(playerLeftGame); // Fire and forget
     }

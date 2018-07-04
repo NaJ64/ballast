@@ -14,12 +14,23 @@ export class GameStateChangedEvent extends EventBase implements IGameStateChange
         return GameStateChangedEvent.id;
     }
 
-    public readonly game?: IGame; 
+    public readonly game?: Game; 
 
-    public constructor(game?: Game)
-    public constructor(game?: Game, isoDateTime?: string) {
-        super(isoDateTime);
-        this.game = game;
+    private constructor(state: IGameStateChangedEvent) {
+        super(state.isoDateTime);
+        this.game = state.game && Game.fromObject(state.game) || undefined;
+    }
+
+    public static fromObject(object: IGameStateChangedEvent) {
+        return new GameStateChangedEvent(object);
+    }
+
+    public static fromGame(game?: Game) {
+        return new GameStateChangedEvent({
+            id: GameStateChangedEvent.id,
+            isoDateTime: EventBase.getIsoDateTime(),
+            game: game
+        });
     }
 
 }

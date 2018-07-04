@@ -1,5 +1,5 @@
 import { Game, IGame } from '../../models/game';
-import { IVessel } from '../../models/vessel';
+import { IVessel, Vessel } from '../../models/vessel';
 import { EventBase } from '../event-base';
 import { IEvent } from '../event';
 
@@ -16,21 +16,33 @@ export class VesselStateChangedEvent extends EventBase {
         return VesselStateChangedEvent.id;
     }
 
-    private readonly _vesselId: string;
-    public readonly game: IGame; 
+    public readonly game: Game; 
 
-    public get vessel(): IVessel {
+    private readonly _vesselId: string;
+    public get vessel(): Vessel {
         let vessel = this.game.vessels.find(x => x.id == this._vesselId);
         if (!vessel)
             throw new Error("Could not locate vessel using specified id");
         return vessel;
     }
 
-    public constructor(game: Game, vesselId: string)
-    public constructor(game: Game, vesselId: string, isoDateTime?: string) {
-        super(isoDateTime);
-        this._vesselId = vesselId;
-        this.game = game;
+    private constructor(state: IVesselStateChangedEvent) {
+        super(state.isoDateTime);
+        this.game = Game.fromObject(state.game);
+        this._vesselId = state.vessel.id;
+    }
+
+    public static fromObject(object: IVesselStateChangedEvent) {
+        return new VesselStateChangedEvent(object);
+    }
+
+    public static fromVesselInGame(game: IGame, vessel: IVessel) {
+        return new VesselStateChangedEvent({
+            id: VesselStateChangedEvent.id,
+            isoDateTime: EventBase.getIsoDateTime(),
+            game: game,
+            vessel: vessel
+        });
     }
 
 }

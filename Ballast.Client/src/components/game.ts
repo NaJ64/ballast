@@ -1,11 +1,10 @@
-import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel, TileShape, ICreateVesselOptions, ICreateGameOptions } from 'ballast-core';
+import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
-import * as uuid from 'uuid';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { TYPES_BALLAST } from '../ioc/types';
-import { GameComponentLoadedEvent } from '../messaging/events/components/game-component-loaded';
+import { GameComponentLoadedEvent } from '../messaging/events/game-component-loaded';
 import { RenderingConstants } from '../rendering/rendering-constants';
 import { RenderingContext } from '../rendering/rendering-context';
 import { IGameClientService } from '../services/game-client-service';
@@ -183,7 +182,7 @@ export class GameComponent extends ComponentBase {
         this.world.attach(parent);
 
         // Notify game component finished loading
-        this.eventBus.publishAsync(new GameComponentLoadedEvent());
+        this.eventBus.publishAsync(GameComponentLoadedEvent.createNew());
 
         // // Connect to the chat service/hub
         // if (!this.gameService.isConnected) {

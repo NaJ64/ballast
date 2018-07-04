@@ -7,4 +7,7 @@ export abstract class EventBase implements IEvent {
     public constructor(isoDateTime?: string) {
         this.isoDateTime = isoDateTime || getUtcNow().toISOString();
     }
+    public static getIsoDateTime() {
+        return getUtcNow().toISOString();
+    }
 }
