@@ -1,5 +1,4 @@
-import * as signalR from '@aspnet/signalr';
-import { IEventBus, IPlayerSignInRequest, IPlayerSignOutRequest, IPlayer } from 'ballast-core';
+import { IEventBus, IPlayer, IPlayerSignInRequest, IPlayerSignOutRequest } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { TYPES_BALLAST } from '../../ioc/types';
 import { ISignInClientService } from '../sign-in-client-service';

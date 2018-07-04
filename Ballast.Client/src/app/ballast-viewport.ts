@@ -1,4 +1,4 @@
-import { GameStateChangedEvent, IEventBus } from 'ballast-core';
+import { IEventBus } from 'ballast-core';
 import { injectable } from 'inversify';
 import { KeyboardWatcher } from '../input/keyboard-watcher';
 import { RenderingContext } from '../rendering/rendering-context';

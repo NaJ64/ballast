@@ -63,7 +63,7 @@ export class BallastClient implements IDisposable {
             signedInPlayer = await signInService.signInAsync({
                 playerId: playerId, 
                 playerName: null, 
-                timestampText: getUtcNow().toISOString()
+                isoDateTime: getUtcNow().toISOString()
             });
         }
         let gameService = this.inversifyContainer.get<IGameClientService>(TYPES_BALLAST.IGameClientService);

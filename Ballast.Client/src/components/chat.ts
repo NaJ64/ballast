@@ -1,4 +1,4 @@
-import { ChatMessageReceivedEvent, IChatMessage, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent } from 'ballast-core';
+import { ChatMessageReceivedEvent, IChatMessage, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, getUtcNow } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
@@ -240,12 +240,11 @@ export class ChatComponent extends ComponentBase {
         }
         let channel = 'global';
         let from = 'anonymous';
-        let timestamp = new Date(Date.now());
         await this.chatService.sendMessageAsync({
             gameId: gameId,
             channel: channel,
             from: from,
-            timestampText: timestamp.toISOString(),
+            isoDateTime: getUtcNow().toISOString(),
             text: text
         });
     }
