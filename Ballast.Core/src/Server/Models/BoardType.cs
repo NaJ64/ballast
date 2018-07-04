@@ -4,7 +4,13 @@ using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class BoardType : StaticListTypeBase<BoardType>, IBoardType
+
+    public class BoardTypeState : StaticListTypeStateBase
+    {
+        public bool CenterOrigin { get; set; }
+    }
+
+    public class BoardType : StaticListTypeBase<BoardType>
     {
 
         public readonly static BoardType Rectangle = new BoardType(value: 0, name: nameof(Rectangle), centerOrigin: false);
@@ -17,25 +23,20 @@ namespace Ballast.Core.Models
             CenterOrigin = centerOrigin;
         }
 
-        private BoardType(IBoardType state) : this(
-            value: state.Value, 
-            name: state.Name, 
-            centerOrigin: state.CenterOrigin
-        ) { }
-        
         public static IEnumerable<BoardType> List() => new[] {
             BoardType.Rectangle,
             BoardType.RegularPolygon
         };
-
-        public static BoardType FromObject(IBoardType state) =>
-            new BoardType(state);
 
         public static BoardType FromValue(int value) =>
             BoardType.List().Single(x => x.Value == value);
 
         public static BoardType FromString(string name) =>
             BoardType.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
+            
+        public static implicit operator BoardType(BoardTypeState state) =>
+            BoardType.FromValue(state.Value);
 
     }
+    
 }

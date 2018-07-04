@@ -4,57 +4,57 @@ using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class Game : IGame
+
+    public class GameState
+    {
+        public Guid Id { get; set; }
+        public Board Board { get; set; }
+        public IEnumerable<Vessel> Vessels { get; set; }
+        public IEnumerable<Player> Players { get; set; }
+        public DateTime CreatedUtc { get; set; }
+        public DateTime? StartedUtc { get; set; }
+        public DateTime? EndedUtc { get; set; }
+    }
+
+    public class Game
     {
 
-        private readonly Board _board;
-        private IList<Vessel> _vessels;
-        private IList<Player> _players;
-
         public Guid Id { get; private set; }
-        public IBoard Board => _board;
-        public IEnumerable<IVessel> Vessels => _vessels;
-        public IEnumerable<IPlayer> Players => _players;
+        public Board Board { get; private set; }
         public DateTime CreatedUtc { get; private set; }
         public DateTime? StartedUtc { get; private set; }
         public DateTime? EndedUtc { get; private set; }
 
+        public IEnumerable<Vessel> Vessels => _vessels;
+        private IList<Vessel> _vessels;
+
+        public IEnumerable<Player> Players => _players;
+        private IList<Player> _players;
+
         private Game(
             Guid id, 
-            IBoard board, 
-            IEnumerable<IVessel> vessels, 
-            IEnumerable<IPlayer> players,
+            Board board, 
+            IEnumerable<Vessel> vessels, 
+            IEnumerable<Player> players,
             DateTime? createdUtc = null,
             DateTime? startedUtc = null,
             DateTime? endedUtc = null
         )
         {
-            _board = Models.Board.FromObject(board);
-            _vessels = vessels.Select(x => Vessel.FromObject(x)).ToList();
-            _players = players.Select(x => Player.FromObject(x)).ToList();
             Id = id;
+            Board = board;
+            _vessels = vessels.ToList();
+            _players = players.ToList();
             CreatedUtc = createdUtc ?? DateTime.UtcNow;
             StartedUtc = startedUtc;
             EndedUtc = endedUtc;
         }
         
-        private Game(IGame state): this(
-            id: state.Id, 
-            board: state.Board, 
-            vessels: state.Vessels, 
-            players: state.Players,
-            createdUtc: state.CreatedUtc,
-            startedUtc: state.StartedUtc,
-            endedUtc: state.EndedUtc
-        ) { }
-
-        public static Game FromObject(IGame state) => new Game(state);
-
         public static Game FromProperties(
             Guid id, 
-            IBoard board,
-            IEnumerable<IVessel> vessels, 
-            IEnumerable<IPlayer> players,
+            Board board,
+            IEnumerable<Vessel> vessels, 
+            IEnumerable<Player> players,
             DateTime? createdUtc = null,
             DateTime? startedUtc = null,
             DateTime? endedUtc = null
@@ -68,7 +68,10 @@ namespace Ballast.Core.Models
             endedUtc: endedUtc
         );
 
-        public ICubicCoordinates UpdateVesselCoordinates(Guid vesselId, ICubicCoordinates cubicCoordinates)
+        public static implicit operator Game(GameState state) =>
+            new Game(state.Id, state.Board, state.Vessels, state.Players, state.CreatedUtc, state.StartedUtc, state.EndedUtc);
+
+        public CubicCoordinates UpdateVesselCoordinates(Guid vesselId, CubicCoordinates cubicCoordinates)
         {
             var foundVessel = this._vessels.SingleOrDefault(x => x.Id == vesselId);
             if (foundVessel == null)
@@ -133,4 +136,5 @@ namespace Ballast.Core.Models
         }
         
     }
+    
 }

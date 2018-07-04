@@ -12,8 +12,8 @@ namespace Ballast.Core.Services
 
         public Board CreateBoard(
             Guid id,
-            IBoardType boardType,
-            ITileShape tileShape,
+            BoardType boardType,
+            TileShape tileShape,
             int columnsOrSideLength,
             int? rows = null,
             decimal? landToWaterRatio = null
@@ -25,8 +25,8 @@ namespace Ballast.Core.Services
             var impassableTerrain = Terrain.List().Where(x => !x.Passable);
 
             // Determine shape and tile layout
-            var useTileShape = TileShape.FromObject(tileShape);
-            var useBoardType = BoardType.FromObject(boardType);
+            var useTileShape = tileShape;
+            var useBoardType = boardType;
 
             // Validate column count
             if (columnsOrSideLength < 3)

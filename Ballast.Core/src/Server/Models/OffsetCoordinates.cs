@@ -2,7 +2,14 @@ using System;
 
 namespace Ballast.Core.Models
 {
-    public class OffsetCoordinates : IOffsetCoordinates
+
+    public class OffsetCoordinatesState
+    {
+        public int Row { get; set; }
+        public int Col { get; set; }
+    }
+
+    public class OffsetCoordinates
     {
 
         public int Row { get; private set; }
@@ -14,28 +21,24 @@ namespace Ballast.Core.Models
             Row = row;        
         }
 
-        private OffsetCoordinates(IOffsetCoordinates state): this(
-            col: state.Col,
-            row: state.Row
-        ) { }
+        public static OffsetCoordinates FromProperties(int col, int row) => 
+            new OffsetCoordinates(
+                col: col,
+                row: row
+            );
 
-        public static OffsetCoordinates FromObject(IOffsetCoordinates state) => new OffsetCoordinates(state);
-
-        public static OffsetCoordinates FromProperties(int col, int row) => new OffsetCoordinates(
-            col: col,
-            row: row
-        );
-
-        public static OffsetCoordinates FromAxial(IAxialCoordinates state) 
+        public static OffsetCoordinates FromAxial(AxialCoordinates axial) 
         {
             // Bitwise AND (& 1) to get 0 for even or 1 for odd column offset
-            var col = state.X + (state.Z - (state.Z & 1)) / 2;
-            var row = state.Z;
+            var col = axial.X + (axial.Z - (axial.Z & 1)) / 2;
+            var row = axial.Z;
             return new OffsetCoordinates(col: col, row: row);
         }
         
-        public static OffsetCoordinates FromCubic(ICubicCoordinates state) =>
-            OffsetCoordinates.FromAxial(state);
+        public static OffsetCoordinates FromCubic(CubicCoordinates cubic) =>
+            OffsetCoordinates.FromAxial(
+                AxialCoordinates.FromCubic(cubic)
+            );
         
         public static OffsetCoordinates FromOrderedPair(int[] orderedPair) {
             if (orderedPair.Length < 2)
@@ -45,12 +48,15 @@ namespace Ballast.Core.Models
             return new OffsetCoordinates(col: col, row: row);
         }
 
-        public AxialCoordinates ToAxial() =>
-            AxialCoordinates.FromOffset(this);
+        public static implicit operator OffsetCoordinates(OffsetCoordinatesState state) =>
+            new OffsetCoordinates(state.Col, state.Row);
+
+        public AxialCoordinates ToAxial() => AxialCoordinates.FromOffset(this);
 
         public CubicCoordinates ToCubic() => CubicCoordinates.FromOffset(this);
 
         public int[] ToOrderedPair() => new int[] { Col, Row };
 
     }
+    
 }

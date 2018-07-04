@@ -4,51 +4,51 @@ using System.Linq;
 
 namespace Ballast.Core.Models
 {
-    public class Board : IBoard
+
+    public class BoardState
+    {
+        public Guid Id { get; set; }
+        public BoardType BoardType { get; set; }
+        public TileShape TileShape { get; set; }
+        public IEnumerable<Tile> Tiles { get; set; }
+    }
+
+    public class Board
     {
 
-        private IEnumerable<Tile> _tiles;
-        private BoardType _boardType;
-        private TileShape _tileShape;
-
+        public BoardType BoardType { get; private set; }
         public Guid Id { get; private set; }
-        public IEnumerable<ITile> Tiles => _tiles;
-        public IBoardType BoardType => _boardType;
-        public ITileShape TileShape => _tileShape;
+        public IEnumerable<Tile> Tiles { get; private set; }
+        public TileShape TileShape { get; private set; }
 
-        private Board(IBoardType boardType, Guid id, IEnumerable<ITile> tiles, ITileShape tileShape)
+        private Board(BoardType boardType, Guid id, IEnumerable<Tile> tiles, TileShape tileShape)
         {
-            _boardType = Models.BoardType.FromValue(boardType.Value);
-            _tiles = tiles.Select(x => Tile.FromObject(x));
-            _tileShape = Models.TileShape.FromValue(tileShape.Value);
+            BoardType = boardType;
             Id = id;
+            Tiles = tiles;
+            TileShape = tileShape;
         }
-
-        private Board(IBoard state) : this(
-            boardType: state.BoardType,
-            id: state.Id,
-            tiles: state.Tiles,
-            tileShape: state.TileShape
-        ) { }
         
-        public static Board FromObject(IBoard state) => new Board(state);
-
-        public static Board FromProperties(IBoardType boardType, Guid id, IEnumerable<ITile> tiles, ITileShape tileShape) => new Board(
+        public static Board FromProperties(BoardType boardType, Guid id, IEnumerable<Tile> tiles, TileShape tileShape) => new Board(
             boardType: boardType,
             id: id,
             tiles:tiles,
             tileShape: tileShape
         );
 
-        public ICubicCoordinates GetRandomPassableCoordinates()
+        public static implicit operator Board(BoardState state) =>
+            new Board(state.BoardType, state.Id, state.Tiles, state.TileShape);
+
+        public CubicCoordinates GetRandomPassableCoordinates()
         {
-            var passables = _tiles.Where(x => x.Terrain.Passable);
+            var passables = Tiles.Where(x => x.Terrain.Passable);
             var index = new Random().Next(1, passables.Count());
             return passables.ElementAt(index).CubicCoordinates;
         }
 
-        public Tile GetTileFromCoordinates(ICubicCoordinates cubicCoordinates) =>
-            _tiles.SingleOrDefault(x => x.CubicCoordinates.Equals(cubicCoordinates));
+        public Tile GetTileFromCoordinates(CubicCoordinates cubicCoordinates) =>
+            Tiles.SingleOrDefault(x => x.CubicCoordinates.Equals(cubicCoordinates));
 
     }
+    
 }

@@ -3,45 +3,44 @@ using System.Collections.Generic;
 
 namespace Ballast.Core.Models
 {
-    public class Vessel : IVessel
+
+    public class VesselState
+    {
+        public Guid Id { get; set; }
+        public CubicCoordinates CubicCoordinates { get; set; }
+        public Player Captain { get; set; }
+        public Player Radioman { get; set; }
+    }
+
+    public class Vessel
     {
 
-        private CubicCoordinates _cubicCoordinates;
-        private Player _captain;
-        private Player _radioman;
-
         public Guid Id { get; private set; }
-        public ICubicCoordinates CubicCoordinates => _cubicCoordinates;
-        public IPlayer Captain => _captain;
-        public IPlayer Radioman => _radioman;
+        public CubicCoordinates CubicCoordinates { get; private set; }
+        public Player Captain { get; private set; }
+        public Player Radioman { get; private set; }
 
-        private Vessel(Guid id, ICubicCoordinates cubicCoordinates, IPlayer captain, IPlayer radioman)
+        private Vessel(Guid id, CubicCoordinates cubicCoordinates, Player captain, Player radioman)
         {
-            _cubicCoordinates = Models.CubicCoordinates.FromObject(cubicCoordinates);
-            _captain = Models.Player.FromObject(captain);
-            _radioman = Models.Player.FromObject(radioman);
             Id = id;
+            CubicCoordinates = cubicCoordinates;
+            Captain = captain;
+            Radioman = radioman;
         }
 
-        private Vessel(IVessel state) : this(
-            id: state.Id,
-            cubicCoordinates: state.CubicCoordinates,
-            captain: state.Captain,
-            radioman: state.Radioman
-        ) {}
-
-        public static Vessel FromProperties(Guid id, ICubicCoordinates cubicCoordinates, IPlayer captain, IPlayer radioman) => new Vessel(
+        public static Vessel FromProperties(Guid id, CubicCoordinates cubicCoordinates, Player captain, Player radioman) => new Vessel(
             id: id,
             cubicCoordinates: cubicCoordinates,
             captain: captain,
             radioman: radioman
         );
 
-        public static Vessel FromObject(IVessel state) => new Vessel(state);
+        public static implicit operator Vessel(VesselState state) =>
+            new Vessel(state.Id, state.CubicCoordinates, state.Captain, state.Radioman);
 
-        public ICubicCoordinates UpdateCoordinates(ICubicCoordinates cubicCoordinates)
+        public CubicCoordinates UpdateCoordinates(CubicCoordinates cubicCoordinates)
         {
-            _cubicCoordinates = Models.CubicCoordinates.FromObject(cubicCoordinates);
+            CubicCoordinates = cubicCoordinates;
             return CubicCoordinates;
         }
 
@@ -49,12 +48,12 @@ namespace Ballast.Core.Models
         {
             if (vesselRole.Equals(VesselRole.Captain))
             {
-                _captain = player;
+                Captain = player;
                 return;
             }
             if (vesselRole.Equals(VesselRole.Radioman))
             {
-                _radioman = player;
+                Radioman = player;
                 return;
             }
             throw new KeyNotFoundException($"Vessel role matching value '{vesselRole.Value}' does not exist on the current vessel");
@@ -64,11 +63,12 @@ namespace Ballast.Core.Models
         {
             if (player == null || player.Id == default(Guid))
                 throw new ArgumentNullException(nameof(player.Id));
-            if (_captain != null && _captain.Id == player.Id)
-                _captain = null;
-            if (_radioman != null && _radioman.Id == player.Id)
-                _radioman = null;
+            if (Captain != null && Captain.Id == player.Id)
+                Captain = null;
+            if (Radioman != null && Radioman.Id == player.Id)
+                Radioman = null;
         }
 
     }
+
 }

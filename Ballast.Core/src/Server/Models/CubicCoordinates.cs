@@ -2,7 +2,15 @@ using System;
 
 namespace Ballast.Core.Models
 {
-    public class CubicCoordinates : ICubicCoordinates
+
+    public class CubicCoordinatesState 
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
+    }
+
+    public class CubicCoordinates
     {
         public int X { get; private set; }
         public int Y { get; private set; }
@@ -17,36 +25,29 @@ namespace Ballast.Core.Models
             Z = z;
         }
 
-        private CubicCoordinates(ICubicCoordinates state) : this(
-            x: state.X, 
-            y: state.Y, 
-            z: state.Z
-        ) { }
-
-        public static CubicCoordinates FromProperties(int x, int y, int z) => new CubicCoordinates(
-            x: x,
-            y: y,
-            z: z
-        );
-
-        public static CubicCoordinates FromObject(ICubicCoordinates state) => new CubicCoordinates(state);
-
-        public static CubicCoordinates FromAxial(IAxialCoordinates state)
-        {
-            var y = -1 * (state.X + state.Z);
-            return CubicCoordinates.FromProperties(
-                x: state.X,
+        public static CubicCoordinates FromProperties(int x, int y, int z) => 
+            new CubicCoordinates(
+                x: x,
                 y: y,
-                z: state.Z
+                z: z
+            );
+
+        public static CubicCoordinates FromAxial(AxialCoordinates axial)
+        {
+            var y = -1 * (axial.X + axial.Z);
+            return new CubicCoordinates(
+                x: axial.X,
+                y: y,
+                z: axial.Z
             );
         }
 
-        public static CubicCoordinates FromOffset(IOffsetCoordinates state)
+        public static CubicCoordinates FromOffset(OffsetCoordinates offset)
         {
-            var x = state.Col - (state.Row - (state.Row & 1)) / 2;
-            var z = state.Row;
+            var x = offset.Col - (offset.Row - (offset.Row & 1)) / 2;
+            var z = offset.Row;
             var y = -1 * (x + z);
-            return CubicCoordinates.FromProperties(x: x, y: y, z: z);
+            return new CubicCoordinates(x: x, y: y, z: z);
         }
 
         public static CubicCoordinates FromOrderedTriple(int[] orderedTriple)
@@ -56,104 +57,80 @@ namespace Ballast.Core.Models
             var x = orderedTriple[0];
             var y = orderedTriple[1];
             var z = orderedTriple[2];
-            return CubicCoordinates.FromProperties(x: x, y: y, z: z);
+            return new CubicCoordinates(x, y, z);
         }
 
-        public bool Equals(ICubicCoordinates value)
+        public static implicit operator CubicCoordinates(CubicCoordinatesState state) =>
+            new CubicCoordinates(state.X, state.Y, state.Z);
+
+        public bool Equals(CubicCoordinates cubic)
         {
-            if (value == null)
+            if (cubic == null)
                 return false;
             return (
-                X == value.X &&
-                Y == value.Y &&
-                Z == value.Z
+                X == cubic.X &&
+                Y == cubic.Y &&
+                Z == cubic.Z
             );
         }
 
-        public bool EqualsAxial(IAxialCoordinates value) =>
+        public bool EqualsAxial(AxialCoordinates axial) =>
             CubicCoordinates
-                .FromAxial(value)
+                .FromAxial(axial)
                 .Equals(this);
 
-        public bool EqualsOffset(IOffsetCoordinates value) =>
+        public bool EqualsOffset(OffsetCoordinates offset) =>
             CubicCoordinates
-                .FromOffset(value)
+                .FromOffset(offset)
                 .Equals(this);
 
-        public AxialCoordinates ToAxial()
-        {
-            return AxialCoordinates.FromCubic(this);
-        }
+        public AxialCoordinates ToAxial() => AxialCoordinates.FromCubic(this);
 
-        public OffsetCoordinates ToOffset()
-        {
-            return OffsetCoordinates.FromCubic(this);
-        }
+        public OffsetCoordinates ToOffset() => OffsetCoordinates.FromCubic(this);
 
-        public int[] ToOrderedTriple()
-        {
-            return new int[] { X, Y, Z };
-        }
+        public int[] ToOrderedTriple() => new int[] { X, Y, Z };
 
-        public CubicCoordinates AddXSubtractY(int units)
-        {
-            // Right
-            return CubicCoordinates.FromProperties(
+        public CubicCoordinates AddXSubtractY(int units) => // Right
+            new CubicCoordinates( 
                 x: X + units,
                 y: Y - units,
                 z: Z
             );
-        }
 
-        public CubicCoordinates AddXSubtractZ(int units)
-        {
-            // Right + Up
-            return CubicCoordinates.FromProperties(
+        public CubicCoordinates AddXSubtractZ(int units) => // Right + Up
+            new CubicCoordinates(
                 x: X + units,
                 y: Y,
                 z: Z - units
             );
-        }
 
-        public CubicCoordinates AddYSubtractX(int units)
-        {
-            // Left
-            return CubicCoordinates.FromProperties(
+        public CubicCoordinates AddYSubtractX(int units) => // Left
+            new CubicCoordinates(
                 x: X - units,
                 y: Y + units,
                 z: Z
             );
-        }
 
-        public CubicCoordinates AddYSubtractZ(int units)
-        {
-            // Left + Up
-            return CubicCoordinates.FromProperties(
+        public CubicCoordinates AddYSubtractZ(int units) => // Left + Up
+            new CubicCoordinates(
                 x: X,
                 y: Y + units,
                 z: Z - units
             );
-        }
 
-        public CubicCoordinates AddZSubtractX(int units)
-        {
-            // Left + Down            
-            return CubicCoordinates.FromProperties(
+        public CubicCoordinates AddZSubtractX(int units) => // Left + Down
+            new CubicCoordinates(
                 x: X - units,
                 y: Y,
                 z: Z + units
             );
-        }
 
-        public CubicCoordinates AddZSubtractY(int units)
-        {
-            // Right + Down
-            return CubicCoordinates.FromProperties(
+        public CubicCoordinates AddZSubtractY(int units) => // Right + Down
+            new CubicCoordinates(
                 x: X,
                 y: Y - units,
                 z: Z + units
             );
-        }
 
     }
 

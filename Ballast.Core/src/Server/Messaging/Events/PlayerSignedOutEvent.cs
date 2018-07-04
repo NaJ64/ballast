@@ -3,18 +3,30 @@ using System;
 
 namespace Ballast.Core.Messaging.Events
 {
+
+    public class PlayerSignedOutEventState : EventStateBase
+    {
+        public Player Player { get; set; }
+    }
+
     public class PlayerSignedOutEvent : EventBase 
     {
 
         public override string Id => nameof(PlayerSignedOutEvent);
 
-        public IPlayer Player { get; private set; } 
-        public DateTime TimeStamp { get; private set; }
+        public Player Player { get; private set; } 
 
-        public PlayerSignedOutEvent(Player player) : base() {
+        private PlayerSignedOutEvent(Player player = null, string isoDateTime = null) : base(isoDateTime) {
             Player = player;
-            TimeStamp = DateTime.UtcNow;
         }
 
+        public static implicit operator PlayerSignedOutEvent(PlayerSignedOutEventState state) =>
+            new PlayerSignedOutEvent(state.Player, state.IsoDateTime);
+
+        public static PlayerSignedOutEvent FromPlayer(Player player = null) =>
+            new PlayerSignedOutEvent(player);
+
+            
     }
+
 }

@@ -2,7 +2,14 @@ using System;
 
 namespace Ballast.Core.Models
 {
-    public class AxialCoordinates : IAxialCoordinates
+
+    public class AxialCoordinatesState
+    {
+        public int X { get; set; }
+        public int Z { get; set; }
+    }
+
+    public class AxialCoordinates
     {
         public int X { get; private set; }
         public int Z { get; private set; }
@@ -13,25 +20,17 @@ namespace Ballast.Core.Models
             Z = z;
         }
 
-        private AxialCoordinates(IAxialCoordinates state) : this(
-            x: state.X, 
-            z: state.Z
-        ) { }
-
         public static AxialCoordinates FromProperties(int x, int z) => new AxialCoordinates(
             x: x,
             z: z
         );
 
-        public static AxialCoordinates FromObject(IAxialCoordinates state) =>
-            new AxialCoordinates(state);
+        public static AxialCoordinates FromCubic(CubicCoordinates cubic) =>
+            new AxialCoordinates(x: cubic.X, z: cubic.Z);
 
-        public static AxialCoordinates FromCubic(ICubicCoordinates state) =>
-            AxialCoordinates.FromObject(state);
-
-        public static AxialCoordinates FromOffset(IOffsetCoordinates state) =>
+        public static AxialCoordinates FromOffset(OffsetCoordinates offset) =>
             AxialCoordinates.FromCubic(
-                CubicCoordinates.FromOffset(state)
+                CubicCoordinates.FromOffset(offset)
             );
 
         public static AxialCoordinates FromOrderedPair(int[] orderedPair)
@@ -40,10 +39,10 @@ namespace Ballast.Core.Models
                 throw new Exception("Length of ordered pair must be 2 (or greater)");
             var x = orderedPair[0];
             var z = orderedPair[1];
-            return AxialCoordinates.FromProperties(x: x, z: z);
+            return new AxialCoordinates(x, z);
         }
 
-        public bool Equals(IAxialCoordinates value)
+        public bool Equals(AxialCoordinates value)
         {
             if (value == null)
                 return false;
@@ -53,9 +52,9 @@ namespace Ballast.Core.Models
             );
         }
 
-        public bool EqualsCubic(ICubicCoordinates state) => 
+        public bool EqualsCubic(CubicCoordinates cubic) => 
             AxialCoordinates
-                .FromCubic(state)
+                .FromCubic(cubic)
                 .Equals(this);
 
         public CubicCoordinates ToCubic() =>  CubicCoordinates.FromAxial(this);
@@ -64,5 +63,9 @@ namespace Ballast.Core.Models
 
         public int[] ToOrderedPair() => new int[] { X, Z };
 
+        public static implicit operator AxialCoordinates(AxialCoordinatesState state) =>
+            new AxialCoordinates(state.X, state.Z);
+
     }
+
 }
