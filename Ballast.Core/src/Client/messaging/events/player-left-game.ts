@@ -17,20 +17,12 @@ export class PlayerLeftGameEvent extends EventBase implements IPlayerLeftGameEve
     }
 
     public readonly game: Game; 
-
-    private readonly _playerId: string; 
-    public get player(): Player {
-        let player = this.game.players.find(x => x.id == this._playerId);
-        if (!player) {
-            throw new Error("Could not locate player using specified id");
-        }
-        return player;
-    }
+    public readonly player: Player;
 
     private constructor(state: IPlayerLeftGameEvent) {
         super(state.isoDateTime);
         this.game = Game.fromObject(state.game);
-        this._playerId = state.player.id;
+        this.player = Player.fromObject(state.player);
     }
 
     public static fromObject(object: IPlayerLeftGameEvent) {
