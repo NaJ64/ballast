@@ -8,6 +8,7 @@
             "name": "Launch 'Ballast.Web' (.NET Core)",
             "type": "coreclr",
             "request": "launch",
+            "preLaunchTask": "web-dotnet-build",
             "program": "${workspaceFolder}/Ballast.Web/bin/Debug/netcoreapp2.1/Ballast.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Ballast.Web",
@@ -28,7 +29,8 @@
                 }
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:80;https://localhost:443"
             }
         },
     ]
