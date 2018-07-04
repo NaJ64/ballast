@@ -1,6 +1,6 @@
-import { Game, IGame } from '../../../models/game';
-import { IEvent } from '../../event';
-import { EventBase } from '../../event-base';
+import { Game, IGame } from '../../models/game';
+import { IEvent } from '../event';
+import { EventBase } from '../event-base';
 
 export interface IGameStateChangedEvent extends IEvent {
     readonly game?: IGame;

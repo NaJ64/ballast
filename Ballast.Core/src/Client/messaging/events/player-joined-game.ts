@@ -1,7 +1,7 @@
-import { IGame } from '../../../models/game';
-import { IPlayer } from '../../../models/player';
-import { IEvent } from '../../event';
-import { EventBase } from '../../event-base';
+import { IGame } from '../../models/game';
+import { IPlayer } from '../../models/player';
+import { IEvent } from '../event';
+import { EventBase } from '../event-base';
 
 export interface IPlayerJoinedGameEvent extends IEvent {
     readonly game: IGame;

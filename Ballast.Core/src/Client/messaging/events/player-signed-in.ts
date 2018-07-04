@@ -1,6 +1,6 @@
-import { IPlayer } from '../../../models/player';
-import { IEvent } from '../../event';
-import { EventBase } from '../../event-base';
+import { IPlayer } from '../../models/player';
+import { IEvent } from '../event';
+import { EventBase } from '../event-base';
 
 export interface IPlayerSignedInEvent extends IEvent {
     readonly player: IPlayer;

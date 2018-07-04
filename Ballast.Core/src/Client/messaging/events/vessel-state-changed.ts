@@ -1,7 +1,7 @@
-import { Game, IGame } from '../../../models/game';
-import { IVessel } from '../../../models/vessel';
-import { EventBase } from '../../event-base';
-import { IEvent } from '../../event';
+import { Game, IGame } from '../../models/game';
+import { IVessel } from '../../models/vessel';
+import { EventBase } from '../event-base';
+import { IEvent } from '../event';
 
 export interface IVesselStateChangedEvent extends IEvent {
     readonly vessel: IVessel;

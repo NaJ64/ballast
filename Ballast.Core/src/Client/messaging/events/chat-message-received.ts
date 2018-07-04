@@ -1,6 +1,6 @@
-import { IChatMessage } from '../../../value-objects';
-import { IEvent } from '../../event';
-import { EventBase } from '../../event-base';
+import { IChatMessage } from '../../value-objects';
+import { IEvent } from '../event';
+import { EventBase } from '../event-base';
 
 export interface IChatMessageReceivedEvent extends IEvent {
     readonly message: IChatMessage;
