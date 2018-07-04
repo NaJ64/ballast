@@ -22,57 +22,33 @@ namespace Ballast.Web
             Configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            // var corsOrigins = Configuration.GetSection("hosting:cors:origins")
-            //     .GetChildren()
-            //     .Select(x => x.Value)
-            //     .ToArray();
-
-            // services.AddCors(options => options.AddPolicy("ClientWeb", builder => builder
-            //     .WithOrigins(corsOrigins)
-            //     .AllowAnyHeader()
-            //     .AllowAnyMethod()
-            //     .AllowCredentials()
-            // ));
-
             services.AddBallast();
-
             services.AddSignalR();
-            
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            //app.UseCors("ClientWeb");
-            
-            // // Redirect all http requests to https
-            // app.UseRewriter(new RewriteOptions()
-            //     .AddRedirectToHttps());
-
+            else
+            {
+                app.UseHsts();
+            }
+            app.UseHttpsRedirection();
             app.UseSignalR(routes => 
             {
                 routes.MapHub<ChatHub>("/chathub");
                 routes.MapHub<GameHub>("/gamehub");
                 routes.MapHub<SignInHub>("/signinhub");
             });
-
             app.UseDefaultFiles();
-            
             app.UseStaticFiles();
-
             app.StartBallast();
-
         }
+        
     }
 }

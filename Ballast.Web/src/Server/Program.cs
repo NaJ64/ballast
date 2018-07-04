@@ -12,6 +12,7 @@ namespace Ballast.Web
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
             var config = new ConfigurationBuilder()
@@ -25,7 +26,7 @@ namespace Ballast.Web
         public static IWebHost BuildWebHost(string[] args, IConfiguration config) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseKestrel(KestrelConfiguration.ConfigureOptions(config))
                 .Build();
+                
     }
 }
