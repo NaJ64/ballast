@@ -3,6 +3,7 @@ using Ballast.Core.Messaging.Events;
 using Ballast.Web.Hubs;
 using Ballast.Web.HubMethods;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
@@ -16,14 +17,16 @@ namespace Ballast.Web.Services
         private static Object _mutex = new Object();
 
         private readonly IEventBus _eventBus;
-        private readonly SignInHubMethods _signInHubMethods;
+        private readonly ChatHubMethods _chatHubMethods;
         private readonly GameHubMethods _gameHubMethods;
+        private readonly SignInHubMethods _signInHubMethods;
 
-        private ServiceHubEventDispatcher(IEventBus eventBus, SignInHubMethods signInHubMethods, GameHubMethods gameHubMethods)
+        private ServiceHubEventDispatcher(IEventBus eventBus, ChatHubMethods chatHubMethods, GameHubMethods gameHubMethods, SignInHubMethods signInHubMethods)
         {
             _eventBus = eventBus;
-            _signInHubMethods = signInHubMethods;
             _gameHubMethods = gameHubMethods;
+            _chatHubMethods = chatHubMethods;
+            _signInHubMethods = signInHubMethods;
             SubscribeAll();
         }
 
@@ -36,9 +39,10 @@ namespace Ballast.Web.Services
                     if (_instance == null)
                     {
                         var eventBus = (IEventBus)serviceProvider.GetService(typeof(IEventBus));
-                        var signInHubMethods = (SignInHubMethods)serviceProvider.GetService(typeof(SignInHubMethods));
+                        var chatHubMethods = (ChatHubMethods)serviceProvider.GetService(typeof(ChatHubMethods));
                         var gameHubMethods = (GameHubMethods)serviceProvider.GetService(typeof(GameHubMethods));
-                        _instance = new ServiceHubEventDispatcher(eventBus, signInHubMethods, gameHubMethods);
+                        var signInHubMethods = (SignInHubMethods)serviceProvider.GetService(typeof(SignInHubMethods));
+                        _instance = new ServiceHubEventDispatcher(eventBus, chatHubMethods, gameHubMethods, signInHubMethods);
                     }
                 }
             }
@@ -52,24 +56,35 @@ namespace Ballast.Web.Services
 
         private void SubscribeAll()
         {
-            _eventBus.Subscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGame);
-            _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGame);
+            _eventBus.Subscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
+            _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
+            _eventBus.Subscribe<ChatMessageSentEvent>(nameof(ChatMessageSentEvent), OnChatMessageSentAsync);
         }
 
         private void UnsubscribeAll()
         {
-            _eventBus.Unsubscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGame);
-            _eventBus.Unsubscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGame);
+            _eventBus.Unsubscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
+            _eventBus.Unsubscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
+            _eventBus.Unsubscribe<ChatMessageSentEvent>(nameof(ChatMessageSentEvent), OnChatMessageSentAsync);
         }
 
-        private async Task OnPlayerJoinedGame(PlayerJoinedGameEvent evt)
+        private async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
         {
             await _gameHubMethods.OnPlayerJoinedGameAsync(evt);
         }
 
-        private async Task OnPlayerLeftGame(PlayerLeftGameEvent evt)
+        private async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
         {
             await _gameHubMethods.OnPlayerLeftGameAsync(evt);
+        }
+
+        private async Task OnChatMessageSentAsync(ChatMessageSentEvent evt)
+        {
+            // if (evt.Message.GameId != null) 
+            // {
+            //     var playerConnections = await _gameHubMethods.GetPlayerConnectionsForGameAsync(evt.Message.GameId.GetValueOrDefault());
+            // }
+            await _chatHubMethods.OnChatMessageSentAsync(evt);
         }
 
     }

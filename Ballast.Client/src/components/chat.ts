@@ -1,4 +1,4 @@
-import { ChatMessageReceivedEvent, IChatMessage, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, getUtcNow } from 'ballast-core';
+import { IChatMessage, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, getUtcNow, ChatMessageSentEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
@@ -11,9 +11,9 @@ import { ComponentBase } from './component-base';
 export class ChatComponent extends ComponentBase {
 
     private readonly chatService: IChatClientService;
-    private readonly chatMessageReceivedHandler: (event: ChatMessageReceivedEvent) => Promise<void>;
-    private readonly playerJoinedGameEventHandler: (event: IPlayerJoinedGameEvent) => Promise<void>;
-    private readonly playerLeftGameEventHandler: (event: IPlayerLeftGameEvent) => Promise<void>;
+    private readonly chatMessageSentHandler: (evt: ChatMessageSentEvent) => Promise<void>;
+    private readonly playerJoinedGameEventHandler: (evt: IPlayerJoinedGameEvent) => Promise<void>;
+    private readonly playerLeftGameEventHandler: (evt: IPlayerLeftGameEvent) => Promise<void>;
     private readonly chatInputFocusListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatInputBlurListener: (this: HTMLInputElement, ev: FocusEvent) => any;
     private readonly chatFormSubmitListener: (this: HTMLInputElement, ev: Event) => any;
@@ -35,7 +35,7 @@ export class ChatComponent extends ComponentBase {
         this.chatHistory = chatElements["1"];
         this.chatForm = chatElements["2"];
         this.chatInput = chatElements["3"];
-        this.chatMessageReceivedHandler = this.onChatMessageReceivedAsync.bind(this);
+        this.chatMessageSentHandler = this.onChatMessageSentAsync.bind(this);
         this.playerJoinedGameEventHandler = this.onPlayerJoinedGameAsync.bind(this);
         this.playerLeftGameEventHandler = this.onPlayerLeftGameAsync.bind(this);
         this.chatInputFocusListener = this.onChatInputFocus.bind(this);
@@ -146,7 +146,7 @@ export class ChatComponent extends ComponentBase {
     }
 
     private subscribeToEvents() {
-        this.eventBus.subscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
+        this.eventBus.subscribe(ChatMessageSentEvent.id, this.chatMessageSentHandler);
         this.eventBus.subscribe(PlayerJoinedGameEvent.id, this.playerJoinedGameEventHandler);
         this.eventBus.subscribe(PlayerLeftGameEvent.id, this.playerLeftGameEventHandler);
         this.chatInput.addEventListener('focus', this.chatInputFocusListener);
@@ -155,23 +155,25 @@ export class ChatComponent extends ComponentBase {
     }
 
     private unsubscribeFromEvents() {
-        this.eventBus.unsubscribe(ChatMessageReceivedEvent.id, this.chatMessageReceivedHandler);
+        this.eventBus.unsubscribe(ChatMessageSentEvent.id, this.chatMessageSentHandler);
+        this.eventBus.unsubscribe(PlayerJoinedGameEvent.id, this.playerJoinedGameEventHandler);
+        this.eventBus.unsubscribe(PlayerLeftGameEvent.id, this.playerLeftGameEventHandler);
         this.chatInput.removeEventListener('focus', this.chatInputFocusListener);
         this.chatInput.removeEventListener('blur', this.chatInputBlurListener);
         this.chatForm.removeEventListener('submit', this.chatFormSubmitListener);
     }
 
-    private async onChatMessageReceivedAsync(evt: ChatMessageReceivedEvent) {
+    private async onChatMessageSentAsync(evt: ChatMessageSentEvent) {
         this.appendMessageToHistory(evt.message);
     }
 
     private async onPlayerJoinedGameAsync(evt: IPlayerJoinedGameEvent) {
-        let messageText = `[${evt.player.name}] has joined the game`;
+        let messageText = `${evt.player.name} has joined the game`;
         this.appendGameNotificationToHistory(messageText);
     }
 
     private async onPlayerLeftGameAsync(evt: IPlayerLeftGameEvent) {
-        let messageText = `[${evt.player.name}] has left the game`;
+        let messageText = `${evt.player.name} has left the game`;
         this.appendGameNotificationToHistory(messageText);
     }
 
@@ -190,7 +192,7 @@ export class ChatComponent extends ComponentBase {
         if (this.chatHistory) {
             let item = this.chatHistory.ownerDocument.createElement('li');
             //let timestampDate = new Date(message.timestampText + 'Z');
-            let messageDisplay = `[${message.from}]:  ${message.text}`;
+            let messageDisplay = `[${message.fromPlayerName}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this.chatHistory.appendChild(item);
             this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
@@ -234,16 +236,17 @@ export class ChatComponent extends ComponentBase {
 
     private async sendMessageFromTextAsync(text: string) {
         let game = this.viewport.getRenderingContext().game;
+        let playerId = this.viewport.getClientId();
         let gameId: string | null = null;
         if (game) {
             gameId = game.id;
         }
         let channel = 'global';
-        let from = 'anonymous';
         await this.chatService.sendMessageAsync({
             gameId: gameId,
             channel: channel,
-            from: from,
+            fromPlayerId: playerId,
+            fromPlayerName: undefined,
             isoDateTime: getUtcNow().toISOString(),
             text: text
         });
