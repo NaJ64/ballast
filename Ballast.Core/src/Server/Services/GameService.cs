@@ -297,7 +297,7 @@ namespace Ballast.Core.Services
 
             // Move the vessel to the new coordinates
             game.UpdateVesselCoordinates(vesselId, targetCoordinates);
-            await _eventBus.PublishAsync(new VesselStateChangedEvent(game, vessel));
+            await _eventBus.PublishAsync(VesselStateChangedEvent.FromVesselInGame(game, vessel));
 
             // Finished changing game state
             await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));

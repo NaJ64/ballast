@@ -1,10 +1,10 @@
-import { Game, IGame } from '../../models/game';
+import { IGame } from '../../models/game';
 import { IPlayer, Player } from '../../models/player';
 import { IEvent } from '../event';
 import { EventBase } from '../event-base';
 
 export interface IPlayerJoinedGameEvent extends IEvent {
-    readonly game: IGame;
+    readonly gameId: string;
     readonly player: IPlayer;
 }
 
@@ -16,21 +16,13 @@ export class PlayerJoinedGameEvent extends EventBase implements IPlayerJoinedGam
         return PlayerJoinedGameEvent.id;
     }
 
-    public readonly game: Game; 
-
-    private readonly _playerId: string; 
-    public get player(): Player {
-        let player = this.game.players.find(x => x.id == this._playerId);
-        if (!player) {
-            throw new Error("Could not locate player using specified id");
-        }
-        return player;
-    }
+    public readonly gameId: string; 
+    public readonly player: Player;
 
     private constructor(state: IPlayerJoinedGameEvent) {
         super(state.isoDateTime);
-        this.game = Game.fromObject(state.game);
-        this._playerId = state.player.id;
+        this.gameId = state.gameId;
+        this.player = Player.fromObject(state.player);
     }
 
     public static fromObject(object: IPlayerJoinedGameEvent) {
@@ -41,7 +33,7 @@ export class PlayerJoinedGameEvent extends EventBase implements IPlayerJoinedGam
         return new PlayerJoinedGameEvent({
             id: PlayerJoinedGameEvent.id,
             isoDateTime: EventBase.getIsoDateTime(),
-            game: game,
+            gameId: game.id,
             player: player
         });
     }
