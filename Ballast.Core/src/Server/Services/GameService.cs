@@ -70,6 +70,8 @@ namespace Ballast.Core.Services
             _games.Remove(gameId);
         }
 
+        private IEnumerable<VesselRole> GetDefaultVesselRolesForPlayer(Vessel vessel, Player player) => throw new NotImplementedException();
+
         public async Task<Guid> GetTestGameIdAsync() => await Task.FromResult(_defaultGame.Id);
 
         public async Task<IEnumerable<Game>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
@@ -121,11 +123,12 @@ namespace Ballast.Core.Services
 
         public async Task<Game> AddPlayerToGameAsync(AddPlayerOptions options)
         {
-            // Locate game matching id from request
+            // Make sure no arguments left blank
             var gameId = options.GameId;
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var game = await RetrieveGameByIdAsync(options.GameId);
+            // Locate game matching id from request
+            var game = await RetrieveGameByIdAsync(options.GameId); // <-- Throws exception if game not found
             // Make sure the player doesn't already exist (by matching id)
             var playerExists = game.Players.Any(x => x.Id == options.PlayerId);
             if (playerExists)
@@ -134,42 +137,184 @@ namespace Ballast.Core.Services
             var player = Models.Player.FromProperties(options.PlayerId, options.PlayerName);
             game.AddPlayer(player);
             // If a vessel id was provided, we want to add the player onto the specified vessel as well
+            var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleEvent>();
             if (options.VesselId != null) 
             {
+                // Make sure the vessel exists
                 var vessel = game.Vessels.FirstOrDefault(x => x.Id == options.VesselId);
                 if (vessel == null)
                     throw new ArgumentException($"Vessel with id {options.VesselId} was not found in the requested game ({options.GameId})");
-                if (!options.VesselRoleValues.Any())
+                // Build list of vessel roles to assign
+                IEnumerable<VesselRole> vesselRoles = new List<VesselRole>();
+                // If a vessel role list was provided, try to add the player into those roles (otherwise get default)
+                if (options.VesselRoleValues.Any())
+                    vesselRoles = options.VesselRoleValues.Select(x => Models.VesselRole.FromValue(x));
+                else
+                    vesselRoles = GetDefaultVesselRolesForPlayer(vessel, player);
+                // Make sure we have at least one vessel role
+                if (!vesselRoles.Any())
                     throw new ArgumentNullException(nameof(options.VesselRoleValues), "Can't add player to a vessel without specifying vessel role(s)");
-                var vesselRoles = options.VesselRoleValues.Select(x => Models.VesselRole.FromValue(x));
+                // Add into specified vessel role(s)
                 foreach(var vesselRole in vesselRoles) 
                 {
+                    // Set the role
                     game.SetVesselRole(vessel.Id, vesselRole, player);
-                }
+                    // Store event to publish later
+                    playerAddedToVesselRoleEvents.Add(
+                        PlayerAddedToVesselRoleEvent.FromPlayerInGameVesselRole(
+                            game,
+                            vessel,
+                            vesselRole,
+                            player
+                        )
+                    );
+                }                        
             }
             // Raise event for player added into game
             await _eventBus.PublishAsync(PlayerJoinedGameEvent.FromPlayerInGame(game, player));
-            // Return the updated game
+            foreach(var playerAddedToVesselRoleEvent in playerAddedToVesselRoleEvents)
+            {
+                await _eventBus.PublishAsync(playerAddedToVesselRoleEvent);
+            }
+            // Return the updated game state
             return game;
         }
 
         public async Task<Game> RemovePlayerFromGameAsync(RemovePlayerOptions options)
         {
+            // Make sure required arguments were provided
             var gameId = options?.GameId ?? Guid.Empty;
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var game = await RetrieveGameByIdAsync(gameId);
-            var playerId = options?.PlayerId;
+            var playerId = options?.PlayerId ?? Guid.Empty;
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
+            // Get the game matching id from request 
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
+            // Get the player matching id from request 
             var player = game.Players.SingleOrDefault(x => x.Id.Equals(playerId));
+            if (player == null)
+                throw new ArgumentException($"Player with id {playerId} was not found in the requested game ({gameId})");
+            // Make an event list for all of the vessel roles player is about to be removed from
+            var playerRemovedFromVesselRoleEvents = new List<PlayerRemovedFromVesselRoleEvent>();
+            foreach(var vessel in game.Vessels)
+            {
+                // player is the Captain
+                if ((vessel.Captain?.Id ?? Guid.Empty).Equals(playerId))
+                {
+                    playerRemovedFromVesselRoleEvents.Add(
+                        PlayerRemovedFromVesselRoleEvent.FromPlayerInGameVesselRole(
+                            game,
+                            vessel,
+                            VesselRole.Captain,
+                            player
+                        )
+                    );
+                }
+                // Player is the Radioman
+                if ((vessel.Radioman?.Id ?? Guid.Empty).Equals(playerId))
+                {
+                    playerRemovedFromVesselRoleEvents.Add(
+                        PlayerRemovedFromVesselRoleEvent.FromPlayerInGameVesselRole(
+                            game,
+                            vessel,
+                            VesselRole.Radioman,
+                            player
+                        )
+                    );
+                }
+            }
+            // Remove the player from the game
             game.RemovePlayer(player);
+            // Raise event for player removed from vessel role
+            foreach(var playerRemovedFromVesselRoleEvent in playerRemovedFromVesselRoleEvents)
+            {
+                await _eventBus.PublishAsync(playerRemovedFromVesselRoleEvent);
+            }
             // Raise event for player left game
             await _eventBus.PublishAsync(PlayerLeftGameEvent.FromPlayerInGame(game, player));
+            // Return the updated game state
             return game;
         }
 
-        public Task<Vessel> AddPlayerToVesselAsync(AddPlayerOptions options) => throw new NotImplementedException();
+        public async Task<Vessel> AddPlayerToVesselAsync(AddPlayerOptions options)
+        {
+            // Make sure no arguments left blank
+            var gameId = options.GameId;
+            if (gameId == default(Guid))
+                throw new ArgumentNullException(nameof(options.GameId));
+            var vesselId = options.VesselId ?? Guid.Empty;
+            if (vesselId == default(Guid))
+                throw new ArgumentNullException(nameof(options.VesselId));
+            // Locate game matching id from request
+            var game = await RetrieveGameByIdAsync(options.GameId); // <-- Throws exception if game not found
+            // Locate vessel matching id from request
+            var vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
+            // Make sure vessel was found
+            if (vessel == null)
+                throw new ArgumentException($"Vessel with id {options.VesselId} was not found in the requested game ({options.GameId})");
+            // Get the player from existing list or create new
+            PlayerJoinedGameEvent playerJoinedGameEvent = null;
+            var player = game.Players.FirstOrDefault(x => x.Id == options.PlayerId);
+            if (player != null)
+            {
+                // Make sure the player doesn't already exist on a vessel (by matching player id to all vessel roles)
+                var playerAlreadyOnAVessel = game.Vessels.Any(x => 
+                    options.PlayerId.Equals(x.Captain?.Id ?? default(Guid)) ||
+                    options.PlayerId.Equals(x.Radioman?.Id ?? default(Guid))
+                );
+                if (playerAlreadyOnAVessel) 
+                    throw new ArgumentException($"Player with id {options.PlayerId} already belongs to a vessel in the requested game ({options.GameId})");
+            }
+            else
+            {
+                // Create the player
+                player = Models.Player.FromProperties(options.PlayerId, options.PlayerName);
+                // Add to the game
+                game.AddPlayer(player);
+                // Set flag to raise event at the end of the operation
+                playerJoinedGameEvent = PlayerJoinedGameEvent.FromPlayerInGame(game, player);
+            }
+            // Build list of vessel roles to assign
+            IEnumerable<VesselRole> vesselRoles = new List<VesselRole>();
+            // If a vessel role list was provided, try to add the player into those roles (otherwise get default)
+            if (options.VesselRoleValues.Any())
+                vesselRoles = options.VesselRoleValues.Select(x => Models.VesselRole.FromValue(x));
+            else
+                vesselRoles = GetDefaultVesselRolesForPlayer(vessel, player);
+            // Make sure we have at least one vessel role to assign
+            if (!vesselRoles.Any())
+                throw new ArgumentNullException(nameof(options.VesselRoleValues), "Can't add player to a vessel without specifying vessel role(s)");
+            // If a vessel id was provided, we want to add the player onto the specified vessel
+            var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleEvent>();
+            // Add into specified vessel role(s)
+            foreach(var vesselRole in vesselRoles) 
+            {
+                // Set the role
+                game.SetVesselRole(vessel.Id, vesselRole, player);
+                // Store event to publish later
+                playerAddedToVesselRoleEvents.Add(
+                    PlayerAddedToVesselRoleEvent.FromPlayerInGameVesselRole(
+                        game,
+                        vessel,
+                        vesselRole,
+                        player
+                    )
+                );
+            }  
+            // Raise event for player added into game
+            if (playerJoinedGameEvent != null) 
+            {
+                await _eventBus.PublishAsync(playerJoinedGameEvent);
+            }
+            // Raise event(s) for player added into role(s)
+            foreach (var playerAddedToVesselRoleEvent in playerAddedToVesselRoleEvents)
+            {
+                await _eventBus.PublishAsync(playerAddedToVesselRoleEvent);
+            }
+            // Return the new vessel state
+            return vessel;
+        }
 
         public Task<Vessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
