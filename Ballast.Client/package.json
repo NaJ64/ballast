@@ -26,7 +26,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@aspnet/signalr": "^1.0.0-rc1-final",
+    "@aspnet/signalr": "^1.0.0",
     "ballast-core": "file:../ballast.core",
     "inversify": "^4.11.1",
     "reflect-metadata": "^0.1.12",
@@ -41,6 +41,7 @@
     "cpx": "^1.5.0",
     "jest": "^22.4.3",
     "ts-jest": "^22.4.2",
+    "tslib": "^1.9.3",
     "typescript": "^2.7.2"
   },
   "jest": {
