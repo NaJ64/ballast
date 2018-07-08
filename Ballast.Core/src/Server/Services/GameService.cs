@@ -26,7 +26,7 @@ namespace Ballast.Core.Services
             _eventBus = eventBus;
             _boardGenerator = boardGenerator;
             _games = new Dictionary<Guid, Game>();
-            var gameOptions = new CreateGameOptions() 
+            var gameOptions = new CreateGameOptions()
             {
                 VesselOptions = new CreateVesselOptions[0]
             };
@@ -36,8 +36,8 @@ namespace Ballast.Core.Services
             _eventBus.Subscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
         }
 
-        public void Dispose() 
-        { 
+        public void Dispose()
+        {
             _eventBus.Unsubscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
             _games.Clear();
         }
@@ -46,7 +46,7 @@ namespace Ballast.Core.Services
         {
             var playerId = evt.Player.Id;
             var playerInGames = _games.Values.Where(x => x.Players.Any(y => y.Id.Equals(playerId)));
-            foreach(var game in playerInGames)
+            foreach (var game in playerInGames)
             {
                 var removePlayerOptions = new RemovePlayerOptions()
                 {
@@ -70,7 +70,19 @@ namespace Ballast.Core.Services
             _games.Remove(gameId);
         }
 
-        private IEnumerable<VesselRole> GetDefaultVesselRolesForPlayer(Vessel vessel, Player player) => throw new NotImplementedException();
+        private IEnumerable<VesselRole> GetDefaultVesselRolesForPlayer(Vessel vessel, Player player)
+        {
+            // TODO: Update this method to only place player into a single role
+            // Create role list
+            var roles = new List<VesselRole>();
+            // Return all the vessel roles that are empty
+            if ((vessel.Captain?.Id ?? Guid.Empty) == default(Guid))
+                roles.Add(VesselRole.Captain);
+            if ((vessel.Radioman?.Id ?? Guid.Empty) == default(Guid))
+                roles.Add(VesselRole.Radioman);
+            // Return the role list
+            return roles;
+        }
 
         public async Task<Guid> GetTestGameIdAsync() => await Task.FromResult(_defaultGame.Id);
 
@@ -85,12 +97,12 @@ namespace Ballast.Core.Services
             if (useBoardSize % 2 == 0)
                 useBoardSize++;
             var useBoardType = DEFAULT_BOARD_TYPE;
-            var useTileShape = (options.BoardShapeValue != null) 
+            var useTileShape = (options.BoardShapeValue != null)
                 ? Models.TileShape.FromValue((int)options.BoardShapeValue)
                 : DEFAULT_TILE_SHAPE;
 
             var board = _boardGenerator.CreateBoard(
-                id: Guid.NewGuid(), 
+                id: Guid.NewGuid(),
                 boardType: useBoardType, // Default
                 tileShape: useTileShape,
                 columnsOrSideLength: useBoardSize
@@ -99,13 +111,13 @@ namespace Ballast.Core.Services
             var players = new List<Player>();
             var vessels = CreateVessels(options.VesselOptions, board);
             var createdUtc = DateTime.UtcNow;
-            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc); 
+            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc);
             _games[gameId] = game;
             await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));
             return game;
         }
 
-        public async Task<Game> StartGameAsync(Guid gameId) 
+        public async Task<Game> StartGameAsync(Guid gameId)
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.Start();
@@ -138,7 +150,7 @@ namespace Ballast.Core.Services
             game.AddPlayer(player);
             // If a vessel id was provided, we want to add the player onto the specified vessel as well
             var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleEvent>();
-            if (options.VesselId != null) 
+            if (options.VesselId != null)
             {
                 // Make sure the vessel exists
                 var vessel = game.Vessels.FirstOrDefault(x => x.Id == options.VesselId);
@@ -155,7 +167,7 @@ namespace Ballast.Core.Services
                 if (!vesselRoles.Any())
                     throw new ArgumentNullException(nameof(options.VesselRoleValues), "Can't add player to a vessel without specifying vessel role(s)");
                 // Add into specified vessel role(s)
-                foreach(var vesselRole in vesselRoles) 
+                foreach (var vesselRole in vesselRoles)
                 {
                     // Set the role
                     game.SetVesselRole(vessel.Id, vesselRole, player);
@@ -168,11 +180,11 @@ namespace Ballast.Core.Services
                             player
                         )
                     );
-                }                        
+                }
             }
             // Raise event for player added into game
             await _eventBus.PublishAsync(PlayerJoinedGameEvent.FromPlayerInGame(game, player));
-            foreach(var playerAddedToVesselRoleEvent in playerAddedToVesselRoleEvents)
+            foreach (var playerAddedToVesselRoleEvent in playerAddedToVesselRoleEvents)
             {
                 await _eventBus.PublishAsync(playerAddedToVesselRoleEvent);
             }
@@ -197,7 +209,7 @@ namespace Ballast.Core.Services
                 throw new ArgumentException($"Player with id {playerId} was not found in the requested game ({gameId})");
             // Make an event list for all of the vessel roles player is about to be removed from
             var playerRemovedFromVesselRoleEvents = new List<PlayerRemovedFromVesselRoleEvent>();
-            foreach(var vessel in game.Vessels)
+            foreach (var vessel in game.Vessels)
             {
                 // player is the Captain
                 if ((vessel.Captain?.Id ?? Guid.Empty).Equals(playerId))
@@ -227,7 +239,7 @@ namespace Ballast.Core.Services
             // Remove the player from the game
             game.RemovePlayer(player);
             // Raise event for player removed from vessel role
-            foreach(var playerRemovedFromVesselRoleEvent in playerRemovedFromVesselRoleEvents)
+            foreach (var playerRemovedFromVesselRoleEvent in playerRemovedFromVesselRoleEvents)
             {
                 await _eventBus.PublishAsync(playerRemovedFromVesselRoleEvent);
             }
@@ -259,11 +271,11 @@ namespace Ballast.Core.Services
             if (player != null)
             {
                 // Make sure the player doesn't already exist on a vessel (by matching player id to all vessel roles)
-                var playerAlreadyOnAVessel = game.Vessels.Any(x => 
+                var playerAlreadyOnAVessel = game.Vessels.Any(x =>
                     options.PlayerId.Equals(x.Captain?.Id ?? default(Guid)) ||
                     options.PlayerId.Equals(x.Radioman?.Id ?? default(Guid))
                 );
-                if (playerAlreadyOnAVessel) 
+                if (playerAlreadyOnAVessel)
                     throw new ArgumentException($"Player with id {options.PlayerId} already belongs to a vessel in the requested game ({options.GameId})");
             }
             else
@@ -292,7 +304,7 @@ namespace Ballast.Core.Services
             // If a vessel id was provided, we want to add the player onto the specified vessel
             var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleEvent>();
             // Add into specified vessel role(s)
-            foreach(var vesselRole in vesselRoles) 
+            foreach (var vesselRole in vesselRoles)
             {
                 // Set the role
                 game.SetVesselRole(vessel.Id, vesselRole, player);
@@ -305,9 +317,9 @@ namespace Ballast.Core.Services
                         player
                     )
                 );
-            }  
+            }
             // Raise event for player added into game
-            if (playerJoinedGameEvent != null) 
+            if (playerJoinedGameEvent != null)
             {
                 await _eventBus.PublishAsync(playerJoinedGameEvent);
             }
@@ -383,7 +395,7 @@ namespace Ballast.Core.Services
 
         public Task<Vessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) => throw new NotImplementedException();
 
-        public async Task MoveVesselAsync(VesselMoveRequest request) 
+        public async Task MoveVesselAsync(VesselMoveRequest request)
         {
             // Locate game matching id from request
             var gameId = request.GameId;
@@ -418,7 +430,7 @@ namespace Ballast.Core.Services
             CubicCoordinates targetCoordinates = null;
             var doubleIncrement = game.Board.TileShape.DoubleIncrement ?? false;
             var useCardinalDirections = !request.TargetOrderedTriple.Any();
-            if (!useCardinalDirections) 
+            if (!useCardinalDirections)
             {
                 // Get actual cubic coordinates
                 var requestTargetCoordinates = CubicCoordinates.FromOrderedTriple(request.TargetOrderedTriple);
@@ -434,7 +446,7 @@ namespace Ballast.Core.Services
                 // Use target coordinates from request
                 targetCoordinates = requestTargetCoordinates;
             }
-            else 
+            else
             {
                 // Get directions/movements
                 var north = request.Direction?.North ?? false;
@@ -513,7 +525,7 @@ namespace Ballast.Core.Services
         private IEnumerable<Vessel> CreateVessels(IEnumerable<CreateVesselOptions> createVesselOptions, Board board)
         {
             var vessels = new List<Vessel>();
-            foreach(var vesselOptions in createVesselOptions) 
+            foreach (var vesselOptions in createVesselOptions)
             {
                 var vesselId = Guid.NewGuid();
                 var startingCoordinates = vesselOptions.StartOrderedTriple != null
@@ -540,7 +552,7 @@ namespace Ballast.Core.Services
             var z2 = toTileCoordinates.Z;
             var distance = Math.Max(Math.Max(x2 - x1, y2 - y1), z2 - z1);
             if (doubleIncrement)
-               return Convert.ToInt32(distance / 2);
+                return Convert.ToInt32(distance / 2);
             return distance;
         }
 
