@@ -47,7 +47,7 @@ namespace Ballast.Web.HubMethods
         public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
         {
             // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
             foreach(var connectionId in connectionIds)
             {
                 var client = _hubContext.Clients.Client(connectionId);
@@ -58,7 +58,7 @@ namespace Ballast.Web.HubMethods
         public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
         {
             // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.Game);
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
             foreach(var connectionId in connectionIds)
             {
                 var client = _hubContext.Clients.Client(connectionId);

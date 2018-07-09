@@ -1,10 +1,10 @@
-import { Game, IGame } from '../../models/game';
+import { IGame } from '../../models/game';
 import { IPlayer, Player } from '../../models/player';
 import { IEvent } from '../event';
 import { EventBase } from '../event-base';
 
 export interface IPlayerLeftGameEvent extends IEvent {
-    readonly game: IGame;
+    readonly gameId: string;
     readonly player: IPlayer;
 }
 
@@ -16,12 +16,12 @@ export class PlayerLeftGameEvent extends EventBase implements IPlayerLeftGameEve
         return PlayerLeftGameEvent.id;
     }
 
-    public readonly game: Game; 
+    public readonly gameId: string; 
     public readonly player: Player;
 
     private constructor(state: IPlayerLeftGameEvent) {
         super(state.isoDateTime);
-        this.game = Game.fromObject(state.game);
+        this.gameId = state.gameId;
         this.player = Player.fromObject(state.player);
     }
 
@@ -33,7 +33,7 @@ export class PlayerLeftGameEvent extends EventBase implements IPlayerLeftGameEve
         return new PlayerLeftGameEvent({
             id: PlayerLeftGameEvent.id,
             isoDateTime: EventBase.getIsoDateTime(),
-            game: game,
+            gameId: game.id,
             player: player
         });
     }

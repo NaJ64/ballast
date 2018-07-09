@@ -7,7 +7,7 @@ namespace Ballast.Core.Messaging.Events
 
     public class VesselStateChangedEventState : EventStateBase
     {
-        public Game Game { get; set; }
+        public Guid GameId { get; set; }
         public Vessel Vessel { get; set; }
     }
 
@@ -16,22 +16,20 @@ namespace Ballast.Core.Messaging.Events
 
         public override string Id => nameof(VesselStateChangedEvent);
 
-        public Game Game { get; private set; }
+        public Guid GameId { get; private set; }
+        public Vessel Vessel { get; private set; }
 
-        private readonly Guid _vesselId;
-        public Vessel Vessel => Game.Vessels.SingleOrDefault(x => x.Id == _vesselId);
-
-        public VesselStateChangedEvent(Game game, Vessel vessel, string isoDateTime = null) : base(isoDateTime) 
+        private VesselStateChangedEvent(Guid gameId, Vessel vessel, string isoDateTime = null) : base(isoDateTime) 
         {
-            Game = game;
-            _vesselId = vessel.Id;
+            GameId = gameId;
+            Vessel = vessel;
         }
 
         public static implicit operator VesselStateChangedEvent(VesselStateChangedEventState state) =>
-            new VesselStateChangedEvent(state.Game, state.Vessel, state.IsoDateTime);
+            new VesselStateChangedEvent(state.GameId, state.Vessel, state.IsoDateTime);
 
         public static VesselStateChangedEvent FromVesselInGame(Game game, Vessel vessel) =>
-            new VesselStateChangedEvent(game, vessel);
+            new VesselStateChangedEvent(game.Id, vessel);
 
     }
 
