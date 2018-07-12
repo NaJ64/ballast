@@ -13,8 +13,8 @@ const config = {
     watchOptions: {
         aggregateTimeout: 300,
         ignored: [
-            path.resolve(__dirname, 'node_modules') + '/(?!ballast-core)',
-            path.resolve(__dirname, 'node_modules/ballast-core/node_modules')
+            path.resolve(__dirname, 'node_modules') + /\/(?!(ballast-core)).*/,
+            path.resolve(__dirname, 'node_modules/ballast-core') + /\/(?!(dist)).*/
         ]
     }
 };

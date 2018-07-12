@@ -15,7 +15,7 @@
     "copy-lib": "npm run copy-lib:ballast-client && npm run copy-lib:css && npm run copy-lib:html",
     "copy-lib:ballast-client": "node ./node_modules/cpx/bin \"node_modules/ballast-client/dist/**/!(index.js)\" \"lib\"",
     "copy-lib:css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"lib\"",
-    "copy-lib:html": "node ./node_modules/cpx/bin \"src/**/*html\" \"lib\"",
+    "copy-lib:html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"lib\"",
     "prepare": "npm run build",
     "start": "node ./node_modules/electron/cli \".\"",
     "test": "echo \"Error: no test(s) configured for this project\" && exit 0"
