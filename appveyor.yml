@@ -4,42 +4,42 @@ branches:
   only:
   - master
 init:
-  # Good practise, because Windows line endings are different from Unix/Linux ones
+  # Good practice, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
 install:
   # Get a later version of Node.js
-  - ps: Install-Product node 8.11.1
-  - cmd: npm -g install npm@5.6.0
+  - ps: Install-Product node 9.9.0
+  - cmd: npm -g install npm@5.7.1
   - cmd: npm -v
   # Install repo specific stuff here
-  - cmd: cd ./Ballast.Core
+  - cmd: cd ./ballast-core
   - cmd: npm install
-  - cmd: cd ../Ballast.Client
+  - cmd: cd ../ballast-client
   - cmd: npm install
-  - cmd: cd ../Ballast.Web
+  - cmd: cd ../ballast-web
   - cmd: npm install
   - cmd: cd ../
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
   # Display minimal restore text
-  - cmd: dotnet restore ./Ballast.Core/Ballast.Core.csproj --verbosity m
-  - cmd: dotnet restore ./Ballast.Web/Ballast.Web.csproj --verbosity m
+  - cmd: dotnet restore ./ballast-core/Ballast.Core.csproj --verbosity m
+  - cmd: dotnet restore ./ballast-web/Ballast.Web.csproj --verbosity m
 build_script:
   # output will be in ./Ballast.Web/bin/debug/netcoreapp2.1/publish
-  - cmd: dotnet publish ./Ballast.Web/Ballast.Web.csproj
+  - cmd: dotnet publish ./ballast-web/Ballast.Web.csproj
 after_build:
   # For once the build has completed
 artifacts:
- - path: '\Ballast.Web\bin\Debug\netcoreapp2.1\publish'
+ - path: '\ballast-web\bin\Debug\netcoreapp2.1\publish'
    name: Ballast
    type: Zip
 clone_depth: 1
 test_script:
   # restore packages for our unit tests
-  - cmd: cd ./Ballast.Core
+  - cmd: cd ./ballast-core
   - cmd: npm test
-  # - cmd: cd ../Ballast.Client
+  # - cmd: cd ../ballast-client
   # - cmd: npm test
   - cmd: cd ../
 on_finish :

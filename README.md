@@ -20,4 +20,4 @@ Browser-based multiplayer game using ASP.NET Core, SignalR, TypeScript, and thre
 After installing all prerequisites, build tasks in visual studio code can be run to initially setup the project.
 
 - Run task `Ballast.Web Install/Build (NPM)` (only needs to be run once)
-- Then start the app in watch mode with default build task `Ballast - Run/Watch`*
+- Start the app in watch mode with default build task `Ballast - Run/Watch`

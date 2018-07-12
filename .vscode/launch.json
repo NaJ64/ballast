@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "web-dotnet-build",
-            "program": "${workspaceFolder}/Ballast.Web/bin/Debug/netcoreapp2.1/Ballast.Web.dll",
+            "program": "${workspaceFolder}/ballast-web/bin/Debug/netcoreapp2.1/Ballast.Web.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Ballast.Web",
+            "cwd": "${workspaceFolder}/ballast-web",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
