@@ -14,7 +14,7 @@
     "copy-lib": "npm run copy-lib:ballast-client && npm run copy-lib:css && npm run copy-lib:html",
     "copy-lib:ballast-client": "node ./node_modules/cpx/bin \"node_modules/ballast-client/dist/**/!(index.js)\" \"lib\"",
     "copy-lib:css": "node ./node_modules/cpx/bin \"src/typescript/**/*.css\" \"lib\"",
-    "copy-lib:html": "node ./node_modules/cpx/bin \"src/typescript/**/*html\" \"lib\"",
+    "copy-lib:html": "node ./node_modules/cpx/bin \"src/typescript/**/*.html\" \"lib\"",
     "prepare": "npm run build",
     "start": "echo \"Use the 'dotnet run' command to start the project using .NET Core\" && exit 1",
     "test": "echo \"Error: no test(s) configured for this project\" && exit 0"
