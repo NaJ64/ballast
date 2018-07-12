@@ -31,12 +31,14 @@
   "author": "NaJ64 <njudice@gmail.com>",
   "license": "MIT",
   "private": true,
+  "dependencies": {
+    "ballast-core": "file:../ballast-core"
+  },
   "devDependencies": {
     "@aspnet/signalr": "^1.0.2",
     "@types/jest": "^23.1.5",
     "@types/three": "^0.92.12",
     "@types/uuid": "^3.4.3",
-    "ballast-core": "file:../ballast-core",
     "cpx": "^1.5.0",
     "inversify": "^4.13.0",
     "jest": "^23.4.0",
