@@ -1,0 +1,28 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+      "baseUrl": ".",
+      "declaration": false,
+      "emitDecoratorMetadata": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "lib": [ 
+        "es6",
+        "dom"
+      ],
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "outDir": "lib",
+      "rootDir": "src/typescript",
+      "sourceMap": false,
+      "strict": true,
+      "target": "es5"
+    },
+    "include": [
+      "src/typescript/**/*.ts"
+    ],
+    "exclude": [
+      "lib/**/*.ts",
+      "src/typescript/**/*.test.ts"
+    ]
+  }
