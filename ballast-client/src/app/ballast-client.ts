@@ -71,16 +71,18 @@ export class BallastClient implements IDisposable {
             await gameService.connectAsync();
         }
         let testGameId = await gameService.getTestGameIdAsync();
+        let testGame = Game.fromObject(await gameService.getGameAsync(testGameId));
+        let nextEmptyVessel = testGame.vessels.find(x => !x.captain && !x.radioman); // Get first empty vessel
         let addPlayerOptions: IAddPlayerOptions = {
             playerId: playerId,
             playerName: signedInPlayer ? signedInPlayer.name : null,
             gameId: testGameId,
-            vesselId: null,
+            vesselId: nextEmptyVessel ? nextEmptyVessel.id : null,
             vesselRoleValues: []
         };
-        let testGame = Game.fromObject(await gameService.addPlayerToGameAsync(addPlayerOptions));
+        let testGameWithPlayer = Game.fromObject(await gameService.addPlayerToGameAsync(addPlayerOptions));
         let eventBus = this.inversifyContainer.get<IEventBus>(TYPES_BALLAST.IEventBus);
-        await eventBus.publishAsync(GameStateChangedEvent.fromGame(testGame));
+        await eventBus.publishAsync(GameStateChangedEvent.fromGame(testGameWithPlayer));
     }
 
     // public async startTestAsync(): Promise<void> {

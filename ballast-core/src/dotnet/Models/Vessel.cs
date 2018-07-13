@@ -7,6 +7,7 @@ namespace Ballast.Core.Models
     public class VesselState
     {
         public Guid Id { get; set; }
+        public string Name { get; set; }
         public CubicCoordinates CubicCoordinates { get; set; }
         public Player Captain { get; set; }
         public Player Radioman { get; set; }
@@ -16,32 +17,40 @@ namespace Ballast.Core.Models
     {
 
         public Guid Id { get; private set; }
+        public string Name { get; private set; }
         public CubicCoordinates CubicCoordinates { get; private set; }
         public Player Captain { get; private set; }
         public Player Radioman { get; private set; }
 
-        private Vessel(Guid id, CubicCoordinates cubicCoordinates, Player captain, Player radioman)
+        private Vessel(Guid id, string name, CubicCoordinates cubicCoordinates, Player captain, Player radioman)
         {
             Id = id;
+            Name = name;
             CubicCoordinates = cubicCoordinates;
             Captain = captain;
             Radioman = radioman;
         }
 
-        public static Vessel FromProperties(Guid id, CubicCoordinates cubicCoordinates, Player captain, Player radioman) => new Vessel(
+        public static Vessel FromProperties(Guid id, string name, CubicCoordinates cubicCoordinates, Player captain, Player radioman) => new Vessel(
             id: id,
+            name: name,
             cubicCoordinates: cubicCoordinates,
             captain: captain,
             radioman: radioman
         );
 
         public static implicit operator Vessel(VesselState state) =>
-            new Vessel(state.Id, state.CubicCoordinates, state.Captain, state.Radioman);
+            new Vessel(state.Id, state.Name, state.CubicCoordinates, state.Captain, state.Radioman);
 
         public CubicCoordinates UpdateCoordinates(CubicCoordinates cubicCoordinates)
         {
             CubicCoordinates = cubicCoordinates;
             return CubicCoordinates;
+        }
+
+        public void UpdateName(string name)
+        {
+            Name = name;
         }
 
         public void SetVesselRole(VesselRole vesselRole, Player player)

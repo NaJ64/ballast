@@ -26,14 +26,22 @@ namespace Ballast.Core.Services
             _eventBus = eventBus;
             _boardGenerator = boardGenerator;
             _games = new Dictionary<Guid, Game>();
+            _defaultGame = CreateDefaultGameAsync().GetAwaiter().GetResult();
+            _eventBus.Subscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
+        }
+
+        private async Task<Game> CreateDefaultGameAsync()
+        {
             var gameOptions = new CreateGameOptions()
             {
-                VesselOptions = new CreateVesselOptions[0]
+                VesselOptions = new CreateVesselOptions[]
+                {
+                    new CreateVesselOptions() { RequestedName = "U-571" },
+                    new CreateVesselOptions() { RequestedName = "Red October" }
+                }
             };
-            _defaultGame = (Game)CreateGameAsync(gameOptions)
-                .GetAwaiter()
-                .GetResult();
-            _eventBus.Subscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
+            var defaultGame = await CreateGameAsync(gameOptions);
+            return defaultGame;
         }
 
         public void Dispose()
@@ -442,9 +450,9 @@ namespace Ballast.Core.Services
                 // Set flag to raise event at the end of the operation
                 playerJoinedGameEvent = PlayerJoinedGameEvent.FromPlayerInGame(game, player);
             }
-             // Try to add player to each role in the list (if not already belonging to those roles)
+            // Try to add player to each role in the list (if not already belonging to those roles)
             var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleEvent>();
-            foreach(var vesselRole in vesselRoles)
+            foreach (var vesselRole in vesselRoles)
             {
                 // Captain
                 if (vesselRole.Value == VesselRole.Captain.Value)
@@ -527,7 +535,7 @@ namespace Ballast.Core.Services
                 throw new ArgumentException($"Player with id {playerId} was not found in the requested game ({gameId})");
             // Make sure player belongs to each role in the list
             var playerRemovedFromVesselRoleEvents = new List<PlayerRemovedFromVesselRoleEvent>();
-            foreach(var vesselRole in vesselRoles)
+            foreach (var vesselRole in vesselRoles)
             {
                 // Captain
                 if (vesselRole.Value == VesselRole.Captain.Value)
@@ -569,7 +577,7 @@ namespace Ballast.Core.Services
                 }
             }
             // Raise player removed from vessel role event(s)
-            foreach(var playerRemovedFromVesselRoleEvent in playerRemovedFromVesselRoleEvents)
+            foreach (var playerRemovedFromVesselRoleEvent in playerRemovedFromVesselRoleEvents)
             {
                 await _eventBus.PublishAsync(playerRemovedFromVesselRoleEvent);
             }
@@ -710,11 +718,13 @@ namespace Ballast.Core.Services
             foreach (var vesselOptions in createVesselOptions)
             {
                 var vesselId = Guid.NewGuid();
+                var vesselName = vesselOptions.RequestedName;
                 var startingCoordinates = vesselOptions.StartOrderedTriple != null
                     ? CubicCoordinates.FromOrderedTriple(vesselOptions.StartOrderedTriple)
                     : board.GetRandomPassableCoordinates();
                 var vessel = Vessel.FromProperties(
                     id: vesselId,
+                    name: vesselName,
                     cubicCoordinates: startingCoordinates,
                     captain: null,
                     radioman: null
