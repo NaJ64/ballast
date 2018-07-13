@@ -183,8 +183,23 @@ export abstract class SignalRServiceBase implements IDisposable {
             let invocationList = this.getInvocationList(method);
             let invocationId = this.createInvocationId();
             invocationList.set(invocationId, [resolve, reject]);
-            this.invokeOnHubAsync(method, invocationId, ...args); // Fire and forget
+            this.invokeOnHubAsync(method, invocationId, ...args)
+                .catch((err: Error) => this.cancelInvocation(method, invocationId, err.message)); // Fire and forget
         });
+    }
+
+    private cancelInvocation(method: string, invocationId: string, cancellationReason: string) {
+        // Get the list of all currently running/live method invocations
+        let currentInvocations = this.getInvocationList(method);
+        let foundInvocation = currentInvocations.get(invocationId);
+        if (!foundInvocation) {
+            return;
+        }
+        let reject = foundInvocation["1"] as SignalRServiceInvocationRejector;
+        // Reject the promise
+        reject(cancellationReason);
+        // Remove from the list of invocations (promise has reached fulfilled state)
+        currentInvocations.delete(invocationId);
     }
 
     private async invokeOnHubAsync(method: string, invocationId: string, ...args: any[]) {
