@@ -24,6 +24,8 @@ export class GameComponent extends ComponentBase {
     private readonly clockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
     private readonly counterClockwiseButton: HTMLButtonElement;
     private readonly counterClockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+    private readonly moveForwardButton: HTMLButtonElement;
+    private readonly moveForwardButtonClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
 
     // Rotation flags/triggers 
     private readonly rotationTarget: THREE.Object3D;
@@ -63,10 +65,12 @@ export class GameComponent extends ComponentBase {
         this.vesselPivot = vesselObjects["1"];
 
         // Create buttons & click listeners
-        let buttons = this.createRotationButtons()
-        this.counterClockwiseButton = buttons["0"];
+        let buttons = this.createMovementButtons()
+        this.moveForwardButton = buttons["0"];
+        this.moveForwardButtonClickListener = this.onMoveForwardClick.bind(this);
+        this.counterClockwiseButton = buttons["1"];
         this.counterClockwiseClickListener = this.onCounterClockwiseClick.bind(this);
-        this.clockwiseButton = buttons["1"];
+        this.clockwiseButton = buttons["2"];
         this.clockwiseClickListener = this.onClockwiseClick.bind(this);
 
         // Trigger(s) & properties for object rotation animation(s)
@@ -106,12 +110,25 @@ export class GameComponent extends ComponentBase {
         return rotationTarget;
     }
 
-    private createRotationButtons(): [HTMLButtonElement, HTMLButtonElement] {
+    private createMovementButtons(): [HTMLButtonElement, HTMLButtonElement, HTMLButtonElement] {
 
         // Add some CSS to the game style header tag for media query'ing the buttons
         let style = this.viewport.getGameStyle();
         let ownerDocument = style.ownerDocument;
         style.appendChild(ownerDocument.createTextNode(`
+            .ballastMoveForwardButton {
+                position: absolute;
+                color: white;
+                background-color: transparent;
+                border-width: 0px;
+                border-style: solid;
+                border-color: rgba(255, 255, 255, 0.1);
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                font-size: 5vw;
+                top: 15%;
+                left: 50%;
+                transform: translate(-50%, -50%)
+            }
             .ballastRotateButton { 
                 transform: rotate(180deg);
                 position: absolute;
@@ -122,13 +139,23 @@ export class GameComponent extends ComponentBase {
                 border-color: rgba(255, 255, 255, 0.1);
                 text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
                 font-size: 5vw;
+                top: 10%;
             } 
             @media screen and (min-width: 1000px) { 
+                .ballastMoveForwardButton { 
+                    font-size: 50px;
+                } 
                 .ballastRotateButton { 
                     font-size: 50px;
                 } 
             }
         `));
+
+        // Move forward button (top middle)
+        let moveForwardButton = ownerDocument.createElement('button');
+        moveForwardButton.innerHTML = '&#8593';
+        moveForwardButton.type = 'button';
+        moveForwardButton.className = 'ballastMoveForwardButton';
 
         // Counter clockwise button (top right)
         let counterClockwiseButton = ownerDocument.createElement('button');
@@ -136,7 +163,6 @@ export class GameComponent extends ComponentBase {
         counterClockwiseButton.type = 'button';
         counterClockwiseButton.className = 'ballastRotateButton';
         counterClockwiseButton.style.cssFloat = 'left';
-        counterClockwiseButton.style.top = '10%';
         counterClockwiseButton.style.left = '5.63%';
 
         // Counter clockwise button (top left)
@@ -145,22 +171,23 @@ export class GameComponent extends ComponentBase {
         clockwiseButton.type = 'button';
         clockwiseButton.className = 'ballastRotateButton';
         clockwiseButton.style.cssFloat = 'right';
-        clockwiseButton.style.top = '10%';
         clockwiseButton.style.right = '5.63%';
 
         // Return both buttons
-        return [counterClockwiseButton, clockwiseButton];
+        return [moveForwardButton, counterClockwiseButton, clockwiseButton];
 
     }
 
     private subscribeToEvents() {
         this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        this.moveForwardButton.addEventListener('click', this.moveForwardButtonClickListener);
         this.counterClockwiseButton.addEventListener('click', this.counterClockwiseClickListener);
         this.clockwiseButton.addEventListener('click', this.clockwiseClickListener);
     }
 
     private unsubscribeFromEvents() {
         this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        this.moveForwardButton.removeEventListener('click', this.moveForwardButtonClickListener);
         this.counterClockwiseButton.removeEventListener('click', this.counterClockwiseClickListener);
         this.clockwiseButton.removeEventListener('click', this.clockwiseClickListener);
     }
@@ -172,6 +199,7 @@ export class GameComponent extends ComponentBase {
 
         // Add buttons to parent element
         parent.appendChild(this.clockwiseButton);
+        parent.appendChild(this.moveForwardButton);
         parent.appendChild(this.counterClockwiseButton);
 
         // Subscribe to click & domain events
@@ -352,6 +380,10 @@ export class GameComponent extends ComponentBase {
 
         }
 
+    }
+
+    private onMoveForwardClick(ev: MouseEvent) {
+        console.log('move forward detected');
     }
 
     private onCounterClockwiseClick(ev: MouseEvent) {
