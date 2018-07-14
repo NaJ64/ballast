@@ -19,7 +19,7 @@ Browser-based multiplayer game using ASP.NET Core, SignalR, TypeScript, and thre
 
 After installing all prerequisites, build tasks in Visual Studio Code can be run to setup the project.
 
-- Run task `Ballast.Web Install/Build (NPM)` (only needs to be run once initially)
+- Run task "`Ballast.Web Install/Build (NPM)`" (only needs to be run once initially)
 
 - To start the web app in "watch" mode, run the following tasks in VS Code (sequentially)*:
     - `(1) Ballast.Core Compile/Watch (.NET Core)`
@@ -28,6 +28,6 @@ After installing all prerequisites, build tasks in Visual Studio Code can be run
     - `(4) Ballast.Client Bundle/Watch (Webpack)`
     - `(5) Ballast.Web Compile/Watch (TypeScript)`
     - `(6) Ballast.Web Bundle/Watch (Webpack)`
-    - `(7) Ballast.Web Run/Watch (.NET Core)`
+    - `(7) Ballast.Web Run/Watch (.NET Core)`   <-- This task is not needed if debugging via "`Launch 'Ballast.Web' (.NET Core)`"
     
     *NOTE:  When running each subsequent task, be sure the previous step has finished (reached the point of "watching")
