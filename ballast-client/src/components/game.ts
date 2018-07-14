@@ -34,6 +34,7 @@ export class GameComponent extends ComponentBase {
     private rotationRadians: number;
     private rotationClock?: THREE.Clock;
     private rotationClockwise?: boolean;
+    private triggerForwardMovement?: number;
     private triggerClockwiseRotation?: number;
     private triggerCounterClockwiseRotation?: number;
 
@@ -255,6 +256,8 @@ export class GameComponent extends ComponentBase {
         let rightIsDown = renderingContext.keyboard.rightArrowIsDown();
         let aIsDown = renderingContext.keyboard.aIsDown();
         let dIsDown = renderingContext.keyboard.dIsDown();
+        let upArrowIsDown = renderingContext.keyboard.upArrowIsDown();
+        let wIsDown = renderingContext.keyboard.wIsDown();
 
         // Apply rotation animation
         let left = leftIsDown || aIsDown || !!this.triggerCounterClockwiseRotation;
@@ -262,36 +265,8 @@ export class GameComponent extends ComponentBase {
         this.applyRotation(renderingContext, left, right);
 
         // Trigger for movement
-        let forward = (renderingContext.keyboard.upArrowIsDown() || renderingContext.keyboard.wIsDown());
-        if (forward) {
-            let increment = 0.2;
-            let movement = new THREE.Vector3(0, 0, 0);
-            if (forward)
-                movement.add(this.perspectiveTracker.getForwardScaled(increment, this.vesselPivot, this.rotationDirections));
-            //console.log(movement);
-            this.vesselPivot.position.add(movement);
-        }
-
-        // Get total possible directions of movement
-        //let directions = renderingContext.game && renderingContext.game.board.tileShape.possibleDirections || undefined;
-        // TODO: This needs to be updated to trigger a movemement to an adjacent tile based on relative direction
-        //       Relative direction can be retrieved from the perspective tracker using "getRotation()" (for a rotationMatrix4)
-        //       Or from the rendering context by using 
-
-        let test = (renderingContext.keyboard.shiftIsDown());
-        if (test) {
-            // let sourceTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
-            // let targetTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
-            // let timestamp = new Date(Date.now());
-            // this.gameService.moveVesselAsync({
-            //     gameId: uuid.v4(),
-            //     boardId: uuid.v4(),
-            //     vesselId: uuid.v4(),
-            //     timestampText: timestamp.toISOString(),
-            //     sourceOrderedTriple: sourceTile,
-            //     targetOrderedTriple: targetTile
-            // });
-        }
+        let forward = (upArrowIsDown || wIsDown || !!this.triggerForwardMovement);
+        this.applyForwardMovement(renderingContext, forward);
 
     }
 
@@ -382,8 +357,49 @@ export class GameComponent extends ComponentBase {
 
     }
 
+    private applyForwardMovement(renderingContext: RenderingContext, forward: boolean) {
+        if (forward) {
+            let increment = 0.2;
+            let movement = new THREE.Vector3(0, 0, 0);
+            if (forward)
+                movement.add(this.perspectiveTracker.getForwardScaled(increment, this.vesselPivot, this.rotationDirections));
+            //console.log(movement);
+            this.vesselPivot.position.add(movement);
+        }
+
+        // TESTING: 
+        if (!!this.triggerForwardMovement) {
+            this.triggerForwardMovement--;
+        }
+        
+        // Get total possible directions of movement
+        //let directions = renderingContext.game && renderingContext.game.board.tileShape.possibleDirections || undefined;
+        // TODO: This needs to be updated to trigger a movemement to an adjacent tile based on relative direction
+        //       Relative direction can be retrieved from the perspective tracker using "getRotation()" (for a rotationMatrix4)
+        //       Or from the rendering context by using 
+
+        let test = (renderingContext.keyboard.shiftIsDown());
+        if (test) {
+            // let sourceTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
+            // let targetTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
+            // let timestamp = new Date(Date.now());
+            // this.gameService.moveVesselAsync({
+            //     gameId: uuid.v4(),
+            //     boardId: uuid.v4(),
+            //     vesselId: uuid.v4(),
+            //     timestampText: timestamp.toISOString(),
+            //     sourceOrderedTriple: sourceTile,
+            //     targetOrderedTriple: targetTile
+            // });
+        }
+
+    }
+
     private onMoveForwardClick(ev: MouseEvent) {
-        console.log('move forward detected');
+        if (!this.triggerForwardMovement) {
+            this.triggerForwardMovement = 0;
+        }
+        this.triggerForwardMovement++;
     }
 
     private onCounterClockwiseClick(ev: MouseEvent) {
