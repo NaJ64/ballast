@@ -4,6 +4,7 @@ import { IVesselRole, VesselRole } from './vessel-role';
 
 export interface IVessel {
     id: string;
+    name: string;
     cubicCoordinates: ICubicCoordinates;
     captain: IPlayer | null;
     radioman: IPlayer | null;
@@ -12,12 +13,14 @@ export interface IVessel {
 export class Vessel implements IVessel {
 
     public readonly id: string;
+    public name: string;
     public cubicCoordinates: CubicCoordinates;
     public captain: Player | null;
     public radioman: Player | null;
 
     private constructor(state: IVessel) {
         this.id = state.id;
+        this.name = state.name;
         this.cubicCoordinates = CubicCoordinates.fromObject(state.cubicCoordinates);
         this.captain = state.captain && Player.fromObject(state.captain);
         this.radioman = state.radioman && Player.fromObject(state.radioman);
