@@ -612,7 +612,7 @@ namespace Ballast.Core.Services
             var actualStartCoordinates = vessel.CubicCoordinates;
 
             // Make sure starting position matches current known position for vessel
-            if (requestStartCoordinates.Equals(actualStartCoordinates))
+            if (!requestStartCoordinates.Equals(actualStartCoordinates))
                 throw new InvalidOperationException("Requested vessel movement(s) must originate from current vessel position");
             var requestStartTile = board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x));
 

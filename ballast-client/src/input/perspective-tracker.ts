@@ -1,3 +1,4 @@
+import { IDirection, TileShape } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import { TYPES_BALLAST } from '../ioc/types';
@@ -15,7 +16,7 @@ export class PerspectiveTracker {
 
     private readonly renderingContext: RenderingContext;
     private readonly rotationM4: THREE.Matrix4;
-    private readonly objectQ: THREE.Quaternion;
+    //private readonly objectQ: THREE.Quaternion;
     private readonly snappedRotationMap: Map<number, Map<number, number>>;
 
     public constructor(
@@ -23,7 +24,7 @@ export class PerspectiveTracker {
     ) {
         this.renderingContext = renderingContext;
         this.rotationM4 = new THREE.Matrix4();
-        this.objectQ = this.renderingContext.cameraPivot.quaternion.clone();
+        //this.objectQ = this.renderingContext.cameraPivot.quaternion.clone();
         this.snappedRotationMap = this.createSnappedRotationMap();
     }
 
@@ -77,6 +78,92 @@ export class PerspectiveTracker {
             turns = (turns + 2);
         }
         return turns;
+    }
+
+    public getCardinalDirection(tileShape: TileShape): IDirection {
+
+        let turns = this.getTurns();
+
+        /* Square
+
+                N
+              ____
+         W   |    |   E
+             |____|
+                S
+
+        */
+
+        if (tileShape.equals(TileShape.Square)) {
+            if (turns > 0.5 && turns < 1) {
+                return { east: false, north: false, west: false, south: true };
+            } else if (turns > 0.25) {
+                return { east: false, north: false, west: true, south: false };
+            } else if (turns > 0) {
+                return { east: false, north: true, west: false, south: false };
+            } else {
+                return { east: true, north: false, west: false, south: false };
+            }
+        }
+
+        /* Octagon
+
+         NW     N     NE
+             ______
+            /      \   
+        W  |        |  E
+           |        |
+            \______/
+         SW     S    SE
+
+        */
+
+        if (tileShape.equals(TileShape.Octagon)) {
+            if (turns > 0.75 && turns < 1) {
+                return { east: true, north: false, west: false, south: true };
+            } else if (turns > 0.625) {
+                return { east: false, north: false, west: false, south: true };
+            } else if (turns > 0.5) {
+                return { east: false, north: false, west: true, south: true };
+            } else if (turns > 0.375) {
+                return { east: false, north: false, west: true, south: false };
+            } else if (turns > 0.25) {
+                return { east: false, north: true, west: true, south: false };
+            } else if (turns > 0.175) {
+                return { east: false, north: true, west: false, south: false };
+            } else if (turns > 0) {
+                return { east: true, north: true, west: false, south: false };
+            } else {
+                return { east: true, north: false, west: false, south: false };
+            }
+        }
+
+        /* Hexagon (pointy-top) OR Circle
+
+           NW     NE
+             .-"-.
+         W  |     |  E
+             "-.-"
+           SW      SE
+
+        */
+
+        // if (tileShape.equals(TileShape.Hexagon) || tileShape.equals(TileShape.Circle)) {
+        if (turns > (4/6) && turns < 1) {
+            return { east: true, north: false, west: false, south: true };
+        } else if (turns > (3/6)) {
+            return { east: false, north: false, west: true, south: true };
+        } else if (turns > (2/6)) {
+            return { east: false, north: false, west: true, south: false };
+        } else if (turns > (1/6)) {
+            return { east: false, north: true, west: true, south: false };
+        } else if (turns > 0) {
+            return { east: true, north: true, west: false, south: false };
+        } else {
+            return { east: true, north: false, west: false, south: false };
+        }
+        // }
+
     }
 
     public getTurns(subject?: THREE.Object3D) {
