@@ -65,9 +65,9 @@ export class GameComponent extends ComponentBase {
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
         @inject(TYPES_BALLAST.IGameClientService) gameClientService: IGameClientService,
-        @inject(TYPES_BALLAST.BoardComponentFactory) worldFactory: () => WorldComponent,
-        @inject(TYPES_BALLAST.WorldComponentFactory) boardFactory: () => BoardComponent) {
-
+        @inject(TYPES_BALLAST.WorldComponentFactory) worldFactory: () => WorldComponent,
+        @inject(TYPES_BALLAST.BoardComponentFactory) boardFactory: () => BoardComponent) {
+            
         // base constructor
         super(viewport, eventBus, perspectiveTracker);
 
@@ -280,7 +280,7 @@ export class GameComponent extends ComponentBase {
         }
         let forward = !rotate && (upArrowIsDown || wIsDown); // Rotation takes precedence over forward movement
 
-        // Check if we are busy (ignore keyboard)
+        // Check if we are busy with a movement request or an animation (ignore keyboard)
         let ignoreKeyboard = this.waitingOnMovementRequest || this.isMidAnimation || this.hasQueuedAnimation;
         if (ignoreKeyboard) {
             left = false;
@@ -288,7 +288,7 @@ export class GameComponent extends ComponentBase {
             forward = false;
         }
 
-        // If we are not mid-animation but we do have a queued animation
+        // If we are not mid-animation or waiting on movement request, but we do have a queued animation
         let startQueuedAnimation = !this.waitingOnMovementRequest && !this.isMidAnimation && this.hasQueuedAnimation;
         if (startQueuedAnimation) {
             // Set flags from the queued animation 
@@ -312,7 +312,7 @@ export class GameComponent extends ComponentBase {
         );
 
         // Apply forward movement animation
-        this.applyForwardMovementTest(
+        this.applyBasicForwardMovement(
             renderingContext, 
             forward
         );
@@ -356,6 +356,14 @@ export class GameComponent extends ComponentBase {
         this.animationQueue.push({ type: animationType, timestamp: timestamp });
     }
 
+    private getVesselVector3(): THREE.Vector3 {
+        if (!this.currentVessel) {
+            return new THREE.Vector3(0,0,0);
+        }
+        let tilePosition = this.board.getTilePosition(this.currentVessel.cubicCoordinates);
+        return tilePosition || new THREE.Vector3(0,0,0);
+    }
+
     private resetGame(renderingContext: RenderingContext) {
 
         let clientId = this.viewport.getClientId();
@@ -369,9 +377,9 @@ export class GameComponent extends ComponentBase {
                 false
             ); // TODO:  Fix this
         this.rotationDirections = this.currentGame && this.currentGame.board.tileShape.possibleDirections || 8;
-        if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 6) {
+        if (this.currentGame && this.rotationDirections == 6) {
             this.rotationRadians = RenderingConstants.SIXTH_TURN_RADIANS;
-        } else if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 4) {
+        } else if (this.currentGame && this.rotationDirections == 4) {
             this.rotationRadians = RenderingConstants.QUARTER_TURN_RADIANS;
         } else {
             this.rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
@@ -383,8 +391,9 @@ export class GameComponent extends ComponentBase {
         this.rotationTarget.rotation.set(0, initialY, 0);
 
         // Update vessel properties
+        let vesselPivotPosition = this.getVesselVector3();
         this.vessel.position.set(0, 0, 0);
-        this.vesselPivot.position.set(0, 0, 0);
+        this.vesselPivot.position.fromArray(vesselPivotPosition.toArray()); 
     }
 
     private applyRotation(renderingContext: RenderingContext, left: boolean, right: boolean) {
@@ -444,7 +453,7 @@ export class GameComponent extends ComponentBase {
 
     }
 
-    private applyForwardMovementTest(renderingContext: RenderingContext, forward: boolean) {
+    private applyBasicForwardMovement(renderingContext: RenderingContext, forward: boolean) {
         
         if (forward) {
             let increment = 0.2;

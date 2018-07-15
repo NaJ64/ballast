@@ -11,7 +11,7 @@ import { ComponentBase } from './component-base';
 @injectable()
 export class BoardComponent extends ComponentBase {
 
-    private readonly tiles: Map<CubicCoordinates, THREE.Mesh>;
+    private readonly tiles: Map<string, THREE.Mesh>;
     private readonly circleGeometry: THREE.RingGeometry;
     private readonly squareGeometry: THREE.RingGeometry;
     private readonly hexagonGeometry: THREE.RingGeometry;
@@ -25,7 +25,7 @@ export class BoardComponent extends ComponentBase {
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker) {
 
         super(viewport, eventBus, perspectiveTracker);
-        this.tiles = new Map<CubicCoordinates, THREE.Mesh>();
+        this.tiles = new Map<string, THREE.Mesh>();
         this.circleGeometry = this.createCircleGeometry();
         this.squareGeometry = this.createSquareGeometry();
         this.octagonGeometry = this.createOctagonGeometry();
@@ -98,6 +98,14 @@ export class BoardComponent extends ComponentBase {
 
     }
 
+    private getCubicCoordinatesHash(cubicCoordinates: CubicCoordinates) {
+        let hash = 
+            cubicCoordinates.x + ";" +
+            cubicCoordinates.y + ";" + 
+            cubicCoordinates.z + ";" 
+        return hash;
+    }
+
     private resetBoard(renderingContext: RenderingContext) {
 
         // Store the current board
@@ -133,7 +141,7 @@ export class BoardComponent extends ComponentBase {
         z *= rowSpacing;
         let newTileMesh = this.createTileMesh(tile.tileShape);
         newTileMesh.position.set(x, 0, z);
-        this.tiles.set(tile.cubicCoordinates, newTileMesh);
+        this.tiles.set(this.getCubicCoordinatesHash(tile.cubicCoordinates), newTileMesh);
         renderingContext.scene.add(newTileMesh);
     }
 
@@ -165,7 +173,7 @@ export class BoardComponent extends ComponentBase {
     }
 
     public getTilePosition(cubicCoordinates: CubicCoordinates) {
-        let tile = this.tiles.get(cubicCoordinates);
+        let tile = this.tiles.get(this.getCubicCoordinatesHash(cubicCoordinates));
         if (tile) {
             return tile.position;
         }
