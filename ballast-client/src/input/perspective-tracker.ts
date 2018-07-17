@@ -2,21 +2,20 @@ import { IDirection, TileShape } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import { TYPES_BALLAST } from '../ioc/types';
-import { RenderingConstants } from "../rendering/rendering-constants";
-import { RenderingContext } from "../rendering/rendering-context";
+import { RenderingConstants } from '../rendering/rendering-constants';
+import { RenderingContext } from '../rendering/rendering-context';
 
 @injectable()
 export class PerspectiveTracker {
 
-    private static INITIAL_ORIENTATION_EULER = new THREE.Euler(0, -1 * RenderingConstants.INITIAL_ORIENTATION_RADIANS, 0, 'YXZ');
-    private static BASE_FORWARD: THREE.Vector3 = new THREE.Vector3(0, 0, -1).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
-    private static BASE_BACK: THREE.Vector3 = new THREE.Vector3(0, 0, 1).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
-    private static BASE_LEFT: THREE.Vector3 = new THREE.Vector3(-1, 0, ).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
-    private static BASE_RIGHT: THREE.Vector3 = new THREE.Vector3(1, 0, 0).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
+    // private static INITIAL_ORIENTATION_EULER = new THREE.Euler(0, -1 * RenderingConstants.INITIAL_ORIENTATION_RADIANS, 0, 'YXZ');
+    // private static BASE_FORWARD: THREE.Vector3 = new THREE.Vector3(0, 0, -1).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
+    // private static BASE_BACK: THREE.Vector3 = new THREE.Vector3(0, 0, 1).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
+    // private static BASE_LEFT: THREE.Vector3 = new THREE.Vector3(-1, 0, ).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
+    // private static BASE_RIGHT: THREE.Vector3 = new THREE.Vector3(1, 0, 0).applyEuler(PerspectiveTracker.INITIAL_ORIENTATION_EULER);
 
     private readonly renderingContext: RenderingContext;
     private readonly rotationM4: THREE.Matrix4;
-    //private readonly objectQ: THREE.Quaternion;
     private readonly snappedRotationMap: Map<number, Map<number, number>>;
 
     public constructor(
@@ -24,7 +23,6 @@ export class PerspectiveTracker {
     ) {
         this.renderingContext = renderingContext;
         this.rotationM4 = new THREE.Matrix4();
-        //this.objectQ = this.renderingContext.cameraPivot.quaternion.clone();
         this.snappedRotationMap = this.createSnappedRotationMap();
     }
 
@@ -68,9 +66,14 @@ export class PerspectiveTracker {
 
     private getHalfTurns(subject?: THREE.Object3D) {
         let object = subject || this.renderingContext.cameraPivot;
-        let radiansY = object.rotation.y * -1;
-        radiansY -= RenderingConstants.INITIAL_ORIENTATION_RADIANS;
-        let turns =  Math.round((radiansY / Math.PI) * 100) / 100;
+
+        // let radiansY = object.rotation.y * -1;
+        // radiansY -= RenderingConstants.INITIAL_ORIENTATION_RADIANS;
+
+        // Assumes the object/subject point of reference is  adjusted by the initial orientation
+        let radiansY = object.rotation.y - RenderingConstants.INITIAL_ORIENTATION_RADIANS;
+        //radiansY *= -1;
+        let turns =  Math.round((radiansY / Math.PI) * 10000) / 10000;
         if (1/turns === -Infinity) {
             turns = 0;
         }
@@ -80,9 +83,9 @@ export class PerspectiveTracker {
         return turns;
     }
 
-    public getCardinalDirection(tileShape: TileShape): IDirection {
+    public getCardinalDirection(tileShape: TileShape, subject?: THREE.Object3D): IDirection {
 
-        let turns = this.getTurns();
+        let turns = this.getTurns(subject);
 
         /* Square
 
@@ -149,11 +152,11 @@ export class PerspectiveTracker {
         */
 
         // if (tileShape.equals(TileShape.Hexagon) || tileShape.equals(TileShape.Circle)) {
-        if (turns > (4/6) && turns < 1) {
+        if (turns > (.67) && turns < 1) { // TODO:  Fix rounding error for .67 (4/6)
             return { east: true, north: false, west: false, south: true };
         } else if (turns > (3/6)) {
             return { east: false, north: false, west: true, south: true };
-        } else if (turns > (2/6)) {
+        } else if (turns > (.34)) { // TODO:  Fix rounding error for .34 (2/6)
             return { east: false, north: false, west: true, south: false };
         } else if (turns > (1/6)) {
             return { east: false, north: true, west: true, south: false };
@@ -209,24 +212,24 @@ export class PerspectiveTracker {
         return movementV3.applyMatrix4(rotationM4);
     }
 
-    private getBaseMovementScaled(baseMovement: THREE.Vector3, scalar: number, subject?: THREE.Object3D, directions?: number) {
-        let vector = baseMovement.clone().multiplyScalar(scalar);
-        return this.transformDirection(vector, subject, directions);
-    }
+    // private getBaseMovementScaled(baseMovement: THREE.Vector3, scalar: number, subject?: THREE.Object3D, directions?: number) {
+    //     let vector = baseMovement.clone().multiplyScalar(scalar);
+    //     return this.transformDirection(vector, subject, directions);
+    // }
 
-    public getForwardScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_FORWARD, scalar, subject, directions);
-    }
+    // public getForwardScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
+    //     return this.getBaseMovementScaled(PerspectiveTracker.BASE_FORWARD, scalar, subject, directions);
+    // }
 
-    public getBackScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar, subject, directions);
-    }
+    // public getBackScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
+    //     return this.getBaseMovementScaled(PerspectiveTracker.BASE_BACK, scalar, subject, directions);
+    // }
     
-    public getLeftScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar, subject, directions);
-    }
+    // public getLeftScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
+    //     return this.getBaseMovementScaled(PerspectiveTracker.BASE_LEFT, scalar, subject, directions);
+    // }
     
-    public getRightScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
-        return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar, subject, directions);
-    }
+    // public getRightScaled(scalar: number, subject?: THREE.Object3D, directions?: number): THREE.Vector3 {
+    //     return this.getBaseMovementScaled(PerspectiveTracker.BASE_RIGHT, scalar, subject, directions);
+    // }
 }

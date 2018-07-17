@@ -103,7 +103,7 @@ export class SignalRGameService extends SignalRServiceBase implements IGameServi
     }
 
     public async moveVesselAsync(request: IVesselMoveRequest) {
-        return await this.createInvocationAsync<void>('moveVesselAsync', request);
+        return await this.createInvocationAsync<IVessel>('moveVesselAsync', request);
     }
 
 }

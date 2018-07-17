@@ -121,6 +121,7 @@ export class GameComponent extends ComponentBase {
         let vesselPivot = new THREE.Object3D();
         vesselPivot.position.set(0, 0, 0);
         vesselPivot.rotation.reorder('YXZ');
+        vesselPivot.rotateY(RenderingConstants.INITIAL_ORIENTATION_RADIANS)
         vesselPivot.add(vessel);
         // Return all objects
         return [vessel, vesselPivot];
@@ -323,7 +324,7 @@ export class GameComponent extends ComponentBase {
         );
 
         // Apply forward movement animation
-        this.applyBasicForwardMovement(
+        this.applyForwardMovement(
             renderingContext, 
             forward
         );
@@ -486,6 +487,7 @@ export class GameComponent extends ComponentBase {
                 .then((vessel) => {
                     // When the server responds back with the movement result, we can start the animation clock
                     // This will be picked up on the next render loop iteration and "midForwardMovement" will be "true"
+                    this.currentVessel = vessel;
                     let newVesselPosition = this.getVesselVector3(vessel);
                     this.forwardMovementClock = new THREE.Clock();
                     this.forwardMovementSource.position.set(this.vesselPivot.position.x, this.vesselPivot.position.y, this.vesselPivot.position.z);
@@ -514,11 +516,19 @@ export class GameComponent extends ComponentBase {
             } else {
 
                 // Calculate how much of a partial movement we need to advance
-                let partialMovement = forwardMovementDelta * (1 / this.forwardMovementAnimationDuration);
+                //let partialMovement = forwardMovementDelta * (1 / this.forwardMovementAnimationDuration);
 
                 // Linearly interpolate using the partial movement alpha (%) from the current vessel pivot position
                 // toward the desired (target) position
-                this.vesselPivot.position.lerp(this.forwardMovementTarget.position, partialMovement);
+                //this.vesselPivot.position.lerp(this.forwardMovementTarget.position, partialMovement);
+
+                let partialMovementPercentage = totalMovementDelta / this.forwardMovementAnimationDuration;
+
+                // Clone the beginning (source) of forward movement so we can calculate how far we should have moved by now
+                let nextPosition = this.forwardMovementSource.clone()
+                    .position.lerp(this.forwardMovementTarget.position, partialMovementPercentage);
+                
+                this.vesselPivot.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
 
             }
 
@@ -526,27 +536,21 @@ export class GameComponent extends ComponentBase {
 
     }
 
-    private applyBasicForwardMovement(renderingContext: RenderingContext, forward: boolean) {
-        
-        if (forward) {
-            let increment = 0.2;
-            let movement = new THREE.Vector3(0, 0, 0);
-            if (forward)
-                movement.add(this.perspectiveTracker.getForwardScaled(increment, this.vesselPivot, this.rotationDirections));
-            //console.log(movement);
-            this.vesselPivot.position.add(movement);
-        }
-
-    }
-
     private async moveForwardAsync(renderingContext: RenderingContext) {
         // Set flag so that no new movements will be processed in render loop until we get the result of this one
         this.waitingOnMovementRequest = true;
-        let vessel: Vessel | null = null;
+        let vessel: Vessel;
         try 
         {
             // Create request to move forward (async)
             vessel = await this.requestForwardMovementResultAsync();
+            // TODO:  Fix this so that the game state is automatically refreshed by events
+            if (this.currentGame) {
+                this.currentGame.updateVesselCoordinates(vessel.id, vessel.cubicCoordinates);
+                this.currentVessel = this.currentGame.vessels.find(x => x.id == vessel.id);
+            } else {
+                this.currentVessel = vessel;
+            }
         }
         finally 
         {
@@ -582,7 +586,7 @@ export class GameComponent extends ComponentBase {
             throw new Error('Cannot determine forward cardinal direction without current game/board');
         }
         let tileShape = this.currentGame.board.tileShape;
-        return this.perspectiveTracker.getCardinalDirection(tileShape);
+        return this.perspectiveTracker.getCardinalDirection(tileShape, this.vesselPivot);
     }
 
     private async requestForwardMovementResultAsync(): Promise<Vessel> {
@@ -597,7 +601,7 @@ export class GameComponent extends ComponentBase {
         // Determine direction
         let direction = this.getForwardDirection();
         // Create a vessel move request
-        await this.gameService.moveVesselAsync({
+        let vessel = await this.gameService.moveVesselAsync({
             gameId: this.currentGame.id,
             vesselId: this.currentVessel.id,
             direction: direction,
@@ -605,8 +609,8 @@ export class GameComponent extends ComponentBase {
             targetOrderedTriple: [],
             isoDateTime: getUtcNow().toISOString()
         })
-        // TODO:  Need to return the new vessel state
-        throw new Error('Not implemented');
+        // return the new vessel state
+        return Vessel.fromObject(vessel);
     }
 
     private onMoveForwardClick(ev: MouseEvent) {
