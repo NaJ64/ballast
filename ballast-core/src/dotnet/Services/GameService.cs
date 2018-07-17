@@ -34,6 +34,7 @@ namespace Ballast.Core.Services
         {
             var gameOptions = new CreateGameOptions()
             {
+                BoardShapeValue = TileShape.Hexagon.Value,
                 VesselOptions = new CreateVesselOptions[]
                 {
                     new CreateVesselOptions() { RequestedName = "U-571" },
@@ -585,7 +586,7 @@ namespace Ballast.Core.Services
             return vessel;
         }
 
-        public async Task MoveVesselAsync(VesselMoveRequest request)
+        public async Task<Vessel> MoveVesselAsync(VesselMoveRequest request)
         {
             // Locate game matching id from request
             var gameId = request.GameId;
@@ -612,9 +613,9 @@ namespace Ballast.Core.Services
             var actualStartCoordinates = vessel.CubicCoordinates;
 
             // Make sure starting position matches current known position for vessel
-            if (requestStartCoordinates.Equals(actualStartCoordinates))
+            if (!requestStartCoordinates.Equals(actualStartCoordinates))
                 throw new InvalidOperationException("Requested vessel movement(s) must originate from current vessel position");
-            var requestStartTile = board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x));
+            var requestStartTile = board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x.CubicCoordinates));
 
             // Determine if request specifies only cardinal directions or an actual set of tile coordinates
             CubicCoordinates targetCoordinates = null;
@@ -705,10 +706,14 @@ namespace Ballast.Core.Services
 
             // Move the vessel to the new coordinates
             game.UpdateVesselCoordinates(vesselId, targetCoordinates);
+            vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
             await _eventBus.PublishAsync(VesselStateChangedEvent.FromVesselInGame(game, vessel));
 
             // Finished changing game state
             await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));
+
+            // Return the new vessel state
+            return vessel;
 
         }
 
@@ -803,17 +808,22 @@ namespace Ballast.Core.Services
             var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddYSubtractZ(doubleIncrement ? 2 : 1);
+            if (doubleIncrement)
+                newCoordinates = newCoordinates.AddYSubtractX(1);
             var getTile = board.GetTileFromCoordinates(newCoordinates);
             if (getTile == null)
                 throw new Exception("No tile exists for the requested position/cordinates");
             return getTile;
         }
 
+
         private Tile GetSouthWestTile(Board board, CubicCoordinates fromTileCoordinates)
         {
             var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddZSubtractX(doubleIncrement ? 2 : 1);
+            if (doubleIncrement)
+                newCoordinates = newCoordinates.AddYSubtractX(1);
             var getTile = board.GetTileFromCoordinates(newCoordinates);
             if (getTile == null)
                 throw new Exception("No tile exists for the requested position/cordinates");
@@ -825,6 +835,8 @@ namespace Ballast.Core.Services
             var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddXSubtractZ(doubleIncrement ? 2 : 1);
+            if (doubleIncrement)
+                newCoordinates = newCoordinates.AddXSubtractY(1);
             var getTile = board.GetTileFromCoordinates(newCoordinates);
             if (getTile == null)
                 throw new Exception("No tile exists for the requested position/cordinates");
@@ -836,6 +848,8 @@ namespace Ballast.Core.Services
             var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddZSubtractY(doubleIncrement ? 2 : 1);
+            if (doubleIncrement)
+                newCoordinates = newCoordinates.AddXSubtractY(1);
             var getTile = board.GetTileFromCoordinates(newCoordinates);
             if (getTile == null)
                 throw new Exception("No tile exists for the requested position/cordinates");

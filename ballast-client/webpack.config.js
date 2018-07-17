@@ -8,13 +8,15 @@ const config = {
         library: 'BallastClient',
         libraryTarget: 'commonjs2'
     },
-    mode: 'production',
+    mode: 'development',
     watch: watch,
     watchOptions: {
         aggregateTimeout: 300,
         ignored: [
-            path.resolve(__dirname, 'node_modules') + /\/(?!(ballast-core)).*/,
-            path.resolve(__dirname, 'node_modules/ballast-core') + /\/(?!(dist)).*/
+            /node_modules([\\]+|\/)+(?!\ballast-core([\\]+|\/)dist)/, 
+            /\ballast-core([\\]+|\/)node_modules/
+            // path.resolve(__dirname, 'node_modules') + /\/(?!(ballast-core)).*/,
+            // path.resolve(__dirname, 'node_modules/ballast-core') + /\/(?!(dist)).*/
         ]
     }
 };

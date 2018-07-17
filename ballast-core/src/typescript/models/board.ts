@@ -56,7 +56,7 @@ export class Board implements IBoard {
     }
 
     public getTileFromCoordinates(cubicCoordinates: ICubicCoordinates) {
-        this.tiles.find(x => x.cubicCoordinates.equals(cubicCoordinates));
+        return this.tiles.find(x => x.cubicCoordinates.equals(cubicCoordinates));
     }
 
 }

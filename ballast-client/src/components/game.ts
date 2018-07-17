@@ -1,4 +1,4 @@
-import { Game, GameStateChangedEvent, IEventBus, Tile, Vessel } from 'ballast-core';
+import { Game, GameStateChangedEvent, IDirection, IEventBus, Tile, Vessel, getUtcNow } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import { BallastViewport } from '../app/ballast-viewport';
@@ -12,6 +12,9 @@ import { BoardComponent } from './board';
 import { ComponentBase } from './component-base';
 import { WorldComponent } from './world';
 
+type AnimationType = 'counterClockwise' | 'clockwise' | 'forward';
+type Animation = { type: AnimationType, timestamp: number };
+
 @injectable()
 export class GameComponent extends ComponentBase {
 
@@ -24,6 +27,19 @@ export class GameComponent extends ComponentBase {
     private readonly clockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
     private readonly counterClockwiseButton: HTMLButtonElement;
     private readonly counterClockwiseClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+    private readonly moveForwardButton: HTMLButtonElement;
+    private readonly moveForwardButtonClickListener: (this: HTMLButtonElement, ev: MouseEvent) => any;
+
+    // Animation (movement / rotation) flags & triggers
+    private animationQueue: Animation[];
+
+    // Forward movemement flags/triggers
+    private readonly forwardMovementTarget: THREE.Object3D;
+    private readonly forwardMovementSource: THREE.Object3D;
+    private readonly forwardMovementAnimationDuration: number;
+    private forwardMovementClock?: THREE.Clock;
+    private waitingOnMovementRequest: boolean;
+    //private triggerForwardMovement?: number;
 
     // Rotation flags/triggers 
     private readonly rotationTarget: THREE.Object3D;
@@ -32,15 +48,15 @@ export class GameComponent extends ComponentBase {
     private rotationRadians: number;
     private rotationClock?: THREE.Clock;
     private rotationClockwise?: boolean;
-    private triggerClockwiseRotation?: number;
-    private triggerCounterClockwiseRotation?: number;
+    //private triggerClockwiseRotation?: number;
+    //private triggerCounterClockwiseRotation?: number;
 
     // Current game / state
     private readonly gameService: IGameClientService;
     private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
     private currentGame?: Game;
     private currentVessel?: Vessel;
-    private currentTile?: Tile;
+    //private currentTile?: Tile;
 
     // Child components
     private readonly world: WorldComponent;
@@ -51,9 +67,9 @@ export class GameComponent extends ComponentBase {
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
         @inject(TYPES_BALLAST.IGameClientService) gameClientService: IGameClientService,
-        @inject(TYPES_BALLAST.BoardComponentFactory) worldFactory: () => WorldComponent,
-        @inject(TYPES_BALLAST.WorldComponentFactory) boardFactory: () => BoardComponent) {
-
+        @inject(TYPES_BALLAST.WorldComponentFactory) worldFactory: () => WorldComponent,
+        @inject(TYPES_BALLAST.BoardComponentFactory) boardFactory: () => BoardComponent) {
+            
         // base constructor
         super(viewport, eventBus, perspectiveTracker);
 
@@ -63,11 +79,21 @@ export class GameComponent extends ComponentBase {
         this.vesselPivot = vesselObjects["1"];
 
         // Create buttons & click listeners
-        let buttons = this.createRotationButtons()
-        this.counterClockwiseButton = buttons["0"];
+        let buttons = this.createMovementButtons()
+        this.moveForwardButton = buttons["0"];
+        this.moveForwardButtonClickListener = this.onMoveForwardClick.bind(this);
+        this.counterClockwiseButton = buttons["1"];
         this.counterClockwiseClickListener = this.onCounterClockwiseClick.bind(this);
-        this.clockwiseButton = buttons["1"];
+        this.clockwiseButton = buttons["2"];
         this.clockwiseClickListener = this.onClockwiseClick.bind(this);
+
+        // Trigger(s) & properties for object forward movement animation(s)
+        this.animationQueue = [];
+        this.waitingOnMovementRequest = false;
+        let forwardMovementObjects = this.createForwardMovementObjects();
+        this.forwardMovementTarget = forwardMovementObjects["0"];
+        this.forwardMovementSource = forwardMovementObjects["1"];
+        this.forwardMovementAnimationDuration = RenderingConstants.MOVEMENT_DURATION_SECONDS;
 
         // Trigger(s) & properties for object rotation animation(s)
         this.rotationTarget = this.createRotationTarget();
@@ -95,9 +121,16 @@ export class GameComponent extends ComponentBase {
         let vesselPivot = new THREE.Object3D();
         vesselPivot.position.set(0, 0, 0);
         vesselPivot.rotation.reorder('YXZ');
+        vesselPivot.rotateY(RenderingConstants.INITIAL_ORIENTATION_RADIANS)
         vesselPivot.add(vessel);
         // Return all objects
         return [vessel, vesselPivot];
+    }
+
+    private createForwardMovementObjects(): [THREE.Object3D, THREE.Object3D] {
+        let forwardMovementTarget = new THREE.Object3D();
+        let forwardMovementSource = new THREE.Object3D();
+        return [forwardMovementTarget, forwardMovementSource];
     }
 
     private createRotationTarget() {
@@ -106,12 +139,25 @@ export class GameComponent extends ComponentBase {
         return rotationTarget;
     }
 
-    private createRotationButtons(): [HTMLButtonElement, HTMLButtonElement] {
+    private createMovementButtons(): [HTMLButtonElement, HTMLButtonElement, HTMLButtonElement] {
 
         // Add some CSS to the game style header tag for media query'ing the buttons
         let style = this.viewport.getGameStyle();
         let ownerDocument = style.ownerDocument;
         style.appendChild(ownerDocument.createTextNode(`
+            .ballastMoveForwardButton {
+                position: absolute;
+                color: white;
+                background-color: transparent;
+                border-width: 0px;
+                border-style: solid;
+                border-color: rgba(255, 255, 255, 0.1);
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                font-size: 5vw;
+                top: 15%;
+                left: 50%;
+                transform: translate(-50%, -50%)
+            }
             .ballastRotateButton { 
                 transform: rotate(180deg);
                 position: absolute;
@@ -122,13 +168,23 @@ export class GameComponent extends ComponentBase {
                 border-color: rgba(255, 255, 255, 0.1);
                 text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
                 font-size: 5vw;
+                top: 10%;
             } 
             @media screen and (min-width: 1000px) { 
+                .ballastMoveForwardButton { 
+                    font-size: 50px;
+                } 
                 .ballastRotateButton { 
                     font-size: 50px;
                 } 
             }
         `));
+
+        // Move forward button (top middle)
+        let moveForwardButton = ownerDocument.createElement('button');
+        moveForwardButton.innerHTML = '&#8593';
+        moveForwardButton.type = 'button';
+        moveForwardButton.className = 'ballastMoveForwardButton';
 
         // Counter clockwise button (top right)
         let counterClockwiseButton = ownerDocument.createElement('button');
@@ -136,7 +192,6 @@ export class GameComponent extends ComponentBase {
         counterClockwiseButton.type = 'button';
         counterClockwiseButton.className = 'ballastRotateButton';
         counterClockwiseButton.style.cssFloat = 'left';
-        counterClockwiseButton.style.top = '10%';
         counterClockwiseButton.style.left = '5.63%';
 
         // Counter clockwise button (top left)
@@ -145,22 +200,23 @@ export class GameComponent extends ComponentBase {
         clockwiseButton.type = 'button';
         clockwiseButton.className = 'ballastRotateButton';
         clockwiseButton.style.cssFloat = 'right';
-        clockwiseButton.style.top = '10%';
         clockwiseButton.style.right = '5.63%';
 
         // Return both buttons
-        return [counterClockwiseButton, clockwiseButton];
+        return [moveForwardButton, counterClockwiseButton, clockwiseButton];
 
     }
 
     private subscribeToEvents() {
         this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        this.moveForwardButton.addEventListener('click', this.moveForwardButtonClickListener);
         this.counterClockwiseButton.addEventListener('click', this.counterClockwiseClickListener);
         this.clockwiseButton.addEventListener('click', this.clockwiseClickListener);
     }
 
     private unsubscribeFromEvents() {
         this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        this.moveForwardButton.removeEventListener('click', this.moveForwardButtonClickListener);
         this.counterClockwiseButton.removeEventListener('click', this.counterClockwiseClickListener);
         this.clockwiseButton.removeEventListener('click', this.clockwiseClickListener);
     }
@@ -172,6 +228,7 @@ export class GameComponent extends ComponentBase {
 
         // Add buttons to parent element
         parent.appendChild(this.clockwiseButton);
+        parent.appendChild(this.moveForwardButton);
         parent.appendChild(this.counterClockwiseButton);
 
         // Subscribe to click & domain events
@@ -183,11 +240,6 @@ export class GameComponent extends ComponentBase {
 
         // Notify game component finished loading
         this.eventBus.publishAsync(GameComponentLoadedEvent.createNew());
-
-        // // Connect to the chat service/hub
-        // if (!this.gameService.isConnected) {
-        //     this.gameService.connectAsync(); // Fire and forget
-        // }
 
     }
 
@@ -227,55 +279,119 @@ export class GameComponent extends ComponentBase {
         let rightIsDown = renderingContext.keyboard.rightArrowIsDown();
         let aIsDown = renderingContext.keyboard.aIsDown();
         let dIsDown = renderingContext.keyboard.dIsDown();
+        let upArrowIsDown = renderingContext.keyboard.upArrowIsDown();
+        let wIsDown = renderingContext.keyboard.wIsDown();
+
+        // Determine if keyboard is requesting animation
+        let left = leftIsDown || aIsDown;
+        let right = rightIsDown || dIsDown;
+        let rotate = (left && !right) || (right && !left); // Rotation only triggers if left/right not cancelling each other out
+        if (!rotate) {
+            left = false;
+            right = false;
+        }
+        let forward = !rotate && (upArrowIsDown || wIsDown); // Rotation takes precedence over forward movement
+
+        // Check if we are busy with a movement request or an animation (ignore keyboard)
+        let ignoreKeyboard = this.waitingOnMovementRequest || this.isMidAnimation || this.hasQueuedAnimation;
+        if (ignoreKeyboard) {
+            left = false;
+            right = false;
+            forward = false;
+        }
+
+        // If we are not mid-animation or waiting on movement request, but we do have a queued animation
+        let startQueuedAnimation = !this.waitingOnMovementRequest && !this.isMidAnimation && this.hasQueuedAnimation;
+        if (startQueuedAnimation) {
+            // Set flags from the queued animation 
+            let nextAnimation = <Animation>this.dequeueNextAnimation();
+            if (nextAnimation.type == 'counterClockwise') {
+                left = true;
+            }
+            if (nextAnimation.type == 'clockwise') {
+                right = true;
+            }
+            if (nextAnimation.type == 'forward') {
+                forward = true;
+            }
+        }
 
         // Apply rotation animation
-        let left = leftIsDown || aIsDown || !!this.triggerCounterClockwiseRotation;
-        let right = rightIsDown || dIsDown || !!this.triggerClockwiseRotation;
-        this.applyRotation(renderingContext, left, right);
+        this.applyRotation(
+            renderingContext, 
+            left, 
+            right
+        );
 
-        // Trigger for movement
-        let forward = (renderingContext.keyboard.upArrowIsDown() || renderingContext.keyboard.wIsDown());
-        if (forward) {
-            let increment = 0.2;
-            let movement = new THREE.Vector3(0, 0, 0);
-            if (forward)
-                movement.add(this.perspectiveTracker.getForwardScaled(increment, this.vesselPivot, this.rotationDirections));
-            //console.log(movement);
-            this.vesselPivot.position.add(movement);
+        // Apply forward movement animation
+        this.applyForwardMovement(
+            renderingContext, 
+            forward
+        );
+
+    }
+
+    private get isMidAnimation(): boolean {
+        return (!!this.rotationClock || !!this.forwardMovementClock);
+    }
+
+    private get hasQueuedAnimation(): boolean {
+        return (!!this.animationQueue.length);
+    }
+
+    private dequeueNextAnimation(): Animation | null {
+        if (!this.animationQueue.length) {
+            return null;
         }
+        let nextAnimation = this.animationQueue.splice(0, 1)[0];
+        return nextAnimation;
+    }
 
-        // Get total possible directions of movement
-        //let directions = renderingContext.game && renderingContext.game.board.tileShape.possibleDirections || undefined;
-        // TODO: This needs to be updated to trigger a movemement to an adjacent tile based on relative direction
-        //       Relative direction can be retrieved from the perspective tracker using "getRotation()" (for a rotationMatrix4)
-        //       Or from the rendering context by using 
-
-        let test = (renderingContext.keyboard.shiftIsDown());
-        if (test) {
-            // let sourceTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
-            // let targetTile = [0, 0, 0]; //this.currentVessel.cubicOrderedTriple;
-            // let timestamp = new Date(Date.now());
-            // this.gameService.moveVesselAsync({
-            //     gameId: uuid.v4(),
-            //     boardId: uuid.v4(),
-            //     vesselId: uuid.v4(),
-            //     timestampText: timestamp.toISOString(),
-            //     sourceOrderedTriple: sourceTile,
-            //     targetOrderedTriple: targetTile
-            // });
+    private queueNewAnimation(animationType: AnimationType) {
+        // If we already have more than one animation, check to see if the new animation cancels out the last one
+        let cancelLastAnimation = false;
+        if (this.animationQueue.length > 1) {
+            let lastAnimation = this.animationQueue[this.animationQueue.length - 1];
+            if (lastAnimation.type == 'clockwise' && animationType == 'counterClockwise') {
+                cancelLastAnimation = true;
+            }
+            if (lastAnimation.type == 'counterClockwise' && animationType == 'clockwise') {
+                cancelLastAnimation = true;
+            }
         }
+        if (cancelLastAnimation) {
+            this.animationQueue.pop();
+            return;
+        }
+        // Queue the animation
+        let timestamp = Date.now();
+        this.animationQueue.push({ type: animationType, timestamp: timestamp });
+    }
 
+    private getVesselVector3(vessel: Vessel | undefined): THREE.Vector3 {
+        if (!vessel) {
+            return new THREE.Vector3(0,0,0);
+        }
+        let tilePosition = this.board.getTilePosition(vessel.cubicCoordinates);
+        return tilePosition || new THREE.Vector3(0,0,0);
     }
 
     private resetGame(renderingContext: RenderingContext) {
 
+        let clientId = this.viewport.getClientId();
+
         // Store info from new game state
         this.currentGame = <Game>renderingContext.game;
-        this.currentVessel = this.currentGame && this.currentGame.vessels[0]; // TODO:  Fix this
+        this.currentVessel = this.currentGame && this.currentGame.vessels && this.currentGame.vessels
+            .find(x => 
+                (x.captain && x.captain.id == clientId) ||
+                (x.radioman && x.radioman.id == clientId) || 
+                false
+            ); // TODO:  Fix this
         this.rotationDirections = this.currentGame && this.currentGame.board.tileShape.possibleDirections || 8;
-        if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 6) {
+        if (this.currentGame && this.rotationDirections == 6) {
             this.rotationRadians = RenderingConstants.SIXTH_TURN_RADIANS;
-        } else if (this.currentGame && this.currentGame.board.tileShape.possibleDirections == 4) {
+        } else if (this.currentGame && this.rotationDirections == 4) {
             this.rotationRadians = RenderingConstants.QUARTER_TURN_RADIANS;
         } else {
             this.rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
@@ -287,13 +403,15 @@ export class GameComponent extends ComponentBase {
         this.rotationTarget.rotation.set(0, initialY, 0);
 
         // Update vessel properties
+        let vesselPivotV3 = this.getVesselVector3(this.currentVessel);
         this.vessel.position.set(0, 0, 0);
-        this.vesselPivot.position.set(0, 0, 0);
+        this.vesselPivot.position.fromArray(vesselPivotV3.toArray()); 
+        this.forwardMovementTarget.position.fromArray(vesselPivotV3.toArray());
     }
 
     private applyRotation(renderingContext: RenderingContext, left: boolean, right: boolean) {
 
-        // Determine if we are mid-rotation 
+        // Determine if we are mid-rotation
         let midRotation = !!this.rotationClock;
 
         // Get time since last orbit adjustment (if applicable)
@@ -311,12 +429,6 @@ export class GameComponent extends ComponentBase {
                 thetaRadians *= -1;
             this.rotationClock = new THREE.Clock();
             this.rotationTarget.rotateY(thetaRadians);
-            if (!!this.triggerClockwiseRotation && this.rotationClockwise) {
-                this.triggerClockwiseRotation--;
-            }
-            if (!!this.triggerCounterClockwiseRotation && !this.rotationClockwise) {
-                this.triggerCounterClockwiseRotation--;
-            }
         }
 
         // If we need to adjust for seconds elapsed while mid-orbit
@@ -328,7 +440,7 @@ export class GameComponent extends ComponentBase {
 
                 // Move directly to final orientation
                 this.vesselPivot.rotation.setFromVector3(
-                    (<THREE.Object3D>this.rotationTarget).rotation.toVector3()
+                    this.rotationTarget.rotation.toVector3()
                 );
 
                 // finished rotating
@@ -345,7 +457,7 @@ export class GameComponent extends ComponentBase {
                 if (this.rotationClockwise)
                     thetaRadians *= -1;
 
-                // Rotate our camera pivot object
+                // Rotate our vessel pivot object
                 this.vesselPivot.rotateY(thetaRadians);
 
             }
@@ -354,26 +466,163 @@ export class GameComponent extends ComponentBase {
 
     }
 
-    private onCounterClockwiseClick(ev: MouseEvent) {
-        if (!!this.triggerClockwiseRotation) {
-            this.triggerClockwiseRotation--;
-        } else {
-            if (!this.triggerCounterClockwiseRotation) {
-                this.triggerCounterClockwiseRotation = 0;
-            }
-            this.triggerCounterClockwiseRotation++;
+    private applyForwardMovement(renderingContext: RenderingContext, forward: boolean) {
+
+        // Determine if we are mid-movement
+        let midForwardMovement = !!this.forwardMovementClock;
+
+        // Get time since last movement adjustment (if applicable)
+        let forwardMovementDelta = 0;
+        if (midForwardMovement) {
+            forwardMovementDelta = (this.forwardMovementClock as THREE.Clock).getDelta();
         }
+
+        // Check if we need to trigger a new movement
+        let triggerNewForwardMovement = !midForwardMovement && forward;
+        if (triggerNewForwardMovement) {
+            // Reset the clock (just in case we were stuck animating a previous movement for some reason ???)
+            this.forwardMovementClock = undefined;
+            // Request/trigger the movement forward (async)
+            this.moveForwardAsync(renderingContext)
+                .then((vessel) => {
+                    // When the server responds back with the movement result, we can start the animation clock
+                    // This will be picked up on the next render loop iteration and "midForwardMovement" will be "true"
+                    this.currentVessel = vessel;
+                    let newVesselPosition = this.getVesselVector3(vessel);
+                    this.forwardMovementClock = new THREE.Clock();
+                    this.forwardMovementSource.position.set(this.vesselPivot.position.x, this.vesselPivot.position.y, this.vesselPivot.position.z);
+                    this.forwardMovementTarget.position.set(newVesselPosition.x, newVesselPosition.y, newVesselPosition.z);
+                })
+                .catch((err) => console.log(err));
+        }
+
+        // If we need to adjust for seconds elapsed while mid-orbit
+        if (forwardMovementDelta > 0) {
+
+            // Check if we have reached the end of the movement animation (time)
+            let totalMovementDelta = (this.forwardMovementClock as THREE.Clock).getElapsedTime();
+            if (totalMovementDelta >= (this.forwardMovementAnimationDuration)) {
+
+                // Move directly to final position
+                this.vesselPivot.position.set(
+                    this.forwardMovementTarget.position.x,
+                    this.forwardMovementTarget.position.y,
+                    this.forwardMovementTarget.position.z
+                );
+
+                // finished movement
+                this.forwardMovementClock = undefined;
+
+            } else {
+
+                // Calculate how much of a partial movement we need to advance
+                //let partialMovement = forwardMovementDelta * (1 / this.forwardMovementAnimationDuration);
+
+                // Linearly interpolate using the partial movement alpha (%) from the current vessel pivot position
+                // toward the desired (target) position
+                //this.vesselPivot.position.lerp(this.forwardMovementTarget.position, partialMovement);
+
+                let partialMovementPercentage = totalMovementDelta / this.forwardMovementAnimationDuration;
+
+                // Clone the beginning (source) of forward movement so we can calculate how far we should have moved by now
+                let nextPosition = this.forwardMovementSource.clone()
+                    .position.lerp(this.forwardMovementTarget.position, partialMovementPercentage);
+                
+                this.vesselPivot.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
+
+            }
+
+        }
+
+    }
+
+    private async moveForwardAsync(renderingContext: RenderingContext) {
+        // Set flag so that no new movements will be processed in render loop until we get the result of this one
+        this.waitingOnMovementRequest = true;
+        let vessel: Vessel;
+        try 
+        {
+            // Create request to move forward (async)
+            vessel = await this.requestForwardMovementResultAsync();
+            // TODO:  Fix this so that the game state is automatically refreshed by events
+            if (this.currentGame) {
+                this.currentGame.updateVesselCoordinates(vessel.id, vessel.cubicCoordinates);
+                this.currentVessel = this.currentGame.vessels.find(x => x.id == vessel.id);
+            } else {
+                this.currentVessel = vessel;
+            }
+        }
+        finally 
+        {
+            // Movement is complete
+            this.waitingOnMovementRequest = false;
+        }
+        // Return the new vessel state
+        return vessel;
+    }
+
+    private synchronizeVessel() {
+        // TODO:  Create new animation type that flushes current queue 
+        //        and brings the vessel to the correct position (immediately)
+        throw new Error('Not implemented');
+    }
+
+    private getCurrentTile(): Tile {
+        if (!this.currentGame) {
+            throw new Error('Cannot calculate tile position(s) without a game/board instance');
+        }
+        if (!this.currentVessel) {
+            throw new Error('Cannot calculate tile position(s) without vessel coordinates');
+        }
+        let currentTile = this.currentGame.board.getTileFromCoordinates(this.currentVessel.cubicCoordinates);
+        if (!currentTile) {
+            throw new Error('Could not match a tile to coordinates');
+        }
+        return currentTile;
+    }
+
+    private getForwardDirection(): IDirection {
+        if (!this.currentGame) {
+            throw new Error('Cannot determine forward cardinal direction without current game/board');
+        }
+        let tileShape = this.currentGame.board.tileShape;
+        return this.perspectiveTracker.getCardinalDirection(tileShape, this.vesselPivot);
+    }
+
+    private async requestForwardMovementResultAsync(): Promise<Vessel> {
+        if (!this.currentGame) {
+            throw new Error('Cannot calculate movement(s) without a game/board instance');
+        }
+        if (!this.currentVessel) {
+            throw new Error('Cannot calculate movement(s) without vessel coordinates');
+        }
+        // Get the current tile
+        let currentTile = this.getCurrentTile();
+        // Determine direction
+        let direction = this.getForwardDirection();
+        // Create a vessel move request
+        let vessel = await this.gameService.moveVesselAsync({
+            gameId: this.currentGame.id,
+            vesselId: this.currentVessel.id,
+            direction: direction,
+            sourceOrderedTriple: currentTile.cubicCoordinates.toOrderedTriple(),
+            targetOrderedTriple: [],
+            isoDateTime: getUtcNow().toISOString()
+        })
+        // return the new vessel state
+        return Vessel.fromObject(vessel);
+    }
+
+    private onMoveForwardClick(ev: MouseEvent) {
+        this.queueNewAnimation('forward');
+    }
+
+    private onCounterClockwiseClick(ev: MouseEvent) {
+        this.queueNewAnimation('counterClockwise');
     }
 
     private onClockwiseClick(ev: MouseEvent) {
-        if (!!this.triggerCounterClockwiseRotation) {
-            this.triggerCounterClockwiseRotation--;
-        } else {
-            if (!this.triggerClockwiseRotation) {
-                this.triggerClockwiseRotation = 0;
-            }
-            this.triggerClockwiseRotation++;
-        }
+        this.queueNewAnimation('clockwise');
     }
 
     private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {

@@ -20,5 +20,5 @@ export interface IGameService extends IDisposable {
     removePlayerFromVesselAsync(options: IRemovePlayerOptions): Promise<IVessel>;
     addPlayerToVesselRoleAsync(options: IAddPlayerOptions): Promise<IVessel>;
     removePlayerFromVesselRoleAsync(options: IRemovePlayerOptions): Promise<IVessel>;
-    moveVesselAsync(request: IVesselMoveRequest): Promise<void>;
+    moveVesselAsync(request: IVesselMoveRequest): Promise<IVessel>;
 }

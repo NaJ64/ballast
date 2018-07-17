@@ -229,8 +229,8 @@ namespace Ballast.Web.Hubs
         {
             try
             {
-                await _gameService.MoveVesselAsync(request);
-                await ResolveAsync(Clients.Caller, nameof(MoveVesselAsync), invocationId);
+                var value = await _gameService.MoveVesselAsync(request);
+                await ResolveValueAsync(Clients.Caller, nameof(MoveVesselAsync), invocationId, value);
             }
             catch (Exception ex)
             {

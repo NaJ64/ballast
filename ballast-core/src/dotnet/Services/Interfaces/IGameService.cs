@@ -30,7 +30,7 @@ namespace Ballast.Core.Services
         Task<Vessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options);
         Task<Vessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options);
 
-        Task MoveVesselAsync(VesselMoveRequest request);
+        Task<Vessel> MoveVesselAsync(VesselMoveRequest request);
 
     }
 }

@@ -88,18 +88,7 @@
             "problemMatcher": "$tsc"
         },
         {
-            "label": "Ballast.Core - Compile/Watch (TypeScript)",
-            "identifier": "core-tsc-watch",
-            "options": {
-                "cwd": "${workspaceFolder}/ballast-core"
-            },
-            "isBackground": true,
-            "type": "shell",
-            "command": "npm run compile-watch",
-            "problemMatcher": "$tsc-watch"
-        },
-        {
-            "label": "Ballast.Core - Compile/Watch (.NET Core)",
+            "label": "(1) Ballast.Core - Compile/Watch (.NET Core)",
             "identifier": "core-dotnet-watch-build",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-core"
@@ -115,7 +104,18 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Ballast.Client - Compile/Watch (TypeScript)",
+            "label": "(2) Ballast.Core - Compile/Watch (TypeScript)",
+            "identifier": "core-tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/ballast-core"
+            },
+            "isBackground": true,
+            "type": "shell",
+            "command": "npm run compile-watch",
+            "problemMatcher": "$tsc-watch"
+        },
+        {
+            "label": "(3) Ballast.Client - Compile/Watch (TypeScript)",
             "identifier": "client-tsc-watch",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-client"
@@ -126,7 +126,7 @@
             "problemMatcher": "$tsc-watch"
         },
         {
-            "label": "Ballast.Client - Bundle/Watch (Webpack)",
+            "label": "(4) Ballast.Client - Bundle/Watch (Webpack)",
             "identifier": "client-webpack-watch",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-client"
@@ -137,7 +137,7 @@
             "problemMatcher": "$eslint-stylish"
         },
         {
-            "label": "Ballast.Web - Compile/Watch (TypeScript)",
+            "label": "(5) Ballast.Web - Compile/Watch (TypeScript)",
             "identifier": "web-tsc-watch",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-web"
@@ -148,7 +148,7 @@
             "problemMatcher": "$tsc-watch"
         },
         {
-            "label": "Ballast.Web - Bundle/Watch (Webpack)",
+            "label": "(6) Ballast.Web - Bundle/Watch (Webpack)",
             "identifier": "web-webpack-watch",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-web"
@@ -175,7 +175,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Ballast.Web - Run/Watch (.NET Core)",
+            "label": "(7) Ballast.Web - Run/Watch (.NET Core)",
             "identifier": "web-dotnet-watch-run",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-web",
