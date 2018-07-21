@@ -1,5 +1,5 @@
 import * as signalR from '@aspnet/signalr';
-import { Game, GameStateChangedEvent, IAddPlayerOptions, ICreateGameOptions, IEventBus, IGame, IGameService, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IRemovePlayerOptions, IVessel, IVesselMoveRequest, PlayerJoinedGameEvent, PlayerLeftGameEvent } from 'ballast-core';
+import { Game, GameStateChangedEvent, IAddPlayerOptions, ICreateGameOptions, IEventBus, IGame, IGameService, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IRemovePlayerOptions, IVessel, IVesselMoveRequest, PlayerJoinedGameEvent, PlayerLeftGameEvent, IVesselStateChangedEvent, VesselStateChangedEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { TYPES_BALLAST } from '../../ioc/types';
 import { IGameClientService } from '../game-client-service';
@@ -24,12 +24,14 @@ export class SignalRGameService extends SignalRServiceBase implements IGameServi
         hubConnection.on('GameStateChanged', this.onGameStateChanged.bind(this));
         hubConnection.on('PlayerJoinedGame', this.onPlayerJoinedGame.bind(this));
         hubConnection.on('PlayerLeftGame', this.onPlayerLeftGame.bind(this));
+        hubConnection.on('VesselStateChanged', this.onVesselStateChanged.bind(this));
     }
 
     protected beforeUnsubscribe(hubConnection: signalR.HubConnection) {
         hubConnection.off('GameStateChanged');
         hubConnection.off('PlayerJoinedGame');
         hubConnection.off('PlayerLeftGame');
+        hubConnection.off('VesselStateChanged');
     }
 
     private onGameStateChanged(update: IGame) {
@@ -40,14 +42,17 @@ export class SignalRGameService extends SignalRServiceBase implements IGameServi
 
     private onPlayerJoinedGame(evt: IPlayerJoinedGameEvent) {
         let playerJoinedGame = PlayerJoinedGameEvent.fromObject(evt);
-        //alert('player joined game');
         this.eventBus.publishAsync(playerJoinedGame); // Fire and forget
     }
 
     private onPlayerLeftGame(evt: IPlayerLeftGameEvent) {
         let playerLeftGame = PlayerLeftGameEvent.fromObject(evt);
-        //alert('player left game');
         this.eventBus.publishAsync(playerLeftGame); // Fire and forget
+    }
+
+    public onVesselStateChanged(evt: IVesselStateChangedEvent) {
+        let vesselStateChanged = VesselStateChangedEvent.fromObject(evt);
+        this.eventBus.publishAsync(vesselStateChanged); // Fire and forget
     }
 
     public async getTestGameIdAsync() {

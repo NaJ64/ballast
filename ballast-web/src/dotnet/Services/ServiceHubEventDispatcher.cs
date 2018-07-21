@@ -59,6 +59,7 @@ namespace Ballast.Web.Services
             _eventBus.Subscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
             _eventBus.Subscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
             _eventBus.Subscribe<ChatMessageSentEvent>(nameof(ChatMessageSentEvent), OnChatMessageSentAsync);
+            _eventBus.Subscribe<VesselStateChangedEvent>(nameof(VesselStateChangedEvent), OnVesselStateChangedAsync);
         }
 
         private void UnsubscribeAll()
@@ -66,6 +67,7 @@ namespace Ballast.Web.Services
             _eventBus.Unsubscribe<PlayerJoinedGameEvent>(nameof(PlayerJoinedGameEvent), OnPlayerJoinedGameAsync);
             _eventBus.Unsubscribe<PlayerLeftGameEvent>(nameof(PlayerLeftGameEvent), OnPlayerLeftGameAsync);
             _eventBus.Unsubscribe<ChatMessageSentEvent>(nameof(ChatMessageSentEvent), OnChatMessageSentAsync);
+            _eventBus.Unsubscribe<VesselStateChangedEvent>(nameof(VesselStateChangedEvent), OnVesselStateChangedAsync);
         }
 
         private async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
@@ -85,6 +87,11 @@ namespace Ballast.Web.Services
             //     var playerConnections = await _gameHubMethods.GetPlayerConnectionsForGameAsync(evt.Message.GameId.GetValueOrDefault());
             // }
             await _chatHubMethods.OnChatMessageSentAsync(evt);
+        }
+
+        private async Task OnVesselStateChangedAsync(VesselStateChangedEvent evt)
+        {
+            await _gameHubMethods.OnVesselStateChanged(evt);
         }
 
     }

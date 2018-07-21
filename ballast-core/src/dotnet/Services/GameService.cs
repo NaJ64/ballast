@@ -35,6 +35,8 @@ namespace Ballast.Core.Services
             var gameOptions = new CreateGameOptions()
             {
                 BoardShapeValue = TileShape.Hexagon.Value,
+                BoardTypeValue = BoardType.RegularPolygon.Value,
+                BoardSize = 6,
                 VesselOptions = new CreateVesselOptions[]
                 {
                     new CreateVesselOptions() { RequestedName = "U-571" },
@@ -105,9 +107,11 @@ namespace Ballast.Core.Services
             var useBoardSize = options.BoardSize ?? DEFAULT_BOARD_SIZE;
             if (useBoardSize % 2 == 0)
                 useBoardSize++;
-            var useBoardType = DEFAULT_BOARD_TYPE;
+            var useBoardType = (options.BoardTypeValue != null)
+                ? BoardType.FromValue((int)options.BoardTypeValue)
+                : DEFAULT_BOARD_TYPE;
             var useTileShape = (options.BoardShapeValue != null)
-                ? Models.TileShape.FromValue((int)options.BoardShapeValue)
+                ? TileShape.FromValue((int)options.BoardShapeValue)
                 : DEFAULT_TILE_SHAPE;
 
             var board = _boardGenerator.CreateBoard(

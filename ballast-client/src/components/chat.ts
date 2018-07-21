@@ -23,7 +23,7 @@ export class ChatComponent extends ComponentBase {
     private readonly chatInput: HTMLInputElement;
 
     public constructor(
-        @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport, 
+        @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
         @inject(TYPES_BALLAST.IEventBus) eventBus: IEventBus,
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
         @inject(TYPES_BALLAST.IChatClientService) chatService: IChatClientService
@@ -43,11 +43,12 @@ export class ChatComponent extends ComponentBase {
         this.chatFormSubmitListener = this.onChatFormSubmit.bind(this);
     }
 
-    private createChatElements(): [ 
-        HTMLDivElement, 
-        HTMLUListElement, 
-        HTMLFormElement, 
-        HTMLInputElement] {
+    private createChatElements(): [
+        HTMLDivElement,
+        HTMLUListElement,
+        HTMLFormElement,
+        HTMLInputElement
+    ] {
 
         let ownerDocument = this.viewport.getRoot().ownerDocument;
 
@@ -101,9 +102,9 @@ export class ChatComponent extends ComponentBase {
         chatInput.style.color = 'white';
         chatForm.appendChild(chatInput);
 
-        return [ chatWindow, chatHistory, chatForm, chatInput];
+        return [chatWindow, chatHistory, chatForm, chatInput];
     }
-    
+
     protected onAttach(parent: HTMLElement, renderingContext: RenderingContext) {
 
         // Add chat window onto page
@@ -116,7 +117,7 @@ export class ChatComponent extends ComponentBase {
         if (!this.chatService.isConnected) {
             this.chatService.connectAsync(); // Fire and forget
         }
-        
+
     }
 
     protected onDetach(parent: HTMLElement, renderingContext: RenderingContext) {
@@ -134,7 +135,7 @@ export class ChatComponent extends ComponentBase {
 
     }
 
-    protected render(parent: HTMLElement, renderingContext: RenderingContext) { 
+    protected render(parent: HTMLElement, renderingContext: RenderingContext) {
 
         // Check if the user has hit the "enter" key to talk while not already on the chat input 
         let focusedElement = this.chatInput && this.chatInput.ownerDocument.activeElement;
@@ -206,7 +207,7 @@ export class ChatComponent extends ComponentBase {
     private suspendKeyboardWatching() {
         this.viewport.getKeyboardWatcher().suspend();
     }
-    
+
     private onChatInputBlur(ev: FocusEvent): any {
         setTimeout(() => {
             this.resumeKeyboardWatching();
@@ -216,7 +217,7 @@ export class ChatComponent extends ComponentBase {
     private resumeKeyboardWatching() {
         this.viewport.getKeyboardWatcher().resume();
     }
-    
+
     private onChatFormSubmit(ev: Event): any {
         this.submitMessage();
         ev.preventDefault();

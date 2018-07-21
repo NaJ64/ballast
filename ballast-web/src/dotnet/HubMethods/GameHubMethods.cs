@@ -66,5 +66,15 @@ namespace Ballast.Web.HubMethods
             }
         }
 
+        public async Task OnVesselStateChanged(VesselStateChangedEvent evt)
+        {
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
+            foreach(var connectionId in connectionIds) 
+            {
+                var client = _hubContext.Clients.Client(connectionId);
+                await client?.SendAsync("VesselStateChanged", evt);
+            }
+        }
+
     }
 }
