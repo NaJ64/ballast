@@ -23,6 +23,7 @@ import { SignalRGameService } from '../services/signalr/signalr-game-service';
 import { ISignalRServiceOptions } from '../services/signalr/signalr-service-options';
 import { SignalRSignInService } from '../services/signalr/signalr-sign-in-service';
 import { TYPES_BALLAST } from './types';
+import { NavigationComponent } from '../components/navigation';
 
 export function configureServices(container: Container, client: BallastClient): Container {
     configureApp(container, client);
@@ -82,6 +83,12 @@ function configureComponents(container: Container): Container {
         .inTransientScope();
     container.bind<() => MenuComponent>(TYPES_BALLAST.MenuComponentFactory)
         .toFactory(context => () => context.container.get<MenuComponent>(TYPES_BALLAST.MenuComponent));
+    // NavigationComponent
+    container.bind<NavigationComponent>(TYPES_BALLAST.NavigationComponent)
+        .to(NavigationComponent)
+        .inTransientScope();
+    container.bind<() => NavigationComponent>(TYPES_BALLAST.NavigationComponentFactory)
+        .toFactory(context => () => context.container.get<NavigationComponent>(TYPES_BALLAST.NavigationComponent));
     // RootComponent
     container.bind<RootComponent>(TYPES_BALLAST.RootComponent)
         .to(RootComponent)

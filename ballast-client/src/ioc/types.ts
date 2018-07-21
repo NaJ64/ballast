@@ -18,6 +18,8 @@ const TYPES_BALLAST = {
     HudComponentFactory: Symbol.for('HudComponentFactory'),
     MenuComponent: Symbol.for('MenuComponent'),
     MenuComponentFactory: Symbol.for('MenuComponentFactory'),
+    NavigationComponent: Symbol.for('NavigationComponent'),
+    NavigationComponentFactory: Symbol.for('NavigationComponentFactory'),
     RootComponent: Symbol.for('RootComponent'),
     RootComponentFactory: Symbol.for('RootComponentFactory'),
     SignInComponent: Symbol.for('SignInComponent'),

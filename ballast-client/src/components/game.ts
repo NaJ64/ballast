@@ -1,4 +1,4 @@
-import { Game, GameStateChangedEvent, IDirection, IEventBus, Tile, Vessel, getUtcNow } from 'ballast-core';
+import { Game, GameStateChangedEvent, IDirection, IEventBus, Tile, Vessel, getUtcNow, VesselStateChangedEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import { BallastViewport } from '../app/ballast-viewport';
@@ -11,6 +11,7 @@ import { IGameClientService } from '../services/game-client-service';
 import { BoardComponent } from './board';
 import { ComponentBase } from './component-base';
 import { WorldComponent } from './world';
+import { NavigationComponent } from './navigation';
 
 type AnimationType = 'counterClockwise' | 'clockwise' | 'forward';
 type Animation = { type: AnimationType, timestamp: number };
@@ -53,14 +54,16 @@ export class GameComponent extends ComponentBase {
 
     // Current game / state
     private readonly gameService: IGameClientService;
-    private readonly gameStateChangedHandler: (event: GameStateChangedEvent) => Promise<void>;
+    private readonly gameStateChangedHandler: (evt: GameStateChangedEvent) => Promise<void>;
     private currentGame?: Game;
+    private readonly vesselStateChangedHandler: (evt: VesselStateChangedEvent) => Promise<void>;
     private currentVessel?: Vessel;
     //private currentTile?: Tile;
 
     // Child components
     private readonly world: WorldComponent;
     private readonly board: BoardComponent;
+    private readonly navigation: NavigationComponent;
 
     public constructor(
         @inject(TYPES_BALLAST.BallastViewport) viewport: BallastViewport,
@@ -68,7 +71,8 @@ export class GameComponent extends ComponentBase {
         @inject(TYPES_BALLAST.PerspectiveTracker) perspectiveTracker: PerspectiveTracker,
         @inject(TYPES_BALLAST.IGameClientService) gameClientService: IGameClientService,
         @inject(TYPES_BALLAST.WorldComponentFactory) worldFactory: () => WorldComponent,
-        @inject(TYPES_BALLAST.BoardComponentFactory) boardFactory: () => BoardComponent) {
+        @inject(TYPES_BALLAST.BoardComponentFactory) boardFactory: () => BoardComponent,
+        @inject(TYPES_BALLAST.NavigationComponentFactory) navigationFactory: () => NavigationComponent) {
             
         // base constructor
         super(viewport, eventBus, perspectiveTracker);
@@ -104,10 +108,12 @@ export class GameComponent extends ComponentBase {
         // Game state update listener
         this.gameService = gameClientService;
         this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
+        this.vesselStateChangedHandler = this.onVesselStateChangedAsync.bind(this);
 
         // Create child components
         this.world = worldFactory();
         this.board = boardFactory();
+        this.navigation = navigationFactory();
 
     }
 
@@ -209,6 +215,7 @@ export class GameComponent extends ComponentBase {
 
     private subscribeToEvents() {
         this.eventBus.subscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        this.eventBus.subscribe(VesselStateChangedEvent.id, this.vesselStateChangedHandler);
         this.moveForwardButton.addEventListener('click', this.moveForwardButtonClickListener);
         this.counterClockwiseButton.addEventListener('click', this.counterClockwiseClickListener);
         this.clockwiseButton.addEventListener('click', this.clockwiseClickListener);
@@ -216,6 +223,7 @@ export class GameComponent extends ComponentBase {
 
     private unsubscribeFromEvents() {
         this.eventBus.unsubscribe(GameStateChangedEvent.id, this.gameStateChangedHandler);
+        this.eventBus.unsubscribe(VesselStateChangedEvent.id, this.vesselStateChangedHandler);
         this.moveForwardButton.removeEventListener('click', this.moveForwardButtonClickListener);
         this.counterClockwiseButton.removeEventListener('click', this.counterClockwiseClickListener);
         this.clockwiseButton.removeEventListener('click', this.clockwiseClickListener);
@@ -235,8 +243,9 @@ export class GameComponent extends ComponentBase {
         this.subscribeToEvents();
 
         // Attach child components
-        this.board.attach(parent);
         this.world.attach(parent);
+        this.board.attach(parent);
+        this.navigation.attach(parent);
 
         // Notify game component finished loading
         this.eventBus.publishAsync(GameComponentLoadedEvent.createNew());
@@ -255,9 +264,11 @@ export class GameComponent extends ComponentBase {
 
         // Remove buttons from parent element
         parent.removeChild(this.clockwiseButton);
+        parent.removeChild(this.moveForwardButton);
         parent.removeChild(this.counterClockwiseButton);
 
         // Detach child components
+        this.navigation.detach();
         this.board.detach();
         this.world.detach();
 
@@ -625,8 +636,18 @@ export class GameComponent extends ComponentBase {
         this.queueNewAnimation('clockwise');
     }
 
-    private async onGameStateChangedAsync(event: GameStateChangedEvent): Promise<void> {
-        console.log(event.game);
+    private async onGameStateChangedAsync(evt: GameStateChangedEvent): Promise<void> {
+        // Always make sure to store the latest game state for the current game
+        if (this.currentGame && evt.game && this.currentGame.id == evt.game.id) {
+            this.currentGame = evt.game;
+        }
+    }
+
+    private async onVesselStateChangedAsync(evt: VesselStateChangedEvent): Promise<void> {
+        // Always make sure to store the latest vessel state for the current vessel
+        if (this.currentVessel && this.currentVessel.id == evt.vessel.id) {
+            this.currentVessel = evt.vessel;
+        }
     }
 
 }
