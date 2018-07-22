@@ -65,7 +65,16 @@ export class PerspectiveTracker {
     }
 
     private getHalfTurns(subject?: THREE.Object3D) {
-        let object = subject || this.renderingContext.cameraPivot;
+
+        // Determine the default subject
+        // Use the camera pivot if it is the top-level subject in the scene, 
+        // Otherwise default to using whatever object the cameraPivot is attached to
+        let defaultSubject = this.renderingContext.cameraPivot;
+        if (this.renderingContext.cameraPivot.parent && this.renderingContext.cameraPivot.parent != this.renderingContext.scene) {
+            defaultSubject = this.renderingContext.cameraPivot.parent;
+        }
+
+        let object = subject || defaultSubject;
 
         // let radiansY = object.rotation.y * -1;
         // radiansY -= RenderingConstants.INITIAL_ORIENTATION_RADIANS;
