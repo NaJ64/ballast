@@ -58,6 +58,7 @@ export class NavigationComponent extends ComponentBase {
         navWindow.style.borderColor = 'rgba(255, 255, 255, 0.1)';
 
         let navCoordinates = ownerDocument.createElement("label");
+        navCoordinates.style.textShadow = '1px 1px 2px rgb(0, 0, 0), -1px 1px 2px rgb(0, 0, 0), 1px -1px 2px rgb(0, 0, 0), -1px -1px 2px rgb(0, 0, 0)';
         navCoordinates.style.cssFloat = 'bottom';
         navCoordinates.style.position = 'absolute';
         navCoordinates.style.zIndex = '1001';
@@ -72,6 +73,7 @@ export class NavigationComponent extends ComponentBase {
         navWindow.appendChild(navCoordinates);
         
         let navCompass = ownerDocument.createElement("label");
+        navCompass.style.textShadow = '1px 1px 2px rgb(0, 0, 0), -1px 1px 2px rgb(0, 0, 0), 1px -1px 2px rgb(0, 0, 0), -1px -1px 2px rgb(0, 0, 0)';
         navCompass.style.cssFloat = "bottom";
         navCompass.style.position = 'absolute';
         navCompass.style.zIndex = '1002';
