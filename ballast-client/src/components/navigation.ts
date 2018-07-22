@@ -1,11 +1,12 @@
+import { BoardType, CubicCoordinates, Game, GameStateChangedEvent, IEventBus, Vessel, VesselStateChangedEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
-import { IEventBus, GameStateChangedEvent, VesselStateChangedEvent, Game, Vessel, OffsetCoordinates, CubicCoordinates, BoardType, TileShape } from 'ballast-core';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { TYPES_BALLAST } from '../ioc/types';
+import { RenderingConstants } from '../rendering/rendering-constants';
 import { RenderingContext } from '../rendering/rendering-context';
-import { ComponentBase } from './component-base';
 import { IGameClientService } from '../services/game-client-service';
+import { ComponentBase } from './component-base';
 
 @injectable()
 export class NavigationComponent extends ComponentBase {
@@ -46,12 +47,11 @@ export class NavigationComponent extends ComponentBase {
         navWindow.style.zIndex = '1000';
         navWindow.style.left = '12px'; // parent has 2px border
         navWindow.style.bottom = '12px'; // parent has 2px border
-        navWindow.style.paddingTop = 'calc(20%)';
-        navWindow.style.width = 'calc(20% - 2px)';
+        navWindow.style.height = '26px';
+        navWindow.style.width = 'calc(15% - 2px)';
         navWindow.style.borderWidth = '1px';
-        navWindow.style.borderStyle = 'none'; //'solid';
+        navWindow.style.borderStyle = 'none';
         navWindow.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        //navWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
 
         let navCoordinates = ownerDocument.createElement("label");
         navCoordinates.style.cssFloat = 'bottom';
@@ -59,13 +59,31 @@ export class NavigationComponent extends ComponentBase {
         navCoordinates.style.zIndex = '1001';
         navCoordinates.style.left = '0px';
         navCoordinates.style.bottom = '0px';
-        navCoordinates.style.height = '25px';
+        navCoordinates.style.height = '26px';
         navCoordinates.style.width = '100%';
         navCoordinates.style.backgroundColor = 'transparent'; //'rgba(0, 0, 0, 0.1)';
-        navCoordinates.style.borderStyle = 'none'; 'solid';
+        navCoordinates.style.borderStyle = 'none'; //'solid';
         navCoordinates.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         navCoordinates.style.color = 'white';
         navWindow.appendChild(navCoordinates);
+
+        // let navCompass = ownerDocument.createElement("div");
+        // navCompass.style.cssFloat = "bottom";
+        // navCompass.style.position = 'absolute';
+        // navCompass.style.zIndex = '1002';
+        // navCompass.style.left = '0px';
+        // navCompass.style.bottom = '26px';
+        // navCompass.style.height = 'calc(100% - 26px)';
+        // navCompass.style.width = '100%';
+        // navCompass.style.backgroundColor = 'transparent'; //'rgba(0, 0, 0, 0.1)';
+        // navCompass.style.borderStyle = 'none'; //'solid';
+        // navCompass.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        // navCompass.style.color = 'white';
+        // navCompass.style.transition = `transform ${RenderingConstants.PIVOT_DURATION_SECONDS}s`;
+        // navCompass.style.fontSize ='7.5vw';
+        // navCompass.style.textAlign = 'center';
+        // navCompass.innerHTML = '&#10050;';
+        // navWindow.appendChild(navCompass);
 
         return [navWindow, navCoordinates];
 
