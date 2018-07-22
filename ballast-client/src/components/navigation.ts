@@ -1,4 +1,4 @@
-import { BoardType, CubicCoordinates, Game, GameStateChangedEvent, IEventBus, Vessel, VesselStateChangedEvent } from 'ballast-core';
+import { BoardType, CubicCoordinates, Game, GameStateChangedEvent, IEventBus, Vessel, VesselStateChangedEvent, IDirection } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
@@ -13,10 +13,12 @@ export class NavigationComponent extends ComponentBase {
 
     private readonly navWindow: HTMLDivElement;
     private readonly navCoordinates: HTMLLabelElement;
+    private readonly navCompass: HTMLLabelElement;
     private readonly gameService: IGameClientService;
     private readonly gameStateChangedHandler: (evt: GameStateChangedEvent) => Promise<void>;
-    private currentGame?: Game;
     private readonly vesselStateChangedHandler: (evt: VesselStateChangedEvent) => Promise<void>;
+    private currentDirection?: IDirection;
+    private currentGame?: Game;
     private currentVessel?: Vessel;
 
     public constructor(
@@ -29,6 +31,7 @@ export class NavigationComponent extends ComponentBase {
         let navElements = this.createNavElements();
         this.navWindow = navElements["0"];
         this.navCoordinates = navElements["1"];
+        this.navCompass = navElements["2"];
         this.gameService = gameClientService;
         this.gameStateChangedHandler = this.onGameStateChangedAsync.bind(this);
         this.vesselStateChangedHandler = this.onVesselStateChangedAsync.bind(this);
@@ -36,6 +39,7 @@ export class NavigationComponent extends ComponentBase {
 
     private createNavElements(): [
         HTMLDivElement,
+        HTMLLabelElement,
         HTMLLabelElement
     ] {
 
@@ -45,9 +49,9 @@ export class NavigationComponent extends ComponentBase {
         navWindow.style.cssFloat = 'left';
         navWindow.style.position = 'absolute';
         navWindow.style.zIndex = '1000';
-        navWindow.style.left = '12px'; // parent has 2px border
-        navWindow.style.bottom = '12px'; // parent has 2px border
-        navWindow.style.height = '26px';
+        navWindow.style.left = '12px';
+        navWindow.style.bottom = '12px';
+        navWindow.style.height = '49px';
         navWindow.style.width = 'calc(15% - 2px)';
         navWindow.style.borderWidth = '1px';
         navWindow.style.borderStyle = 'none';
@@ -59,33 +63,29 @@ export class NavigationComponent extends ComponentBase {
         navCoordinates.style.zIndex = '1001';
         navCoordinates.style.left = '0px';
         navCoordinates.style.bottom = '0px';
-        navCoordinates.style.height = '26px';
+        navCoordinates.style.height = '24px';
         navCoordinates.style.width = '100%';
-        navCoordinates.style.backgroundColor = 'transparent'; //'rgba(0, 0, 0, 0.1)';
-        navCoordinates.style.borderStyle = 'none'; //'solid';
+        navCoordinates.style.backgroundColor = 'transparent';
+        navCoordinates.style.borderStyle = 'none';
         navCoordinates.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         navCoordinates.style.color = 'white';
         navWindow.appendChild(navCoordinates);
+        
+        let navCompass = ownerDocument.createElement("label");
+        navCompass.style.cssFloat = "bottom";
+        navCompass.style.position = 'absolute';
+        navCompass.style.zIndex = '1002';
+        navCompass.style.left = '0px';
+        navCompass.style.bottom = '25px';
+        navCompass.style.height = '24px';
+        navCompass.style.width = '100%';
+        navCompass.style.backgroundColor = 'transparent';
+        navCompass.style.borderStyle = 'none';
+        navCompass.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        navCompass.style.color = 'white';
+        navWindow.appendChild(navCompass);
 
-        // let navCompass = ownerDocument.createElement("div");
-        // navCompass.style.cssFloat = "bottom";
-        // navCompass.style.position = 'absolute';
-        // navCompass.style.zIndex = '1002';
-        // navCompass.style.left = '0px';
-        // navCompass.style.bottom = '26px';
-        // navCompass.style.height = 'calc(100% - 26px)';
-        // navCompass.style.width = '100%';
-        // navCompass.style.backgroundColor = 'transparent'; //'rgba(0, 0, 0, 0.1)';
-        // navCompass.style.borderStyle = 'none'; //'solid';
-        // navCompass.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        // navCompass.style.color = 'white';
-        // navCompass.style.transition = `transform ${RenderingConstants.PIVOT_DURATION_SECONDS}s`;
-        // navCompass.style.fontSize ='7.5vw';
-        // navCompass.style.textAlign = 'center';
-        // navCompass.innerHTML = '&#10050;';
-        // navWindow.appendChild(navCompass);
-
-        return [navWindow, navCoordinates];
+        return [navWindow, navCoordinates, navCompass];
 
     }
 
@@ -142,8 +142,14 @@ export class NavigationComponent extends ComponentBase {
             this.resetGame(renderingContext);
         }
 
-    }
+        // Check if our compass heading has changed
+        let directionHasChanged = this.getDirectionHasChanged();
+        if (directionHasChanged) {
+            this.updateCompass();
+        }
 
+    }
+    
     private resetGame(renderingContext: RenderingContext) {
 
         let clientId = this.viewport.getClientId();
@@ -156,9 +162,62 @@ export class NavigationComponent extends ComponentBase {
                 (x.radioman && x.radioman.id == clientId) ||
                 false
             );
+        this.currentDirection = undefined; // This will be fixed during the render loop
 
         this.updateDisplayCoordinates();
+        this.updateCompass();
 
+    }
+
+    private getDirectionHasChanged() {
+        // If we don't have a game
+        if (!this.currentGame) {
+            return !!this.currentDirection; // If we don't have a game anymore (but we previously had a direction) assume it changed
+        }
+        // If we do have a direction
+        if (!this.currentDirection) {
+            return !!this.currentGame; // If we don't have a direction yet (but we previously had a game) it's safe to assume we have a new direction
+        }
+        // Get the tile shape to assist with calculating cardinal direction off the perspective tracker
+        let tileShape = this.currentGame.board.tileShape;
+        let direction = this.perspectiveTracker.getCardinalDirection(tileShape);
+        let directionChanged = true;
+        if (
+            this.currentDirection.north == direction.north &&
+            this.currentDirection.south == direction.south &&
+            this.currentDirection.east == direction.east &&
+            this.currentDirection.west == direction.west
+        ) {
+            directionChanged = false;
+        }
+        return directionChanged;
+    }
+
+    private updateCompass() {
+        if (!this.currentGame) {
+            this.navCompass.innerText = "";
+            return;
+        }
+        let tileShape = this.currentGame.board.tileShape;
+        let direction = this.perspectiveTracker.getCardinalDirection(tileShape);
+        let directionHeadingText = "";
+        if (direction.north) {
+            directionHeadingText += "N";
+        }
+        if (direction.south) {
+            directionHeadingText += "S";
+        }
+        if (direction.west) {
+            directionHeadingText += "W";
+        }
+        if (direction.east) {
+            directionHeadingText += "E";
+        }
+        let symbol = "";
+        if (!!directionHeadingText) {
+            symbol = "&uarr; " 
+        }
+        this.navCompass.innerHTML = `${symbol}${directionHeadingText}`;
     }
 
     private updateDisplayCoordinates() {
