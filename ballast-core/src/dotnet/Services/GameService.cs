@@ -37,6 +37,7 @@ namespace Ballast.Core.Services
                 BoardShapeValue = TileShape.Hexagon.Value,
                 BoardTypeValue = BoardType.RegularPolygon.Value,
                 BoardSize = 5,
+                LandToWaterRatio = 0.5,
                 VesselOptions = new CreateVesselOptions[]
                 {
                     new CreateVesselOptions() { RequestedName = "U-571" },
@@ -114,12 +115,14 @@ namespace Ballast.Core.Services
             var useTileShape = (options.BoardShapeValue != null)
                 ? TileShape.FromValue((int)options.BoardShapeValue)
                 : DEFAULT_TILE_SHAPE;
+            var useLandToWaterRatio = options.LandToWaterRatio;
 
             var board = _boardGenerator.CreateBoard(
                 id: Guid.NewGuid(),
                 boardType: useBoardType, // Default
                 tileShape: useTileShape,
-                columnsOrSideLength: useBoardSize
+                columnsOrSideLength: useBoardSize,
+                landToWaterRatio: useLandToWaterRatio
                 );
 
             var players = new List<Player>();
