@@ -42,7 +42,7 @@ namespace Ballast.Core.Models
         public CubicCoordinates GetRandomPassableCoordinates()
         {
             var passables = Tiles.Where(x => x.Terrain.Passable);
-            var index = new Random().Next(1, passables.Count());
+            var index = new Random().Next(1, passables.Count()) - 1;
             return passables.ElementAt(index).CubicCoordinates;
         }
 

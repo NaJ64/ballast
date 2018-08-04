@@ -16,13 +16,9 @@ namespace Ballast.Core.Services
             TileShape tileShape,
             int columnsOrSideLength,
             int? rows = null,
-            decimal? landToWaterRatio = null
+            double? landToWaterRatio = null
         )
         {
-
-            // Get passable terrain types to use when figuring land/water tile ratio
-            var passableTerrain = Terrain.List().Where(x => x.Passable);
-            var impassableTerrain = Terrain.List().Where(x => !x.Passable);
 
             // Determine shape and tile layout
             var useTileShape = tileShape;
@@ -70,6 +66,15 @@ namespace Ballast.Core.Services
                 }
             }
 
+            // Get a terrain type for each tile
+            var impassableTerrain = Terrain.List().Where(x => !x.Passable);
+            var passableTerrain = Terrain.List().Where(x => x.Passable);
+            foreach (var tile in tiles) 
+            {
+                var terrain = GetRandomTerrain(landToWaterRatio, impassableTerrain, passableTerrain);
+                tile.SetTerrain(terrain);
+            }
+
             // Create new board 
             var board = Board.FromProperties(
                 boardType: useBoardType,
@@ -80,6 +85,68 @@ namespace Ballast.Core.Services
 
             // return the board
             return board;
+
+        }
+
+        private Terrain GetRandomTerrain(
+            double? landToWaterRatio = null, 
+            IEnumerable<Terrain> impassableTerrain = null, 
+            IEnumerable<Terrain> passableTerrain = null
+        ) 
+        {
+
+            // Definitively set land-to-water ratio & percentages
+            var useLandToWaterRatio = (landToWaterRatio.GetValueOrDefault() > 0) ? landToWaterRatio.GetValueOrDefault() : 1;
+            var impassablePercentage = useLandToWaterRatio / (useLandToWaterRatio + 1);
+            var passablePercentage = 1 - impassablePercentage;
+
+            // Get passable terrain types to use when figuring land/water tile ratio
+            var useImpassableTerrain = (impassableTerrain ?? Terrain.List().Where(x => !x.Passable)).ToList();
+            var usePassableTerrain = (passableTerrain ?? Terrain.List().Where(x => x.Passable)).ToList();
+
+            // Determine if the terrain should be passable or impassable
+            IList<Terrain> terrainChoices = null;
+            var randomPercentage = new Random().NextDouble();
+
+            // Go through choices starting with greatest probability to find a match
+            var total = 0.0;
+            if (passablePercentage >= impassablePercentage) {
+
+                // Passable
+                total += passablePercentage;
+                if (terrainChoices == null && total >= randomPercentage)
+                {
+                    terrainChoices = usePassableTerrain;
+                }
+
+                // Impassable
+                total += impassablePercentage;
+                if (terrainChoices == null && total >= randomPercentage)
+                {
+                    terrainChoices = useImpassableTerrain;
+                }
+
+            } else {
+
+                // Impassable
+                total += passablePercentage;
+                if (terrainChoices == null && total >= randomPercentage)
+                {
+                    terrainChoices = usePassableTerrain;
+                }
+
+                // Passable
+                total += impassablePercentage;
+                if (terrainChoices == null && total >= randomPercentage)
+                {
+                    terrainChoices = useImpassableTerrain;
+                }
+
+            }
+
+            // Return a random terrain from the chosen array
+            var terrain = terrainChoices[new Random().Next(terrainChoices.Count)];
+            return terrain;
 
         }
 

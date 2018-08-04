@@ -36,11 +36,12 @@ namespace Ballast.Core.Services
             {
                 BoardShapeValue = TileShape.Hexagon.Value,
                 BoardTypeValue = BoardType.RegularPolygon.Value,
-                BoardSize = 6,
+                BoardSize = 5,
                 VesselOptions = new CreateVesselOptions[]
                 {
                     new CreateVesselOptions() { RequestedName = "U-571" },
-                    new CreateVesselOptions() { RequestedName = "Red October" }
+                    new CreateVesselOptions() { RequestedName = "Red October" },
+                    new CreateVesselOptions() { RequestedName = "The Nautilus" }
                 }
             };
             var defaultGame = await CreateGameAsync(gameOptions);
