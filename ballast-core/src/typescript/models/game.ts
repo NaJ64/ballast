@@ -43,6 +43,11 @@ export class Game implements IGame {
         var foundVessel = this.vessels.find(x => x.id == vesselId);
         if (!foundVessel)
             throw new Error(`Could not locate vessel with id '${vesselId}'`);
+        var foundTile = this.board.getTileFromCoordinates(cubicCoordinates);
+        if (!foundTile)
+            throw new Error(`Could not locate tile with coordinates ${CubicCoordinates.fromObject(cubicCoordinates).toOrderedTriple()}`);
+        if (!foundTile.terrain.passable)
+            throw new Error(`The requested tile terrain is not passable`);
         return foundVessel.updateCoordinates(cubicCoordinates);
     }
 

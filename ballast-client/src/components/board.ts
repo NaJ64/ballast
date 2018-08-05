@@ -1,4 +1,4 @@
-import { Board, CubicCoordinates, Game, IEventBus, Tile, TileShape } from 'ballast-core';
+import { Board, CubicCoordinates, Game, IEventBus, Terrain, Tile, TileShape } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import * as THREE from 'three';
 import { BallastViewport } from '../app/ballast-viewport';
@@ -17,6 +17,10 @@ export class BoardComponent extends ComponentBase {
     private readonly hexagonGeometry: THREE.RingGeometry;
     private readonly octagonGeometry: THREE.RingGeometry;
     private readonly tileMaterial: THREE.MeshBasicMaterial;
+    private readonly landGeometry: THREE.ConeGeometry;
+    private readonly landMaterial: THREE.MeshLambertMaterial;
+    private readonly coastGeometry: THREE.ConeGeometry;
+    private readonly coastMaterial: THREE.MeshLambertMaterial;
     private currentBoard?: Board;
 
     public constructor(
@@ -31,7 +35,12 @@ export class BoardComponent extends ComponentBase {
         this.octagonGeometry = this.createOctagonGeometry();
         this.hexagonGeometry = this.createHexagonGeometry();
         this.tileMaterial = this.createTileMaterial();
-
+        let land = this.createLandTerrain();
+        let coast = this.createCoastTerrain();
+        this.landMaterial = land["0"];
+        this.landGeometry = land["1"];
+        this.coastMaterial = coast["0"];
+        this.coastGeometry = coast["1"];
     }
 
     private createCircleGeometry() {
@@ -60,6 +69,20 @@ export class BoardComponent extends ComponentBase {
 
     private createTileMaterial() {
         return new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide });
+    }
+
+    private createLandTerrain(): [THREE.MeshLambertMaterial, THREE.ConeGeometry] {
+        let outerRadius = this.getTileOuterRadius(24);
+        let landMaterial = new THREE.MeshLambertMaterial({ color: 0x669933, side: THREE.FrontSide });
+        let landGeometry = new THREE.ConeGeometry(outerRadius, outerRadius * 0.75, 24);
+        return [landMaterial, landGeometry];
+    }
+
+    private createCoastTerrain(): [THREE.MeshLambertMaterial, THREE.ConeGeometry] {
+        let outerRadius = this.getTileOuterRadius(24);
+        let coastMaterial = new THREE.MeshLambertMaterial({ color: 0xffff99, side: THREE.FrontSide });
+        let coastGeometry = new THREE.ConeGeometry(outerRadius, outerRadius * 0.20, 24);
+        return [coastMaterial, coastGeometry];
     }
 
     private getTileInnerRadius(outerRadius: number) {
@@ -120,6 +143,15 @@ export class BoardComponent extends ComponentBase {
             this.addTile(renderingContext, tile);
         });
 
+        // let cubeGeometry = new THREE.CubeGeometry(1,1,1);
+        // let cubeMeshMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+        // let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMeshMaterial);
+        // this.tiles.forEach((tile, key) => {
+        //     if (key.)
+        //     let cubeForTile = cubeMesh.clone();
+        //     tile.add(cubeForTile);
+        // }); 
+
     }
 
     private addTile(renderingContext: RenderingContext, tile: Tile) {
@@ -141,6 +173,23 @@ export class BoardComponent extends ComponentBase {
         z *= rowSpacing;
         let newTileMesh = this.createTileMesh(tile.tileShape);
         newTileMesh.position.set(x, 0, z);
+
+        if (!tile.terrain.passable) {
+            let terrainGeometry = this.landGeometry;
+            let terrainMaterial = this.landMaterial;
+            if (tile.terrain.equals(Terrain.Land)) {
+                terrainGeometry = this.landGeometry;
+                terrainMaterial = this.landMaterial;
+            }
+            if (tile.terrain.equals(Terrain.Coast)) {
+                terrainGeometry = this.coastGeometry;
+                terrainMaterial = this.coastMaterial;
+            }
+            let terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
+            terrainMesh.rotation.x = (Math.PI / 2); // Lay shape flat along X and Z axis
+            newTileMesh.add(terrainMesh);
+        }
+
         this.tiles.set(this.getCubicCoordinatesHash(tile.cubicCoordinates), newTileMesh);
         renderingContext.scene.add(newTileMesh);
     }

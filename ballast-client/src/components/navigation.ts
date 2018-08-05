@@ -1,9 +1,8 @@
-import { BoardType, CubicCoordinates, Game, GameStateChangedEvent, IEventBus, Vessel, VesselStateChangedEvent, IDirection } from 'ballast-core';
+import { BoardType, CubicCoordinates, Game, GameStateChangedEvent, IDirection, IEventBus, TileShape, Vessel, VesselStateChangedEvent } from 'ballast-core';
 import { inject, injectable } from 'inversify';
 import { BallastViewport } from '../app/ballast-viewport';
 import { PerspectiveTracker } from '../input/perspective-tracker';
 import { TYPES_BALLAST } from '../ioc/types';
-import { RenderingConstants } from '../rendering/rendering-constants';
 import { RenderingContext } from '../rendering/rendering-context';
 import { IGameClientService } from '../services/game-client-service';
 import { ComponentBase } from './component-base';
@@ -225,25 +224,33 @@ export class NavigationComponent extends ComponentBase {
     private updateDisplayCoordinates() {
         let scalingFactor: number = 1;
         let boardType: BoardType;
+        let tileType: TileShape;
         let cubicCoordinates: CubicCoordinates | undefined;
         if (this.currentGame) {
             boardType = this.currentGame.board.boardType;
+            tileType = this.currentGame.board.tileShape;
             scalingFactor = this.currentGame.board.tileShape.doubleIncrement ? 2 : 1;
         } else {
             boardType = BoardType.RegularPolygon; // default
+            tileType = TileShape.Hexagon;
             scalingFactor = 1; // default
         }
         if (this.currentVessel) {
             cubicCoordinates = this.currentVessel.cubicCoordinates;
         }
         let coordinatesText = "";
+        let northSouthInversion = -1;
+        if (boardType.equals(BoardType.Rectangle)) {
+            northSouthInversion = 1;
+        }
+        let useOffset = boardType.equals(BoardType.Rectangle) || tileType.equals(TileShape.Square) || tileType.equals(TileShape.Octagon);
         if (cubicCoordinates) {
-            if (boardType.equals(BoardType.Rectangle)) {
+            if (useOffset) {
                 let offset = cubicCoordinates.toOffset();
-                coordinatesText = `${offset.row / scalingFactor}, ${offset.col / scalingFactor}`;
-            } else { // Default regular polygon
+                coordinatesText = `${(northSouthInversion * offset.row / scalingFactor)}, ${offset.col / scalingFactor}`;
+            } else { // Default circle / hexagon
                 let axial = cubicCoordinates.toAxial();
-                coordinatesText = `${axial.x / scalingFactor}, ${axial.z / scalingFactor}`;
+                coordinatesText = `${axial.x / scalingFactor}, ${northSouthInversion * axial.z / scalingFactor}`;
             }
         }
         this.navCoordinates.innerText = coordinatesText;

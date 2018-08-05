@@ -12,12 +12,24 @@ export class Tile implements ITile {
 
     public readonly cubicCoordinates: CubicCoordinates;
     public readonly tileShape: TileShape;
-    public readonly terrain: Terrain;
+    private _terrain: Terrain;
+
+    public get terrain(): Terrain {
+        return this._terrain;
+    }
+
+    public set terrain(value: Terrain) { 
+        this.setTerrain(value);
+    }
     
     private constructor(state: ITile) {
         this.cubicCoordinates = CubicCoordinates.fromObject(state.cubicCoordinates);
         this.tileShape = TileShape.fromObject(state.tileShape);
-        this.terrain = Terrain.fromObject(state.terrain);
+        this._terrain = Terrain.fromObject(state.terrain);
+    }
+
+    public setTerrain(terrain: Terrain) {
+        this._terrain = terrain || this.terrain;
     }
 
     public static fromObject(object: ITile): Tile {

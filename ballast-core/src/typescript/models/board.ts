@@ -51,7 +51,7 @@ export class Board implements IBoard {
     public getRandomPassableCoordinates(): ICubicCoordinates {
         let passables = this.tiles
             .filter(x => !!x.terrain.passable);
-        let index = Math.floor(Math.random() * Math.floor(passables.length));
+        let index = Math.floor(Math.random() * Math.floor(passables.length)) - 1;
         return passables[index].cubicCoordinates;
     }
 

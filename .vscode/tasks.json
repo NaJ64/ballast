@@ -175,7 +175,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "(7) Ballast.Web - Run/Watch (.NET Core)",
+            "label": "Ballast.Web - Run/Watch (.NET Core)",
             "identifier": "web-dotnet-watch-run",
             "options": {
                 "cwd": "${workspaceFolder}/ballast-web",

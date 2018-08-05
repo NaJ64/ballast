@@ -22,6 +22,11 @@ namespace Ballast.Core.Models
             Terrain = terrain;
         }
 
+        public void SetTerrain(Terrain terrain)
+        {
+            this.Terrain = terrain;
+        }
+
         public static Tile FromProperties(CubicCoordinates cubicCoordinates, TileShape tileShape, Terrain terrain) => 
             new Tile(
                 cubicCoordinates: cubicCoordinates,

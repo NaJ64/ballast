@@ -36,11 +36,13 @@ namespace Ballast.Core.Services
             {
                 BoardShapeValue = TileShape.Hexagon.Value,
                 BoardTypeValue = BoardType.RegularPolygon.Value,
-                BoardSize = 6,
+                BoardSize = 7,
+                LandToWaterRatio = 0.333,
                 VesselOptions = new CreateVesselOptions[]
                 {
                     new CreateVesselOptions() { RequestedName = "U-571" },
-                    new CreateVesselOptions() { RequestedName = "Red October" }
+                    new CreateVesselOptions() { RequestedName = "Red October" },
+                    new CreateVesselOptions() { RequestedName = "The Nautilus" }
                 }
             };
             var defaultGame = await CreateGameAsync(gameOptions);
@@ -113,12 +115,14 @@ namespace Ballast.Core.Services
             var useTileShape = (options.BoardShapeValue != null)
                 ? TileShape.FromValue((int)options.BoardShapeValue)
                 : DEFAULT_TILE_SHAPE;
+            var useLandToWaterRatio = options.LandToWaterRatio;
 
             var board = _boardGenerator.CreateBoard(
                 id: Guid.NewGuid(),
                 boardType: useBoardType, // Default
                 tileShape: useTileShape,
-                columnsOrSideLength: useBoardSize
+                columnsOrSideLength: useBoardSize,
+                landToWaterRatio: useLandToWaterRatio
                 );
 
             var players = new List<Player>();

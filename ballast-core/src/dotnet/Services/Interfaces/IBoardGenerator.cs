@@ -13,7 +13,7 @@ namespace Ballast.Core.Services
             TileShape tileShape,
             int columnsOrSideLength,
             int? rows = null,
-            decimal? landToWaterRatio = null
+            double? landToWaterRatio = null
         );
     }
 }
