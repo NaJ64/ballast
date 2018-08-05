@@ -17,6 +17,10 @@ export class Tile implements ITile {
     public get terrain(): Terrain {
         return this._terrain;
     }
+
+    public set terrain(value: Terrain) { 
+        this.setTerrain(value);
+    }
     
     private constructor(state: ITile) {
         this.cubicCoordinates = CubicCoordinates.fromObject(state.cubicCoordinates);
