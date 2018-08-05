@@ -18,9 +18,9 @@ export class BoardComponent extends ComponentBase {
     private readonly octagonGeometry: THREE.RingGeometry;
     private readonly tileMaterial: THREE.MeshBasicMaterial;
     private readonly landGeometry: THREE.ConeGeometry;
-    private readonly landMaterial: THREE.MeshBasicMaterial;
+    private readonly landMaterial: THREE.MeshLambertMaterial;
     private readonly coastGeometry: THREE.ConeGeometry;
-    private readonly coastMaterial: THREE.MeshBasicMaterial;
+    private readonly coastMaterial: THREE.MeshLambertMaterial;
     private currentBoard?: Board;
 
     public constructor(
@@ -71,17 +71,17 @@ export class BoardComponent extends ComponentBase {
         return new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide });
     }
 
-    private createLandTerrain(): [THREE.MeshBasicMaterial, THREE.ConeGeometry] {
+    private createLandTerrain(): [THREE.MeshLambertMaterial, THREE.ConeGeometry] {
         let outerRadius = this.getTileOuterRadius(24);
-        let landMaterial = new THREE.MeshBasicMaterial({ color: 0x669933, side: THREE.FrontSide });
+        let landMaterial = new THREE.MeshLambertMaterial({ color: 0x669933, side: THREE.FrontSide });
         let landGeometry = new THREE.ConeGeometry(outerRadius, outerRadius * 0.75, 24);
         return [landMaterial, landGeometry];
     }
 
-    private createCoastTerrain(): [THREE.MeshBasicMaterial, THREE.ConeGeometry] {
+    private createCoastTerrain(): [THREE.MeshLambertMaterial, THREE.ConeGeometry] {
         let outerRadius = this.getTileOuterRadius(24);
-        let coastMaterial = new THREE.MeshBasicMaterial({ color: 0xccaa66, side: THREE.FrontSide });
-        let coastGeometry = new THREE.ConeGeometry(outerRadius, outerRadius * 0.25, 24);
+        let coastMaterial = new THREE.MeshLambertMaterial({ color: 0xffff99, side: THREE.FrontSide });
+        let coastGeometry = new THREE.ConeGeometry(outerRadius, outerRadius * 0.20, 24);
         return [coastMaterial, coastGeometry];
     }
 

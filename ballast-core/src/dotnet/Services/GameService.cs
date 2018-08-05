@@ -36,8 +36,8 @@ namespace Ballast.Core.Services
             {
                 BoardShapeValue = TileShape.Hexagon.Value,
                 BoardTypeValue = BoardType.RegularPolygon.Value,
-                BoardSize = 5,
-                LandToWaterRatio = 0.5,
+                BoardSize = 7,
+                LandToWaterRatio = 0.333,
                 VesselOptions = new CreateVesselOptions[]
                 {
                     new CreateVesselOptions() { RequestedName = "U-571" },
