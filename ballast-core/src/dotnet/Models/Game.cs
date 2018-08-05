@@ -76,6 +76,11 @@ namespace Ballast.Core.Models
             var foundVessel = this._vessels.SingleOrDefault(x => x.Id == vesselId);
             if (foundVessel == null)
                 throw new KeyNotFoundException($"Could not locate vessel with id '{vesselId}'");
+            var foundTile = this.Board.GetTileFromCoordinates(cubicCoordinates);
+            if (foundTile == null) 
+                throw new KeyNotFoundException($"Could not locate tile with coordinates '{cubicCoordinates.ToOrderedTriple()}'");
+            if (!foundTile.Terrain.Passable)
+                throw new InvalidOperationException($"The requested tile terrain is not passable");
             return foundVessel.UpdateCoordinates(cubicCoordinates);
         }
 
