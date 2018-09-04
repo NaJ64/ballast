@@ -29,7 +29,7 @@
   "private": true,
   "dependencies": {
     "ballast-client": "file:../ballast-client",
-    "electron": "^2.0.4"
+    "electron": "^2.0.8"
   },
   "devDependencies": {
     "cpx": "^1.5.0",
