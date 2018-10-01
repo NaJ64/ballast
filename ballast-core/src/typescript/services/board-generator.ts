@@ -105,13 +105,33 @@ export class BoardGenerator implements IBoardGenerator {
         passableTerrain = passableTerrain || Terrain.list().filter(x => x.passable);
 
         // Determine if the terrain should be passable or impassable
-        let terrainChoices = passableTerrain;
+        let terrainChoices: Terrain[] = [];
         let randomPercentage = Math.random();
-        if (
-            (passablePercentage >= impassablePercentage && passablePercentage < randomPercentage) ||
-            (impassablePercentage >= randomPercentage)
-        ) {
-            terrainChoices = impassableTerrain;
+
+        // Compare random percentage against weighted probability of each choice (ascending in order of greatest choice probability)
+        var total = 0.0;
+        if (passablePercentage >= impassablePercentage) {
+            // Passable (higher probability)
+            total += passablePercentage;
+            if (terrainChoices == null && total >= randomPercentage) {
+                terrainChoices = passableTerrain;
+            }
+            // Impassable (lower probability)
+            total += impassablePercentage;
+            if (terrainChoices == null && total >= randomPercentage) {
+                terrainChoices = impassableTerrain;
+            }
+        } else {
+            // Impassable (higher probability)
+            total += impassablePercentage;
+            if (terrainChoices == null && total >= randomPercentage) {
+                terrainChoices = impassableTerrain;
+            }
+            // Passable (lower probability)
+            total += passablePercentage;
+            if (terrainChoices == null && total >= randomPercentage) {
+                terrainChoices = passableTerrain;
+            }
         }
 
         // Return a random terrain from the chosen array

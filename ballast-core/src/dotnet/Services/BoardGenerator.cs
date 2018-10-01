@@ -108,40 +108,34 @@ namespace Ballast.Core.Services
             IList<Terrain> terrainChoices = null;
             var randomPercentage = new Random().NextDouble();
 
-            // Go through choices starting with greatest probability to find a match
+            // Compare random percentage against weighted probability of each choice (ascending in order of greatest choice probability)
             var total = 0.0;
             if (passablePercentage >= impassablePercentage) {
-
                 // Passable
                 total += passablePercentage;
                 if (terrainChoices == null && total >= randomPercentage)
                 {
                     terrainChoices = usePassableTerrain;
                 }
-
                 // Impassable
                 total += impassablePercentage;
                 if (terrainChoices == null && total >= randomPercentage)
                 {
                     terrainChoices = useImpassableTerrain;
                 }
-
             } else {
-
                 // Impassable
-                total += passablePercentage;
-                if (terrainChoices == null && total >= randomPercentage)
-                {
-                    terrainChoices = usePassableTerrain;
-                }
-
-                // Passable
                 total += impassablePercentage;
                 if (terrainChoices == null && total >= randomPercentage)
                 {
                     terrainChoices = useImpassableTerrain;
                 }
-
+                // Passable
+                total += passablePercentage;
+                if (terrainChoices == null && total >= randomPercentage)
+                {
+                    terrainChoices = usePassableTerrain;
+                }
             }
 
             // Return a random terrain from the chosen array
