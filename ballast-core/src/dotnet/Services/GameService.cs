@@ -552,7 +552,7 @@ namespace Ballast.Core.Services
                     // Check the current Captain
                     var vesselCaptain = vessel.Captain;
                     if (!(vesselCaptain?.Id ?? Guid.Empty).Equals(playerId))
-                        throw new ArgumentException($"Player with id {playerId} was does not belong to role ({VesselRole.Captain.Name})");
+                        throw new ArgumentException($"Player with id {playerId} does not belong to role ({VesselRole.Captain.Name})");
                     // Remove from role
                     vessel.SetVesselRole(VesselRole.Captain, null);
                     // Store the event
@@ -571,9 +571,9 @@ namespace Ballast.Core.Services
                     // Check the current Radioman
                     var vesselRadioman = vessel.Radioman;
                     if (!(vesselRadioman?.Id ?? Guid.Empty).Equals(playerId))
-                        throw new ArgumentException($"Player with id {playerId} was does not belong to role ({VesselRole.Radioman.Name})");
+                        throw new ArgumentException($"Player with id {playerId} does not belong to role ({VesselRole.Radioman.Name})");
                     // Remove from role
-                    vessel.SetVesselRole(VesselRole.Captain, null);
+                    vessel.SetVesselRole(VesselRole.Radioman, null);
                     // Store the event
                     playerRemovedFromVesselRoleEvents.Add(
                         PlayerRemovedFromVesselRoleEvent.FromPlayerInGameVesselRole(
