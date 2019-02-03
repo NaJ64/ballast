@@ -149,7 +149,7 @@ export class GameComponent extends ComponentBase {
 
         // Add some CSS to the game style header tag for media query'ing the buttons
         let style = this.viewport.getGameStyle();
-        let ownerDocument = style.ownerDocument;
+        let ownerDocument = style.ownerDocument!;
         style.appendChild(ownerDocument.createTextNode(`
             .ballastMoveForwardButton {
                 position: absolute;

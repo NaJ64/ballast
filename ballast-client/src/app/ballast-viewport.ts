@@ -54,7 +54,7 @@ export class BallastViewport {
     }
 
     private createRoot(host: HTMLElement, id: string): HTMLDivElement {
-        var root = host.ownerDocument.createElement("div");
+        var root = host.ownerDocument!.createElement("div");
         root.id = id;
         root.style.fontSize = '10';
         root.style.border = '2px';
@@ -68,7 +68,7 @@ export class BallastViewport {
     }
 
     private createGameStyle(root: HTMLDivElement) {
-        let currentDocument = root.ownerDocument;
+        let currentDocument = root.ownerDocument!;
         let head = currentDocument.head || currentDocument.getElementsByTagName('head')[0];
         let gameStyle = currentDocument.createElement('style');
         gameStyle.type = 'text/css';
@@ -78,7 +78,7 @@ export class BallastViewport {
     }
 
     private createCanvas(root: HTMLDivElement) {
-        var canvas = root.ownerDocument.createElement('canvas');
+        var canvas = root.ownerDocument!.createElement('canvas');
         canvas.id = root.id + '_canvas';
         canvas.style.display = 'block';
         canvas.style.height = '100%';

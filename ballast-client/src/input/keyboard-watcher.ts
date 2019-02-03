@@ -40,7 +40,7 @@ export class KeyboardWatcher implements IDisposable {
     }
 
     private getWindow() {
-        return this.root.ownerDocument.defaultView;
+        return this.root.ownerDocument!.defaultView!;
     }
 
     public isDown(keyCode: number) {

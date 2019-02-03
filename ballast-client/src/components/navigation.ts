@@ -42,7 +42,7 @@ export class NavigationComponent extends ComponentBase {
         HTMLLabelElement
     ] {
 
-        let ownerDocument = this.viewport.getRoot().ownerDocument;
+        let ownerDocument = this.viewport.getRoot().ownerDocument!;
 
         let navWindow = ownerDocument.createElement("div");
         navWindow.style.cssFloat = 'left';

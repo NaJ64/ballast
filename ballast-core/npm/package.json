@@ -1,0 +1,56 @@
+{
+  "name": "ballast-core",
+  "version": "1.0.0",
+  "description": "Core types/services for Ballast",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npm run compile",
+    "clean": "node ./node_modules/rimraf/bin \"lib\"",
+    "compile": "npm run clean && npm run copy && node ./node_modules/typescript/lib/tsc --build",
+    "compile-watch": "npm run clean && npm run copy && node ./node_modules/typescript/lib/tsc --build --watch",
+    "copy": "npm run copy:js",
+    "copy:js": "node ./node_modules/cpx/bin \"src/**/*.{js,json}\" \"lib\"",
+    "prepare": "npm run build",
+    "test": "node ./node_modules/jest/bin/jest",
+    "test-single": "node ./node_modules/jest/bin/jest -- --args",
+    "test-full": "npm run build && npm test"
+  },
+  "keywords": [
+    "ballast"
+  ],
+  "author": "NaJ64 <njudice@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/jest": "^23.3.13",
+    "cpx": "^1.5.0",
+    "inversify": "^5.0.1",
+    "jest": "^24.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.3.1"
+  },
+  "peerDependencies": {
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/lib/"
+    ],
+    "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
+  }
+}

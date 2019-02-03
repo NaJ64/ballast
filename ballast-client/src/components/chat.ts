@@ -50,7 +50,7 @@ export class ChatComponent extends ComponentBase {
         HTMLInputElement
     ] {
 
-        let ownerDocument = this.viewport.getRoot().ownerDocument;
+        let ownerDocument = this.viewport.getRoot().ownerDocument!;
 
         let chatWindow = ownerDocument.createElement("div");
         chatWindow.style.cssFloat = 'right';
@@ -138,7 +138,7 @@ export class ChatComponent extends ComponentBase {
     protected render(parent: HTMLElement, renderingContext: RenderingContext) {
 
         // Check if the user has hit the "enter" key to talk while not already on the chat input 
-        let focusedElement = this.chatInput && this.chatInput.ownerDocument.activeElement;
+        let focusedElement = this.chatInput && this.chatInput.ownerDocument!.activeElement;
         let chatInputHasFocus = this.chatInput && focusedElement && (focusedElement == this.chatInput);
         if (!chatInputHasFocus && renderingContext.keyboard.enterIsDown()) {
             (<HTMLInputElement>this.chatInput).focus();
@@ -180,7 +180,7 @@ export class ChatComponent extends ComponentBase {
 
     private appendGameNotificationToHistory(notification: string) {
         if (this.chatHistory) {
-            let item = this.chatHistory.ownerDocument.createElement('li');
+            let item = this.chatHistory.ownerDocument!.createElement('li');
             //let timestampDate = new Date(Date.now());
             let messageDisplay = `${notification}`;
             item.innerText = messageDisplay;
@@ -191,7 +191,7 @@ export class ChatComponent extends ComponentBase {
 
     private appendMessageToHistory(message: IChatMessage) {
         if (this.chatHistory) {
-            let item = this.chatHistory.ownerDocument.createElement('li');
+            let item = this.chatHistory.ownerDocument!.createElement('li');
             //let timestampDate = new Date(message.timestampText + 'Z');
             let messageDisplay = `[${message.fromPlayerName}]:  ${message.text}`;
             item.innerText = messageDisplay;
