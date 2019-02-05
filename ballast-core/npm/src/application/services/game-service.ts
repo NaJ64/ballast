@@ -25,6 +25,7 @@ import { IRemovePlayerOptions } from "../models/remove-player-options";
 import { IVesselDto } from "../models/vessel-dto";
 import { IVesselMoveRequest } from "../models/vessel-move-request";
 import { CubicCoordinates } from "../../domain/models/cubic-coordinates";
+import { Tile } from "../../domain/models/tile";
 
 export interface IGameService extends IDisposable {
     getAllGamesAsync(): Promise<IGameDto[]>;
@@ -370,7 +371,7 @@ export class GameService implements IGameService {
         throw new Error("Not implemented");
     }
 
-    private createVessels(createVesselOptions: ICreateVesselOptions[], board: Board): Vessels {
+    private createVessels(createVesselOptions: ICreateVesselOptions[], board: Board): Vessel[] {
         // TODO:  Implement this
         throw new Error("Not implemented");
     }
