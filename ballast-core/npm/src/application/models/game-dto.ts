@@ -7,7 +7,7 @@ export interface IGameDto {
     board: IBoardDto;
     vessels: IVesselDto[];
     players: IPlayerDto[];
-    createdIsoString: string;
-    startedIsoString: string | null;
-    endedIsoString: string | null;
+    createdOnDateIsoString: string;
+    startedOnDateIsoString: string | null;
+    endedOnDateIsoString: string | null;
 }

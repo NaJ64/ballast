@@ -13,7 +13,6 @@ export interface IPlayerAddedToVesselRoleEvent extends IEvent {
 export class PlayerAddedToVesselRoleEvent extends EventBase implements IPlayerAddedToVesselRoleEvent {
 
     public static readonly id: string = "PlayerAddedToVesselRoleEvent";
-
     public get id() {
         return PlayerAddedToVesselRoleEvent.id;
     }

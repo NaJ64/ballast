@@ -10,7 +10,6 @@ export interface IPlayerLeftGameEvent extends IEvent {
 export class PlayerLeftGameEvent extends EventBase implements IPlayerLeftGameEvent {
 
     public static readonly id: string = "PlayerLeftGameEvent";
-
     public get id() {
         return PlayerLeftGameEvent.id;
     }

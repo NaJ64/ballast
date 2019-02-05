@@ -4,6 +4,6 @@ namespace Ballast.Core.Application.Models
     {
         public Guid PlayerId { get; set; }
         public string PlayerName { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime SentOnDateIsoString { get; set; }
     }
 }

@@ -9,7 +9,6 @@ export interface IGameStateChangedEvent extends IEvent {
 export class GameStateChangedEvent extends EventBase implements IGameStateChangedEvent {
 
     public static readonly id: string = "GameStateChangedEvent";
-
     public get id() {
         return GameStateChangedEvent.id;
     }

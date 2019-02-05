@@ -4,5 +4,5 @@ export interface IChatMessage {
     fromPlayerId: string;
     fromPlayerName: string | null;
     text: string;
-    createdIsoString: string;
+    sentOnDateIsoString: string;
 }

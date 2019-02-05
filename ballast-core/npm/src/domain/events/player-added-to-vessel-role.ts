@@ -7,7 +7,6 @@ import { VesselRole } from "../models/vessel-role";
 export class PlayerAddedToVesselRoleDomainEvent extends EventBase {
 
     public static readonly id: string = "PlayerAddedToVesselRoleDomainEvent";
-
     public get id() {
         return PlayerAddedToVesselRoleDomainEvent.id;
     }

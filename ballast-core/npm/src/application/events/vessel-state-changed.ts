@@ -10,7 +10,6 @@ export interface IVesselStateChangedEvent extends IEvent {
 export class VesselStateChangedEvent extends EventBase implements IVesselStateChangedEvent {
 
     public static readonly id: string = "VesselStateChangedEvent";
-
     public get id() {
         return VesselStateChangedEvent.id;
     }

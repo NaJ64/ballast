@@ -10,7 +10,6 @@ export interface IPlayerJoinedGameEvent extends IEvent {
 export class PlayerJoinedGameEvent extends EventBase implements IPlayerJoinedGameEvent {
 
     public static readonly id: string = "PlayerJoinedGameEvent";
-
     public get id() {
         return PlayerJoinedGameEvent.id;
     }

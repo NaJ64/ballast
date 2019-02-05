@@ -5,7 +5,6 @@ import { Vessel } from "../models/vessel";
 export class VesselStateChangedDomainEvent extends EventBase {
 
     public static readonly id: string = 'VesselStateChangedDomainEvent';
-
     public get id() {
         return VesselStateChangedDomainEvent.id;
     }

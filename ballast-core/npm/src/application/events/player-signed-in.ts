@@ -9,7 +9,6 @@ export interface IPlayerSignedInEvent extends IEvent {
 export class PlayerSignedInEvent extends EventBase implements IPlayerSignedInEvent {
 
     public static readonly id: string = "PlayerSignedInEvent";
-
     public get id() {
         return PlayerSignedInEvent.id;
     }

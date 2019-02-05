@@ -8,8 +8,8 @@ namespace Ballast.Core.Application.Models
         public BoardDto Board { get; set; }
         public VesselDto[] Vessels { get; set; }
         public PlayerDto[] Players { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public DateTime? StartedUtc { get; set; }
-        public DateTime? EndedUtc { get; set; }
+        public string CreatedOnDateIsoString { get; set; }
+        public DateTime? StartedOnDateIsoString { get; set; }
+        public DateTime? EndedOnDateIsoString { get; set; }
     }
 }

@@ -1,9 +1,9 @@
 import { ITileDto } from "./tile-dto";
 
 export interface IBoardDto {
+    id: string;
     type: string;
     centerOrigin: boolean;
-    id: string;
     tiles: ITileDto[];
     tileShape: string;
     applyHexRowScaling: boolean;

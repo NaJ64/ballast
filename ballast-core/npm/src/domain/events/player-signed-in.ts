@@ -4,7 +4,6 @@ import { Player } from "../models/player";
 export class PlayerSignedInDomainEvent extends EventBase {
 
     public static readonly id: string = "PlayerSignedInDomainEvent";
-
     public get id() {
         return PlayerSignedInDomainEvent.id;
     }

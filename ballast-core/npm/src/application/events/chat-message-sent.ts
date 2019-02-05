@@ -9,7 +9,6 @@ export interface IChatMessageSentEvent extends IEvent {
 export class ChatMessageSentEvent extends EventBase implements IChatMessageSentEvent {
 
     public static readonly id: string = "ChatMessageSentEvent";
-
     public get id() {
         return ChatMessageSentEvent.id;
     }

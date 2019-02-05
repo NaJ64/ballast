@@ -4,7 +4,6 @@ import { Game } from "../models/game";
 export class GameStateChangedDomainEvent extends EventBase {
 
     public static readonly id: string = "GameStateChangedDomainEvent";
-
     public get id() {
         return GameStateChangedDomainEvent.id;
     }
