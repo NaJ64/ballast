@@ -1,3 +1,4 @@
+using Ballast.Core.Application.Models;
 using Ballast.Core.Messaging;
 using Ballast.Core.Messaging.Events;
 using Ballast.Core.Models;
@@ -12,19 +13,19 @@ namespace Ballast.Core.Services
     public interface IGameService : IDisposable
     {
         Task<Guid> GetTestGameIdAsync();
-        Task<IEnumerable<Game>> GetAllGamesAsync();
-        Task<Game> GetGameAsync(Guid gameId);
-        Task<Game> CreateGameAsync(CreateGameOptions options);
-        Task<Game> StartGameAsync(Guid gameId);
-        Task<Game> EndGameAsync(Guid gameId);
+        Task<IEnumerable<GameDto>> GetAllGamesAsync();
+        Task<GameDto> GetGameAsync(Guid gameId);
+        Task<GameDto> CreateGameAsync(CreateGameOptions options);
+        Task<GameDto> StartGameAsync(Guid gameId);
+        Task<GameDto> EndGameAsync(Guid gameId);
         Task DeleteGameAsync(Guid gameId);
-        Task<Game> AddPlayerToGameAsync(AddPlayerOptions options);
-        Task<Game> RemovePlayerFromGameAsync(RemovePlayerOptions options);
-        Task<Vessel> AddPlayerToVesselAsync(AddPlayerOptions options);
-        Task<Vessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options);
-        Task<Vessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options);
-        Task<Vessel> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options);
-        Task<Vessel> MoveVesselAsync(VesselMoveRequest request);
+        Task<GameDto> AddPlayerToGameAsync(AddPlayerOptions options);
+        Task<GameDto> RemovePlayerFromGameAsync(RemovePlayerOptions options);
+        Task<VesselDto> AddPlayerToVesselAsync(AddPlayerOptions options);
+        Task<VesselDto> RemovePlayerFromVesselAsync(RemovePlayerOptions options);
+        Task<VesselDto> AddPlayerToVesselRoleAsync(AddPlayerOptions options);
+        Task<VesselDto> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options);
+        Task<VesselDto> MoveVesselAsync(VesselMoveRequest request);
     }
     public class GameService : IGameService
     {
@@ -47,12 +48,30 @@ namespace Ballast.Core.Services
             _eventBus.Subscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
         }
 
+        public void Dispose()
+        {
+            _eventBus.Unsubscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
+            _games.Clear();
+        }
+
+        private GameDto MapToGameDto(Game game)
+        {   
+            // TODO: Make a game dto
+            throw new NotImplementedException();
+        }
+
+        private VesselDto MapToVesselDto(Vessel vessel)
+        {   
+            // TODO: Make a vessel dto
+            throw new NotImplementedException();
+        }
+
         private async Task<Game> CreateDefaultGameAsync()
         {
             var gameOptions = new CreateGameOptions()
             {
-                BoardShapeValue = TileShape.Hexagon.Value,
-                BoardTypeValue = BoardType.RegularPolygon.Value,
+                BoardShape = TileShape.Hexagon.Name,
+                BoardType = BoardType.RegularPolygon.Name,
                 BoardSize = 7,
                 LandToWaterRatio = 0.333,
                 VesselOptions = new CreateVesselOptions[]
@@ -66,15 +85,42 @@ namespace Ballast.Core.Services
             return defaultGame;
         }
 
-        public void Dispose()
+        private async Task<Game> CreateGameInternalAsync(CreateGameOptions options)
         {
-            _eventBus.Unsubscribe<PlayerSignedOutEvent>(nameof(PlayerSignedOutEvent), OnPlayerSignedOutAsync);
-            _games.Clear();
+            var gameId = Guid.NewGuid();
+            var useBoardSize = options.BoardSize ?? DEFAULT_BOARD_SIZE;
+            if (useBoardSize % 2 == 0)
+                useBoardSize++;
+            var useBoardType = (options.BoardType != null)
+                ? BoardType.FromName(options.BoardType)
+                : DEFAULT_BOARD_TYPE;
+            var useTileShape = (options.BoardShape != null)
+                ? TileShape.FromName(options.BoardShape)
+                : DEFAULT_TILE_SHAPE;
+            var useLandToWaterRatio = options.LandToWaterRatio;
+
+            var board = _boardGenerator.CreateBoard(
+                id: Guid.NewGuid(),
+                boardType: useBoardType, // Default
+                tileShape: useTileShape,
+                columnsOrSideLength: useBoardSize,
+                landToWaterRatio: useLandToWaterRatio
+                );
+
+            var players = new List<Player>();
+            var vessels = CreateVessels(options.VesselOptions, board);
+            var createdUtc = DateTime.UtcNow;
+            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc);
+            _games[gameId] = game;
+            await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));
+            return game;
         }
 
         private async Task OnPlayerSignedOutAsync(PlayerSignedOutEvent evt)
         {
-            var playerId = evt.Player.Id;
+            var playerId = evt.Player?.Id;
+            if (playerId == null)
+                return;
             var playerInGames = _games.Values.Where(x => x.Players.Any(y => y.Id.Equals(playerId)));
             foreach (var game in playerInGames)
             {
@@ -87,10 +133,10 @@ namespace Ballast.Core.Services
             }
         }
 
-        private async Task<Game> RetrieveGameByIdAsync(Guid gameId)
+        private Task<Game> RetrieveGameByIdAsync(Guid gameId)
         {
             if (_games.ContainsKey(gameId))
-                return await Task.FromResult(_games[gameId]);
+                return Task.FromResult(_games[gameId]);
             throw new KeyNotFoundException($"No game found for id {gameId}");
         }
 
@@ -114,60 +160,36 @@ namespace Ballast.Core.Services
             return roles;
         }
 
-        public async Task<Guid> GetTestGameIdAsync() => await Task.FromResult(_defaultGame.Id);
+        public Task<Guid> GetTestGameIdAsync() => 
+            Task.FromResult(_defaultGame.Id);
 
-        public async Task<IEnumerable<Game>> GetAllGamesAsync() => await Task.FromResult(_games.Values);
+        public Task<IEnumerable<GameDto>> GetAllGamesAsync() => 
+            Task.FromResult(_games.Values.Select(x => MapToGameDto(game)));
 
-        public async Task<Game> GetGameAsync(Guid gameId) => await RetrieveGameByIdAsync(gameId);
+        public async Task<GameDto> GetGameAsync(Guid gameId) => 
+            MapToGameDto(await RetrieveGameByIdAsync(gameId));
 
-        public async Task<Game> CreateGameAsync(CreateGameOptions options)
-        {
-            var gameId = Guid.NewGuid();
-            var useBoardSize = options.BoardSize ?? DEFAULT_BOARD_SIZE;
-            if (useBoardSize % 2 == 0)
-                useBoardSize++;
-            var useBoardType = (options.BoardTypeValue != null)
-                ? BoardType.FromValue((int)options.BoardTypeValue)
-                : DEFAULT_BOARD_TYPE;
-            var useTileShape = (options.BoardShapeValue != null)
-                ? TileShape.FromValue((int)options.BoardShapeValue)
-                : DEFAULT_TILE_SHAPE;
-            var useLandToWaterRatio = options.LandToWaterRatio;
+        public async Task<GameDto> CreateGameAsync(CreateGameOptions options) =>
+            MapToGameDto(await CreateGameInternalAsync(options));
 
-            var board = _boardGenerator.CreateBoard(
-                id: Guid.NewGuid(),
-                boardType: useBoardType, // Default
-                tileShape: useTileShape,
-                columnsOrSideLength: useBoardSize,
-                landToWaterRatio: useLandToWaterRatio
-                );
-
-            var players = new List<Player>();
-            var vessels = CreateVessels(options.VesselOptions, board);
-            var createdUtc = DateTime.UtcNow;
-            var game = Game.FromProperties(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc);
-            _games[gameId] = game;
-            await _eventBus.PublishAsync(GameStateChangedEvent.FromGame(game));
-            return game;
-        }
-
-        public async Task<Game> StartGameAsync(Guid gameId)
+        public async Task<GameDto> StartGameAsync(Guid gameId)
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.Start();
-            return game;
+            return MapToGameDto(game);
         }
 
-        public async Task<Game> EndGameAsync(Guid gameId)
+        public async Task<GameDto> EndGameAsync(Guid gameId)
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.End();
-            return await Task.FromResult(game);
+            return MapToGameDto(game);
         }
 
-        public async Task DeleteGameAsync(Guid gameId) => await RemoveGameByIdAsync(gameId);
+        public async Task DeleteGameAsync(Guid gameId) => 
+            await RemoveGameByIdAsync(gameId);
 
-        public async Task<Game> AddPlayerToGameAsync(AddPlayerOptions options)
+        public async Task<GameDto> AddPlayerToGameAsync(AddPlayerOptions options)
         {
             // Make sure no arguments left blank
             var gameId = options.GameId;
@@ -183,10 +205,10 @@ namespace Ballast.Core.Services
             if (playerExists)
                 throw new ArgumentException($"Player with id {playerId} already belongs to the requested game ({gameId})");
             // Create the player and add to the game
-            var player = Models.Player.FromProperties(playerId, options.PlayerName);
+            var player = Models.Player.FromProperties(playerId, options.PlayerName); // TODO:  Determine how to default the name
             game.AddPlayer(player);
             // If a vessel id was provided, we want to add the player onto the specified vessel as well
-            var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleEvent>();
+            var playerAddedToVesselRoleEvents = new List<PlayerAddedToVesselRoleDomainEvent>();
             if (options.VesselId != null)
             {
                 // Make sure the vessel exists
@@ -196,13 +218,13 @@ namespace Ballast.Core.Services
                 // Build list of vessel roles to assign
                 IEnumerable<VesselRole> vesselRoles = new List<VesselRole>();
                 // If a vessel role list was provided, try to add the player into those roles (otherwise get default)
-                if (options.VesselRoleValues.Any())
-                    vesselRoles = options.VesselRoleValues.Select(x => Models.VesselRole.FromValue(x));
+                if (options.VesselRoles.Any())
+                    vesselRoles = options.VesselRoles.Select(x => Models.VesselRole.FromName(x));
                 else
                     vesselRoles = GetDefaultVesselRolesForPlayer(vessel, player);
                 // Make sure we have at least one vessel role
                 if (!vesselRoles.Any())
-                    throw new ArgumentNullException(nameof(options.VesselRoleValues), "Can't add player to a vessel without specifying vessel role(s)");
+                    throw new ArgumentNullException(nameof(options.VesselRoles), "Can't add player to a vessel without specifying vessel role(s)");
                 // Add into specified vessel role(s)
                 foreach (var vesselRole in vesselRoles)
                 {
@@ -210,7 +232,7 @@ namespace Ballast.Core.Services
                     game.SetVesselRole(vessel.Id, vesselRole, player);
                     // Store event to publish later
                     playerAddedToVesselRoleEvents.Add(
-                        PlayerAddedToVesselRoleEvent.FromPlayerInGameVesselRole(
+                        PlayerAddedToVesselRoleDomainEvent.FromPlayerInGameVesselRole(
                             game,
                             vessel,
                             vesselRole,
@@ -220,16 +242,16 @@ namespace Ballast.Core.Services
                 }
             }
             // Raise event for player added into game
-            await _eventBus.PublishAsync(PlayerJoinedGameEvent.FromPlayerInGame(game, player));
+            await _eventBus.PublishAsync(PlayerJoinedGameDomainEvent.FromPlayerInGame(game, player));
             foreach (var playerAddedToVesselRoleEvent in playerAddedToVesselRoleEvents)
             {
                 await _eventBus.PublishAsync(playerAddedToVesselRoleEvent);
             }
             // Return the updated game state
-            return game;
+            return MapToGameDto(game);
         }
 
-        public async Task<Game> RemovePlayerFromGameAsync(RemovePlayerOptions options)
+        public async Task<GameDto> RemovePlayerFromGameAsync(RemovePlayerOptions options)
         {
             // Make sure required arguments were provided
             var gameId = options?.GameId ?? Guid.Empty;
@@ -245,7 +267,7 @@ namespace Ballast.Core.Services
             if (player == null)
                 throw new ArgumentException($"Player with id {playerId} was not found in the requested game ({gameId})");
             // Make an event list for all of the vessel roles player is about to be removed from
-            var playerRemovedFromVesselRoleEvents = new List<PlayerRemovedFromVesselRoleEvent>();
+            var playerRemovedFromVesselRoleEvents = new List<PlayerRemovedFromVesselRoleDomainEvent>();
             foreach (var vessel in game.Vessels)
             {
                 // player is the Captain
@@ -281,12 +303,12 @@ namespace Ballast.Core.Services
                 await _eventBus.PublishAsync(playerRemovedFromVesselRoleEvent);
             }
             // Raise event for player left game
-            await _eventBus.PublishAsync(PlayerLeftGameEvent.FromPlayerInGame(game, player));
+            await _eventBus.PublishAsync(PlayerLeftGameDomainEvent.FromPlayerInGame(game, player));
             // Return the updated game state
-            return game;
+            return MapToGameDto(game);
         }
 
-        public async Task<Vessel> AddPlayerToVesselAsync(AddPlayerOptions options)
+        public async Task<VesselDto> AddPlayerToVesselAsync(AddPlayerOptions options)
         {
             // Make sure no arguments left blank
             var gameId = options.GameId;
@@ -369,10 +391,10 @@ namespace Ballast.Core.Services
                 await _eventBus.PublishAsync(playerAddedToVesselRoleEvent);
             }
             // Return the new vessel state
-            return vessel;
+            return MapToVesselDto(vessel);
         }
 
-        public async Task<Vessel> RemovePlayerFromVesselAsync(RemovePlayerOptions options)
+        public async Task<VesselDto> RemovePlayerFromVesselAsync(RemovePlayerOptions options)
         {
             // Make sure required arguments were provided
             var gameId = options?.GameId ?? Guid.Empty;
@@ -428,7 +450,7 @@ namespace Ballast.Core.Services
                 );
             }
             // Return the updated vessel state
-            return vessel;
+            return MapToVesselDto(vessel);
         }
 
         public async Task<Vessel> AddPlayerToVesselRoleAsync(AddPlayerOptions options)

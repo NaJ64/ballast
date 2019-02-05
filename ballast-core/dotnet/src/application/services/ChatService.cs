@@ -4,7 +4,7 @@ using Ballast.Core.Messaging.Events;
 using System;
 using System.Threading.Tasks;
 
-namespace Ballast.Core.Services
+namespace Ballast.Core.Application.Services
 {
     public interface IChatService : IDisposable
     {

@@ -10,21 +10,21 @@ export class Game {
     public readonly board: Board;
     public readonly vessels: Vessel[];
     public readonly players: Player[];
-    public createdUtc: Date;
-    public startedUtc: Date | null;
-    public endedUtc: Date | null;
+    public createdOnDate: Date;
+    public startedOnDate: Date | null;
+    public endedOnDate: Date | null;
 
-    private constructor(
+    public constructor(
         id: string, board: Board, vessels: Vessel[], players: Player[], 
-        createdUtc: Date, startedUtc: Date | null = null, endedUtc: Date | null
+        createdOnDate: Date, startedOnDate: Date | null = null, endedOnDate: Date | null = null
     ) {
         this.id = id;
         this.board = board;
         this.vessels = vessels.slice(0);
         this.players = players.slice(0);
-        this.createdUtc = createdUtc;
-        this.startedUtc = startedUtc || null;
-        this.endedUtc = endedUtc || null;
+        this.createdOnDate = createdOnDate
+        this.startedOnDate = startedOnDate || null;
+        this.endedOnDate = endedOnDate || null;
     }
 
     public updateVesselCoordinates(vesselId: string, cubicCoordinates: CubicCoordinates)
@@ -41,19 +41,19 @@ export class Game {
     }
 
     public start(): Date {
-        if (!!this.startedUtc)
+        if (!!this.startedOnDate)
             throw new Error("Can't re-start game after it has already begun!");
-        var startedUtc = new Date(Date.now());
-        this.startedUtc = startedUtc;
-        return startedUtc;
+        var startedOnDate = new Date(Date.now());
+        this.startedOnDate = startedOnDate;
+        return startedOnDate;
     }
 
     public end(): Date {
-        if (!!this.endedUtc)
+        if (!!this.endedOnDate)
             throw new Error("Can't end game after it has already finished!");
-        var endedUtc = new Date(Date.now());
-        this.endedUtc = endedUtc;
-        return endedUtc;
+        var endedOnDate = new Date(Date.now());
+        this.endedOnDate = endedOnDate;
+        return endedOnDate;
     }
 
     public addPlayer(player: Player): Player {

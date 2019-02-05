@@ -123,7 +123,7 @@ export class TileShape implements ITileShape {
         return item;
     }
 
-    public static fromString(text: string): TileShape {
+    public static fromName(text: string): TileShape {
         let item = !!text && TileShape.list().find(x => x.name.toLocaleLowerCase() == text.toLocaleLowerCase());
         if (!item) {
             throw new Error(`Could derive tile shape from text (${text})`);
