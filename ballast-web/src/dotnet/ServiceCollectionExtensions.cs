@@ -1,11 +1,10 @@
-using Ballast.Core;
+using Ballast.Core.DependencyInjection;
 using Ballast.Web.Hubs;
 using Ballast.Web.HubMethods;
 using Ballast.Web.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
-namespace Ballast.Web 
+namespace Ballast.Web
 {
     public static class ServiceCollectionExtensions
     {

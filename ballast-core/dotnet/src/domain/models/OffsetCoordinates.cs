@@ -1,31 +1,18 @@
 using System;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class OffsetCoordinatesState
-    {
-        public int Row { get; set; }
-        public int Col { get; set; }
-    }
-
     public class OffsetCoordinates
     {
 
         public int Row { get; private set; }
         public int Col { get; private set; }
 
-        private OffsetCoordinates(int col, int row) 
+        public OffsetCoordinates(int col, int row) 
         {
             Col = col;
             Row = row;        
         }
-
-        public static OffsetCoordinates FromProperties(int col, int row) => 
-            new OffsetCoordinates(
-                col: col,
-                row: row
-            );
 
         public static OffsetCoordinates FromAxial(AxialCoordinates axial) 
         {
@@ -48,9 +35,6 @@ namespace Ballast.Core.Models
             return new OffsetCoordinates(col: col, row: row);
         }
 
-        public static implicit operator OffsetCoordinates(OffsetCoordinatesState state) =>
-            new OffsetCoordinates(state.Col, state.Row);
-
         public AxialCoordinates ToAxial() => AxialCoordinates.FromOffset(this);
 
         public CubicCoordinates ToCubic() => CubicCoordinates.FromOffset(this);
@@ -58,5 +42,4 @@ namespace Ballast.Core.Models
         public int[] ToOrderedPair() => new int[] { Col, Row };
 
     }
-    
 }

@@ -1,5 +1,5 @@
-using Ballast.Core.Messaging.Events;
-using Ballast.Core.Services;
+using Ballast.Core.Application.Events;
+using Ballast.Core.Application.Services;
 using Ballast.Web.Hubs;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;

@@ -1,36 +1,30 @@
-using Ballast.Core.Models;
+using Ballast.Core.Domain.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
-namespace Ballast.Core.Messaging.Events
+namespace Ballast.Core.Domain.Events
 {
-
-    public class VesselStateChangedEventState : EventStateBase
-    {
-        public Guid GameId { get; set; }
-        public Vessel Vessel { get; set; }
-    }
-
-    public class VesselStateChangedEvent : EventBase 
+    public class VesselStateChangedDomainEvent : EventBase 
     {
 
-        public override string Id => nameof(VesselStateChangedEvent);
+        public override string Id => nameof(VesselStateChangedDomainEvent);
 
         public Guid GameId { get; private set; }
         public Vessel Vessel { get; private set; }
 
-        private VesselStateChangedEvent(Guid gameId, Vessel vessel, string isoDateTime = null) : base(isoDateTime) 
+        private VesselStateChangedDomainEvent(string eventDateIsoString, Guid gameId, Vessel vessel) : base(eventDateIsoString) 
         {
             GameId = gameId;
             Vessel = vessel;
         }
 
-        public static implicit operator VesselStateChangedEvent(VesselStateChangedEventState state) =>
-            new VesselStateChangedEvent(state.GameId, state.Vessel, state.IsoDateTime);
-
-        public static VesselStateChangedEvent FromVesselInGame(Game game, Vessel vessel) =>
-            new VesselStateChangedEvent(game.Id, vessel);
+        public static VesselStateChangedDomainEvent FromVesselInGame(Game game, Vessel vessel) =>
+            new VesselStateChangedDomainEvent(
+                EventBase.GetDateIsoString(),
+                game.Id, 
+                vessel
+            );
 
     }
-
 }

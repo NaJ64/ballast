@@ -1,4 +1,5 @@
 using Ballast.Core.Application.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
@@ -19,7 +20,7 @@ namespace Ballast.Core.Application.Events
 
         public static PlayerSignedInEvent FromPlayer(PlayerDto player) =>
             new PlayerSignedInEvent(
-                EventBase.GetIsoDateString(),
+                EventBase.GetDateIsoString(),
                 player
             );
 

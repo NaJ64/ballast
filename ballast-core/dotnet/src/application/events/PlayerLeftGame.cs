@@ -1,4 +1,5 @@
 using Ballast.Core.Application.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
@@ -13,7 +14,7 @@ namespace Ballast.Core.Application.Events
         public PlayerDto Player { get; private set; }
 
         private PlayerLeftGameEvent() { } // For model binding / deserialization
-        private PlayerLeftGameEvent(string eventDateIsoString, Guid gameId, Player player) : base(eventDateIsoString) 
+        private PlayerLeftGameEvent(string eventDateIsoString, Guid gameId, PlayerDto player) : base(eventDateIsoString) 
         {
             GameId = gameId;
             Player = player;
@@ -21,7 +22,7 @@ namespace Ballast.Core.Application.Events
 
         public static PlayerLeftGameEvent FromPlayerInGame(Guid gameId, PlayerDto player) =>
             new PlayerLeftGameEvent(
-                EventBase.GetIsoDateString(),
+                EventBase.GetDateIsoString(),
                 gameId, 
                 player
             );

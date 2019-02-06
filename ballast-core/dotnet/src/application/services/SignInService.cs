@@ -1,19 +1,19 @@
+using Ballast.Core.Application.Models;
+using Ballast.Core.Domain.Events;
+using Ballast.Core.Domain.Models;
 using Ballast.Core.Messaging;
-using Ballast.Core.Messaging.Events;
-using Ballast.Core.Models;
-using Ballast.Core.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Ballast.Core.Services
+namespace Ballast.Core.Application.Services
 {
     public interface ISignInService : IDisposable
     {
-        Task<Player> SignInAsync(PlayerSignInRequest request);
+        Task<PlayerDto> SignInAsync(PlayerSignInRequest request);
         Task SignOutAsync(PlayerSignOutRequest request);
-        Task<Player> GetSignedInPlayerAsync(Guid playerId);
+        Task<PlayerDto> GetSignedInPlayerAsync(Guid playerId);
     }
     public class SignInService : ISignInService
     {
@@ -32,21 +32,27 @@ namespace Ballast.Core.Services
             _players.Clear();
         }
 
-        public async Task<Player> SignInAsync(PlayerSignInRequest request)
+        private PlayerDto MapToPlayerDto(Player player)
+        {   
+            // TODO: Make a player dto
+            throw new NotImplementedException();
+        }
+
+        public async Task<PlayerDto> SignInAsync(PlayerSignInRequest request)
         {
             var playerIdString = request?.PlayerId ?? throw new ArgumentNullException(nameof(request.PlayerId));
             var playerId = Guid.Parse(playerIdString);
             var playerName = request?.PlayerName ?? GetTempPlayerName();
             if (!_players.ContainsKey(playerId))
             {
-                var player = Player.FromProperties(
+                var player = new Player(
                     id: playerId,
                     name: playerName
                 );
                 _players.Add(playerId, player);
-                await _eventBus.PublishAsync(PlayerSignedInEvent.FromPlayer(player));
+                await _eventBus.PublishAsync(PlayerSignedInDomainEvent.FromPlayer(player));
             }
-            return _players[playerId];
+            return MapToPlayerDto(_players[playerId]);
         }
 
         public async Task SignOutAsync(PlayerSignOutRequest request)
@@ -57,16 +63,16 @@ namespace Ballast.Core.Services
                 throw new KeyNotFoundException($"Player id not found ({playerId})");
             var player = _players[playerId];
             _players.Remove(playerId);
-            await _eventBus.PublishAsync(PlayerSignedOutEvent.FromPlayer(player));
+            await _eventBus.PublishAsync(PlayerSignedOutDomainEvent.FromPlayer(player));
         }
 
-        public async Task<Player> GetSignedInPlayerAsync(Guid playerId)
+        public Task<PlayerDto> GetSignedInPlayerAsync(Guid playerId)
         {
             if (playerId.Equals(Guid.Empty))
                 throw new ArgumentNullException(nameof(playerId));
             if (!_players.ContainsKey(playerId))
                 return null;
-            return await Task.FromResult(_players[playerId]);
+            return Task.FromResult(MapToPlayerDto(_players[playerId]));
         }
         
         private string GetTempPlayerName()

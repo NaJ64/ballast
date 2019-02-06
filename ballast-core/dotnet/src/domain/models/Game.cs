@@ -2,20 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class GameState
-    {
-        public Guid Id { get; set; }
-        public Board Board { get; set; }
-        public IEnumerable<Vessel> Vessels { get; set; }
-        public IEnumerable<Player> Players { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public DateTime? StartedUtc { get; set; }
-        public DateTime? EndedUtc { get; set; }
-    }
-
     public class Game
     {
 
@@ -31,7 +19,7 @@ namespace Ballast.Core.Models
         public IEnumerable<Player> Players => _players;
         private IList<Player> _players;
 
-        private Game(
+        public Game(
             Guid id, 
             Board board, 
             IEnumerable<Vessel> vessels, 
@@ -50,27 +38,6 @@ namespace Ballast.Core.Models
             EndedUtc = endedUtc;
         }
         
-        public static Game FromProperties(
-            Guid id, 
-            Board board,
-            IEnumerable<Vessel> vessels, 
-            IEnumerable<Player> players,
-            DateTime? createdUtc = null,
-            DateTime? startedUtc = null,
-            DateTime? endedUtc = null
-        ) => new Game(
-            id: id,
-            board: board,
-            vessels: vessels,
-            players: players,
-            createdUtc: createdUtc,
-            startedUtc: startedUtc,
-            endedUtc: endedUtc
-        );
-
-        public static implicit operator Game(GameState state) =>
-            new Game(state.Id, state.Board, state.Vessels, state.Players, state.CreatedUtc, state.StartedUtc, state.EndedUtc);
-
         public CubicCoordinates UpdateVesselCoordinates(Guid vesselId, CubicCoordinates cubicCoordinates)
         {
             var foundVessel = this._vessels.SingleOrDefault(x => x.Id == vesselId);
@@ -141,5 +108,4 @@ namespace Ballast.Core.Models
         }
         
     }
-    
 }

@@ -1,18 +1,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class VesselState
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public CubicCoordinates CubicCoordinates { get; set; }
-        public Player Captain { get; set; }
-        public Player Radioman { get; set; }
-    }
-
     public class Vessel
     {
 
@@ -22,7 +12,7 @@ namespace Ballast.Core.Models
         public Player Captain { get; private set; }
         public Player Radioman { get; private set; }
 
-        private Vessel(Guid id, string name, CubicCoordinates cubicCoordinates, Player captain, Player radioman)
+        public Vessel(Guid id, string name, CubicCoordinates cubicCoordinates, Player captain, Player radioman)
         {
             Id = id;
             Name = name;
@@ -30,17 +20,6 @@ namespace Ballast.Core.Models
             Captain = captain;
             Radioman = radioman;
         }
-
-        public static Vessel FromProperties(Guid id, string name, CubicCoordinates cubicCoordinates, Player captain, Player radioman) => new Vessel(
-            id: id,
-            name: name,
-            cubicCoordinates: cubicCoordinates,
-            captain: captain,
-            radioman: radioman
-        );
-
-        public static implicit operator Vessel(VesselState state) =>
-            new Vessel(state.Id, state.Name, state.CubicCoordinates, state.Captain, state.Radioman);
 
         public CubicCoordinates UpdateCoordinates(CubicCoordinates cubicCoordinates)
         {
@@ -79,5 +58,4 @@ namespace Ballast.Core.Models
         }
 
     }
-
 }

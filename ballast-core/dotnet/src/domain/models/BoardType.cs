@@ -2,14 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class BoardTypeState : StaticListTypeStateBase
-    {
-        public bool CenterOrigin { get; set; }
-    }
-
     public class BoardType : StaticListTypeBase<BoardType>
     {
 
@@ -31,12 +25,9 @@ namespace Ballast.Core.Models
         public static BoardType FromValue(int value) =>
             BoardType.List().Single(x => x.Value == value);
 
-        public static BoardType FromString(string name) =>
+        public static BoardType FromName(string name) =>
             BoardType.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
             
-        public static implicit operator BoardType(BoardTypeState state) =>
-            BoardType.FromValue(state.Value);
-
     }
     
 }

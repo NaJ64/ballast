@@ -8,8 +8,10 @@ import { PlayerRemovedFromVesselRoleDomainEvent } from "../../domain/events/play
 import { PlayerSignedOutDomainEvent } from "../../domain/events/player-signed-out";
 import { Board } from "../../domain/models/board";
 import { BoardType } from "../../domain/models/board-type";
+import { CubicCoordinates } from "../../domain/models/cubic-coordinates";
 import { Game } from "../../domain/models/game";
 import { Player } from "../../domain/models/player";
+import { Tile } from "../../domain/models/tile";
 import { TileShape } from "../../domain/models/tile-shape";
 import { Vessel } from "../../domain/models/vessel";
 import { VesselRole } from "../../domain/models/vessel-role";
@@ -24,8 +26,6 @@ import { IGameDto } from "../models/game-dto";
 import { IRemovePlayerOptions } from "../models/remove-player-options";
 import { IVesselDto } from "../models/vessel-dto";
 import { IVesselMoveRequest } from "../models/vessel-move-request";
-import { CubicCoordinates } from "../../domain/models/cubic-coordinates";
-import { Tile } from "../../domain/models/tile";
 
 export interface IGameService extends IDisposable {
     getAllGamesAsync(): Promise<IGameDto[]>;
@@ -247,12 +247,13 @@ export class GameService implements IGameService {
         let playerAddedToVesselRoleEvents: PlayerAddedToVesselRoleDomainEvent[] = [];
         if (!!options.vesselId) {
             // Make sure the vessel exists
-            let vessel = game.vessels.find(x => x.id == options.vesselId);
+            let vesselId = options.vesselId;
+            let vessel = game.vessels.find(x => x.id == vesselId);
             if (!vessel) {
-                throw new Error(`Vessel with id ${options.vesselId} was not found in the requested game (${options.gameId})`);
+                throw new Error(`Vessel with id ${vesselId} was not found in the requested game (${gameId})`);
             }
             let vesselRoles: VesselRole[] = [];
-            if (options.vesselRoles && Array.isArray(options.vesselRoles)) {
+            if (options.vesselRoles && Array.isArray(options.vesselRoles) && options.vesselRoles.length) {
                 vesselRoles = options.vesselRoles.map(x => VesselRole.fromName(x));
             } else {
                 vesselRoles = this.getDefaultVesselRolesForPlayer(vessel, player);
@@ -319,7 +320,7 @@ export class GameService implements IGameService {
                     )
                 );
             }
-            // player is the Captain
+            // player is the radioman
             if (vessel.radioman && vessel.radioman.id == player.id) {
                 playerRemovedFromVesselRoleEvents.push(
                     PlayerRemovedFromVesselRoleDomainEvent.fromPlayerInGameVesselRole(
@@ -347,13 +348,153 @@ export class GameService implements IGameService {
     }
 
     public async addPlayerToVesselAsync(options: IAddPlayerOptions): Promise<IVesselDto> {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        // Make sure required arguments were provided
+        let gameId = options && options.gameId;
+        if (!gameId || gameId == Guid.empty) {
+            throw new Error("gameId cannot be null");
+        }
+        let playerId = options.playerId;
+        if (!playerId || playerId == Guid.empty) {
+            throw new Error("playerId cannot be null");
+        }
+        let vesselId = options.vesselId;
+        if (!vesselId || vesselId == Guid.empty) {
+            throw new Error("vesselId cannot be null");
+        }
+        // Locate game matching id from request
+        let game = await this.retrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
+        // Locate vessel matching id from request
+        let vessel = game.vessels.find(x => x.id == vesselId);
+        // Make sure vessel was found
+        if (!vessel) {
+            throw new Error(`Vessel with id ${vesselId} was not found in the requested game (${gameId})`);
+        }
+        // Get the player from existing list or create new
+        let playerJoinedGameEvent: PlayerJoinedGameDomainEvent | null = null;
+        let player = game.players.find(x => x.id == playerId);
+        if (player) {
+            // Make sure the player doesn't already exist on a vessel (by matching player id to all vessel roles)
+            let playerAlreadyOnAVessel = game.vessels.some(x => 
+                !!((x.captain && x.captain.id == playerId) ||
+                (x.radioman && x.radioman.id == playerId))
+            );
+            if (playerAlreadyOnAVessel) {
+                throw new Error(`Player with id ${playerId} already belongs to a vessel in the requested game (${gameId})`)
+            }
+        } else {
+            // Create the player
+            player = new Player(playerId, options.playerName as string ); // TODO:  Determine how to default the name
+            // Add to the game
+            game.addPlayer(player);
+            // Set flag to raise event at the end of the operation
+            playerJoinedGameEvent = PlayerJoinedGameDomainEvent.fromPlayerInGame(
+                game,
+                player
+            );
+        }
+        // Build list of vessel roles to assign
+        let vesselRoles: VesselRole[] = [];
+        // If a vessel role list was provided, try to add the player into those roles (otherwise get default)
+        if (options.vesselRoles && Array.isArray(options.vesselRoles) && options.vesselRoles.length) {
+            vesselRoles = options.vesselRoles.map(x => VesselRole.fromName(x));
+        } else {
+            vesselRoles = this.getDefaultVesselRolesForPlayer(vessel, player);
+        }
+        // Make sure we have at least one vessel role to assign
+        if (!vesselRoles.length) {
+            throw new Error("Can't add player to a vessel without specifying vessel role(s)");
+        }
+        // If a vessel id was provided we want to add the player onto the specified vessel
+        let playerAddedToVesselRoleEvents: PlayerAddedToVesselRoleDomainEvent[] = [];
+        // Add into specified vessel role(s)
+        for(let vesselRole of vesselRoles) {
+            // Set the role
+            game.setVesselRole(vessel.id, vesselRole, player);
+            // Store event to publish later
+            playerAddedToVesselRoleEvents.push(
+                PlayerAddedToVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                    game,
+                    vessel,
+                    vesselRole,
+                    player
+                )
+            );
+        }
+        // Raise event for player added into game
+        if (playerJoinedGameEvent) {
+            await this._eventBus.publishAsync(playerJoinedGameEvent);
+        }
+        // Raise event(s) for player added into role(s)
+        for(let playerAddedToVesselRoleEvent of playerAddedToVesselRoleEvents) {
+            await this._eventBus.publishAsync(playerAddedToVesselRoleEvent);
+        }
+        // Return the new vessel state
+        return this.mapToVesselDto(vessel);
     }
 
     public async removePlayerFromVesselAsync(options: IRemovePlayerOptions): Promise<IVesselDto> {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        // Make sure required arguments were provided
+        let gameId = options && options.gameId;
+        if (!gameId || gameId == Guid.empty) {
+            throw new Error("gameId cannot be null");
+        }
+        let playerId = options.playerId;
+        if (!playerId || playerId == Guid.empty) {
+            throw new Error("playerId cannot be null");
+        }
+        let vesselId = options.vesselId;
+        if (!vesselId || vesselId == Guid.empty) {
+            throw new Error("vesselId cannot be null");
+        }
+        // Locate game matching id from request
+        let game = await this.retrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
+        // Locate vessel matching id from request
+        let vessel = game.vessels.find(x => x.id == vesselId);
+        // Make sure vessel was found
+        if (!vessel) {
+            throw new Error(`Vessel with id ${vesselId} was not found in the requested game (${gameId})`);
+        }
+        // Make sure player was found
+        let player = game.players.find(x => x.id == playerId);
+        if (!player) {
+            throw new Error(`Player with id ${playerId} was not found in the requested game (${gameId})`);
+        }
+        // Make list of roles that player is being removed from
+        let playerRemovedFromVesselRoleEvents: PlayerRemovedFromVesselRoleDomainEvent[] = [];
+        // Player is captain
+        if (vessel.captain && vessel.captain.id == player.id) {
+            // Remove from the role
+            vessel.setVesselRole(VesselRole.Captain, null);
+            // Store the event
+            playerRemovedFromVesselRoleEvents.push(
+                PlayerRemovedFromVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                    game,
+                    vessel,
+                    VesselRole.Captain,
+                    player
+                )
+            );
+        }
+        // player is the radioman
+        if (vessel.radioman && vessel.radioman.id == player.id) {
+            // Remove from the role
+            vessel.setVesselRole(VesselRole.Radioman, null);
+            // Store the event
+            playerRemovedFromVesselRoleEvents.push(
+                PlayerRemovedFromVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                    game,
+                    vessel,
+                    VesselRole.Radioman,
+                    player
+                )
+            );
+        }
+        // Raise event(s) for player removed from role(s)
+        for(let playerRemovedFromVesselRoleEvent of playerRemovedFromVesselRoleEvents) {
+            await this._eventBus.publishAsync(playerRemovedFromVesselRoleEvent);
+        }
+        // Return the updated vessel state
+        return this.mapToVesselDto(vessel);
     }
 
     public async addPlayerToVesselRoleAsync(options: IAddPlayerOptions): Promise<IVesselDto> {

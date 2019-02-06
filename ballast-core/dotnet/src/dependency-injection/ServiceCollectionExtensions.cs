@@ -1,9 +1,10 @@
 using Ballast.Core.Messaging;
-using Ballast.Core.Services;
+using Ballast.Core.Application.Services;
+using Ballast.Core.Domain.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Ballast.Core 
+namespace Ballast.Core.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {

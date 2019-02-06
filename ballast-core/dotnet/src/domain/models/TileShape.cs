@@ -2,23 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class TileShapeState : StaticListTypeStateBase
-    {
-        public bool? ApplyHexRowScaling { get; set; }
-        public bool? DoubleIncrement { get; set; }
-        public bool? HasDirectionNorth { get; set; }
-        public bool? HasDirectionSouth { get; set; }
-        public bool? HasDirectionWest { get; set; }
-        public bool? HasDirectionEast { get; set; }
-        public bool? HasDirectionNorthWest { get; set; }
-        public bool? HasDirectionNorthEast { get; set; }
-        public bool? HasDirectionSouthWest { get; set; }
-        public bool? HasDirectionSouthEast { get; set; }
-    }
-
     public class TileShape : StaticListTypeBase<TileShape>
     {
 
@@ -118,12 +103,8 @@ namespace Ballast.Core.Models
         public static TileShape FromValue(int value) =>
             TileShape.List().Single(x => x.Value == value);
 
-        public static TileShape FromString(string name) =>
+        public static TileShape FromName(string name) =>
             TileShape.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
 
-        public static implicit operator TileShape(TileShapeState state) =>
-            TileShape.FromValue(state.Value);
-
     }
-
 }

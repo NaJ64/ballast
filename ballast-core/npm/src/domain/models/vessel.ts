@@ -23,7 +23,7 @@ export class Vessel {
         return this.cubicCoordinates;
     }
     
-    public setVesselRole(vesselRole: VesselRole, player: Player) {
+    public setVesselRole(vesselRole: VesselRole, player: Player | null) {
         if (vesselRole.equals(VesselRole.Captain))
         {
             this.captain = player;

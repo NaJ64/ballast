@@ -1,5 +1,5 @@
 using Ballast.Core.Messaging;
-using Ballast.Core.Messaging.Events;
+using Ballast.Core.Application.Events;
 using Ballast.Web.Hubs;
 using Ballast.Web.HubMethods;
 using System;

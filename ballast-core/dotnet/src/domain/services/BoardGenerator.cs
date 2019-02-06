@@ -1,4 +1,4 @@
-using Ballast.Core.Models;
+using Ballast.Core.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,7 +87,7 @@ namespace Ballast.Core.Domain.Services
             }
 
             // Create new board 
-            var board = Board.FromProperties(
+            var board = new Board(
                 boardType: useBoardType,
                 id: id,
                 tiles: tiles,
@@ -166,9 +166,9 @@ namespace Ballast.Core.Domain.Services
                 {
                     var col = colIndex * increment;
                     var cubicCoordinates = CubicCoordinates.FromOffset(
-                        OffsetCoordinates.FromProperties(row: row, col: col)
+                        new OffsetCoordinates(row: row, col: col)
                     );
-                    rectangle.Add(Tile.FromProperties(
+                    rectangle.Add(new Tile(
                         cubicCoordinates: cubicCoordinates,
                         tileShape: tileShape,
                         terrain: Terrain.Water
@@ -193,9 +193,9 @@ namespace Ballast.Core.Domain.Services
                 {
                     var col = (colIndex * increment) - centerOffset;
                     var cubicCoordinates = CubicCoordinates.FromOffset(
-                        OffsetCoordinates.FromProperties(row: row, col: col)
+                        new OffsetCoordinates(row: row, col: col)
                     );
-                    square.Add(Tile.FromProperties(
+                    square.Add(new Tile(
                         cubicCoordinates: cubicCoordinates,
                         tileShape: TileShape.Square,
                         terrain: Terrain.Water
@@ -228,9 +228,9 @@ namespace Ballast.Core.Domain.Services
                 for (var colIndex = 0; colIndex < rowLength; colIndex++)
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
-                    octagon.Add(Tile.FromProperties(
+                    octagon.Add(new Tile(
                         cubicCoordinates: CubicCoordinates.FromOffset(
-                            OffsetCoordinates.FromProperties(row: row, col: col)
+                            new OffsetCoordinates(row: row, col: col)
                         ),
                         tileShape: TileShape.Octagon,
                         terrain: Terrain.Water
@@ -249,9 +249,9 @@ namespace Ballast.Core.Domain.Services
                 for (var colIndex = 0; colIndex < rowLength; colIndex++)
                 {
                     var col = (colIndex * increment) - centerOffset;
-                    octagon.Add(Tile.FromProperties(
+                    octagon.Add(new Tile(
                         cubicCoordinates: CubicCoordinates.FromOffset(
-                            OffsetCoordinates.FromProperties(row: row, col: col)
+                            new OffsetCoordinates(row: row, col: col)
                         ),
                         tileShape: TileShape.Octagon,
                         terrain: Terrain.Water
@@ -271,9 +271,9 @@ namespace Ballast.Core.Domain.Services
                 for (var colIndex = 0; colIndex < rowLength; colIndex++)
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
-                    octagon.Add(Tile.FromProperties(
+                    octagon.Add(new Tile(
                         cubicCoordinates: CubicCoordinates.FromOffset(
-                            OffsetCoordinates.FromProperties(row: row, col: col)
+                            new OffsetCoordinates(row: row, col: col)
                         ),
                         tileShape: TileShape.Octagon,
                         terrain: Terrain.Water
@@ -310,9 +310,9 @@ namespace Ballast.Core.Domain.Services
                 for (var colIndex = 0; colIndex < rowLength; colIndex++)
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
-                    hexagon.Add(Tile.FromProperties(
+                    hexagon.Add(new Tile(
                         cubicCoordinates: CubicCoordinates.FromOffset(
-                            OffsetCoordinates.FromProperties(row: topRow, col: col)
+                            new OffsetCoordinates(row: topRow, col: col)
                         ),
                         tileShape: tileShape,
                         terrain: Terrain.Water
@@ -327,9 +327,9 @@ namespace Ballast.Core.Domain.Services
             for (var colIndex = 0; colIndex < rowLength; colIndex++)
             {
                 var col = (colIndex * increment) - centerOffset;
-                hexagon.Add(Tile.FromProperties(
+                hexagon.Add(new Tile(
                     cubicCoordinates: CubicCoordinates.FromOffset(
-                        OffsetCoordinates.FromProperties(row: middleRow, col: col)
+                        new OffsetCoordinates(row: middleRow, col: col)
                     ),
                     tileShape: tileShape,
                     terrain: Terrain.Water
@@ -346,9 +346,9 @@ namespace Ballast.Core.Domain.Services
                 for (var colIndex = 0; colIndex < rowLength; colIndex++)
                 {
                     var col = ((colIndex + colOffset) * increment) - centerOffset;
-                    hexagon.Add(Tile.FromProperties(
+                    hexagon.Add(new Tile(
                         cubicCoordinates: CubicCoordinates.FromOffset(
-                            OffsetCoordinates.FromProperties(row: bottomRow, col: col)
+                            new OffsetCoordinates(row: bottomRow, col: col)
                         ),
                         tileShape: tileShape,
                         terrain: Terrain.Water

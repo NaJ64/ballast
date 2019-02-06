@@ -1,4 +1,4 @@
-namespace Ballast.Core.ValueObjects
+namespace Ballast.Core.Application.Models
 {
     public class EndGameResult { }
 }

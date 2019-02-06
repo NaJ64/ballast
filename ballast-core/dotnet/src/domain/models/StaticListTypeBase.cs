@@ -1,12 +1,5 @@
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public abstract class StaticListTypeStateBase
-    {
-        public int Value { get; set; }
-        public string Name { get; set; }
-    }
-
     public abstract class StaticListTypeBase<TSelf> where TSelf : StaticListTypeBase<TSelf>
     {
         

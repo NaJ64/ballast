@@ -1,6 +1,8 @@
-using Ballast.Core.Messaging.Events;
-using Ballast.Core.Models;
-using Ballast.Core.Services;
+using Ballast.Core.Application.Events;
+using Ballast.Core.Application.Services;
+using Ballast.Core.Domain.Events;
+using Ballast.Core.Domain.Models;
+using Ballast.Core.Domain.Services;
 using Ballast.Web.Hubs;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -37,7 +39,8 @@ namespace Ballast.Web.HubMethods
                 // This method returns a list of connections by client id
                 // but since the game only allows one connection per id right now
                 // it should be okay to just grab the first one
-                var connectionId = _playerConnections.GetAll(player.Id).FirstOrDefault();
+                var playerId = player?.Id != null ? Guid.Parse(player.Id) : default(Guid);
+                var connectionId = _playerConnections.GetAll(playerId).FirstOrDefault();
                 if (connectionId != null)
                     playerConnectionIdList.Add(connectionId);
             }

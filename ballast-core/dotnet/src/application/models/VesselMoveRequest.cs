@@ -1,11 +1,9 @@
-using System;
-
-namespace Ballast.Core.ValueObjects
+namespace Ballast.Core.Application.Models
 {
     public class VesselMoveRequest
     {
-        public Guid GameId { get; set; }
-        public Guid VesselId { get; set; }
+        public string GameId { get; set; }
+        public string VesselId { get; set; }
         public string SentOnDateIsoString { get; set; }
         public int[] SourceOrderedTriple { get; set; }
         public int[] TargetOrderedTriple { get; set; }

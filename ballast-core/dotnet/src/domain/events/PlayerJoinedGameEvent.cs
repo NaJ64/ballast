@@ -1,36 +1,30 @@
-using Ballast.Core.Models;
+using Ballast.Core.Domain.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
-namespace Ballast.Core.Messaging.Events
+namespace Ballast.Core.Domain.Events
 {
-
-    public class PlayerJoinedGameEventState : EventStateBase
-    {
-        public Guid GameId { get; set; }
-        public Player Player { get; set; }
-    }
-
-    public class PlayerJoinedGameEvent : EventBase 
+    public class PlayerJoinedGameDomainEvent : EventBase 
     {
 
-        public override string Id => nameof(PlayerJoinedGameEvent);
+        public override string Id => nameof(PlayerJoinedGameDomainEvent);
 
         public Guid GameId { get; private set; }
         public Player Player { get; private set; }
 
-        private PlayerJoinedGameEvent(Guid gameId, Player player, string isoDateTime = null) : base(isoDateTime) 
+        private PlayerJoinedGameDomainEvent(string eventDateIsoString, Guid gameId, Player player) : base(eventDateIsoString) 
         {
             GameId = gameId;
             Player = player;
         }
 
-        public static implicit operator PlayerJoinedGameEvent(PlayerJoinedGameEventState state) =>
-            new PlayerJoinedGameEvent(state.GameId, state.Player, state.IsoDateTime);
-            
-        public static PlayerJoinedGameEvent FromPlayerInGame(Game game, Player player) =>
-            new PlayerJoinedGameEvent(game.Id, player);
+        public static PlayerJoinedGameDomainEvent FromPlayerInGame(Game game, Player player) =>
+            new PlayerJoinedGameDomainEvent(
+                EventBase.GetDateIsoString(),
+                game.Id, 
+                player
+            );
 
     }
-
 }

@@ -1,4 +1,5 @@
 using Ballast.Core.Application.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
@@ -25,7 +26,7 @@ namespace Ballast.Core.Application.Events
 
         public static PlayerAddedToVesselRoleEvent FromPlayerInGameVesselRole(Guid gameId, VesselDto vessel, string vesselRole, PlayerDto player) =>
             new PlayerAddedToVesselRoleEvent(
-                EventBase.GetIsoDateString(),
+                EventBase.GetDateIsoString(),
                 gameId, 
                 vessel, 
                 vesselRole, 

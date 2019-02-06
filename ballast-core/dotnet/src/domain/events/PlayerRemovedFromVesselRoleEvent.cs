@@ -1,42 +1,36 @@
-using Ballast.Core.Models;
+using Ballast.Core.Domain.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
-namespace Ballast.Core.Messaging.Events
+namespace Ballast.Core.Domain.Events
 {
-
-    public class PlayerRemovedFromVesselRoleEventState : EventStateBase
-    {
-        public Guid GameId { get; set; }
-        public Vessel Vessel { get; set; }
-        public VesselRole VesselRole { get; set; }
-        public Player Player { get; set; }
-    }
-
-    public class PlayerRemovedFromVesselRoleEvent : EventBase 
+    public class PlayerRemovedFromVesselRoleDomainEvent : EventBase 
     {
 
-        public override string Id => nameof(PlayerRemovedFromVesselRoleEvent);
+        public override string Id => nameof(PlayerRemovedFromVesselRoleDomainEvent);
 
         public Guid GameId { get; private set; }
         public Vessel Vessel { get; private set; }
         public VesselRole VesselRole { get; private set; }
         public Player Player { get; private set; }
 
-        private PlayerRemovedFromVesselRoleEvent(Guid gameId, Vessel vessel, VesselRole vesselRole, Player player, string isoDateTime = null) : base(isoDateTime) 
+        private PlayerRemovedFromVesselRoleDomainEvent(string eventDateIsoString, Guid gameId, Vessel vessel, VesselRole vesselRole, Player player) : base(eventDateIsoString) 
         {
             GameId = gameId;
             Vessel = vessel;
             VesselRole = vesselRole;
             Player = player;
         }
-
-        public static implicit operator PlayerRemovedFromVesselRoleEvent(PlayerRemovedFromVesselRoleEventState state) =>
-            new PlayerRemovedFromVesselRoleEvent(state.GameId, state.Vessel, state.VesselRole, state.Player, state.IsoDateTime);
-            
-        public static PlayerRemovedFromVesselRoleEvent FromPlayerInGameVesselRole(Game game, Vessel vessel, VesselRole vesselRole, Player player) =>
-            new PlayerRemovedFromVesselRoleEvent(game.Id, vessel, vesselRole, player);
+        
+        public static PlayerRemovedFromVesselRoleDomainEvent FromPlayerInGameVesselRole(Game game, Vessel vessel, VesselRole vesselRole, Player player) =>
+            new PlayerRemovedFromVesselRoleDomainEvent(
+                EventBase.GetDateIsoString(),
+                game.Id, 
+                vessel, 
+                vesselRole, 
+                player
+            );
 
     }
-
 }

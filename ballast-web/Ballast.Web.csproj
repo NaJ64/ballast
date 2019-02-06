@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ballast-core\Ballast.Core.csproj" />
+    <ProjectReference Include="..\ballast-core\dotnet\Ballast.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

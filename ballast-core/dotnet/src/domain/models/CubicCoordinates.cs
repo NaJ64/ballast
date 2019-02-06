@@ -1,15 +1,7 @@
 using System;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class CubicCoordinatesState 
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Z { get; set; }
-    }
-
     public class CubicCoordinates
     {
         public int X { get; private set; }
@@ -24,13 +16,6 @@ namespace Ballast.Core.Models
             Y = y;
             Z = z;
         }
-
-        public static CubicCoordinates FromProperties(int x, int y, int z) => 
-            new CubicCoordinates(
-                x: x,
-                y: y,
-                z: z
-            );
 
         public static CubicCoordinates FromAxial(AxialCoordinates axial)
         {
@@ -59,9 +44,6 @@ namespace Ballast.Core.Models
             var z = orderedTriple[2];
             return new CubicCoordinates(x, y, z);
         }
-
-        public static implicit operator CubicCoordinates(CubicCoordinatesState state) =>
-            new CubicCoordinates(state.X, state.Y, state.Z);
 
         public bool Equals(CubicCoordinates cubic)
         {

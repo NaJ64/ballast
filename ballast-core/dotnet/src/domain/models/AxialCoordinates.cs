@@ -1,14 +1,7 @@
 using System;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class AxialCoordinatesState
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-    }
-
     public class AxialCoordinates
     {
         public int X { get; private set; }
@@ -19,11 +12,6 @@ namespace Ballast.Core.Models
             X = x;
             Z = z;
         }
-
-        public static AxialCoordinates FromProperties(int x, int z) => new AxialCoordinates(
-            x: x,
-            z: z
-        );
 
         public static AxialCoordinates FromCubic(CubicCoordinates cubic) =>
             new AxialCoordinates(x: cubic.X, z: cubic.Z);
@@ -63,9 +51,5 @@ namespace Ballast.Core.Models
 
         public int[] ToOrderedPair() => new int[] { X, Z };
 
-        public static implicit operator AxialCoordinates(AxialCoordinatesState state) =>
-            new AxialCoordinates(state.X, state.Z);
-
     }
-
 }

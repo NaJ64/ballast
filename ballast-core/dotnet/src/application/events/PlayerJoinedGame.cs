@@ -1,4 +1,5 @@
 using Ballast.Core.Application.Models;
+using Ballast.Core.Messaging;
 using System;
 using System.Linq;
 
@@ -21,7 +22,7 @@ namespace Ballast.Core.Application.Events
 
         public static PlayerJoinedGameEvent FromPlayerInGame(Guid gameId, PlayerDto player) =>
             new PlayerJoinedGameEvent(
-                EventBase.GetIsoDateString(),
+                EventBase.GetDateIsoString(),
                 gameId, 
                 player
             );

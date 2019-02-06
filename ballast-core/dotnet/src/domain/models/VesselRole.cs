@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class VesselRoleState : StaticListTypeStateBase { }
 
     public class VesselRole : StaticListTypeBase<VesselRole>
     {
@@ -23,12 +21,8 @@ namespace Ballast.Core.Models
         public static VesselRole FromValue(int value) =>
             VesselRole.List().Single(x => x.Value == value);
 
-        public static VesselRole FromString(string name) =>
+        public static VesselRole FromName(string name) =>
             VesselRole.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
 
-        public static implicit operator VesselRole(VesselRoleState state) =>
-            VesselRole.FromValue(state.Value);
-
     }
-    
 }

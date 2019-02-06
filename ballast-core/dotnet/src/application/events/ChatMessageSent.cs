@@ -1,5 +1,5 @@
-using Ballast.Core.Messaging;
 using Ballast.Core.Application.Models;
+using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Events
 {

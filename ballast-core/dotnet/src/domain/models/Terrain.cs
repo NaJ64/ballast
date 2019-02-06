@@ -2,14 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ballast.Core.Models
+namespace Ballast.Core.Domain.Models
 {
-
-    public class TerrainState : StaticListTypeStateBase
-    {
-        public bool Passable { get; set; }
-    }
-
     public class Terrain : StaticListTypeBase<Terrain>
     {
     
@@ -33,12 +27,8 @@ namespace Ballast.Core.Models
         public static Terrain FromValue(int value) =>
             Terrain.List().Single(x => x.Value == value);
 
-        public static Terrain FromString(string name) =>
+        public static Terrain FromName(string name) =>
             Terrain.List().Single(x => x.Name.ToLowerInvariant() == name.ToLowerInvariant());
 
-        public static implicit operator Terrain(TerrainState state) =>
-            Terrain.FromValue(state.Value);
-
     }
-
 }
