@@ -1,8 +1,8 @@
 import { BallastCoreContainerModule, IChatService, IGameService, ISignInService, TYPES as BallastCore } from "ballast-core";
 import { ContainerModule, interfaces } from "inversify";
-import { SignalRClientChatService } from "../signalr/signalr-client-chat-service";
-import { SignalRClientGameService } from "../signalr/signalr-client-game-service";
-import { SignalRClientSignInService } from "../signalr/signalr-client-sign-in-service";
+import { SignalRClientChatService } from "../signalr/services/signalr-client-chat-service";
+import { SignalRClientGameService } from "../signalr/services/signalr-client-game-service";
+import { SignalRClientSignInService } from "../signalr/services/signalr-client-sign-in-service";
 import { BallastClientOptions, IBallastClientOptions } from "./options";
 
 type ConfigureOptions = (options: IBallastClientOptions) => void;
