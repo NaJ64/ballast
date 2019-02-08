@@ -6,6 +6,7 @@ import { PlayerJoinedGameDomainEvent } from "../../../domain/events/player-joine
 import { PlayerLeftGameDomainEvent } from "../../../domain/events/player-left-game";
 import { PlayerRemovedFromVesselRoleDomainEvent } from "../../../domain/events/player-removed-from-vessel-role";
 import { PlayerSignedOutDomainEvent } from "../../../domain/events/player-signed-out";
+import { VesselStateChangedDomainEvent } from "../../../domain/events/vessel-state-changed";
 import { Board } from "../../../domain/models/board";
 import { BoardType } from "../../../domain/models/board-type";
 import { CubicCoordinates } from "../../../domain/models/cubic-coordinates";
@@ -26,7 +27,6 @@ import { IRemovePlayerOptions } from "../../models/remove-player-options";
 import { IVesselDto } from "../../models/vessel-dto";
 import { IVesselMoveRequest } from "../../models/vessel-move-request";
 import { IGameService } from "../game-service";
-import { VesselStateChangedDomainEvent } from "../../../domain";
 
 @injectable()
 export class DomainGameService implements IGameService {
