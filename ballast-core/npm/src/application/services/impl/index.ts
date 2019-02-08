@@ -1,3 +1,3 @@
-export * from "./chat-service";
-export * from "./game-service";
-export * from "./sign-in-service";
+export * from "./domain-chat-service";
+export * from "./domain-game-service";
+export * from "./domain-sign-in-service";

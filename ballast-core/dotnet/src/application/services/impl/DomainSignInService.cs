@@ -34,8 +34,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         public async Task<PlayerDto> SignInAsync(PlayerSignInRequest request)
         {
-            var playerIdString = request?.PlayerId ?? throw new ArgumentNullException(nameof(request.PlayerId));
-            var playerId = playerIdString;
+            var playerId = request?.PlayerId ?? throw new ArgumentNullException(nameof(request.PlayerId));
             var playerName = request?.PlayerName ?? GetTempPlayerName();
             if (!_players.ContainsKey(playerId))
             {
@@ -51,8 +50,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         public async Task SignOutAsync(PlayerSignOutRequest request)
         {
-            var playerIdString = request?.PlayerId ?? throw new ArgumentNullException(nameof(request.PlayerId));
-            var playerId = playerIdString;
+            var playerId = request?.PlayerId ?? throw new ArgumentNullException(nameof(request.PlayerId));
             if (!_players.ContainsKey(playerId))
                 throw new KeyNotFoundException($"Player id not found ({playerId})");
             var player = _players[playerId];
