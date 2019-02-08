@@ -481,8 +481,105 @@ export class DomainGameService implements IGameService {
     }
 
     public async addPlayerToVesselRoleAsync(options: IAddPlayerOptions): Promise<IVesselDto> {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        // Make sure required arguments were provided
+        let gameId = options && options.gameId;
+        if (!gameId || gameId == Guid.empty) {
+            throw new Error("gameId cannot be null");
+        }
+        let playerId = options.playerId;
+        if (!playerId || playerId == Guid.empty) {
+            throw new Error("playerId cannot be null");
+        }
+        let vesselId = options.vesselId;
+        if (!vesselId || vesselId == Guid.empty) {
+            throw new Error("vesselId cannot be null");
+        }
+        let hasVesselRoles = options.vesselRoles && Array.isArray(options.vesselRoles) && options.vesselRoles.length;
+        if (!hasVesselRoles) {
+            throw new Error("vesselRoles cannot be null/empty");
+        }
+        let vesselRoles = options.vesselRoles.map(x => VesselRole.fromName(x));
+        // Locate game matching id from request
+        let game = await this.retrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
+        // Locate vessel matching id from request
+        let vessel = game.vessels.find(x => x.id == vesselId);
+        // Make sure vessel was found
+        if (!vessel) {
+            throw new Error(`Vessel with id ${vesselId} was not found in the requested game (${gameId})`);
+        }
+        // Get the player from existing list or create new 
+        let playerJoinedGameEvent: PlayerJoinedGameDomainEvent | null = null;
+        let player = game.players.find(x => x.id == playerId);
+        if (player) {
+            // Make sure the player doesn't already exist in the vessel role (by matching player id)
+            let playerAlreadyOnADifferentVessel = game.vessels.some(x => 
+                (vesselId != x.id) &&
+                !!((x.captain && x.captain.id == playerId) ||
+                (x.radioman && x.radioman.id == playerId))
+            );
+            if (playerAlreadyOnADifferentVessel) {
+                throw new Error(`Player with id ${playerId} already belongs to another vessel in the requested game (${gameId})`);
+            }
+        } else {
+            // Create the player
+            player = new Player(playerId, options.playerName as string); // TODO:  Determine how to default the name
+            // Add to the game
+            game.addPlayer(player);
+            // Set flag to raise event at the end of the operation
+            playerJoinedGameEvent = PlayerJoinedGameDomainEvent.fromPlayerInGame(game, player);
+        }
+        // Try to add player to each role in the list (if not already belonging to those roles)
+        let playerAddedToVesselRoleEvents: PlayerAddedToVesselRoleDomainEvent[] = [];
+        for(let vesselRole of vesselRoles) {
+            // Captain
+            if (vesselRole.value == VesselRole.Captain.value) {
+                // Check the current Captain
+                let vesselCaptain = vessel.captain;
+                if (vesselCaptain && vesselCaptain.id == playerId) {
+                    throw new Error(`Player with id ${playerId} already belongs to role (${VesselRole.Captain.name})`);
+                }
+                // Assign to role
+                vessel.setVesselRole(VesselRole.Captain, player);
+                // Store the event
+                playerAddedToVesselRoleEvents.push(
+                    PlayerAddedToVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                        game,
+                        vessel,
+                        VesselRole.Captain,
+                        player
+                    )
+                );
+            }
+            // Radioman
+            if (vesselRole.value == VesselRole.Radioman.value) {
+                // Check the current Radioman
+                let vesselRadioman = vessel.radioman;
+                if (vesselRadioman && vesselRadioman.id == playerId) {
+                    throw new Error(`Player with id ${playerId} already belongs to role (${VesselRole.Captain.name})`);
+                }
+                // Assign to role
+                vessel.setVesselRole(VesselRole.Radioman, player);
+                // Store the event
+                playerAddedToVesselRoleEvents.push(
+                    PlayerAddedToVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                        game,
+                        vessel,
+                        VesselRole.Radioman,
+                        player
+                    )
+                );
+            }
+        }
+        // Raise event for player added into game
+        if (playerJoinedGameEvent) {
+            await this._eventBus.publishAsync(playerJoinedGameEvent);
+        }    
+        // Raise event(s) for player added into role(s)
+        for(let playerAddedToVesselRoleEvent of playerAddedToVesselRoleEvents) {
+            await this._eventBus.publishAsync(playerAddedToVesselRoleEvent);
+        }
+        // Return the new vessel state
+        return this.mapToVesselDto(vessel);
     }
 
     public async removePlayerFromVesselRoleAsync(options: IRemovePlayerOptions): Promise<IVesselDto> {

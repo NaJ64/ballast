@@ -467,7 +467,7 @@ namespace Ballast.Core.Application.Services.Impl
             var player = game.Players.FirstOrDefault(x => x.Id == playerId);
             if (player != null)
             {
-                // Make sure the player doesn't already exist in the vessel role (by matching player id
+                // Make sure the player doesn't already exist in the vessel role (by matching player id)
                 var playerAlreadyOnADifferentVessel = game.Vessels.Any(x =>
                     !vesselId.Equals(x.Id) &&
                     playerId.Equals(x.Captain?.Id ?? default(Guid)) ||

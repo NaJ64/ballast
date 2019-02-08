@@ -26,7 +26,6 @@ export class DomainChatService implements IChatService {
         var player = await this._signInService.getSignedInPlayerAsync(message.fromPlayerId);
         message.fromPlayerName = player && player.name || message.fromPlayerName;
         await this._eventBus.publishAsync(ChatMessageSentEvent.fromMessage(message));
-        //throw new Error("Not implemented.")
     }
 
 }
