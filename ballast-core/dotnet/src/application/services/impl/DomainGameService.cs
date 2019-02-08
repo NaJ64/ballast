@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Ballast.Core.Application.Models;
 using Ballast.Core.Domain.Events;
 using Ballast.Core.Domain.Models;
 using Ballast.Core.Domain.Services;
 using Ballast.Core.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Ballast.Core.Application.Services.Impl
 {
@@ -81,7 +81,6 @@ namespace Ballast.Core.Application.Services.Impl
                 ? TileShape.FromName(options.BoardShape)
                 : DEFAULT_TILE_SHAPE;
             var useLandToWaterRatio = options.LandToWaterRatio;
-
             var board = _boardGenerator.CreateBoard(
                 id: Guid.NewGuid(),
                 boardType: useBoardType, // Default
@@ -89,7 +88,6 @@ namespace Ballast.Core.Application.Services.Impl
                 columnsOrSideLength: useBoardSize,
                 landToWaterRatio: useLandToWaterRatio
                 );
-
             var players = new List<Player>();
             var vessels = CreateVessels(options.VesselOptions, board);
             var createdUtc = DateTime.UtcNow;
@@ -102,33 +100,31 @@ namespace Ballast.Core.Application.Services.Impl
         private async Task OnPlayerSignedOutAsync(PlayerSignedOutDomainEvent evt)
         {
             var playerId = evt.Player?.Id;
-            if (playerId == null)
+            if (!playerId.HasValue)
                 return;
             var playerInGames = _games.Values.Where(x => x.Players.Any(y => y.Id.Equals(playerId)));
             foreach (var game in playerInGames)
             {
                 var removePlayerOptions = new RemovePlayerOptions()
                 {
-                    PlayerId = playerId?.ToString(),
-                    GameId = game.Id.ToString()
+                    PlayerId = playerId.Value,
+                    GameId = game.Id
                 };
                 await RemovePlayerFromGameAsync(removePlayerOptions);
             }
         }
 
-        private Task<Game> RetrieveGameByIdAsync(string gameId)
+        private Task<Game> RetrieveGameByIdAsync(Guid gameId)
         {
-            var parsedGuid = Guid.Parse(gameId);
-            if (_games.ContainsKey(parsedGuid))
-                return Task.FromResult(_games[parsedGuid]);
+            if (_games.ContainsKey(gameId))
+                return Task.FromResult(_games[gameId]);
             throw new KeyNotFoundException($"No game found for id {gameId}");
         }
 
-        private async Task RemoveGameByIdAsync(string gameId)
+        private async Task RemoveGameByIdAsync(Guid gameId)
         {
-            var parsedGuid = Guid.Parse(gameId);
             var game = await RetrieveGameByIdAsync(gameId);
-            _games.Remove(parsedGuid);
+            _games.Remove(gameId);
         }
 
         private IEnumerable<VesselRole> GetDefaultVesselRolesForPlayer(Vessel vessel, Player player)
@@ -145,46 +141,46 @@ namespace Ballast.Core.Application.Services.Impl
             return roles;
         }
 
-        public Task<string> GetTestGameIdAsync() => 
-            Task.FromResult(_defaultGame.Id.ToString());
+        public Task<Guid> GetTestGameIdAsync() => 
+            Task.FromResult(_defaultGame.Id);
 
         public Task<IEnumerable<GameDto>> GetAllGamesAsync() => 
             Task.FromResult(_games.Values.Select(game => MapToGameDto(game)));
 
-        public async Task<GameDto> GetGameAsync(string gameId) => 
+        public async Task<GameDto> GetGameAsync(Guid gameId) => 
             MapToGameDto(await RetrieveGameByIdAsync(gameId));
 
         public async Task<GameDto> CreateGameAsync(CreateGameOptions options) =>
             MapToGameDto(await CreateGameInternalAsync(options));
 
-        public async Task<GameDto> StartGameAsync(string gameId)
+        public async Task<GameDto> StartGameAsync(Guid gameId)
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.Start();
             return MapToGameDto(game);
         }
 
-        public async Task<GameDto> EndGameAsync(string gameId)
+        public async Task<GameDto> EndGameAsync(Guid gameId)
         {
             var game = await RetrieveGameByIdAsync(gameId);
             game.End();
             return MapToGameDto(game);
         }
 
-        public async Task DeleteGameAsync(string gameId) => 
+        public async Task DeleteGameAsync(Guid gameId) => 
             await RemoveGameByIdAsync(gameId);
 
         public async Task<GameDto> AddPlayerToGameAsync(AddPlayerOptions options)
         {
             // Make sure no arguments left blank
-            var gameId = options?.GameId != null ? Guid.Parse(options.GameId) : default(Guid);
+            var gameId = options?.GameId != null ? options.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var playerId = options?.PlayerId != null ? Guid.Parse(options.PlayerId) : default(Guid);
+            var playerId = options?.PlayerId != null ? options.PlayerId : default(Guid);
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
             // Locate game matching id from request
-            var game = await RetrieveGameByIdAsync(gameId.ToString()); // <-- Throws exception if game not found
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
             // Make sure the player doesn't already exist (by matching id)
             var playerExists = game.Players.Any(x => x.Id == playerId);
             if (playerExists)
@@ -197,7 +193,7 @@ namespace Ballast.Core.Application.Services.Impl
             if (options.VesselId != null)
             {
                 // Make sure the vessel exists
-                var vesselId = options?.VesselId != null ? Guid.Parse(options.VesselId) : default(Guid);
+                var vesselId = options?.VesselId != null ? options.VesselId : default(Guid);
                 var vessel = game.Vessels.FirstOrDefault(x => x.Id == vesselId);
                 if (vessel == null)
                     throw new ArgumentException($"Vessel with id {options.VesselId} was not found in the requested game ({options.GameId})");
@@ -240,14 +236,14 @@ namespace Ballast.Core.Application.Services.Impl
         public async Task<GameDto> RemovePlayerFromGameAsync(RemovePlayerOptions options)
         {
             // Make sure required arguments were provided
-            var gameId = options?.GameId != null ? Guid.Parse(options.GameId) : default(Guid);
+            var gameId = options?.GameId != null ? options.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var playerId = options?.PlayerId != null ? Guid.Parse(options.PlayerId) : default(Guid);
+            var playerId = options?.PlayerId != null ? options.PlayerId : default(Guid);
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
             // Get the game matching id from request 
-            var game = await RetrieveGameByIdAsync(gameId.ToString()); // <-- Throws exception if game not found
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
             // Get the player matching id from request 
             var player = game.Players.SingleOrDefault(x => x.Id.Equals(playerId));
             if (player == null)
@@ -297,17 +293,17 @@ namespace Ballast.Core.Application.Services.Impl
         public async Task<VesselDto> AddPlayerToVesselAsync(AddPlayerOptions options)
         {
             // Make sure no arguments left blank
-            var gameId = options?.GameId != null ? Guid.Parse(options.GameId) : default(Guid);
+            var gameId = options?.GameId != null ? options.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var playerId = options?.PlayerId != null ? Guid.Parse(options.PlayerId) : default(Guid);
+            var playerId = options?.PlayerId != null ? options.PlayerId : default(Guid);
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            var vesselId = options?.VesselId != null ? Guid.Parse(options.VesselId) : default(Guid);
+            var vesselId = options?.VesselId != null ? options.VesselId : default(Guid);
             if (vesselId == default(Guid))
                 throw new ArgumentNullException(nameof(options.VesselId));
             // Locate game matching id from request
-            var game = await RetrieveGameByIdAsync(gameId.ToString()); // <-- Throws exception if game not found
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
             // Locate vessel matching id from request
             var vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
             // Make sure vessel was found
@@ -383,17 +379,17 @@ namespace Ballast.Core.Application.Services.Impl
         public async Task<VesselDto> RemovePlayerFromVesselAsync(RemovePlayerOptions options)
         {
             // Make sure required arguments were provided
-            var gameId = options?.GameId != null ? Guid.Parse(options.GameId) : default(Guid);
+            var gameId = options?.GameId != null ? options.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var playerId = options?.PlayerId != null ? Guid.Parse(options.PlayerId) : default(Guid);
+            var playerId = options?.PlayerId != null ? options.PlayerId : default(Guid);
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            var vesselId = options?.VesselId != null ? Guid.Parse(options.VesselId) : default(Guid);
+            var vesselId = options?.VesselId != null ? options.VesselId : default(Guid);
             if (vesselId == default(Guid))
                 throw new ArgumentNullException(nameof(options.VesselId));
             // Locate game matching id from request
-            var game = await RetrieveGameByIdAsync(gameId.ToString()); // <-- Throws exception if game not found
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
             // Locate vessel matching id from request
             var vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
             // Make sure vessel was found
@@ -447,20 +443,20 @@ namespace Ballast.Core.Application.Services.Impl
         public async Task<VesselDto> AddPlayerToVesselRoleAsync(AddPlayerOptions options)
         {
             // Make sure no arguments left blank
-            var gameId = options?.GameId != null ? Guid.Parse(options.GameId) : default(Guid);
+            var gameId = options?.GameId != null ? options.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var playerId = options?.PlayerId != null ? Guid.Parse(options.PlayerId) : default(Guid);
+            var playerId = options?.PlayerId != null ? options.PlayerId : default(Guid);
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            var vesselId = options?.VesselId != null ? Guid.Parse(options.VesselId) : default(Guid);
+            var vesselId = options?.VesselId != null ? options.VesselId : default(Guid);
             if (vesselId == default(Guid))
                 throw new ArgumentNullException(nameof(options.VesselId));
             var vesselRoles = options.VesselRoles.Select(x => VesselRole.FromName(x));
             if (!vesselRoles.Any())
                 throw new ArgumentNullException(nameof(options.VesselRoles));
             // Locate game matching id from request
-            var game = await RetrieveGameByIdAsync(gameId.ToString()); // <-- Throws exception if game not found
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
             // Locate vessel matching id from request
             var vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
             // Make sure vessel was found
@@ -549,20 +545,20 @@ namespace Ballast.Core.Application.Services.Impl
         public async Task<VesselDto> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options)
         {
             // Make sure required arguments were provided
-            var gameId = options?.GameId != null ? Guid.Parse(options.GameId) : default(Guid);
+            var gameId = options?.GameId != null ? options.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(options.GameId));
-            var playerId = options?.PlayerId != null ? Guid.Parse(options.PlayerId) : default(Guid);
+            var playerId = options?.PlayerId != null ? options.PlayerId : default(Guid);
             if (playerId == default(Guid))
                 throw new ArgumentNullException(nameof(options.PlayerId));
-            var vesselId = options?.VesselId != null ? Guid.Parse(options.VesselId) : default(Guid);
+            var vesselId = options?.VesselId != null ? options.VesselId : default(Guid);
             if (vesselId == default(Guid))
                 throw new ArgumentNullException(nameof(options.VesselId));
             var vesselRoles = options.VesselRoles.Select(x => VesselRole.FromName(x));
             if (!vesselRoles.Any())
                 throw new ArgumentNullException(nameof(options.VesselRoles));
             // Locate game matching id from request
-            var game = await RetrieveGameByIdAsync(gameId.ToString()); // <-- Throws exception if game not found
+            var game = await RetrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
             // Locate vessel matching id from request
             var vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
             // Make sure vessel was found
@@ -627,10 +623,10 @@ namespace Ballast.Core.Application.Services.Impl
         public async Task<VesselDto> MoveVesselAsync(VesselMoveRequest request)
         {
             // Locate game matching id from request
-            var gameId = request?.GameId != null ? Guid.Parse(request.GameId) : default(Guid);
+            var gameId = request?.GameId != null ? request.GameId : default(Guid);
             if (gameId == default(Guid))
                 throw new ArgumentNullException(nameof(request.GameId));
-            var game = await RetrieveGameByIdAsync(gameId.ToString());
+            var game = await RetrieveGameByIdAsync(gameId);
 
             // Make sure we have a valid board
             var board = game?.Board != null ? game.Board : null;
@@ -638,7 +634,7 @@ namespace Ballast.Core.Application.Services.Impl
                 throw new KeyNotFoundException($"Game id '{gameId}' contains invalid board data!");
 
             // Locate vessel matching id from request
-            var vesselId = request?.VesselId != null ? Guid.Parse(request.VesselId) : default(Guid);
+            var vesselId = request?.VesselId != null ? request.VesselId : default(Guid);
             if (vesselId == default(Guid))
                 throw new ArgumentNullException(nameof(request.VesselId));
             var foundVessel = game.Vessels.SingleOrDefault(x => x.Id == vesselId);

@@ -28,9 +28,9 @@ namespace Ballast.Web.HubMethods
         }
 
         public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Game game) => 
-            await GetPlayerConnectionsForGameAsync(game.Id.ToString());
+            await GetPlayerConnectionsForGameAsync(game.Id);
             
-        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(string gameId)
+        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Guid gameId)
         {
             var foundGame = await _gameService.GetGameAsync(gameId);
             var playerConnectionIdList = new List<string>();
@@ -39,7 +39,7 @@ namespace Ballast.Web.HubMethods
                 // This method returns a list of connections by client id
                 // but since the game only allows one connection per id right now
                 // it should be okay to just grab the first one
-                var playerId = player?.Id != null ? Guid.Parse(player.Id) : default(Guid);
+                var playerId = player?.Id != null ? player.Id : default(Guid);
                 var connectionId = _playerConnections.GetAll(playerId).FirstOrDefault();
                 if (connectionId != null)
                     playerConnectionIdList.Add(connectionId);
@@ -50,7 +50,7 @@ namespace Ballast.Web.HubMethods
         public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
         {
             // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId.ToString());
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
             foreach(var connectionId in connectionIds)
             {
                 var client = _hubContext.Clients.Client(connectionId);
@@ -61,7 +61,7 @@ namespace Ballast.Web.HubMethods
         public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
         {
             // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId.ToString());
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
             foreach(var connectionId in connectionIds)
             {
                 var client = _hubContext.Clients.Client(connectionId);
@@ -71,7 +71,7 @@ namespace Ballast.Web.HubMethods
 
         public async Task OnVesselStateChanged(VesselStateChangedEvent evt)
         {
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId.ToString());
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
             foreach(var connectionId in connectionIds) 
             {
                 var client = _hubContext.Clients.Client(connectionId);

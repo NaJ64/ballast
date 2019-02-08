@@ -39,7 +39,7 @@ namespace Ballast.Web.Hubs
             if (!playerId.Equals(Guid.Empty))
             {
                 await _signInService.SignOutAsync(new PlayerSignOutRequest() {
-                    PlayerId = playerId.ToString(),
+                    PlayerId = playerId,
                     SentOnDateIsoString = DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture)
                 });
             }

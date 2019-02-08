@@ -1,7 +1,6 @@
+using System;
 using Ballast.Core.Application.Models;
 using Ballast.Core.Messaging;
-using System;
-using System.Linq;
 
 namespace Ballast.Core.Application.Events
 {

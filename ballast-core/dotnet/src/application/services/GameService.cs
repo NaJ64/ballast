@@ -7,13 +7,13 @@ namespace Ballast.Core.Application.Services
 {
     public interface IGameService : IDisposable
     {
-        Task<string> GetTestGameIdAsync();
+        Task<Guid> GetTestGameIdAsync();
         Task<IEnumerable<GameDto>> GetAllGamesAsync();
-        Task<GameDto> GetGameAsync(string gameId);
+        Task<GameDto> GetGameAsync(Guid gameId);
         Task<GameDto> CreateGameAsync(CreateGameOptions options);
-        Task<GameDto> StartGameAsync(string gameId);
-        Task<GameDto> EndGameAsync(string gameId);
-        Task DeleteGameAsync(string gameId);
+        Task<GameDto> StartGameAsync(Guid gameId);
+        Task<GameDto> EndGameAsync(Guid gameId);
+        Task DeleteGameAsync(Guid gameId);
         Task<GameDto> AddPlayerToGameAsync(AddPlayerOptions options);
         Task<GameDto> RemovePlayerFromGameAsync(RemovePlayerOptions options);
         Task<VesselDto> AddPlayerToVesselAsync(AddPlayerOptions options);

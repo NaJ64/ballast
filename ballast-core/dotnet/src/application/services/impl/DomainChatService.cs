@@ -1,8 +1,8 @@
+using System;
+using System.Threading.Tasks;
 using Ballast.Core.Application.Events;
 using Ballast.Core.Application.Models;
 using Ballast.Core.Messaging;
-using System;
-using System.Threading.Tasks;
 
 namespace Ballast.Core.Application.Services.Impl 
 {
@@ -22,10 +22,9 @@ namespace Ballast.Core.Application.Services.Impl
 
         public async Task SendMessageAsync(ChatMessage message) 
         {
-            var player = await _signInService.GetSignedInPlayerAsync(Guid.Parse(message.FromPlayerId));
+            var player = await _signInService.GetSignedInPlayerAsync(message.FromPlayerId);
             message.FromPlayerName = player.Name;
             await _eventBus.PublishAsync(ChatMessageSentEvent.FromMessage(message));
-            //throw new NotImplementedException();
         }
     }
 }
