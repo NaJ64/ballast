@@ -1,6 +1,6 @@
-using Ballast.Core.Application.Models;
 using System;
 using System.Threading.Tasks;
+using Ballast.Core.Application.Models;
 
 namespace Ballast.Core.Application.Services
 {

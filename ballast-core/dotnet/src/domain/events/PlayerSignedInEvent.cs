@@ -1,6 +1,5 @@
 using Ballast.Core.Domain.Models;
 using Ballast.Core.Messaging;
-using System;
 
 namespace Ballast.Core.Domain.Events
 {

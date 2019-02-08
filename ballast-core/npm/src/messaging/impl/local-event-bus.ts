@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { IEvent } from "./event";
-import { AsyncEventHandler, IEventBus } from "./event-bus";
+import { IEvent } from "../event";
+import { AsyncEventHandler, IEventBus } from "../event-bus";
 
 interface EventSubscription<TEvent extends IEvent> {
     key: string;

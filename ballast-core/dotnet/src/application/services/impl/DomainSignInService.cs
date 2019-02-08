@@ -1,11 +1,11 @@
-using Ballast.Core.Application.Models;
-using Ballast.Core.Domain.Events;
-using Ballast.Core.Domain.Models;
-using Ballast.Core.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ballast.Core.Application.Models;
+using Ballast.Core.Domain.Events;
+using Ballast.Core.Domain.Models;
+using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Services.Impl
 {

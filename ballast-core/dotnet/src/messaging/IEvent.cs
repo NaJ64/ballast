@@ -1,4 +1,3 @@
-
 using System;
 
 namespace Ballast.Core.Messaging

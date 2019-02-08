@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Ballast.Core.Messaging
+namespace Ballast.Core.Messaging.Impl
 {
     public class LocalEventBus : IEventBus , IDisposable
     {

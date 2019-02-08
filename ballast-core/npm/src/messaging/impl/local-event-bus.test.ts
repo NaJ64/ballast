@@ -1,10 +1,10 @@
 import "reflect-metadatat";
 
 import "jest";
-import { IEvent } from "./event";
-import { IEventBus } from "./event-bus";
+import { IEvent } from "../event";
+import { IEventBus } from "../event-bus";
 import { LocalEventBus } from "./local-event-bus";
-import { getUtcNow } from "../utility/date-helpers";
+import { getUtcNow } from "../../utility/date-helpers";
 
 let handled = 0;
 let eventKey = 'TestEvent';
