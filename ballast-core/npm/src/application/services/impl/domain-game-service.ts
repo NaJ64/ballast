@@ -26,6 +26,7 @@ import { IRemovePlayerOptions } from "../../models/remove-player-options";
 import { IVesselDto } from "../../models/vessel-dto";
 import { IVesselMoveRequest } from "../../models/vessel-move-request";
 import { IGameService } from "../game-service";
+import { VesselStateChangedDomainEvent } from "../../../domain";
 
 @injectable()
 export class DomainGameService implements IGameService {
@@ -655,29 +656,192 @@ export class DomainGameService implements IGameService {
                     )
                 );
             }
-            // Raise player removed from vessel role event(s)
-            for(let playerRemovedFromVesselRoleEvent of playerRemovedFromVesselRoleEvents) {
-                await this._eventBus.publishAsync(playerRemovedFromVesselRoleEvent);
-            }
-            // Return the updated vessel state
-            return this.mapToVesselDto(vessel);
         }
-
+        // Raise player removed from vessel role event(s)
+        for(let playerRemovedFromVesselRoleEvent of playerRemovedFromVesselRoleEvents) {
+            await this._eventBus.publishAsync(playerRemovedFromVesselRoleEvent);
+        }
+        // Return the updated vessel state
+        return this.mapToVesselDto(vessel);
     }
 
     public async moveVesselAsync(request: IVesselMoveRequest): Promise<IVesselDto> {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        // Locate game matching id from request
+        let gameId = request.gameId;
+        if (!gameId || gameId == Guid.empty) {
+            throw new Error("GameId must be provided");
+        }
+        let game = await this.retrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
+        
+        // Make sure we have a valid board
+        let board = game.board;
+        if (!board) {
+            throw new Error(`Game id ${gameId} contains invalid board data!`);
+        }
+
+        // Locate vessel matching id from request
+        let vesselId = request && request.vesselId || null;
+        if (!vesselId || vesselId == Guid.empty) {
+            throw new Error("VesselId must be provided");
+        }
+        let foundVessel = game.vessels.find(x => x.id == vesselId);
+        if (!foundVessel) {
+            throw new Error(`Could not locate vessel with id '${vesselId}'`);
+        }
+        let vessel = foundVessel;
+
+        // Derive current coordinates from request
+        let requestStartCoordinates = CubicCoordinates.fromOrderedTriple(request.sourceOrderedTriple);
+        let actualStartCoordinates = vessel.cubicCoordinates;
+
+        // Make sure starting position matches current known position for vessel
+        if (!requestStartCoordinates.equals(actualStartCoordinates)) {
+            throw new Error(`Request vessel movement(s) must originate from current vessel position`);
+        }
+        let requestStartTile = board.tiles.find(x => requestStartCoordinates.equals(x.cubicCoordinates));
+        if (!requestStartTile) {
+            throw new Error("Current vessel position does not match a corresponding tile");
+        }
+
+        // Determine if request specifies only cardinal directions or an actual set of tile coordinates
+        let targetCoordinates: CubicCoordinates | null = null;
+        let doubleIncrement = !!game.board.tileShape.doubleIncrement;
+        let useCardinalDirections = !!request.targetOrderedTriple && Array.isArray(request.targetOrderedTriple) && !!request.targetOrderedTriple.length;
+        if (!useCardinalDirections) {
+            // Get actual cubic coordinates
+            let requestTargetCoordinates = CubicCoordinates.fromOrderedTriple(request.targetOrderedTriple);
+            // Verify that the target coordinates are one movement away from the current coordinates
+            let totalUnitDistance = this.getTotalUnitDistance(
+                doubleIncrement,
+                actualStartCoordinates,
+                requestTargetCoordinates
+            );
+            // Can't move multiple units and also must move at least 1 unit
+            if (totalUnitDistance != 1) {
+                throw new Error(`Vessel movement must target a tile that is 1 unit away from current position`);
+            }
+            // Use target coordinates from request
+            targetCoordinates = requestTargetCoordinates;
+        } else {
+            // Get directions/movements
+            let north = request.direction && request.direction.north || false;
+            let south = request.direction && request.direction.south || false;
+            let west = request.direction && request.direction.west || false;
+            let east = request.direction && request.direction.east || false;
+            // Determine movement based on cardinal direction(s)
+            let hasMovement = north || south || west || east;
+            // If no movement (must move at least 1 unit), throw error
+            if (!hasMovement) {
+                throw new Error(`Vessel movement must target a tile that is 1 unit away from current position`);
+            }
+            // Make sure we don't have any offsetting movements
+            if ((north && south) || (west && east)) {
+                throw new Error(`Vessel movement may not specify opposite cardinal directions at the same time`);
+            }
+            // Calculate combined (diagonal) directions
+            let northWest = north && west;
+            let southWest = south && west;
+            let northEast = north && east;
+            let southEast = south && east;
+            // After assigning diagonals, reduce "due-____" directions
+            north = north && (!northWest && !northEast);
+            south = south && (!southWest && !southEast);
+            west = west && (!northWest && !southWest);
+            east = east && (!northEast && !southEast);
+            // Make sure the movement direction(s) are allowed by the current board/tile shape
+            // Make sure the movement direction(s) are allowed by the current board/tile shape
+            let boardTileShape = board && board.tileShape;
+            if (!boardTileShape) {
+                throw new Error("Board does not have tile shape information to determine valid movements");
+            }
+            if (north && (!boardTileShape.hasDirectionNorth))
+                throw new Error("Current board/tile shape does not permit due North movement(s)");
+            if (south && (!boardTileShape.hasDirectionSouth))
+                throw new Error("Current board/tile shape does not permit due South movement(s)");
+            if (west && (!boardTileShape.hasDirectionWest))
+                throw new Error("Current board/tile shape does not permit due West movement(s)");
+            if (east && (!boardTileShape.hasDirectionEast))
+                throw new Error("Current board/tile shape does not permit due East movement(s)");
+            if (northWest && (!boardTileShape.hasDirectionNorthWest))
+                throw new Error("Current board/tile shape does not permit North-West movement(s)");
+            if (southWest && (!boardTileShape.hasDirectionSouthWest))
+                throw new Error("Current board/tile shape does not permit South-West movement(s)");
+            if (northEast && (!boardTileShape.hasDirectionNorthEast))
+                throw new Error("Current board/tile shape does not permit North-East movement(s)");
+            if (southEast && (!boardTileShape.hasDirectionSouthEast))
+                throw new Error("Current board/tile shape does not permit South East movement(s)");
+            // Get the adjacent tile
+            let targetTile: Tile | null = null;
+            if (north) {
+                targetTile = this.getNorthTile(board, requestStartCoordinates);
+            } else if (south) {
+                targetTile = this.getSouthTile(board, requestStartCoordinates);
+            } else if (west) {
+                targetTile = this.getWestTile(board, requestStartCoordinates);
+            } else if (east) {
+                targetTile = this.getEastTile(board, requestStartCoordinates);
+            } else if (northWest) {
+                targetTile = this.getNorthWestTile(board, requestStartCoordinates);
+            } else if (southWest) {
+                targetTile = this.getSouthWestTile(board, requestStartCoordinates);
+            } else if (northEast) {
+                targetTile = this.getNorthEastTile(board, requestStartCoordinates);
+            } else if (southEast) {
+                targetTile = this.getSouthEastTile(board, requestStartCoordinates);
+            }
+            // Make sure we obtained a valid tile, otherwise keep the vessel where it already is 
+            if (!targetTile) {
+                targetTile = requestStartTile;
+            }
+            // Get new coordinates
+            targetCoordinates = targetTile.cubicCoordinates;
+        }
+
+        // Move the vessel to the new coordinates
+        game.updateVesselCoordinates(vesselId, targetCoordinates);
+        vessel = game.vessels.find(x => x.id == vesselId) as Vessel;
+        await this._eventBus.publishAsync(VesselStateChangedDomainEvent.fromVesselInGame(game, vessel));
+
+        // Finished changing game state
+        await this._eventBus.publishAsync(GameStateChangedDomainEvent.fromGame(game));
+
+        // Return the new vessel state
+        return this.mapToVesselDto(vessel);
+
     }
 
     private createVessels(createVesselOptions: ICreateVesselOptions[], board: Board): Vessel[] {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let vessels: Vessel[] = [];
+        for(let vesselOptions of createVesselOptions) {
+            let vesselId = Guid.newGuid();
+            let vesselName = vesselOptions.requestedName;
+            let startingCoordinates = !!vesselOptions.startOrderedTriple
+                ? CubicCoordinates.fromOrderedTriple(vesselOptions.startOrderedTriple)
+                : board.getRandomPassableCoordinates();
+            let vessel = new Vessel(
+                vesselId,
+                vesselName,
+                startingCoordinates,
+                null,
+                null
+            );
+            vessels.push(vessel);
+        }
+        return vessels;
     }
 
     private getTotalUnitDistance(doubleIncrement: boolean, fromTileCoordinates: CubicCoordinates, toTileCoordinates: CubicCoordinates ): number {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let x1 = fromTileCoordinates.x;
+        let y1 = fromTileCoordinates.y;
+        let z1 = fromTileCoordinates.z;
+        let x2 = toTileCoordinates.x;
+        let y2 = toTileCoordinates.y;
+        let z2 = toTileCoordinates.z;
+        let distance = Math.max(Math.max(x2 - x1, y2 - y1), z2 - z1);
+        if (doubleIncrement) {
+            return Math.trunc(distance / 2);
+        }
+        return distance;
     }
 
     private getNorthTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {

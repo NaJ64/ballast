@@ -629,7 +629,7 @@ namespace Ballast.Core.Application.Services.Impl
             var game = await RetrieveGameByIdAsync(gameId);
 
             // Make sure we have a valid board
-            var board = game?.Board != null ? game.Board : null;
+            var board = game?.Board;
             if (board == null)
                 throw new KeyNotFoundException($"Game id '{gameId}' contains invalid board data!");
 
@@ -650,6 +650,8 @@ namespace Ballast.Core.Application.Services.Impl
             if (!requestStartCoordinates.Equals(actualStartCoordinates))
                 throw new InvalidOperationException("Requested vessel movement(s) must originate from current vessel position");
             var requestStartTile = board.Tiles.SingleOrDefault(x => requestStartCoordinates.Equals(x.CubicCoordinates));
+            if (requestStartTile == null)
+                throw new InvalidOperationException("Current vessel position does not match a corresponding tile");
 
             // Determine if request specifies only cardinal directions or an actual set of tile coordinates
             CubicCoordinates targetCoordinates = null;
@@ -684,7 +686,7 @@ namespace Ballast.Core.Application.Services.Impl
                 if (!hasMovement)
                     throw new InvalidOperationException("Vessel movement must target a tile that is 1 unit away from current position");
                 // Make sure we don't have any offsetting movements
-                if ((north && south) | (west && east))
+                if ((north && south) || (west && east))
                     throw new InvalidOperationException("Vessel movement may not specify opposite cardinal directions at the same time");
                 // Calculate combined (diagonal) directions
                 var northWest = north && west;

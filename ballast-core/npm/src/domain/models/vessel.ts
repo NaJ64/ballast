@@ -10,7 +10,7 @@ export class Vessel {
     public captain: Player | null;
     public radioman: Player | null;
 
-    private constructor(id: string, name: string, cubicCoordinates: CubicCoordinates, captain: Player | null = null, radioman: Player | null = null) {
+    public constructor(id: string, name: string, cubicCoordinates: CubicCoordinates, captain: Player | null = null, radioman: Player | null = null) {
         this.id = id;
         this.name = name;
         this.cubicCoordinates = cubicCoordinates;
