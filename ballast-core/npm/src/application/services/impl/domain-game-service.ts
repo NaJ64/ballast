@@ -583,8 +583,86 @@ export class DomainGameService implements IGameService {
     }
 
     public async removePlayerFromVesselRoleAsync(options: IRemovePlayerOptions): Promise<IVesselDto> {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        // Make sure required arguments were provided
+        let gameId = options && options.gameId;
+        if (!gameId || gameId == Guid.empty) {
+            throw new Error("gameId cannot be null");
+        }
+        let playerId = options.playerId;
+        if (!playerId || playerId == Guid.empty) {
+            throw new Error("playerId cannot be null");
+        }
+        let vesselId = options.vesselId;
+        if (!vesselId || vesselId == Guid.empty) {
+            throw new Error("vesselId cannot be null");
+        }
+        let hasVesselRoles = options.vesselRoles && Array.isArray(options.vesselRoles) && options.vesselRoles.length;
+        if (!hasVesselRoles) {
+            throw new Error("vesselRoles cannot be null/empty");
+        }
+        let vesselRoles = options.vesselRoles.map(x => VesselRole.fromName(x));
+        // Locate game matching id from request
+        let game = await this.retrieveGameByIdAsync(gameId); // <-- Throws exception if game not found
+        // Locate vessel matching id from request
+        let vessel = game.vessels.find(x => x.id == vesselId);
+        // Make sure vessel was found
+        if (!vessel) {
+            throw new Error(`Vessel with id ${vesselId} was not found in the requested game (${gameId})`);
+        }
+        // Make sure player was found
+        let player = game.players.find(x => x.id == playerId);
+        if (!player) {
+            throw new Error(`Player with id ${playerId} was not found in the requested game (${gameId})`);
+        }
+        // Make sure player belongs to each role in the list
+        let playerRemovedFromVesselRoleEvents: PlayerRemovedFromVesselRoleDomainEvent[] = [];
+        for(let vesselRole of vesselRoles) {
+            // Captain
+            if (vesselRole.value == VesselRole.Captain.value) {
+                // Check the current Captain
+                let vesselCaptain = vessel.captain;
+                if (vesselCaptain && vesselCaptain.id == playerId) {
+                    throw new Error(`Player with id ${playerId} already belongs to role (${VesselRole.Captain.name})`);
+                }
+                // Remove from role
+                vessel.setVesselRole(VesselRole.Captain, null);
+                // Store the event
+                playerRemovedFromVesselRoleEvents.push(
+                    PlayerRemovedFromVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                        game,
+                        vessel,
+                        VesselRole.Captain,
+                        player
+                    )
+                );
+            }
+            // Radioman
+            if (vesselRole.value == VesselRole.Radioman.value) {
+                // Check the current Radioman
+                let vesselRadioman = vessel.radioman;
+                if (vesselRadioman && vesselRadioman.id == playerId) {
+                    throw new Error(`Player with id ${playerId} already belongs to role (${VesselRole.Captain.name})`);
+                }
+                // Remove from role
+                vessel.setVesselRole(VesselRole.Radioman, null);
+                // Store the event
+                playerRemovedFromVesselRoleEvents.push(
+                    PlayerRemovedFromVesselRoleDomainEvent.fromPlayerInGameVesselRole(
+                        game,
+                        vessel,
+                        VesselRole.Radioman,
+                        player
+                    )
+                );
+            }
+            // Raise player removed from vessel role event(s)
+            for(let playerRemovedFromVesselRoleEvent of playerRemovedFromVesselRoleEvents) {
+                await this._eventBus.publishAsync(playerRemovedFromVesselRoleEvent);
+            }
+            // Return the updated vessel state
+            return this.mapToVesselDto(vessel);
+        }
+
     }
 
     public async moveVesselAsync(request: IVesselMoveRequest): Promise<IVesselDto> {
