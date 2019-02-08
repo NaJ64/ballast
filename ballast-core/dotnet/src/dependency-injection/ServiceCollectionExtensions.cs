@@ -34,17 +34,6 @@ namespace Ballast.Core.DependencyInjection
                 services.AddSingleton<ISignInService, DomainSignInService>();
             }
 
-            // Factory functions for application services
-            services.AddSingleton<Func<IChatService>>(serviceProvider => () =>
-                serviceProvider.GetRequiredService<IChatService>()
-            );
-            services.AddSingleton<Func<IGameService>>(serviceProvider => () =>
-                serviceProvider.GetRequiredService<IGameService>()
-            );
-            services.AddSingleton<Func<ISignInService>>(serviceProvider => () =>
-                serviceProvider.GetRequiredService<ISignInService>()
-            );
-
             return services;
         }
     }

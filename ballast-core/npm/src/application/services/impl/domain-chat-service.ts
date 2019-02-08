@@ -14,7 +14,7 @@ export class DomainChatService implements IChatService {
 
     public constructor(
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus,
-        @inject(BallastCore.Application.ISignInService) signInService: ISignInService
+        @inject(BallastCore.Application.Services.ISignInService) signInService: ISignInService
     ) {
         this._eventBus = eventBus;
         this._signInService = signInService;

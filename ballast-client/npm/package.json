@@ -1,7 +1,7 @@
 {
-  "name": "ballast-core",
+  "name": "ballast-client",
   "version": "1.0.0",
-  "description": "Core types/services for Ballast",
+  "description": "Client library for connecting to Ballast server",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
@@ -24,6 +24,7 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^23.3.13",
+    "ballast-core": "file:../../ballast-core/npm",
     "cpx": "^1.5.0",
     "inversify": "^5.0.1",
     "jest": "^24.0.0",
@@ -33,6 +34,7 @@
     "typescript": "^3.3.1"
   },
   "peerDependencies": {
+    "ballast-core": "file:../../ballast-core/npm",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
   },

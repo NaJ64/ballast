@@ -42,7 +42,7 @@ export class DomainGameService implements IGameService {
 
     public constructor(
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus,
-        @inject(BallastCore.Domain.IBoardGenerator) boardGenerator: IBoardGenerator
+        @inject(BallastCore.Domain.Services.IBoardGenerator) boardGenerator: IBoardGenerator
     ) {
         this._eventBus = eventBus;
         this._boardGenerator = boardGenerator;
