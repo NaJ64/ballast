@@ -19,7 +19,7 @@ import { VesselRole } from "../../../domain/models/vessel-role";
 import { IBoardGenerator } from "../../../domain/services/board-generator";
 import { IEventBus } from "../../../messaging/event-bus";
 import { Guid } from "../../../utility/guid";
-import { ICreateVesselOptions } from "../../models";
+import { ICreateVesselOptions } from "../../models/create-vessel-options";
 import { IAddPlayerOptions } from "../../models/add-player-options";
 import { ICreateGameOptions } from "../../models/create-game-options";
 import { IGameDto } from "../../models/game-dto";
@@ -27,6 +27,9 @@ import { IRemovePlayerOptions } from "../../models/remove-player-options";
 import { IVesselDto } from "../../models/vessel-dto";
 import { IVesselMoveRequest } from "../../models/vessel-move-request";
 import { IGameService } from "../game-service";
+import { IBoardDto } from "../../models/board-dto";
+import { ITileDto } from "../../models/tile-dto";
+import { IPlayerDto } from "../../models/player-dto";
 
 @injectable()
 export class DomainGameService implements IGameService {
@@ -60,14 +63,70 @@ export class DomainGameService implements IGameService {
         this._games.clear();
     }
 
-    private mapToGameDto(game: Game): IGameDto {
-        // TODO:  Make a game dto
-        throw new Error("Not implemented.");
+
+    private mapToGameDto(game: Game): IGameDto
+    {
+        return {
+            id: game.id,
+            board: this.mapToBoardDto(game.board),
+            vessels: game.vessels.map(x => this.mapToVesselDto(x)),
+            players: game.players.map(x => this.mapToPlayerDto(x)),
+            createdOnDateIsoString: game.createdOnDate.toISOString(),
+            startedOnDateIsoString: game.startedOnDate && game.startedOnDate.toISOString() || null,
+            endedOnDateIsoString: game.endedOnDate && game.endedOnDate.toISOString()
+        };
     }
 
-    private mapToVesselDto(vessel: Vessel): IVesselDto {
-        // TODO:  Make a vessel dto
-        throw new Error("Not implemented.");
+    private mapToBoardDto(board: Board): IBoardDto
+    {
+        return {
+            id: board.id,
+            tileShape: board.tileShape.name,
+            type: board.boardType.name,
+            tiles: board.tiles.map(x => this.mapToTileDto(x)),
+            centerOrigin: board.boardType.centerOrigin,
+            applyHexRowScaling: board.tileShape.applyHexRowScaling,
+            doubleIncrement: board.tileShape.doubleIncrement,
+            hasDirectionEast: board.tileShape.hasDirectionEast || false,
+            hasDirectionNorth: board.tileShape.hasDirectionNorth || false,
+            hasDirectionNorthEast: board.tileShape.hasDirectionNorthEast || false,
+            hasDirectionNorthWest: board.tileShape.hasDirectionNorthWest || false,
+            hasDirectionSouth: board.tileShape.hasDirectionSouth || false,
+            hasDirectionSouthEast: board.tileShape.hasDirectionSouthEast || false,
+            hasDirectionSouthWest: board.tileShape.hasDirectionSouthWest || false,
+            hasDirectionWest: board.tileShape.hasDirectionWest || false
+        };
+    }
+
+    private mapToTileDto(tile: Tile): ITileDto
+    {
+        return {
+            tileShape: tile.tileShape.name,
+            terrain: tile.terrain.name,
+            passable: tile.terrain.passable,
+            orderedTriple: tile.cubicCoordinates.toOrderedTriple()
+        };
+    }
+
+    private mapToVesselDto(vessel: Vessel): IVesselDto
+    {   
+        return {
+            id: vessel.id,
+            name: vessel.name,
+            orderedTriple: vessel.cubicCoordinates.toOrderedTriple(),
+            captainId: vessel.captain && vessel.captain.id,
+            captainName: vessel.captain && vessel.captain.name,
+            radiomanId: vessel.radioman && vessel.radioman.id,
+            radiomanName: vessel.radioman && vessel.radioman.name
+        };
+    }
+
+    private mapToPlayerDto(player: Player): IPlayerDto
+    {
+        return {
+            id: player.id,
+            name: player.name
+        };
     }
 
     private async createDefaultGameAsync(): Promise<Game> {

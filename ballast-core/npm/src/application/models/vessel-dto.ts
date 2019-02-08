@@ -2,8 +2,8 @@ export interface IVesselDto {
     id: string;
     name: string;
     orderedTriple: number[];
-    captainId: number | null;
+    captainId: string | null;
     captainName: string | null;
-    radiomanId: number | null;
+    radiomanId: string | null;
     radiomanName: string | null;
 }

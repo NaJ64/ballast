@@ -107,14 +107,6 @@ export class TileShape implements ITileShape {
         return this.value == tileShape.value;
     }
 
-    public static fromObject(object: ITileShape): TileShape {
-        let item = !!object && TileShape.fromValue(object.value);
-        if (!item) {
-            throw new Error(`Could derive tile shape from object (${object})`);
-        }
-        return item;
-    }
-
     public static fromValue(value: number): TileShape {
         let item = (value > -1) && TileShape.list().find(x => x.value == value);
         if (!item) {

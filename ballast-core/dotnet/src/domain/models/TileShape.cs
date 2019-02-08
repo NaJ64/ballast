@@ -54,8 +54,8 @@ namespace Ballast.Core.Domain.Models
             hasDirectionSouthEast: true
         );
 
-        public bool? ApplyHexRowScaling { get; private set; }
-        public bool? DoubleIncrement { get; private set; }
+        public bool ApplyHexRowScaling { get; private set; }
+        public bool DoubleIncrement { get; private set; }
         public bool? HasDirectionNorth { get; private set; }
         public bool? HasDirectionSouth { get; private set; }
         public bool? HasDirectionWest { get; private set; }
@@ -80,8 +80,8 @@ namespace Ballast.Core.Domain.Models
             bool? hasDirectionSouthEast = null
         ) : base(value, name)
         {
-            ApplyHexRowScaling = applyHexRowScaling;
-            DoubleIncrement = doubleIncrement;
+            ApplyHexRowScaling = applyHexRowScaling ?? false;
+            DoubleIncrement = doubleIncrement ?? false;
             HasDirectionNorth = hasDirectionNorth;
             HasDirectionSouth = hasDirectionSouth;
             HasDirectionWest = hasDirectionWest;

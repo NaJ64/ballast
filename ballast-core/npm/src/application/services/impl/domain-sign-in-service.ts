@@ -27,9 +27,12 @@ export class DomainSignInService implements ISignInService {
         this._players.clear();
     }
 
-    private mapToPlayerDto(player: Player): IPlayerDto {
-        // TODO: Make a player dto
-        throw new Error("Method not implemented.");
+    private mapToPlayerDto(player: Player): IPlayerDto
+    {
+        return {
+            id: player.id,
+            name: player.name
+        };
     }
 
     public async signInAsync(request: IPlayerSignInRequest): Promise<IPlayerDto> {

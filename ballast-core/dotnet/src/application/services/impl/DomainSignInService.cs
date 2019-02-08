@@ -26,11 +26,11 @@ namespace Ballast.Core.Application.Services.Impl
             _players.Clear();
         }
 
-        private PlayerDto MapToPlayerDto(Player player)
-        {   
-            // TODO: Make a player dto
-            throw new NotImplementedException();
-        }
+        private PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
+        {
+            Id = player.Id,
+            Name = player.Name
+        };
 
         public async Task<PlayerDto> SignInAsync(PlayerSignInRequest request)
         {

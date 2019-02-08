@@ -8,6 +8,12 @@ namespace Ballast.Client.SignalR
 {
     public class SignalRClientGameService : IGameService
     {
+        
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<GameDto> AddPlayerToGameAsync(AddPlayerOptions options)
         {
             throw new NotImplementedException();
@@ -29,11 +35,6 @@ namespace Ballast.Client.SignalR
         }
 
         public Task DeleteGameAsync(Guid gameId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
         {
             throw new NotImplementedException();
         }

@@ -7,6 +7,7 @@ using Ballast.Core.Domain.Events;
 using Ballast.Core.Domain.Models;
 using Ballast.Core.Domain.Services;
 using Ballast.Core.Messaging;
+using Ballast.Core.Utilities;
 
 namespace Ballast.Core.Application.Services.Impl
 {
@@ -37,17 +38,59 @@ namespace Ballast.Core.Application.Services.Impl
             _games.Clear();
         }
 
-        private GameDto MapToGameDto(Game game)
-        {   
-            // TODO: Make a game dto
-            throw new NotImplementedException();
-        }
+        private GameDto MapToGameDto(Game game) => new GameDto()
+        {
+            Id = game.Id,
+            Board = MapToBoardDto(game.Board),
+            Vessels = game.Vessels.Select(x => MapToVesselDto(x)).ToArray(),
+            Players = game.Players.Select(x => MapToPlayerDto(x)).ToArray(),
+            CreatedOnDateIsoString = game.CreatedOnDate.ToIsoString(),
+            StartedOnDateIsoString = game.StartedOnDate.ToIsoString(),
+            EndedOnDateIsoString = game.EndedOnDate.ToIsoString(),
+        };
 
-        private VesselDto MapToVesselDto(Vessel vessel)
+        private BoardDto MapToBoardDto(Board board) => new BoardDto()
+        {
+            Id = board.Id,
+            TileShape = board.TileShape.Name,
+            Type = board.BoardType.Name,
+            Tiles = board.Tiles.Select(x => MapToTileDto(x)).ToArray(),
+            CenterOrigin = board.BoardType.CenterOrigin,
+            ApplyHexRowScaling = board.TileShape.ApplyHexRowScaling,
+            DoubleIncrement = board.TileShape.DoubleIncrement,
+            HasDirectionEast = board.TileShape.HasDirectionEast ?? false,
+            HasDirectionNorth= board.TileShape.HasDirectionNorth ?? false,
+            HasDirectionNorthWest = board.TileShape.HasDirectionNorthWest ?? false,
+            HasDirectionSouth = board.TileShape.HasDirectionSouth ?? false,
+            HasDirectionSouthEast = board.TileShape.HasDirectionSouthEast ?? false,
+            HasDirectionSouthWest = board.TileShape.HasDirectionSouthWest ?? false,
+            HasDirectionWest = board.TileShape.HasDirectionWest ?? false
+        };
+
+        private TileDto MapToTileDto(Tile tile) => new TileDto() 
+        {
+            TileShape = tile.TileShape.Name,
+            Terrain = tile.Terrain.Name,
+            Passable = tile.Terrain.Passable,
+            OrderedTriple = tile.CubicCoordinates.ToOrderedTriple()
+        };
+
+        private VesselDto MapToVesselDto(Vessel vessel) => new VesselDto()
         {   
-            // TODO: Make a vessel dto
-            throw new NotImplementedException();
-        }
+            Id = vessel.Id,
+            Name = vessel.Name,
+            OrderedTriple = vessel.CubicCoordinates.ToOrderedTriple(),
+            CaptainId = vessel.Captain.Id,
+            CaptainName = vessel.Captain.Name,
+            RadiomanId = vessel.Radioman.Id,
+            RadiomanName = vessel.Radioman.Name
+        };
+
+        private PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
+        {
+            Id = player.Id,
+            Name = player.Name
+        };
 
         private async Task<Game> CreateDefaultGameAsync()
         {
@@ -90,8 +133,8 @@ namespace Ballast.Core.Application.Services.Impl
                 );
             var players = new List<Player>();
             var vessels = CreateVessels(options.VesselOptions, board);
-            var createdUtc = DateTime.UtcNow;
-            var game = new Game(id: gameId, board: board, vessels: vessels, players: players, createdUtc: createdUtc);
+            var createdOnDate = DateTime.UtcNow;
+            var game = new Game(id: gameId, board: board, vessels: vessels, players: players, createdOnDate: createdOnDate);
             _games[gameId] = game;
             await _eventBus.PublishAsync(GameStateChangedDomainEvent.FromGame(game));
             return game;
@@ -655,7 +698,7 @@ namespace Ballast.Core.Application.Services.Impl
 
             // Determine if request specifies only cardinal directions or an actual set of tile coordinates
             CubicCoordinates targetCoordinates = null;
-            var doubleIncrement = game.Board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = game.Board.TileShape.DoubleIncrement;
             var useCardinalDirections = !request.TargetOrderedTriple.Any();
             if (!useCardinalDirections)
             {
@@ -791,7 +834,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetNorthTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             if (!doubleIncrement)
                 throw new Exception("Grid coordinate system does not support movement north without double-incrementation");
             var newCoordinates = fromTileCoordinates
@@ -805,7 +848,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetSouthTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             if (!doubleIncrement)
                 throw new Exception("Grid coordinate system does not support movement south without double-incrementation");
             var newCoordinates = fromTileCoordinates
@@ -819,7 +862,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetWestTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddYSubtractX(doubleIncrement ? 2 : 1);
             var getTile = board.GetTileFromCoordinates(newCoordinates);
@@ -830,7 +873,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetEastTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddXSubtractY(doubleIncrement ? 2 : 1);
             var getTile = board.GetTileFromCoordinates(newCoordinates);
@@ -841,7 +884,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetNorthWestTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddYSubtractZ(doubleIncrement ? 2 : 1);
             if (doubleIncrement)
@@ -855,7 +898,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetSouthWestTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddZSubtractX(doubleIncrement ? 2 : 1);
             if (doubleIncrement)
@@ -868,7 +911,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetNorthEastTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddXSubtractZ(doubleIncrement ? 2 : 1);
             if (doubleIncrement)
@@ -881,7 +924,7 @@ namespace Ballast.Core.Application.Services.Impl
 
         private Tile GetSouthEastTile(Board board, CubicCoordinates fromTileCoordinates)
         {
-            var doubleIncrement = board.TileShape.DoubleIncrement ?? false;
+            var doubleIncrement = board.TileShape.DoubleIncrement ;
             CubicCoordinates newCoordinates = fromTileCoordinates
                 .AddZSubtractY(doubleIncrement ? 2 : 1);
             if (doubleIncrement)

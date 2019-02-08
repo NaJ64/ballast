@@ -1,4 +1,5 @@
 using System;
+using Ballast.Core.Utilities;
 
 namespace Ballast.Core.Messaging
 {
@@ -15,7 +16,7 @@ namespace Ballast.Core.Messaging
         }
 
         public static string GetDateIsoString() => 
-            DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime.UtcNow.ToIsoString();
         
     }
 }

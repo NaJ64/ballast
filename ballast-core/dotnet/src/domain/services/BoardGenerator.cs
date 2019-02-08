@@ -158,7 +158,7 @@ namespace Ballast.Core.Domain.Services
         private IList<Tile> BuildRectangle(int columnCount, int rowCount, TileShape tileShape)
         {
             var rectangle = new List<Tile>();
-            var increment = (tileShape.DoubleIncrement ?? false) ? 2 : 1;
+            var increment = tileShape.DoubleIncrement ? 2 : 1;
             for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
             {
                 var row = rowIndex * increment;
@@ -182,7 +182,7 @@ namespace Ballast.Core.Domain.Services
         {
 
             var square = new List<Tile>();
-            var increment = (TileShape.Square.DoubleIncrement ?? false) ? 2 : 1;
+            var increment = TileShape.Square.DoubleIncrement ? 2 : 1;
             var centerOffset = centerOrigin ? (((sideLength * increment) / 2) - 1) : 0;
 
             // Loop through rows x columns
@@ -212,7 +212,7 @@ namespace Ballast.Core.Domain.Services
         {
 
             var octagon = new List<Tile>();
-            var increment = (TileShape.Octagon.DoubleIncrement ?? false) ? 2 : 1;
+            var increment = TileShape.Octagon.DoubleIncrement ? 2 : 1;
             var maxLength = sideLength + 2 * (sideLength - 1);
             var centerOffset = centerOrigin ? (((maxLength * increment) / 2) - 1) : 0;
 
@@ -290,7 +290,7 @@ namespace Ballast.Core.Domain.Services
         {
 
             var hexagon = new List<Tile>();
-            var increment = (TileShape.Hexagon.DoubleIncrement ?? false) ? 2 : 1;
+            var increment = TileShape.Hexagon.DoubleIncrement ? 2 : 1;
             var maxLength = (2 * sideLength) - 1;
             var centerOffset = centerOrigin ? ((sideLength * increment) - 1) : 0;
             if (tileShape == null)

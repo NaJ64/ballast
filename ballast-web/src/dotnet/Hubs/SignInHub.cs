@@ -1,6 +1,7 @@
 using Ballast.Core.Application.Events;
 using Ballast.Core.Application.Models;
 using Ballast.Core.Application.Services;
+using Ballast.Core.Utilities;
 using Ballast.Web.HubMethods;
 using Ballast.Web.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -40,7 +41,7 @@ namespace Ballast.Web.Hubs
             {
                 await _signInService.SignOutAsync(new PlayerSignOutRequest() {
                     PlayerId = playerId,
-                    SentOnDateIsoString = DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture)
+                    SentOnDateIsoString = DateTime.UtcNow.ToIsoString()
                 });
             }
             _playerConnections.Remove(Context.ConnectionId);

@@ -9,9 +9,9 @@ namespace Ballast.Core.Domain.Models
 
         public Guid Id { get; private set; }
         public Board Board { get; private set; }
-        public DateTime CreatedUtc { get; private set; }
-        public DateTime? StartedUtc { get; private set; }
-        public DateTime? EndedUtc { get; private set; }
+        public DateTime CreatedOnDate { get; private set; }
+        public DateTime? StartedOnDate { get; private set; }
+        public DateTime? EndedOnDate { get; private set; }
 
         public IEnumerable<Vessel> Vessels => _vessels;
         private IList<Vessel> _vessels;
@@ -24,18 +24,18 @@ namespace Ballast.Core.Domain.Models
             Board board, 
             IEnumerable<Vessel> vessels, 
             IEnumerable<Player> players,
-            DateTime? createdUtc = null,
-            DateTime? startedUtc = null,
-            DateTime? endedUtc = null
+            DateTime? createdOnDate = null,
+            DateTime? startedOnDate = null,
+            DateTime? endedOnDate = null
         )
         {
             Id = id;
             Board = board;
             _vessels = vessels.ToList();
             _players = players.ToList();
-            CreatedUtc = createdUtc ?? DateTime.UtcNow;
-            StartedUtc = startedUtc;
-            EndedUtc = endedUtc;
+            CreatedOnDate = createdOnDate ?? DateTime.UtcNow;
+            StartedOnDate = startedOnDate;
+            EndedOnDate = endedOnDate;
         }
         
         public CubicCoordinates UpdateVesselCoordinates(Guid vesselId, CubicCoordinates cubicCoordinates)
@@ -53,20 +53,20 @@ namespace Ballast.Core.Domain.Models
 
         public DateTime Start()
         {
-            if (StartedUtc != null)
+            if (StartedOnDate != null)
                 throw new InvalidOperationException("Can't re-start game after it has already begun!");
-            var startedUtc = DateTime.UtcNow;
-            StartedUtc = startedUtc;
-            return startedUtc;
+            var startedOnDate = DateTime.UtcNow;
+            StartedOnDate = startedOnDate;
+            return startedOnDate;
         }
 
         public DateTime End()
         {
-            if (EndedUtc != null)
+            if (EndedOnDate != null)
                 throw new InvalidOperationException("Can't end game after it has already finished!");
-            var endedUtc = DateTime.UtcNow;
-            EndedUtc = endedUtc;
-            return endedUtc;
+            var endedOnDate = DateTime.UtcNow;
+            EndedOnDate = endedOnDate;
+            return endedOnDate;
         }
 
         public Player AddPlayer(Player player) 
