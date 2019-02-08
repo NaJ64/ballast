@@ -28,9 +28,9 @@ namespace Ballast.Web.HubMethods
         }
 
         public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Game game) => 
-            await GetPlayerConnectionsForGameAsync(game.Id);
+            await GetPlayerConnectionsForGameAsync(game.Id.ToString());
             
-        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(Guid gameId)
+        public async Task<IEnumerable<string>> GetPlayerConnectionsForGameAsync(string gameId)
         {
             var foundGame = await _gameService.GetGameAsync(gameId);
             var playerConnectionIdList = new List<string>();
@@ -50,7 +50,7 @@ namespace Ballast.Web.HubMethods
         public async Task OnPlayerJoinedGameAsync(PlayerJoinedGameEvent evt)
         {
             // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId.ToString());
             foreach(var connectionId in connectionIds)
             {
                 var client = _hubContext.Clients.Client(connectionId);
@@ -61,7 +61,7 @@ namespace Ballast.Web.HubMethods
         public async Task OnPlayerLeftGameAsync(PlayerLeftGameEvent evt)
         {
             // Lookup all clients that are already in the game and notify them
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId.ToString());
             foreach(var connectionId in connectionIds)
             {
                 var client = _hubContext.Clients.Client(connectionId);
@@ -71,7 +71,7 @@ namespace Ballast.Web.HubMethods
 
         public async Task OnVesselStateChanged(VesselStateChangedEvent evt)
         {
-            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId);
+            var connectionIds = await GetPlayerConnectionsForGameAsync(evt.GameId.ToString());
             foreach(var connectionId in connectionIds) 
             {
                 var client = _hubContext.Clients.Client(connectionId);

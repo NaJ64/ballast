@@ -80,7 +80,7 @@ namespace Ballast.Web.Hubs
             }
         }
 
-        public async Task GetGameAsync(Guid invocationId, Guid gameId)
+        public async Task GetGameAsync(Guid invocationId, string gameId)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace Ballast.Web.Hubs
             }
         }
         
-        public async Task StartGameAsync(Guid invocationId, Guid gameId)
+        public async Task StartGameAsync(Guid invocationId, string gameId)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace Ballast.Web.Hubs
             }
         }
 
-        public async Task EndGameAsync(Guid invocationId, Guid gameId)
+        public async Task EndGameAsync(Guid invocationId, string gameId)
         {
             try
             {
@@ -132,7 +132,7 @@ namespace Ballast.Web.Hubs
             }
         }
 
-        public async Task DeleteGameAsync(Guid invocationId, Guid gameId)
+        public async Task DeleteGameAsync(Guid invocationId, string gameId)
         {
             try
             {
