@@ -845,42 +845,101 @@ export class DomainGameService implements IGameService {
     }
 
     private getNorthTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        if (!doubleIncrement)
+            throw new Error("Grid coordinate system does not support movement north without double-incrementation");
+        var newCoordinates = fromTileCoordinates
+            .addXSubtractZ(1)
+            .addYSubtractZ(1);
+        var getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getSouthTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        if (!doubleIncrement)
+            throw new Error("Grid coordinate system does not support movement north without double-incrementation");
+        var newCoordinates = fromTileCoordinates
+            .addZSubtractX(1)
+            .addZSubtractY(1);
+        var getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getWestTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        let newCoordinates = fromTileCoordinates
+            .addYSubtractX(doubleIncrement ? 2 : 1);
+        let getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getEastTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        let newCoordinates = fromTileCoordinates
+            .addXSubtractY(doubleIncrement ? 2 : 1);
+        let getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getNorthWestTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        let newCoordinates = fromTileCoordinates
+            .addYSubtractZ(doubleIncrement ? 2 : 1);
+        if (doubleIncrement) {
+            newCoordinates = newCoordinates.addYSubtractX(1);
+        }
+        let getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getSouthWestTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        let newCoordinates = fromTileCoordinates
+            .addZSubtractX(doubleIncrement ? 2 : 1);
+        if (doubleIncrement) {
+            newCoordinates = newCoordinates.addYSubtractX(1);
+        }
+        let getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getNorthEastTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        let newCoordinates = fromTileCoordinates
+            .addXSubtractZ(doubleIncrement ? 2 : 1);
+        if (doubleIncrement) {
+            newCoordinates = newCoordinates.addXSubtractY(1);
+        }
+        let getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
 
     private getSouthEastTile(board: Board, fromTileCoordinates: CubicCoordinates): Tile {
-        // TODO:  Implement this
-        throw new Error("Not implemented");
+        let doubleIncrement = board.tileShape.doubleIncrement || false;
+        let newCoordinates = fromTileCoordinates
+            .addZSubtractY(doubleIncrement ? 2 : 1);
+        if (doubleIncrement) {
+            newCoordinates = newCoordinates.addXSubtractY(1);
+        }
+        let getTile = board.getTileFromCoordinates(newCoordinates);
+        if (getTile == null)
+            throw new Error("No tile exists for the requested position/cordinates");
+        return getTile;
     }
+    
 }
