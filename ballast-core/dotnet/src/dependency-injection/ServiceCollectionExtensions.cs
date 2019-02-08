@@ -10,27 +10,40 @@ namespace Ballast.Core.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddBallastCore(this IServiceCollection services)
+        public static IServiceCollection AddBallastCore(
+            this IServiceCollection services, 
+            Action<IBallastCoreOptions> configureOptions = null
+        )
         {
+            // Create new options instance
+            var ballastCoreOptions = new BallastCoreOptions();
+            configureOptions?.Invoke(ballastCoreOptions);
             
-            services.AddSingleton<IEventBus, LocalEventBus>();
+            // Local event bus
+            if (ballastCoreOptions.UseLocalEventBus) 
+            {
+                services.AddSingleton<IEventBus, LocalEventBus>();
+            }
 
-            services.AddSingleton<IChatService, DomainChatService>();
+            // Domain service implementations
+            if (ballastCoreOptions.UseDomain) 
+            {
+                services.AddTransient<IBoardGenerator, BoardGenerator>();
+                services.AddSingleton<IChatService, DomainChatService>();
+                services.AddSingleton<IGameService, DomainGameService>();
+                services.AddSingleton<ISignInService, DomainSignInService>();
+            }
+
+            // Factory functions for application services
             services.AddSingleton<Func<IChatService>>(serviceProvider => () =>
                 serviceProvider.GetRequiredService<IChatService>()
             );
-
-            services.AddSingleton<IGameService, DomainGameService>();
             services.AddSingleton<Func<IGameService>>(serviceProvider => () =>
                 serviceProvider.GetRequiredService<IGameService>()
             );
-
-            services.AddSingleton<ISignInService, DomainSignInService>();
             services.AddSingleton<Func<ISignInService>>(serviceProvider => () =>
                 serviceProvider.GetRequiredService<ISignInService>()
             );
-
-            services.AddTransient<IBoardGenerator, BoardGenerator>();
 
             return services;
         }
