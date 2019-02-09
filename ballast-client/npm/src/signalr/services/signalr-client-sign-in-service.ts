@@ -1,8 +1,8 @@
 import { IPlayerDto, IPlayerSignInRequest, IPlayerSignOutRequest, ISignInService } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { TYPES as BallastClient } from "../../dependency-injection/types";
+import { ISignalRClientOptions } from "../signalr-client-options";
 import { SignalRClientServiceBase } from "../signalr-client-service-base";
-import { ISignalRClientServiceOptions } from "../signalr-client-service-options";
 
 @injectable()
 export class SignalRClientSignInService extends SignalRClientServiceBase implements ISignInService {
@@ -13,9 +13,9 @@ export class SignalRClientSignInService extends SignalRClientServiceBase impleme
     }
 
     public constructor(
-        @inject(BallastClient.SignalR.ISignalRServiceOptionsFactory) optionsFactory: () => ISignalRClientServiceOptions
+        @inject(BallastClient.SignalR.ISignalRClientOptions) serviceOptions: ISignalRClientOptions
     ) {
-        super(optionsFactory);
+        super(serviceOptions);
     }
 
     public async signInAsync(request: IPlayerSignInRequest): Promise<IPlayerDto> {

@@ -2,7 +2,7 @@ import { IChatMessage, IChatService } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { TYPES as BallastClient } from "../../dependency-injection/types";
 import { SignalRClientServiceBase } from "../signalr-client-service-base";
-import { ISignalRClientServiceOptions } from "../signalr-client-service-options";
+import { ISignalRClientOptions } from "../signalr-client-options";
 
 @injectable()
 export class SignalRClientChatService extends SignalRClientServiceBase implements IChatService {
@@ -13,9 +13,9 @@ export class SignalRClientChatService extends SignalRClientServiceBase implement
     }
 
     public constructor(
-        @inject(BallastClient.SignalR.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRClientServiceOptions
+        @inject(BallastClient.SignalR.ISignalRClientOptions) serviceOptions: ISignalRClientOptions
     ) {
-        super(serviceOptionsFactory);
+        super(serviceOptions);
     }
 
     public async sendMessageAsync(message: IChatMessage): Promise<void> {

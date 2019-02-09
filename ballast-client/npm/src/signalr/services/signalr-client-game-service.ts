@@ -1,8 +1,8 @@
 import { IAddPlayerOptions, ICreateGameOptions, IGameDto, IGameService, IRemovePlayerOptions, IVesselDto, IVesselMoveRequest } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { TYPES as BallastClient } from "../../dependency-injection/types";
+import { ISignalRClientOptions } from "../signalr-client-options";
 import { SignalRClientServiceBase } from "../signalr-client-service-base";
-import { ISignalRClientServiceOptions } from "../signalr-client-service-options";
 
 @injectable()
 export class SignalRClientGameService extends SignalRClientServiceBase implements IGameService {
@@ -13,9 +13,9 @@ export class SignalRClientGameService extends SignalRClientServiceBase implement
     }
 
     public constructor(
-        @inject(BallastClient.SignalR.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRClientServiceOptions
+        @inject(BallastClient.SignalR.ISignalRClientOptions) serviceOptions: ISignalRClientOptions
     ) {
-        super(serviceOptionsFactory);
+        super(serviceOptions);
     }
     
     public async getAllGamesAsync(): Promise<IGameDto[]> {

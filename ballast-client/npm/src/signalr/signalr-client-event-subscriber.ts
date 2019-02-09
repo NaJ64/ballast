@@ -1,12 +1,14 @@
 import { HubConnection } from "@aspnet/signalr";
-import { IEvent, IEventBus, TYPES as BallastCore } from "ballast-core";
+import { IDisposable, IEvent, IEventBus, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { TYPES as BallastClient } from "./../dependency-injection/types";
+import { ISignalRClientOptions } from "./signalr-client-options";
 import { SignalRClientServiceBase } from "./signalr-client-service-base";
-import { ISignalRClientServiceOptions } from "./signalr-client-service-options";
+
+export interface ISignalRClientEventSubscriber extends IDisposable { }
 
 @injectable()
-export class SignalRClientEventSubscriber extends SignalRClientServiceBase {
+export class SignalRClientEventSubscriber extends SignalRClientServiceBase implements ISignalRClientEventSubscriber {
 
     public static readonly hubName: string = "eventhub";
     public get hubName() {
@@ -16,10 +18,10 @@ export class SignalRClientEventSubscriber extends SignalRClientServiceBase {
     private readonly _eventBus: IEventBus;
 
     public constructor(
-        @inject(BallastClient.SignalR.ISignalRServiceOptionsFactory) serviceOptionsFactory: () => ISignalRClientServiceOptions,
+        @inject(BallastClient.SignalR.ISignalRClientOptions) serviceOptions: ISignalRClientOptions,
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus
     ) {
-        super(serviceOptionsFactory);
+        super(serviceOptions);
         this._eventBus = eventBus;
     }
 

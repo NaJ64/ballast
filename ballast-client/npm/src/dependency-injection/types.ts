@@ -1,6 +1,7 @@
 export const TYPES = {
+    IClientBootstrapper: Symbol.for("IClientBootstrapper"),
     SignalR: {
-        ISignalRServiceOptions: Symbol.for("ISignalRServiceOptions"),
-        ISignalRServiceOptionsFactory: Symbol.for("ISignalRServiceOptionsFactory")
+        ISignalRClientOptions: Symbol.for("ISignalROptions"),
+        ISignalRClientEventSubscriber: Symbol.for("ISignalRClientEventSubscriber")
     }
 };

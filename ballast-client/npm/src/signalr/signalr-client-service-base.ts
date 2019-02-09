@@ -1,7 +1,7 @@
 import * as signalR from '@aspnet/signalr';
-import { Guid, IDisposable, IEventBus, IEvent } from 'ballast-core';
+import { Guid, IDisposable } from 'ballast-core';
 import { injectable } from 'inversify';
-import { ISignalRClientServiceOptions } from './signalr-client-service-options';
+import { ISignalRClientOptions } from './signalr-client-options';
 
 type InvocationResolver<TValue extends any> = (value?: TValue) => void;
 type InvocationRejector = (reason?: string) => void;
@@ -9,7 +9,7 @@ type InvocationRejector = (reason?: string) => void;
 @injectable()
 export abstract class SignalRClientServiceBase implements IDisposable {
 
-    protected readonly _optionsFactory: () => ISignalRClientServiceOptions;
+    protected readonly _options: ISignalRClientOptions;
     protected readonly _methods: Map<string, string>;
     protected readonly _subscriptions: Map<string, string>;
     protected readonly _invocations: Map<string, Map<string, any>>;
@@ -22,8 +22,8 @@ export abstract class SignalRClientServiceBase implements IDisposable {
     protected beforeUnsubscribe(hubConnection: signalR.HubConnection): void { }
     protected onDispose() { }
 
-    public constructor(optionsFactory: () => ISignalRClientServiceOptions) {
-        this._optionsFactory = optionsFactory;
+    public constructor(options: ISignalRClientOptions) {
+        this._options = options;
         this._methods = new Map<string, string>();
         this._subscriptions = new Map<string, string>();
         this._invocations = new Map<string, Map<string, any>>();
@@ -46,7 +46,7 @@ export abstract class SignalRClientServiceBase implements IDisposable {
     }
 
     public createHubConnection() {
-        let options = this._optionsFactory();
+        let options = this._options;
         let hubName = this.hubName;
         let hub = `${options.serverUrl}/${hubName}`;
         let connectionBuilder = new signalR.HubConnectionBuilder();
@@ -67,7 +67,7 @@ export abstract class SignalRClientServiceBase implements IDisposable {
     }
 
     private async registerClientAsync() {
-        let options = this._optionsFactory();
+        let options = this._options;
         let clientId = options.clientId;
         await this.createInvocationAsync('registerClientAsync', clientId);
     }

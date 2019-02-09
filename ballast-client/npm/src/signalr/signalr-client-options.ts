@@ -1,9 +1,9 @@
-export interface ISignalRClientServiceOptions {
+export interface ISignalRClientOptions {
     serverUrl: string;
     clientId: string;
 }
 
-export class SignalRClientServiceOptions implements ISignalRClientServiceOptions {
+export class SignalRClientOptions implements ISignalRClientOptions {
     public serverUrl: string;
     public clientId: string;
     public constructor(serverUrl: string, clientId: string) {

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Ballast.Core.Application.Models;
 using Ballast.Core.Application.Services;
 
-namespace Ballast.Client.SignalR
+namespace Ballast.Client.SignalR.Services
 {
     public class SignalRClientChatService : IChatService
     {
