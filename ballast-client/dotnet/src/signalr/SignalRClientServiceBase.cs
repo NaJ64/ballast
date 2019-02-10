@@ -110,7 +110,7 @@ namespace Ballast.Client.SignalR.Services
                 if (reason != null)
                     foundInvocation.SetException(new Exception(reason));
                 else
-                    foundInvocation.SetResult(value ?? 0); // if there was no error or value object we assume void method (int)
+                    foundInvocation.SetResult(value); // if there was no error or value object we assume void method (int)
                 // Remove from the list of invocations (task fulfilled/completed)
                 currentInvocations.Remove(invocationId);
             });
@@ -169,7 +169,7 @@ namespace Ballast.Client.SignalR.Services
 
         protected async Task CreateInvocationAsync(string method, params object[] args)
         {
-            await CreateInvocationAsync<int>(method, args);
+            _ = await CreateInvocationAsync<object>(method, args);
         }
 
         protected async Task<TValue> CreateInvocationAsync<TValue>(string method, params object[] args)
@@ -223,8 +223,6 @@ namespace Ballast.Client.SignalR.Services
                 var invocationIdPlusArgs = (new object[] { invocationId }).Concat(args);
                 await _hubConnection.InvokeAsync(method, invocationIdPlusArgs);
             }
-        
-        
         }
 
     }
