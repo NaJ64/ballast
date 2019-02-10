@@ -6,7 +6,8 @@ namespace Ballast.Core.Application.Events
     public class GameStateChangedEvent : EventBase 
     {
 
-        public override string Id => nameof(GameStateChangedEvent);
+        public static string GetId() => nameof(GameStateChangedEvent);
+        public override string Id => GetId();
 
         public GameDto Game { get; private set; } 
 

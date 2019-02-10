@@ -25,6 +25,10 @@ export class BallastClientContainerModule extends ContainerModule {
             let ballastClientOptions = new BallastClientOptions();
             configureOptions && configureOptions(ballastClientOptions);
 
+            // IBallastClientOptions
+            bind<IBallastClientOptions>(BallastClient.DependencyInjection.IBallastClientOptions)
+                .toConstantValue(ballastClientOptions);
+
             // Configure as client
             BallastCoreContainerModule.createBindingMethod(options => {
                 options.useDomain = false;

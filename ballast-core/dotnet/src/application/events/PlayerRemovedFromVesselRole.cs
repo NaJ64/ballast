@@ -7,7 +7,8 @@ namespace Ballast.Core.Application.Events
     public class PlayerRemovedFromVesselRoleEvent : EventBase 
     {
 
-        public override string Id => nameof(PlayerRemovedFromVesselRoleEvent);
+        public static string GetId() => nameof(PlayerRemovedFromVesselRoleEvent);
+        public override string Id => GetId();
 
         public Guid GameId { get; private set; }
         public VesselDto Vessel { get; private set; }

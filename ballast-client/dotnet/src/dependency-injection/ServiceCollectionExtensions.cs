@@ -18,6 +18,9 @@ namespace Ballast.Client.DependencyInjection
             var ballastClientOptions = new BallastClientOptions();
             configureOptions?.Invoke(ballastClientOptions);
 
+            // Register client options
+            services.AddSingleton<IBallastClientOptions>(ballastClientOptions);
+
             // Configure as client
             services.AddBallastCore(options => {
                 options.UseDomain = false;

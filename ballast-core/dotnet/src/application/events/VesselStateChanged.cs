@@ -7,7 +7,8 @@ namespace Ballast.Core.Application.Events
     public class VesselStateChangedEvent : EventBase 
     {
 
-        public override string Id => nameof(VesselStateChangedEvent);
+        public static string GetId() => nameof(VesselStateChangedEvent);
+        public override string Id => GetId();
 
         public Guid GameId { get; private set; }
         public VesselDto Vessel { get; private set; }

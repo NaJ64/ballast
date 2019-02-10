@@ -25,6 +25,10 @@ export class BallastCoreContainerModule extends ContainerModule {
             // Create new options instance
             let ballastCoreOptions = new BallastCoreOptions();
             configureOptions && configureOptions(ballastCoreOptions);
+
+            // IBallastCoreOptions
+            bind<IBallastCoreOptions>(BallastCore.DependencyInjection.IBallastCoreOptions)
+                .toConstantValue(ballastCoreOptions);
             
             // Local event bus
             if (ballastCoreOptions.useLocalEventBus) {

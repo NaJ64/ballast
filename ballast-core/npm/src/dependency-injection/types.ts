@@ -6,6 +6,9 @@ export const TYPES = {
             ISignInService: Symbol.for("ISignInService")
         }
     },
+    DependencyInjection: {
+        IBallastCoreOptions: Symbol.for("IBallastCoreOptions")
+    },
     Domain: {
         Services: {
             IBoardGenerator: Symbol.for("IBoardGenerator")

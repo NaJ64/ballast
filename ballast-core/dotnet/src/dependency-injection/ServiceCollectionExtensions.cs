@@ -18,6 +18,9 @@ namespace Ballast.Core.DependencyInjection
             // Create new options instance
             var ballastCoreOptions = new BallastCoreOptions();
             configureOptions?.Invoke(ballastCoreOptions);
+
+            // IBallastCoreOptions
+            services.AddSingleton<IBallastCoreOptions>(ballastCoreOptions);
             
             // Local event bus
             if (ballastCoreOptions.UseLocalEventBus) 

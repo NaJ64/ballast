@@ -6,7 +6,8 @@ namespace Ballast.Core.Application.Events
     public class ChatMessageSentEvent : EventBase
     {
 
-        public override string Id => nameof(ChatMessageSentEvent);
+        public static string GetId() => nameof(ChatMessageSentEvent);
+        public override string Id => GetId();
 
         public ChatMessage Message { get; private set; }
 

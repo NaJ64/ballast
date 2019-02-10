@@ -7,7 +7,8 @@ namespace Ballast.Core.Application.Events
     public class PlayerJoinedGameEvent : EventBase 
     {
 
-        public override string Id => nameof(PlayerJoinedGameEvent);
+        public static string GetId() => nameof(PlayerJoinedGameEvent);
+        public override string Id => GetId();
 
         public Guid GameId { get; private set; }
         public PlayerDto Player { get; private set; }

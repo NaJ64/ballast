@@ -7,7 +7,8 @@ namespace Ballast.Core.Application.Events
     public class PlayerLeftGameEvent : EventBase 
     {
 
-        public override string Id => nameof(PlayerLeftGameEvent);
+        public static string GetId() => nameof(PlayerLeftGameEvent);
+        public override string Id => GetId();
 
         public Guid GameId { get; private set; }
         public PlayerDto Player { get; private set; }
