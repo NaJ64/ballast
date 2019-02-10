@@ -1,6 +1,6 @@
 using System;
 
-namespace Ballast.Client.DependencyInjection 
+namespace Ballast.Client.SignalR 
 {
     public interface ISignalRClientOptions
     { 

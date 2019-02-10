@@ -37,15 +37,15 @@ export abstract class SignalRClientServiceBase implements IDisposable {
         this.onDispose();
     }
 
-    public get isConnected() {
+    public get isConnected(): boolean {
         return (!!this._hubConnection && this._hubConnectionState == 'connected');
     }
 
-    public get isConnecting() {
+    public get isConnecting(): boolean {
         return (!!this._hubConnection && this._hubConnectionState == 'connecting');
     }
 
-    public createHubConnection() {
+    private createHubConnection(): signalR.HubConnection {
         let options = this._options;
         let hubName = this.hubName;
         let hub = `${options.serverUrl}/${hubName}`;
@@ -54,7 +54,7 @@ export abstract class SignalRClientServiceBase implements IDisposable {
         return connection;
     }
 
-    public async connectAsync() {
+    public async connectAsync(): Promise<void> {
         if (this.isConnected) {
             await this.disconnectAsync();
         }
@@ -66,13 +66,13 @@ export abstract class SignalRClientServiceBase implements IDisposable {
         await this.registerClientAsync();
     }
 
-    private async registerClientAsync() {
+    private async registerClientAsync(): Promise<void> {
         let options = this._options;
         let clientId = options.clientId;
         await this.createInvocationAsync('registerClientAsync', clientId);
     }
 
-    public async disconnectAsync() {
+    public async disconnectAsync(): Promise<void> {
         if (this._hubConnection) {
             this.unsubscribeFromHubEvents();
             await this._hubConnection.stop();
@@ -149,18 +149,18 @@ export abstract class SignalRClientServiceBase implements IDisposable {
         this._subscriptions.clear();
     }
 
-    protected createInvocationId() {
+    protected createInvocationId():string {
         return Guid.newGuid();
     }
 
-    protected getInvocationList(method: string) {
+    protected getInvocationList(method: string): Map<string, any> {
         if (!this._invocations.has(method)) {
             this._invocations.set(method, new Map());
         }
         return this._invocations.get(method)!;
     }
 
-    protected async createInvocationAsync<TValue extends any>(method: string, ...args: any[]) {
+    protected async createInvocationAsync<TValue extends any>(method: string, ...args: any[]): Promise<TValue> {
         if (!this._methods.has(method)) {
             this.registerHubMethod(method);
         }
@@ -193,7 +193,7 @@ export abstract class SignalRClientServiceBase implements IDisposable {
         currentInvocations.delete(invocationId);
     }
 
-    private async invokeOnHubAsync(method: string, invocationId: string, ...args: any[]) {
+    private async invokeOnHubAsync(method: string, invocationId: string, ...args: any[]): Promise<void> {
         if (this.isConnecting) {
             throw new Error('Invocation could not take place because the service is still attempting to establish a connection')
         }

@@ -2,7 +2,7 @@ using System;
 
 namespace Ballast.Core.Utilities 
 {
-    public static class DateFunctions 
+    public static class DateExtensions
     {
         public static string ToIsoString(this DateTime dateTime)
         {
