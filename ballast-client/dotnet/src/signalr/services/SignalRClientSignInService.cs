@@ -5,26 +5,21 @@ using Ballast.Core.Application.Services;
 
 namespace Ballast.Client.SignalR.Services
 {
-    public class SignalRClientSignInService : ISignInService
+    public class SignalRClientSignInService : SignalRClientServiceBase, ISignInService
     {
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<PlayerDto> GetSignedInPlayerAsync(Guid playerId)
-        {
-            throw new NotImplementedException();
-        }
+        public SignalRClientSignInService(ISignalRClientOptions options) : base(options) { }
 
-        public Task<PlayerDto> SignInAsync(PlayerSignInRequest request)
-        {
-            throw new NotImplementedException();
-        }
+        protected override string HubName => "signinhub";
 
-        public Task SignOutAsync(PlayerSignOutRequest request)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<PlayerDto> GetSignedInPlayerAsync(Guid playerId) =>
+            CreateInvocationAsync<PlayerDto>("getSignedInPlayerAsync", playerId);
+
+        public Task<PlayerDto> SignInAsync(PlayerSignInRequest request) =>
+            CreateInvocationAsync<PlayerDto>("signInAsync", request);
+
+        public Task SignOutAsync(PlayerSignOutRequest request) =>
+            CreateInvocationAsync("signOutAsync", request);
+        
     }
 }

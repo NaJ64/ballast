@@ -24,7 +24,7 @@ namespace Ballast.Core.Messaging.Impl
             _subscriptions.Clear();
         }
 
-        public IEnumerable<Func<TEvent, Task>> GetHandlers<TEvent>(string key) where TEvent : EventBase
+        public IEnumerable<Func<TEvent, Task>> GetHandlers<TEvent>(string key) where TEvent : IEvent
         {
             // get subscription list
             var subscriptions = GetSubscriptions<TEvent>(key);
@@ -32,7 +32,7 @@ namespace Ballast.Core.Messaging.Impl
             return subscriptions.Select(x => x.asyncHandler);
         }
 
-        public async Task PublishAsync<TEvent>(TEvent evt) where TEvent : EventBase
+        public async Task PublishAsync<TEvent>(TEvent evt) where TEvent : IEvent
         {
             // Get all subscribers for the current event key
             var subscriptions = GetSubscriptions<TEvent>(evt.Id);
@@ -44,7 +44,7 @@ namespace Ballast.Core.Messaging.Impl
             }
         }
 
-        public void Subscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : EventBase
+        public void Subscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : IEvent
         {
             // Get all subscribers for the current event key
             var subscriptions = GetSubscriptions<TEvent>(key);
@@ -53,7 +53,7 @@ namespace Ballast.Core.Messaging.Impl
             //subscriptions.Add((key: key, asyncHandler: asyncHandler));
         }
 
-        public void Unsubscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : EventBase
+        public void Unsubscribe<TEvent>(string key, Func<TEvent, Task> asyncHandler) where TEvent : IEvent
         {
             // Get all subscribers for the current event key
             var subscriptions = GetSubscriptions<TEvent>(key);
@@ -66,7 +66,7 @@ namespace Ballast.Core.Messaging.Impl
                 //subscriptions.Remove(remove);
         }
             
-        private IEnumerable<(string key, Func<TEvent, Task> asyncHandler)> GetSubscriptions<TEvent>(string key) where TEvent: EventBase
+        private IEnumerable<(string key, Func<TEvent, Task> asyncHandler)> GetSubscriptions<TEvent>(string key) where TEvent: IEvent
         {
             // check if the current event signature/key already exists
             if (!_subscriptions.ContainsKey(key))

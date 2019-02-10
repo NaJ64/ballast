@@ -4,16 +4,15 @@ using Ballast.Core.Application.Services;
 
 namespace Ballast.Client.SignalR.Services
 {
-    public class SignalRClientChatService : IChatService
+    public class SignalRClientChatService : SignalRClientServiceBase, IChatService
     {
-        public void Dispose()
-        {
-            throw new System.NotImplementedException();
-        }
 
-        public Task SendMessageAsync(ChatMessage message)
-        {
-            throw new System.NotImplementedException();
-        }
+        public SignalRClientChatService(ISignalRClientOptions options) : base(options) { }
+
+        protected override string HubName => "chathub";
+
+        public Task SendMessageAsync(ChatMessage message) =>
+            CreateInvocationAsync("sendMessageAsync", message);
+
     }
 }

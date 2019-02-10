@@ -29,12 +29,12 @@ export class SignalRClientEventSubscriber extends SignalRClientServiceBase imple
         hubConnection.on("Event", this.onApplicationEvent);
     }
 
-    private onApplicationEvent(evt: IEvent) {
-        this._eventBus.publishAsync(evt); // Fire and forget
-    }
-
     protected beforeUnsubscribe(hubConnection: HubConnection) {
         hubConnection.off("Event");
     }
     
+    private onApplicationEvent(evt: IEvent) {
+        this._eventBus.publishAsync(evt); // Fire and forget
+    }
+
 }
