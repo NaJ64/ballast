@@ -16,6 +16,11 @@ namespace Ballast.Server.SignalR.Repositories.Impl
             _playerConnections = new Dictionary<string, Guid?>();
         }
 
+        public void Dispose() 
+        { 
+            _playerConnections.Clear();
+        }
+
         public Guid? GetPlayerId(string connectionId)
         {
             AddConnectionIfMissing(connectionId);

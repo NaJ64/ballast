@@ -1,8 +1,8 @@
-import { IEvent } from "../../messaging/event";
 import { EventBase } from "../../messaging/event-base";
+import { IApplicationEvent } from "../application-event";
 import { IChatMessage } from "../models/chat-message";
 
-export interface IChatMessageSentEvent extends IEvent {
+export interface IChatMessageSentEvent extends IApplicationEvent {
     message: IChatMessage;
 }
 

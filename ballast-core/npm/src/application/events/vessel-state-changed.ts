@@ -1,8 +1,8 @@
-import { IEvent } from "../../messaging/event";
 import { EventBase } from "../../messaging/event-base";
+import { IApplicationEvent } from "../application-event";
 import { IVesselDto } from "../models/vessel-dto";
 
-export interface IVesselStateChangedEvent extends IEvent {
+export interface IVesselStateChangedEvent extends IApplicationEvent {
     readonly gameId: string;
     readonly vessel: IVesselDto;
 }

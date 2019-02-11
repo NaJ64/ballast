@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Domain.Events
 {
-    public class PlayerLeftGameDomainEvent : EventBase 
+    public class PlayerLeftGameDomainEvent : EventBase, IDomainEvent 
     {
 
         public override string Id => nameof(PlayerLeftGameDomainEvent);

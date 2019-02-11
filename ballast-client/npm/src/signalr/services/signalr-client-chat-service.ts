@@ -19,7 +19,7 @@ export class SignalRClientChatService extends SignalRClientServiceBase implement
     }
 
     public async sendMessageAsync(message: IChatMessage): Promise<void> {
-        await this.createInvocationAsync('sendMessageAsync', message);
+        await this.createInvocationAsync('SendMessageAsync', message);
     }    
 
 }

@@ -1,10 +1,11 @@
 import { EventBase } from "../../messaging/event-base";
+import { IDomainEvent } from "../domain-event";
 import { Game } from "../models/game";
 import { Player } from "../models/player";
 import { Vessel } from "../models/vessel";
 import { VesselRole } from "../models/vessel-role";
 
-export class PlayerRemovedFromVesselRoleDomainEvent extends EventBase {
+export class PlayerRemovedFromVesselRoleDomainEvent extends EventBase implements IDomainEvent {
 
     public static readonly id: string = "PlayerRemovedFromVesselRoleDomainEvent";
     public get id() {

@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Events
 {
-    public class PlayerLeftGameEvent : EventBase 
+    public class PlayerLeftGameEvent : EventBase, IApplicationEvent  
     {
 
         public static string GetId() => nameof(PlayerLeftGameEvent);

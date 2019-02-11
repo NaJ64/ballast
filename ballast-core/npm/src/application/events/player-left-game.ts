@@ -1,8 +1,8 @@
-import { IEvent } from "../../messaging/event";
 import { EventBase } from "../../messaging/event-base";
+import { IApplicationEvent } from "../application-event";
 import { IPlayerDto } from "../models/player-dto";
-
-export interface IPlayerLeftGameEvent extends IEvent {
+ 
+export interface IPlayerLeftGameEvent extends IApplicationEvent {
     readonly gameId: string;
     readonly player: IPlayerDto;
 }

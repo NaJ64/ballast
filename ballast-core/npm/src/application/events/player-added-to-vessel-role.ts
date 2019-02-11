@@ -1,9 +1,9 @@
-import { IEvent } from "../../messaging/event";
 import { EventBase } from "../../messaging/event-base";
+import { IApplicationEvent } from "../application-event";
 import { IPlayerDto } from "../models/player-dto";
 import { IVesselDto } from "../models/vessel-dto";
 
-export interface IPlayerAddedToVesselRoleEvent extends IEvent {
+export interface IPlayerAddedToVesselRoleEvent extends IApplicationEvent {
     readonly gameId: string;
     readonly vessel: IVesselDto;
     readonly vesselRole: string;

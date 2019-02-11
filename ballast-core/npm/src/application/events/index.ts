@@ -1,3 +1,4 @@
+export * from "../application-event";
 export * from "./chat-message-sent";
 export * from "./game-state-changed";
 export * from "./player-added-to-vessel-role";

@@ -1,5 +1,5 @@
 import { HubConnection } from "@aspnet/signalr";
-import { IDisposable, IEvent, IEventBus, TYPES as BallastCore } from "ballast-core";
+import { IDisposable, IEvent, IEventBus, TYPES as BallastCore, IApplicationEvent } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { TYPES as BallastClient } from "./../dependency-injection/types";
 import { ISignalRClientOptions } from "./signalr-client-options";
@@ -26,14 +26,14 @@ export class SignalRClientEventSubscriber extends SignalRClientServiceBase imple
     }
 
     protected afterSubscribe(hubConnection: HubConnection) {
-        hubConnection.on("Event", this.onApplicationEvent);
+        hubConnection.on("IApplicationEvent", this.onApplicationEvent);
     }
 
     protected beforeUnsubscribe(hubConnection: HubConnection) {
-        hubConnection.off("Event");
+        hubConnection.off("IApplicationEvent");
     }
     
-    private onApplicationEvent(evt: IEvent) {
+    private onApplicationEvent(evt: IApplicationEvent) {
         this._eventBus.publishAsync(evt); // Fire and forget
     }
 

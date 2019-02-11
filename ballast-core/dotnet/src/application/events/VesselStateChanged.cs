@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Events
 {
-    public class VesselStateChangedEvent : EventBase 
+    public class VesselStateChangedEvent : EventBase, IApplicationEvent  
     {
 
         public static string GetId() => nameof(VesselStateChangedEvent);

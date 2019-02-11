@@ -14,46 +14,46 @@ namespace Ballast.Client.SignalR.Services
         protected override string HubName => "gamehub";
 
         public Task<GameDto> AddPlayerToGameAsync(AddPlayerOptions options) =>
-            CreateInvocationAsync<GameDto>("addPlayerToGameAsync", options);
+            CreateInvocationAsync<GameDto>("AddPlayerToGameAsync", options);
 
         public Task<VesselDto> AddPlayerToVesselAsync(AddPlayerOptions options) =>
-            CreateInvocationAsync<VesselDto>("addPlayerToVesselAsync", options);
+            CreateInvocationAsync<VesselDto>("AddPlayerToVesselAsync", options);
 
         public Task<VesselDto> AddPlayerToVesselRoleAsync(AddPlayerOptions options) =>
-            CreateInvocationAsync<VesselDto>("addPlayerToVesselRoleAsync", options);
+            CreateInvocationAsync<VesselDto>("AddPlayerToVesselRoleAsync", options);
 
         public Task<GameDto> CreateGameAsync(CreateGameOptions options) =>
-            CreateInvocationAsync<GameDto>("createGameAsync", options);
+            CreateInvocationAsync<GameDto>("CreateGameAsync", options);
 
         public Task DeleteGameAsync(Guid gameId) =>
-            CreateInvocationAsync("deleteGameAsync", gameId);
+            CreateInvocationAsync("DeleteGameAsync", gameId);
 
         public Task<GameDto> EndGameAsync(Guid gameId) =>
-            CreateInvocationAsync<GameDto>("endGameAsync", gameId);
+            CreateInvocationAsync<GameDto>("EndGameAsync", gameId);
 
         public Task<IEnumerable<GameDto>> GetAllGamesAsync() =>
-            CreateInvocationAsync<IEnumerable<GameDto>>("getAllGamesAsync");
+            CreateInvocationAsync<IEnumerable<GameDto>>("GetAllGamesAsync");
 
         public Task<GameDto> GetGameAsync(Guid gameId) =>
-            CreateInvocationAsync<GameDto>("getGameAsync", gameId);
+            CreateInvocationAsync<GameDto>("GetGameAsync", gameId);
 
         public Task<Guid> GetTestGameIdAsync() =>
-            CreateInvocationAsync<Guid>("getTestGameIdAsync");
+            CreateInvocationAsync<Guid>("GetTestGameIdAsync");
 
         public Task<VesselDto> MoveVesselAsync(VesselMoveRequest request) =>
-            CreateInvocationAsync<VesselDto>("moveVesselAsync", request);
+            CreateInvocationAsync<VesselDto>("MoveVesselAsync", request);
 
         public Task<GameDto> RemovePlayerFromGameAsync(RemovePlayerOptions options) =>
-            CreateInvocationAsync<GameDto>("removePlayerFromGameAsync", options);
+            CreateInvocationAsync<GameDto>("RemovePlayerFromGameAsync", options);
 
         public Task<VesselDto> RemovePlayerFromVesselAsync(RemovePlayerOptions options) =>
-            CreateInvocationAsync<VesselDto>("removePlayerFromVesselAsync", options);
+            CreateInvocationAsync<VesselDto>("RemovePlayerFromVesselAsync", options);
 
         public Task<VesselDto> RemovePlayerFromVesselRoleAsync(RemovePlayerOptions options) =>
-            CreateInvocationAsync<VesselDto>("removePlayerFromVesselRoleAsync", options);
+            CreateInvocationAsync<VesselDto>("RemovePlayerFromVesselRoleAsync", options);
 
         public Task<GameDto> StartGameAsync(Guid gameId) =>
-            CreateInvocationAsync<GameDto>("startGameAsync", gameId);
+            CreateInvocationAsync<GameDto>("StartGameAsync", gameId);
         
     }
 }

@@ -13,13 +13,13 @@ namespace Ballast.Client.SignalR.Services
         protected override string HubName => "signinhub";
 
         public Task<PlayerDto> GetSignedInPlayerAsync(Guid playerId) =>
-            CreateInvocationAsync<PlayerDto>("getSignedInPlayerAsync", playerId);
+            CreateInvocationAsync<PlayerDto>("GetSignedInPlayerAsync", playerId);
 
         public Task<PlayerDto> SignInAsync(PlayerSignInRequest request) =>
-            CreateInvocationAsync<PlayerDto>("signInAsync", request);
+            CreateInvocationAsync<PlayerDto>("SignInAsync", request);
 
         public Task SignOutAsync(PlayerSignOutRequest request) =>
-            CreateInvocationAsync("signOutAsync", request);
+            CreateInvocationAsync("SignOutAsync", request);
         
     }
 }

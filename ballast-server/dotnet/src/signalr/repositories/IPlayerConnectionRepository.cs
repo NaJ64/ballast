@@ -5,7 +5,7 @@ using Ballast.Server.SignalR.Hubs;
 namespace Ballast.Server.SignalR.Repositories
 {
 
-    public interface IPlayerConnectionRepository
+    public interface IPlayerConnectionRepository : IDisposable
     {
         Guid? GetPlayerId(string connectionId);
         Guid? SetPlayerId(string connectionId, Guid? playerId);

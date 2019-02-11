@@ -3,7 +3,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Domain.Events
 {
-    public class PlayerSignedOutDomainEvent : EventBase 
+    public class PlayerSignedOutDomainEvent : EventBase, IDomainEvent 
     {
 
         public override string Id => nameof(PlayerSignedOutDomainEvent);

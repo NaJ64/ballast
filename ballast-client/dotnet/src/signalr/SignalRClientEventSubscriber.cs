@@ -1,4 +1,5 @@
 using Ballast.Client.SignalR.Services;
+using Ballast.Core.Application.Events;
 using Ballast.Core.Messaging;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -19,15 +20,15 @@ namespace Ballast.Client.SignalR
 
         protected override void AfterSubscribe(HubConnection hubConnection)
         {
-            hubConnection.On<IEvent>("Event", OnApplicationEvent);
+            hubConnection.On<IApplicationEvent>("IApplicationEvent", OnApplicationEvent);
         }
 
         protected override void BeforeUnsubscribe(HubConnection hubConnection)
         {
-            hubConnection.Remove("Event");
+            hubConnection.Remove("IApplicationEvent");
         }
 
-        private void OnApplicationEvent(IEvent evt)
+        private void OnApplicationEvent(IApplicationEvent evt)
         {
             _ = _eventBus.PublishAsync(evt); // Fire and forget
         }

@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Events
 {
-    public class PlayerAddedToVesselRoleEvent : EventBase
+    public class PlayerAddedToVesselRoleEvent : EventBase, IApplicationEvent 
     {
 
         public static string GetId() => nameof(PlayerAddedToVesselRoleEvent);

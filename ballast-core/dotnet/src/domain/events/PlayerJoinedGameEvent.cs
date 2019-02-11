@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Domain.Events
 {
-    public class PlayerJoinedGameDomainEvent : EventBase 
+    public class PlayerJoinedGameDomainEvent : EventBase, IDomainEvent 
     {
 
         public override string Id => nameof(PlayerJoinedGameDomainEvent);

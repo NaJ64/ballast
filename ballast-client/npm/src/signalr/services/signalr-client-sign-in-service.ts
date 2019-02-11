@@ -19,15 +19,15 @@ export class SignalRClientSignInService extends SignalRClientServiceBase impleme
     }
 
     public async signInAsync(request: IPlayerSignInRequest): Promise<IPlayerDto> {
-        return await this.createInvocationAsync<IPlayerDto>('signInAsync', request);
+        return await this.createInvocationAsync<IPlayerDto>('SignInAsync', request);
     }    
 
     public async signOutAsync(request: IPlayerSignOutRequest): Promise<void> {
-        await this.createInvocationAsync('signOutAsync', request);
+        await this.createInvocationAsync('SignOutAsync', request);
     }
 
     public async getSignedInPlayerAsync(playerId: string): Promise<IPlayerDto | null> {
-        return await this.createInvocationAsync<IPlayerDto | null>('getSignedInPlayerAsync', playerId);
+        return await this.createInvocationAsync<IPlayerDto | null>('GetSignedInPlayerAsync', playerId);
     }
 
 }

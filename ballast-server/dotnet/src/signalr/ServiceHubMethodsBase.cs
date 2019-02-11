@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Ballast.Server.SignalR.HubMethods
 {
-    public abstract class ServiceHubMethodsBase<TServiceHub> where TServiceHub : ServiceHubBase
+    public abstract class ServiceHubMethodsBase<TServiceHub> : IDisposable
+        where TServiceHub : ServiceHubBase
     {
 
         protected readonly IHubContext<TServiceHub> _hubContext;
@@ -17,6 +18,8 @@ namespace Ballast.Server.SignalR.HubMethods
             _hubContext = hubContext;
             _playerConnections = playerConnections;
         }
+
+        public virtual void Dispose() { }
 
     }
 }

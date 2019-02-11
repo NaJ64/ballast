@@ -3,7 +3,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Domain.Events
 {
-    public class GameStateChangedDomainEvent : EventBase 
+    public class GameStateChangedDomainEvent : EventBase, IDomainEvent
     {
 
         public override string Id => nameof(GameStateChangedDomainEvent);

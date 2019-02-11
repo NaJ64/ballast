@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Domain.Events
 {
-    public class PlayerAddedToVesselRoleDomainEvent : EventBase 
+    public class PlayerAddedToVesselRoleDomainEvent : EventBase, IDomainEvent
     {
 
         public override string Id => nameof(PlayerAddedToVesselRoleDomainEvent);

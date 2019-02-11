@@ -1,7 +1,8 @@
 import { EventBase } from "../../messaging/event-base";
+import { IDomainEvent } from "../domain-event";
 import { Game } from "../models/game";
 
-export class GameStateChangedDomainEvent extends EventBase {
+export class GameStateChangedDomainEvent extends EventBase implements IDomainEvent {
 
     public static readonly id: string = "GameStateChangedDomainEvent";
     public get id() {

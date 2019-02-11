@@ -3,7 +3,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Events
 {
-    public class ChatMessageSentEvent : EventBase
+    public class ChatMessageSentEvent : EventBase, IApplicationEvent
     {
 
         public static string GetId() => nameof(ChatMessageSentEvent);

@@ -3,7 +3,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Application.Events
 {
-    public class GameStateChangedEvent : EventBase 
+    public class GameStateChangedEvent : EventBase, IApplicationEvent 
     {
 
         public static string GetId() => nameof(GameStateChangedEvent);

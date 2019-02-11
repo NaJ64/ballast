@@ -4,7 +4,7 @@ using Ballast.Core.Messaging;
 
 namespace Ballast.Core.Domain.Events
 {
-    public class VesselStateChangedDomainEvent : EventBase 
+    public class VesselStateChangedDomainEvent : EventBase, IDomainEvent 
     {
 
         public override string Id => nameof(VesselStateChangedDomainEvent);

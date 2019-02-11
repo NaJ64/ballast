@@ -12,7 +12,7 @@ namespace Ballast.Client.SignalR.Services
         protected override string HubName => "chathub";
 
         public Task SendMessageAsync(ChatMessage message) =>
-            CreateInvocationAsync("sendMessageAsync", message);
+            CreateInvocationAsync("SendMessageAsync", message);
 
     }
 }
