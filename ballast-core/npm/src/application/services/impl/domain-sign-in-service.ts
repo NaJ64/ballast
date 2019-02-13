@@ -27,7 +27,7 @@ export class DomainSignInService implements ISignInService {
         this._players.clear();
     }
 
-    private mapToPlayerDto(player: Player): IPlayerDto
+    public static mapToPlayerDto(player: Player): IPlayerDto
     {
         return {
             id: player.id,
@@ -49,7 +49,7 @@ export class DomainSignInService implements ISignInService {
             this._players.set(playerId, player);
             await this._eventBus.publishAsync(PlayerSignedInDomainEvent.fromPlayer(player));
         }
-        return this.mapToPlayerDto(this._players.get(playerId) as Player);
+        return DomainSignInService.mapToPlayerDto(this._players.get(playerId) as Player);
     }    
 
     public async signOutAsync(request: IPlayerSignOutRequest): Promise<void> {
@@ -72,7 +72,7 @@ export class DomainSignInService implements ISignInService {
         if (!this._players.has(playerId)) {
             return Promise.resolve(null);
         }
-        return Promise.resolve(this.mapToPlayerDto(this._players.get(playerId) as Player));
+        return Promise.resolve(DomainSignInService.mapToPlayerDto(this._players.get(playerId) as Player));
     }
 
     private getTempPlayerName(): string {

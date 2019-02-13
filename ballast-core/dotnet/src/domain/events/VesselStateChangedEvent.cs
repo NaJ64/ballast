@@ -7,7 +7,8 @@ namespace Ballast.Core.Domain.Events
     public class VesselStateChangedDomainEvent : EventBase, IDomainEvent 
     {
 
-        public override string Id => nameof(VesselStateChangedDomainEvent);
+        public static string GetId() => nameof(VesselStateChangedDomainEvent);
+        public override string Id => GetId();
 
         public Guid GameId { get; private set; }
         public Vessel Vessel { get; private set; }

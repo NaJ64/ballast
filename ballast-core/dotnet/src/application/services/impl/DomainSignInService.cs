@@ -26,7 +26,7 @@ namespace Ballast.Core.Application.Services.Impl
             _players.Clear();
         }
 
-        private PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
+        public static PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
         {
             Id = player.Id,
             Name = player.Name

@@ -64,26 +64,26 @@ export class DomainGameService implements IGameService {
     }
 
 
-    private mapToGameDto(game: Game): IGameDto
+    public static mapToGameDto(game: Game): IGameDto
     {
         return {
             id: game.id,
-            board: this.mapToBoardDto(game.board),
-            vessels: game.vessels.map(x => this.mapToVesselDto(x)),
-            players: game.players.map(x => this.mapToPlayerDto(x)),
+            board: DomainGameService.mapToBoardDto(game.board),
+            vessels: game.vessels.map(x => DomainGameService.mapToVesselDto(x)),
+            players: game.players.map(x => DomainGameService.mapToPlayerDto(x)),
             createdOnDateIsoString: game.createdOnDate.toISOString(),
             startedOnDateIsoString: game.startedOnDate && game.startedOnDate.toISOString() || null,
             endedOnDateIsoString: game.endedOnDate && game.endedOnDate.toISOString()
         };
     }
 
-    private mapToBoardDto(board: Board): IBoardDto
+    public static mapToBoardDto(board: Board): IBoardDto
     {
         return {
             id: board.id,
             tileShape: board.tileShape.name,
             type: board.boardType.name,
-            tiles: board.tiles.map(x => this.mapToTileDto(x)),
+            tiles: board.tiles.map(x => DomainGameService.mapToTileDto(x)),
             centerOrigin: board.boardType.centerOrigin,
             applyHexRowScaling: board.tileShape.applyHexRowScaling,
             doubleIncrement: board.tileShape.doubleIncrement,
@@ -98,7 +98,7 @@ export class DomainGameService implements IGameService {
         };
     }
 
-    private mapToTileDto(tile: Tile): ITileDto
+    public static mapToTileDto(tile: Tile): ITileDto
     {
         return {
             tileShape: tile.tileShape.name,
@@ -108,7 +108,7 @@ export class DomainGameService implements IGameService {
         };
     }
 
-    private mapToVesselDto(vessel: Vessel): IVesselDto
+    public static mapToVesselDto(vessel: Vessel): IVesselDto
     {   
         return {
             id: vessel.id,
@@ -121,7 +121,7 @@ export class DomainGameService implements IGameService {
         };
     }
 
-    private mapToPlayerDto(player: Player): IPlayerDto
+    public static mapToPlayerDto(player: Player): IPlayerDto
     {
         return {
             id: player.id,
@@ -238,28 +238,28 @@ export class DomainGameService implements IGameService {
     public async getAllGamesAsync(): Promise<IGameDto[]> {
         return Promise.resolve(
             Array.from(this._games.values())
-                .map(x => this.mapToGameDto(x))
+                .map(x => DomainGameService.mapToGameDto(x))
         );
     }
 
     public async getGameAsync(gameId: string): Promise<IGameDto> {
-        return this.mapToGameDto(await this.retrieveGameByIdAsync(gameId));
+        return DomainGameService.mapToGameDto(await this.retrieveGameByIdAsync(gameId));
     }
 
     public async createGameAsync(options: ICreateGameOptions): Promise<IGameDto> {
-        return this.mapToGameDto(await this.createGameInternalAsync(options));
+        return DomainGameService.mapToGameDto(await this.createGameInternalAsync(options));
     }
 
     public async startGameAsync(gameId: string): Promise<IGameDto> {
         let game = await this.retrieveGameByIdAsync(gameId);
         game.start();
-        return this.mapToGameDto(game);
+        return DomainGameService.mapToGameDto(game);
     }
 
     public async endGameAsync(gameId: string): Promise<IGameDto> {
         let game = await this.retrieveGameByIdAsync(gameId);
         game.end();
-        return this.mapToGameDto(game);
+        return DomainGameService.mapToGameDto(game);
     }
 
     public async deleteGameAsync(gameId: string): Promise<void> {
@@ -329,7 +329,7 @@ export class DomainGameService implements IGameService {
             await this._eventBus.publishAsync(playerAddedToVesselRoleEvent);
         }
         // Return the updated game state
-        return this.mapToGameDto(game);
+        return DomainGameService.mapToGameDto(game);
     }
 
     public async removePlayerFromGameAsync(options: IRemovePlayerOptions) {
@@ -387,7 +387,7 @@ export class DomainGameService implements IGameService {
             player
         ));
         // Return the updated game state
-        return this.mapToGameDto(game);
+        return DomainGameService.mapToGameDto(game);
     }
 
     public async addPlayerToVesselAsync(options: IAddPlayerOptions): Promise<IVesselDto> {
@@ -472,7 +472,7 @@ export class DomainGameService implements IGameService {
             await this._eventBus.publishAsync(playerAddedToVesselRoleEvent);
         }
         // Return the new vessel state
-        return this.mapToVesselDto(vessel);
+        return DomainGameService.mapToVesselDto(vessel);
     }
 
     public async removePlayerFromVesselAsync(options: IRemovePlayerOptions): Promise<IVesselDto> {
@@ -537,7 +537,7 @@ export class DomainGameService implements IGameService {
             await this._eventBus.publishAsync(playerRemovedFromVesselRoleEvent);
         }
         // Return the updated vessel state
-        return this.mapToVesselDto(vessel);
+        return DomainGameService.mapToVesselDto(vessel);
     }
 
     public async addPlayerToVesselRoleAsync(options: IAddPlayerOptions): Promise<IVesselDto> {
@@ -639,7 +639,7 @@ export class DomainGameService implements IGameService {
             await this._eventBus.publishAsync(playerAddedToVesselRoleEvent);
         }
         // Return the new vessel state
-        return this.mapToVesselDto(vessel);
+        return DomainGameService.mapToVesselDto(vessel);
     }
 
     public async removePlayerFromVesselRoleAsync(options: IRemovePlayerOptions): Promise<IVesselDto> {
@@ -721,7 +721,7 @@ export class DomainGameService implements IGameService {
             await this._eventBus.publishAsync(playerRemovedFromVesselRoleEvent);
         }
         // Return the updated vessel state
-        return this.mapToVesselDto(vessel);
+        return DomainGameService.mapToVesselDto(vessel);
     }
 
     public async moveVesselAsync(request: IVesselMoveRequest): Promise<IVesselDto> {
@@ -865,7 +865,7 @@ export class DomainGameService implements IGameService {
         await this._eventBus.publishAsync(GameStateChangedDomainEvent.fromGame(game));
 
         // Return the new vessel state
-        return this.mapToVesselDto(vessel);
+        return DomainGameService.mapToVesselDto(vessel);
 
     }
 

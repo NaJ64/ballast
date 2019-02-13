@@ -7,7 +7,8 @@ namespace Ballast.Core.Domain.Events
     public class PlayerAddedToVesselRoleDomainEvent : EventBase, IDomainEvent
     {
 
-        public override string Id => nameof(PlayerAddedToVesselRoleDomainEvent);
+        public static string GetId() => nameof(PlayerAddedToVesselRoleDomainEvent);
+        public override string Id => GetId();
 
         public Guid GameId { get; private set; }
         public Vessel Vessel { get; private set; }

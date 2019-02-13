@@ -38,7 +38,7 @@ namespace Ballast.Core.Application.Services.Impl
             _games.Clear();
         }
 
-        private GameDto MapToGameDto(Game game) => new GameDto()
+        public static GameDto MapToGameDto(Game game) => new GameDto()
         {
             Id = game.Id,
             Board = MapToBoardDto(game.Board),
@@ -49,7 +49,7 @@ namespace Ballast.Core.Application.Services.Impl
             EndedOnDateIsoString = game.EndedOnDate.ToIsoString(),
         };
 
-        private BoardDto MapToBoardDto(Board board) => new BoardDto()
+        public static BoardDto MapToBoardDto(Board board) => new BoardDto()
         {
             Id = board.Id,
             TileShape = board.TileShape.Name,
@@ -67,7 +67,7 @@ namespace Ballast.Core.Application.Services.Impl
             HasDirectionWest = board.TileShape.HasDirectionWest ?? false
         };
 
-        private TileDto MapToTileDto(Tile tile) => new TileDto() 
+        public static TileDto MapToTileDto(Tile tile) => new TileDto() 
         {
             TileShape = tile.TileShape.Name,
             Terrain = tile.Terrain.Name,
@@ -75,7 +75,7 @@ namespace Ballast.Core.Application.Services.Impl
             OrderedTriple = tile.CubicCoordinates.ToOrderedTriple()
         };
 
-        private VesselDto MapToVesselDto(Vessel vessel) => new VesselDto()
+        public static VesselDto MapToVesselDto(Vessel vessel) => new VesselDto()
         {   
             Id = vessel.Id,
             Name = vessel.Name,
@@ -86,7 +86,7 @@ namespace Ballast.Core.Application.Services.Impl
             RadiomanName = vessel.Radioman.Name
         };
 
-        private PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
+        public static PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
         {
             Id = player.Id,
             Name = player.Name

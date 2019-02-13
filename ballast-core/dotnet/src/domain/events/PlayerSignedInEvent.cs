@@ -6,7 +6,8 @@ namespace Ballast.Core.Domain.Events
     public class PlayerSignedInDomainEvent : EventBase, IDomainEvent 
     {
 
-        public override string Id => nameof(PlayerSignedInDomainEvent);
+        public static string GetId() => nameof(PlayerSignedInDomainEvent);
+        public override string Id => GetId();
 
         public Player Player { get; private set; } 
 
