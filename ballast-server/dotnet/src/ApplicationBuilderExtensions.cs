@@ -25,5 +25,6 @@ namespace Ballast.Server
             applicationEventEmitter.Start();
             return app;
         }
+
     }
 }

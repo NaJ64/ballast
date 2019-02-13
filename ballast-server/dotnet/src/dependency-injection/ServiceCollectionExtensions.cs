@@ -32,16 +32,18 @@ namespace Ballast.Server.DependencyInjection
             // SignalR Server service implementations
             if (ballastServerOptions.UseSignalR)
             {
+                // Core SignalR services
+                services.AddSignalR();
                 // HubMethods
-                services.AddSingleton<EventHubMethods>();
-                services.AddSingleton<ChatHubMethods>();
-                services.AddSingleton<SignInHubMethods>();
-                services.AddSingleton<GameHubMethods>();
+                services.AddSingleton<EventHubMethods>()
+                    .AddSingleton<ChatHubMethods>()
+                    .AddSingleton<SignInHubMethods>()
+                    .AddSingleton<GameHubMethods>();
                 // IPlayerConnectionRepository
-                services.AddSingleton<IPlayerConnectionRepository<EventHub>, LocalPlayerConnectionRepository<EventHub>>();
-                services.AddSingleton<IPlayerConnectionRepository<ChatHub>, LocalPlayerConnectionRepository<ChatHub>>();
-                services.AddSingleton<IPlayerConnectionRepository<GameHub>, LocalPlayerConnectionRepository<GameHub>>();
-                services.AddSingleton<IPlayerConnectionRepository<SignInHub>, LocalPlayerConnectionRepository<SignInHub>>();
+                services.AddSingleton<IPlayerConnectionRepository<EventHub>, LocalPlayerConnectionRepository<EventHub>>()
+                    .AddSingleton<IPlayerConnectionRepository<ChatHub>, LocalPlayerConnectionRepository<ChatHub>>()
+                    .AddSingleton<IPlayerConnectionRepository<GameHub>, LocalPlayerConnectionRepository<GameHub>>()
+                    .AddSingleton<IPlayerConnectionRepository<SignInHub>, LocalPlayerConnectionRepository<SignInHub>>();
             }
 
             return services;

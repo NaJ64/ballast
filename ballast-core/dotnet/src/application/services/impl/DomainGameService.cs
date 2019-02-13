@@ -80,10 +80,10 @@ namespace Ballast.Core.Application.Services.Impl
             Id = vessel.Id,
             Name = vessel.Name,
             OrderedTriple = vessel.CubicCoordinates.ToOrderedTriple(),
-            CaptainId = vessel.Captain.Id,
-            CaptainName = vessel.Captain.Name,
-            RadiomanId = vessel.Radioman.Id,
-            RadiomanName = vessel.Radioman.Name
+            CaptainId = vessel.Captain?.Id,
+            CaptainName = vessel.Captain?.Name,
+            RadiomanId = vessel.Radioman?.Id,
+            RadiomanName = vessel.Radioman?.Name
         };
 
         public static PlayerDto MapToPlayerDto(Player player) => new PlayerDto()
