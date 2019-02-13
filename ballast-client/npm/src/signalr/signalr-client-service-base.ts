@@ -1,7 +1,7 @@
-import * as signalR from '@aspnet/signalr';
-import { Guid, IDisposable } from 'ballast-core';
-import { injectable } from 'inversify';
-import { ISignalRClientOptions } from './signalr-client-options';
+import * as signalR from "@aspnet/signalr";
+import { Guid, IDisposable } from "ballast-core";
+import { injectable } from "inversify";
+import { ISignalRClientOptions } from "./signalr-client-options";
 
 type InvocationResolver<TValue extends any> = (value?: TValue) => void;
 type InvocationRejector = (reason?: string) => void;

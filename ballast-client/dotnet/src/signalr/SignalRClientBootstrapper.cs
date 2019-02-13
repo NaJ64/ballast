@@ -8,19 +8,19 @@ namespace Ballast.Client.SignalR
     public class SignalRClientBootstrapper : IClientBootstrapper
     {
 
-        private readonly SignalRClientEventSubscriber _eventSubscriber;
+        private readonly SignalRClientApplicationEventEmitter _applicationEventEmitter;
         private readonly SignalRClientChatService _chatService;
         private readonly SignalRClientGameService _gameService;
         private readonly SignalRClientSignInService _signInService;
 
         public SignalRClientBootstrapper(
-            ISignalRClientEventSubscriber eventSubscriber,
+            IApplicationEventEmitter applicationEventEmitter,
             IChatService chatService,
             IGameService gameService,
             ISignInService signInService
         ) 
         {
-            _eventSubscriber = eventSubscriber as SignalRClientEventSubscriber;
+            _applicationEventEmitter = applicationEventEmitter as SignalRClientApplicationEventEmitter;
             _chatService = chatService as SignalRClientChatService;
             _gameService = gameService as SignalRClientGameService;
             _signInService = signInService as SignalRClientSignInService;
@@ -29,10 +29,11 @@ namespace Ballast.Client.SignalR
         public async Task ConnectAsync()
         {
             var tasks = new List<Task>();
-            // tasks.Add(this._eventSubscriber.ConnectAsync());
-            // tasks.Add(this._chatService.ConnectAsync());
-            // tasks.Add(this._gameService.ConnectAsync());
-            // tasks.Add(this._signInService.ConnectAsync());
+            tasks.Add(_applicationEventEmitter.ConnectAsync()
+                .ContinueWith(x => _applicationEventEmitter.StartAsync()));
+            tasks.Add(_chatService.ConnectAsync());
+            tasks.Add(_gameService.ConnectAsync());
+            tasks.Add(_signInService.ConnectAsync());
             await Task.WhenAll(tasks);
         }
     }

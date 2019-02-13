@@ -1,11 +1,11 @@
-import { BallastCoreContainerModule, IChatService, IGameService, ISignInService, TYPES as BallastCore } from "ballast-core";
+import { BallastCoreContainerModule, IApplicationEventEmitter, IChatService, IGameService, ISignInService, TYPES as BallastCore } from "ballast-core";
 import { ContainerModule, interfaces } from "inversify";
 import { IClientBootstrapper } from "../client-bootstrapper";
+import { SignalRClientApplicationEventEmitter } from "../signalr/services/signalr-client-application-event-emitter";
 import { SignalRClientChatService } from "../signalr/services/signalr-client-chat-service";
 import { SignalRClientGameService } from "../signalr/services/signalr-client-game-service";
 import { SignalRClientSignInService } from "../signalr/services/signalr-client-sign-in-service";
 import { SignalRClientBootstrapper } from "../signalr/signalr-client-bootstrapper";
-import { ISignalRClientEventSubscriber, SignalRClientEventSubscriber } from "../signalr/signalr-client-event-subscriber";
 import { ISignalRClientOptions, SignalRClientOptions } from "../signalr/signalr-client-options";
 import { BallastClientOptions, IBallastClientOptions } from "./options";
 import { TYPES as BallastClient } from "./types";
@@ -45,8 +45,8 @@ export class BallastClientContainerModule extends ContainerModule {
                 }
                 bind<ISignalRClientOptions>(BallastClient.SignalR.ISignalRClientOptions)
                     .toConstantValue(new SignalRClientOptions(ballastClientOptions.serverUrl, ballastClientOptions.clientId));
-                bind<ISignalRClientEventSubscriber>(BallastClient.SignalR.ISignalRClientEventSubscriber)
-                    .to(SignalRClientEventSubscriber)
+                bind<IApplicationEventEmitter>(BallastCore.Application.Services.IApplicationEventEmitter)
+                    .to(SignalRClientApplicationEventEmitter)
                     .inSingletonScope();
                 bind<IChatService>(BallastCore.Application.Services.IChatService)
                     .to(SignalRClientChatService)

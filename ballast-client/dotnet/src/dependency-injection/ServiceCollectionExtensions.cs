@@ -38,7 +38,7 @@ namespace Ballast.Client.DependencyInjection
                     ballastClientOptions.ServerUrl, 
                     ballastClientOptions.ClientId.GetValueOrDefault()
                 ));
-                services.AddSingleton<ISignalRClientEventSubscriber, SignalRClientEventSubscriber>();
+                services.AddSingleton<IApplicationEventEmitter, SignalRClientApplicationEventEmitter>();
                 services.AddSingleton<IChatService, SignalRClientChatService>();
                 services.AddSingleton<IGameService, SignalRClientGameService>();
                 services.AddSingleton<ISignInService, SignalRClientSignInService>();

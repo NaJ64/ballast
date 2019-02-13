@@ -32,6 +32,7 @@ namespace Ballast.Core.DependencyInjection
             if (ballastCoreOptions.UseDomain) 
             {
                 services.AddTransient<IBoardGenerator, BoardGenerator>();
+                services.AddSingleton<IApplicationEventEmitter, DomainApplicationEventEmitter>();
                 services.AddSingleton<IChatService, DomainChatService>();
                 services.AddSingleton<IGameService, DomainGameService>();
                 services.AddSingleton<ISignInService, DomainSignInService>();

@@ -1,6 +1,8 @@
 import { ContainerModule, interfaces } from "inversify";
+import { IApplicationEventEmitter } from "../application/services/application-event-emitter";
 import { IChatService } from "../application/services/chat-service";
 import { IGameService } from "../application/services/game-service";
+import { DomainApplicationEventEmitter } from "../application/services/impl/domain-application-event-emitter";
 import { DomainChatService } from "../application/services/impl/domain-chat-service";
 import { DomainGameService } from "../application/services/impl/domain-game-service";
 import { DomainSignInService } from "../application/services/impl/domain-sign-in-service";
@@ -42,6 +44,9 @@ export class BallastCoreContainerModule extends ContainerModule {
                 bind<IBoardGenerator>(BallastCore.Domain.Services.IBoardGenerator)
                     .to(BoardGenerator)
                     .inTransientScope();
+                bind<IApplicationEventEmitter>(BallastCore.Application.Services.IApplicationEventEmitter)
+                    .to(DomainApplicationEventEmitter)
+                    .inSingletonScope();
                 bind<IChatService>(BallastCore.Application.Services.IChatService)
                     .to(DomainChatService)
                     .inSingletonScope();
