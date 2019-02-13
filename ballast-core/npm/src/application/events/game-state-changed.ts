@@ -13,11 +13,11 @@ export class GameStateChangedEvent extends EventBase implements IGameStateChange
         return GameStateChangedEvent.id;
     }
 
-    public readonly game: IGameDto | null; 
+    public readonly game: IGameDto; 
 
-    private constructor(createdIsoString: string, game: IGameDto | null = null) {
+    private constructor(createdIsoString: string, game: IGameDto) {
         super(createdIsoString);
-        this.game = game || null;
+        this.game = game;
     }
 
     public static fromJSON(json: IGameStateChangedEvent): GameStateChangedEvent {
@@ -33,13 +33,13 @@ export class GameStateChangedEvent extends EventBase implements IGameStateChange
         if (!json.eventDateIsoString) {
             throw new Error("Missing eventDateIsoString");
         }
-        if (typeof json.game == "undefined") {
+        if (!json.game) {
             throw new Error("Missing game");
         }
         return new GameStateChangedEvent(json.eventDateIsoString, json.game);
     }
 
-    public static fromGame(game?: IGameDto) {
+    public static fromGame(game: IGameDto) {
         return new GameStateChangedEvent(
             EventBase.getDateIsoString(),
             game

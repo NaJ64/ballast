@@ -22,8 +22,8 @@ namespace Ballast.Core.Application.Services.Impl
 
         public void Dispose() 
         {
-            UnsubscribeAll();
             _isEnabled = false; 
+            UnsubscribeAll();
         }
 
         public bool IsEnabled => _isEnabled;
@@ -100,7 +100,7 @@ namespace Ballast.Core.Application.Services.Impl
             return PublishIfEnabledAsync(PlayerAddedToVesselRoleEvent.FromPlayerInGameVesselRole(
                 evt.GameId,
                 vesselDto,
-                evt.Vessel.Name,
+                evt.VesselRole.Name,
                 playerDto
             ));
         }

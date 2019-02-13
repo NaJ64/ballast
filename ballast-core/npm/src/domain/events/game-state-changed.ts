@@ -9,17 +9,17 @@ export class GameStateChangedDomainEvent extends EventBase implements IDomainEve
         return GameStateChangedDomainEvent.id;
     }
 
-    public readonly game: Game | null; 
+    public readonly game: Game; 
 
-    private constructor(eventDateIsoString: string, game: Game | null = null) {
+    private constructor(eventDateIsoString: string, game: Game) {
         super(eventDateIsoString);
         this.game = game || null;
     }
 
-    public static fromGame(game?: Game) {
+    public static fromGame(game: Game) {
         return new GameStateChangedDomainEvent(
             EventBase.getDateIsoString(),
-            game || null
+            game
         );
     }
 
