@@ -29,14 +29,12 @@ export class SignalRClientApplicationEventEmitter extends SignalRClientServiceBa
         return this._isEnabled;
     }
 
-    public startAsync(): Promise<void> {
+    public start(): void {
         this._isEnabled = true;
-        return Promise.resolve();
     }
 
-    public stopAsync(): Promise<void> {
+    public stop(): void {
         this._isEnabled = false;
-        return Promise.resolve();
     }
 
     protected afterSubscribe(hubConnection: HubConnection) {

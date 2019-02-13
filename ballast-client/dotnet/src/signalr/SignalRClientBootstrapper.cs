@@ -29,12 +29,12 @@ namespace Ballast.Client.SignalR
         public async Task ConnectAsync()
         {
             var tasks = new List<Task>();
-            tasks.Add(_applicationEventEmitter.ConnectAsync()
-                .ContinueWith(x => _applicationEventEmitter.StartAsync()));
+            tasks.Add(_applicationEventEmitter.ConnectAsync());
             tasks.Add(_chatService.ConnectAsync());
             tasks.Add(_gameService.ConnectAsync());
             tasks.Add(_signInService.ConnectAsync());
             await Task.WhenAll(tasks);
+            _applicationEventEmitter.Start();
         }
     }
 }

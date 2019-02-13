@@ -6,7 +6,7 @@ namespace Ballast.Core.Application.Services
     public interface IApplicationEventEmitter : IDisposable
     { 
         bool IsEnabled { get; }
-        Task StartAsync();
-        Task StopAsync();
+        void Start();
+        void Stop();
     }
 }

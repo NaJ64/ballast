@@ -44,14 +44,12 @@ export class DomainApplicationEventEmitter implements IApplicationEventEmitter {
         return this._isEnabled;
     }
 
-    public startAsync(): Promise<void> {
+    public start() {
         this._isEnabled = true;
-        return Promise.resolve();
     }
 
-    public stopAsync(): Promise<void> {
+    public stop() {
         this._isEnabled = false;
-        return Promise.resolve();
     }
 
     private subscribeAll() {

@@ -28,12 +28,12 @@ export class SignalRClientBootstrapper implements IClientBootstrapper {
 
     public async connectAsync(): Promise<void> {
         await Promise.all([
-            this._applicationEventEmitter.connectAsync()
-                .then(x => this._applicationEventEmitter.startAsync()),
+            this._applicationEventEmitter.connectAsync(),
             this._chatService.connectAsync(),
             this._gameService.connectAsync(),
             this._signInService.connectAsync()
         ]);
+        this._applicationEventEmitter.start();
     }
 
 }

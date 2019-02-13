@@ -23,16 +23,14 @@ namespace Ballast.Client.SignalR.Services
 
         public bool IsEnabled => _isEnabled;
 
-        public Task StartAsync()
+        public void Start()
         {
             _isEnabled = true;
-            return Task.CompletedTask;
         }
 
-        public Task StopAsync()
+        public void Stop()
         {
             _isEnabled = false;
-            return Task.CompletedTask;
         }
 
         protected override void AfterSubscribe(HubConnection hubConnection)

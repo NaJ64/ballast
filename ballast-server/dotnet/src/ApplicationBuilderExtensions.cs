@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Ballast.Server.SignalR.Hubs;
 using Ballast.Server.DependencyInjection;
+using Ballast.Core.Application.Services;
 
 namespace Ballast.Server
 {
@@ -20,6 +21,8 @@ namespace Ballast.Server
                     routes.MapHub<SignInHub>("/signinhub");
                 });
             }
+            var applicationEventEmitter = (IApplicationEventEmitter)serviceProvider.GetService(typeof(IApplicationEventEmitter));
+            applicationEventEmitter.Start();
             return app;
         }
     }
