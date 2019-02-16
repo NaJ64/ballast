@@ -1,39 +1,43 @@
-import { IEventBus } from "ballast-core";
 import THREE from "three";
 import { IApplicationContext } from "../../application-context";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
 import { IRenderingContext } from "../rendering-context";
+import { ThreePerspectiveTracker } from './three-perspective-tracker';
 
 export class ThreeRenderingContext implements IRenderingContext {
 
     private readonly _application: IApplicationContext;
     private readonly _canvas: HTMLCanvasElement;
-    private readonly _eventBus: IEventBus;
     private _frameDelta: number;
     private readonly _keyboard: KeyboardWatcher;
+    private readonly _root: HTMLDivElement;
     private readonly _threeCamera: THREE.PerspectiveCamera;
     private readonly _threeCameraPivot: THREE.Object3D;
     private readonly _threeClock: THREE.Clock;
     private readonly _threeRenderer: THREE.WebGLRenderer;
     private readonly _threeScene: THREE.Scene
+    private readonly _perspectiveTracker: ThreePerspectiveTracker;
 
     public constructor(
+        root: HTMLDivElement,
         canvas: HTMLCanvasElement, 
         keyboard: KeyboardWatcher, 
-        application: IApplicationContext, 
-        eventBus: IEventBus
+        application: IApplicationContext
     ) {
+        // Base IRenderingContext types
         this._application = application;
         this._canvas = canvas;
-        this._eventBus = eventBus;
         this._frameDelta = 0;
         this._keyboard = keyboard;
-        // Create THREE.js objects
+        this._root = root;
+        // THREE.js objects
         this._threeClock = new THREE.Clock();
         this._threeScene = new THREE.Scene();
         this._threeRenderer = this.createThreeRenderer(this._canvas);
         this._threeCamera = this.createThreeCamera(this._canvas);
         this._threeCameraPivot = this.createThreeCameraPivot(this._threeScene, this._threeCamera);
+        // Perspective tracker
+        this._perspectiveTracker = new ThreePerspectiveTracker(this._threeScene, this._threeCameraPivot);
     }
 
     public get application(): IApplicationContext {
@@ -44,16 +48,24 @@ export class ThreeRenderingContext implements IRenderingContext {
         return this._canvas;
     }
 
-    public get eventBus(): IEventBus {
-        return this._eventBus;
-    }
-
     public get frameDelta(): number {
         return this._frameDelta;
     }
 
+    public get isThreeRenderingContext(): boolean {
+        return true; // Helper flag for ThreeRenderingComponent(s)
+    }
+
     public get keyboard(): KeyboardWatcher {
         return this._keyboard;
+    }
+
+    public get perspectiveTracker(): ThreePerspectiveTracker {
+        return this._perspectiveTracker;
+    }
+
+    public get root(): HTMLDivElement {
+        return this._root;
     }
 
     public get threeCamera(): THREE.PerspectiveCamera {
