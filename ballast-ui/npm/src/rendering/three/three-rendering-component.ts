@@ -7,7 +7,9 @@ import { ThreeRenderingContext } from './three-rendering-context';
 export abstract class ThreeRenderingComponentBase extends RenderingComponentBase {
 
     protected abstract onRender(renderingContext: ThreeRenderingContext): void;
-    protected onFirstRender(renderingContext: ThreeRenderingContext): void { }
+    protected onFirstRender(renderingContext: ThreeRenderingContext): void { 
+        this.onRender(renderingContext); 
+    }
 
     public constructor() {
         super();

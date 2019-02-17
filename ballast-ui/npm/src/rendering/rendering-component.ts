@@ -19,13 +19,14 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
     protected _isEnabled: boolean;
     protected _isFirstRender: boolean;
     protected _parent: HTMLElement | null;
-
-    protected abstract onRender(renderingContext: IRenderingContext): void;
-    protected onFirstRender(renderingContext: IRenderingContext): void { }
     protected onAttached(parent: HTMLElement): void { }
     protected onDetaching(): void { }
     protected onEnabled(): void { }
     protected onDisabling(): void { }
+    protected abstract onRender(renderingContext: IRenderingContext): void;
+    protected onFirstRender(renderingContext: IRenderingContext): void { 
+        this.onRender(renderingContext); 
+    }
 
     public constructor() {
         this._isEnabled = false;

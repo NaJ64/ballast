@@ -1,4 +1,5 @@
 export * from "./extensions";
-export * from "./three-rendering-context";
+export * from "./rendering-components";
 export * from "./three-perspective-tracker";
-export * from "./three-rendering-component-base";
+export * from "./three-rendering-component";
+export * from "./three-rendering-context";

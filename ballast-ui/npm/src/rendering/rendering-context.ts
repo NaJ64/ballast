@@ -1,4 +1,4 @@
-import { IApplicationContext } from "../application-context";
+import { IApplicationContext } from "../app/application-context";
 import { KeyboardWatcher } from "../input/keyboard-watcher";
 
 export interface IRenderingContext {
