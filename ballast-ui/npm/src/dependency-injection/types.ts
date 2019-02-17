@@ -1,8 +1,10 @@
 export const TYPES = {
+    App: {
+        IApplicationContext: Symbol.for("IApplicationContext")
+    },
     DependencyInjection: {
         IBallastUiOptions: Symbol.for("IBallastUiOptions")
     },
-    IApplicationContext: Symbol.for("IApplicationContext"),
     Input: {
         KeyboardWatcher:Symbol.for("KeyboardWatcher")
     },

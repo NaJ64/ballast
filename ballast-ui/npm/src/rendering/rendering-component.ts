@@ -20,9 +20,10 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
     protected _isFirstRender: boolean;
     protected _parent: HTMLElement | null;
     protected onAttached(parent: HTMLElement): void { }
-    protected onDetaching(): void { }
+    protected onDetaching(parent: HTMLElement): void { }
     protected onEnabled(): void { }
     protected onDisabling(): void { }
+    protected onDisposing(): void { }
     protected abstract onRender(renderingContext: IRenderingContext): void;
     protected onFirstRender(renderingContext: IRenderingContext): void { 
         this.onRender(renderingContext); 
@@ -35,6 +36,7 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
     }
 
     public dispose() {
+        this.onDisposing();
         if (this._parent) {
             this.detach();
         }
@@ -68,7 +70,7 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         if (!this._parent) {
             throw new Error("Component is not attached to a parent element");
         }
-        this.onDetaching();
+        this.onDetaching(this._parent);
         this._parent = null;
         this._isFirstRender = true;
     }

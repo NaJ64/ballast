@@ -1,5 +1,5 @@
 import { IBallastClientOptions, TYPES as BallastClient } from "ballast-client";
-import { ChatMessageSentEvent, GameStateChangedEvent, IEventBus, IGameDto, IPlayerDto, IVesselDto, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, PlayerRemovedFromVesselRoleEvent, PlayerSignedInEvent, PlayerSignedOutEvent, TYPES as BallastCore, VesselStateChangedEvent, IGameStateChangedEvent, IChatMessageSentEvent, IPlayerAddedToVesselRoleEvent, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IPlayerRemovedFromVesselRoleEvent, IPlayerSignedInEvent, IPlayerSignedOutEvent, IVesselStateChangedEvent, IDisposable, Guid, IGameService } from "ballast-core";
+import { GameStateChangedEvent, Guid, IDisposable, IEventBus, IGameDto, IGameService, IGameStateChangedEvent, IPlayerAddedToVesselRoleEvent, IPlayerDto, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IPlayerRemovedFromVesselRoleEvent, IPlayerSignedInEvent, IPlayerSignedOutEvent, IVesselDto, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, PlayerRemovedFromVesselRoleEvent, PlayerSignedInEvent, PlayerSignedOutEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
 import { inject, injectable } from "inversify";
 
 export interface IApplicationContext {
@@ -29,6 +29,7 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus,
         @inject(BallastCore.Application.Services.IGameService) gameService: IGameService
     ) {
+        this.rebindAllHandlers();
         this._clientOptions = clientOptions;
         this._eventBus = eventBus;
         this._gameService = gameService;
@@ -36,11 +37,11 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         this._player = null;
         this._vessel = null;
         this._vesselRoles = [];
-        this.subscribeAll();
+        this.subscribeAllApplicationEvents();
     }
 
     public dispose() {
-        this.unsubscribeAll();
+        this.unsubscribeAllApplicationEvents();
     }
 
     public get currentGame(): IGameDto | null {
@@ -59,41 +60,52 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         return this._player || null;
     }
 
-    private subscribeAll() {
-        this._eventBus.subscribe<IGameStateChangedEvent>(GameStateChangedEvent.id, 
+    private rebindAllHandlers() {
+        this.onGameStateChangedEventAsync = this.onGameStateChangedEventAsync.bind(this);
+        this.onPlayerAddedToVesselRoleEventAsync = this.onPlayerAddedToVesselRoleEventAsync.bind(this);
+        this.onPlayerJoinedGameEventAsync = this.onPlayerJoinedGameEventAsync.bind(this);
+        this.onPlayerLeftGameEventAsync = this.onPlayerLeftGameEventAsync.bind(this);
+        this.onPlayerRemovedFromVesselRoleEventAsync = this.onPlayerRemovedFromVesselRoleEventAsync.bind(this);
+        this.onPlayerSignedInEventAsync = this.onPlayerSignedInEventAsync.bind(this);
+        this.onPlayerSignedOutEventAsync = this.onPlayerSignedOutEventAsync.bind(this);
+        this.onVesselStateChangedEventAsync = this.onVesselStateChangedEventAsync.bind(this);
+    }
+
+    private subscribeAllApplicationEvents() {
+        this._eventBus.subscribe(GameStateChangedEvent.id, 
             this.onGameStateChangedEventAsync);
-        this._eventBus.subscribe<IPlayerAddedToVesselRoleEvent>(PlayerAddedToVesselRoleEvent.id, 
+        this._eventBus.subscribe(PlayerAddedToVesselRoleEvent.id, 
             this.onPlayerAddedToVesselRoleEventAsync);
-        this._eventBus.subscribe<IPlayerJoinedGameEvent>(PlayerJoinedGameEvent.id, 
+        this._eventBus.subscribe(PlayerJoinedGameEvent.id, 
             this.onPlayerJoinedGameEventAsync);
-        this._eventBus.subscribe<IPlayerLeftGameEvent>(PlayerLeftGameEvent.id, 
+        this._eventBus.subscribe(PlayerLeftGameEvent.id, 
             this.onPlayerLeftGameEventAsync);
-        this._eventBus.subscribe<IPlayerRemovedFromVesselRoleEvent>(PlayerRemovedFromVesselRoleEvent.id, 
+        this._eventBus.subscribe(PlayerRemovedFromVesselRoleEvent.id, 
             this.onPlayerRemovedFromVesselRoleEventAsync);
-        this._eventBus.subscribe<IPlayerSignedInEvent>(PlayerSignedInEvent.id, 
+        this._eventBus.subscribe(PlayerSignedInEvent.id, 
             this.onPlayerSignedInEventAsync);
-        this._eventBus.subscribe<IPlayerSignedOutEvent>(PlayerSignedOutEvent.id, 
+        this._eventBus.subscribe(PlayerSignedOutEvent.id, 
             this.onPlayerSignedOutEventAsync);
-        this._eventBus.subscribe<IVesselStateChangedEvent>(VesselStateChangedEvent.id, 
+        this._eventBus.subscribe(VesselStateChangedEvent.id, 
             this.onVesselStateChangedEventAsync);
     }
 
-    private unsubscribeAll() {
-        this._eventBus.unsubscribe<IGameStateChangedEvent>(GameStateChangedEvent.id, 
+    private unsubscribeAllApplicationEvents() {
+        this._eventBus.unsubscribe(GameStateChangedEvent.id, 
             this.onGameStateChangedEventAsync);
-        this._eventBus.unsubscribe<IPlayerAddedToVesselRoleEvent>(PlayerAddedToVesselRoleEvent.id, 
+        this._eventBus.unsubscribe(PlayerAddedToVesselRoleEvent.id, 
             this.onPlayerAddedToVesselRoleEventAsync);
-        this._eventBus.unsubscribe<IPlayerJoinedGameEvent>(PlayerJoinedGameEvent.id, 
+        this._eventBus.unsubscribe(PlayerJoinedGameEvent.id, 
             this.onPlayerJoinedGameEventAsync);
-        this._eventBus.unsubscribe<IPlayerLeftGameEvent>(PlayerLeftGameEvent.id, 
+        this._eventBus.unsubscribe(PlayerLeftGameEvent.id, 
             this.onPlayerLeftGameEventAsync);
-        this._eventBus.unsubscribe<IPlayerRemovedFromVesselRoleEvent>(PlayerRemovedFromVesselRoleEvent.id, 
+        this._eventBus.unsubscribe(PlayerRemovedFromVesselRoleEvent.id, 
             this.onPlayerRemovedFromVesselRoleEventAsync);
-        this._eventBus.unsubscribe<IPlayerSignedInEvent>(PlayerSignedInEvent.id, 
+        this._eventBus.unsubscribe(PlayerSignedInEvent.id, 
             this.onPlayerSignedInEventAsync);
-        this._eventBus.unsubscribe<IPlayerSignedOutEvent>(PlayerSignedOutEvent.id, 
+        this._eventBus.unsubscribe(PlayerSignedOutEvent.id, 
             this.onPlayerSignedOutEventAsync);
-        this._eventBus.unsubscribe<IVesselStateChangedEvent>(VesselStateChangedEvent.id, 
+        this._eventBus.unsubscribe(VesselStateChangedEvent.id, 
             this.onVesselStateChangedEventAsync);
     }
 

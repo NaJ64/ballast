@@ -1,5 +1,5 @@
 import THREE from "three";
-import { IApplicationContext } from "../../application-context";
+import { IApplicationContext } from "../../app/application-context";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
 import { IRenderingContext } from "../rendering-context";
 import { ThreePerspectiveTracker } from './three-perspective-tracker';
