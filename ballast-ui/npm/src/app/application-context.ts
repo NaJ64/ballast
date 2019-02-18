@@ -2,6 +2,9 @@ import { IBallastClientOptions, TYPES as BallastClient } from "ballast-client";
 import { GameStateChangedEvent, Guid, IDisposable, IEventBus, IGameDto, IGameService, IGameStateChangedEvent, IPlayerAddedToVesselRoleEvent, IPlayerDto, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IPlayerRemovedFromVesselRoleEvent, IPlayerSignedInEvent, IPlayerSignedOutEvent, IVesselDto, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, PlayerRemovedFromVesselRoleEvent, PlayerSignedInEvent, PlayerSignedOutEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
 import { inject, injectable } from "inversify";
 
+// TODO:  Add some flags for detecting when the game has been updated 
+//      or when the vessel has been moved/modified
+
 export interface IApplicationContext {
     readonly currentGame: IGameDto | null;
     readonly signedInPlayer: IPlayerDto | null;

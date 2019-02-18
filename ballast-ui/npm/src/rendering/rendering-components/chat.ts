@@ -1,13 +1,13 @@
-import { RenderingComponentBase, IRenderingComponent } from "../rendering-component";
-import { injectable, inject } from "inversify";
-import { IChatService, TYPES as BallastCore, IChatMessageSentEvent, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IEventBus, ChatMessageSentEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, IChatMessage } from "ballast-core";
-import { IRenderingContext } from '../rendering-context';
-import { KeyboardWatcher } from "../../input/keyboard-watcher";
-import { TYPES as BallastUi } from "../../dependency-injection/types";
+import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore } from "ballast-core";
+import { inject, injectable } from "inversify";
 import { IApplicationContext } from '../../app/application-context';
+import { TYPES as BallastUi } from "../../dependency-injection/types";
+import { KeyboardWatcher } from "../../input/keyboard-watcher";
+import { RenderingComponentBase } from "../rendering-component";
+import { IRenderingContext } from '../rendering-context';
 
 @injectable()
-export class ChatComponent extends RenderingComponentBase implements IRenderingComponent {
+export class ChatComponent extends RenderingComponentBase {
 
     private readonly _applicationContext: IApplicationContext;
     private readonly _eventBus: IEventBus;
@@ -31,7 +31,6 @@ export class ChatComponent extends RenderingComponentBase implements IRenderingC
         this._eventBus = eventBus;
         this._chatService = chatService;
         this._keyboardWatcher = keyboardWatcher;
-        this.subscribeAllApplicationEvents();
     }
      
     protected onDisposing() {
