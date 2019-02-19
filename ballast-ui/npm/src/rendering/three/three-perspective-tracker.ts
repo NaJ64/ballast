@@ -2,10 +2,10 @@ import { IDirection } from 'ballast-core';
 import * as THREE from 'three';
 import { RenderingConstants } from '../rendering-constants';
 
-const TILE_SHAPE_CIRCLE: string = "circle";
-const TILE_SHAPE_HEXAGON: string = "hexagon";
-const TILE_SHAPE_SQUARE: string = "square";
-const TILE_SHAPE_OCTAGON: string = "octagon";
+const TILE_SHAPE_CIRCLE: string = "Circle";
+const TILE_SHAPE_HEXAGON: string = "Hexagon";
+const TILE_SHAPE_SQUARE: string = "Square";
+const TILE_SHAPE_OCTAGON: string = "Octagon";
 
 export class ThreePerspectiveTracker {
 
