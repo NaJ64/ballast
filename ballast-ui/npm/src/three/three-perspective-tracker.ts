@@ -1,6 +1,6 @@
-import { IDirection } from 'ballast-core';
-import * as THREE from 'three';
-import { RenderingConstants } from '../rendering-constants';
+import { IDirection } from "ballast-core";
+import * as THREE from "three";
+import { RenderingConstants } from "../rendering/rendering-constants";
 
 const TILE_SHAPE_CIRCLE: string = "Circle";
 const TILE_SHAPE_HEXAGON: string = "Hexagon";
@@ -169,7 +169,7 @@ export class ThreePerspectiveTracker {
     public getSnappedRotation(directions: number, subject?: THREE.Object3D): THREE.Matrix4 {
         let map = this._snappedRotationMap.get(directions);
         if (!map) {
-            throw new Error(`Could not determine snap rotations for increment '${directions}'`);
+            throw new Error(`Could not determine snap rotations for increment "${directions}"`);
         }
         let minimums = map.keys();
         let objectHalfTurns = (2 - this.getHalfTurns(subject)) % 2;

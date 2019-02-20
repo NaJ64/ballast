@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import { RenderingComponentBase } from "../rendering-component";
-import { IRenderingContext } from "../rendering-context";
-import { ThreeRenderingContext } from './three-rendering-context';
+import { RenderingComponentBase } from "../../rendering/rendering-component";
+import { IRenderingContext } from "../../rendering/rendering-context";
+import { ThreeRenderingContext } from "./three-rendering-context";
 
 @injectable()
 export abstract class ThreeRenderingComponentBase extends RenderingComponentBase {

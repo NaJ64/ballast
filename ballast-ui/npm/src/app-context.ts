@@ -1,40 +1,32 @@
 import { IBallastClientOptions, TYPES as BallastClient } from "ballast-client";
 import { GameStateChangedEvent, Guid, IDisposable, IEventBus, IGameDto, IGameService, IGameStateChangedEvent, IPlayerAddedToVesselRoleEvent, IPlayerDto, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IPlayerRemovedFromVesselRoleEvent, IPlayerSignedInEvent, IPlayerSignedOutEvent, IVesselDto, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, PlayerRemovedFromVesselRoleEvent, PlayerSignedInEvent, PlayerSignedOutEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
 import { inject, injectable } from "inversify";
+import { CurrentGameModifiedEvent } from "./events/current-game-modified";
+import { CurrentPlayerModifiedEvent } from "./events/current-player-modified";
+import { CurrentVesselModifiedEvent } from "./events/current-vessel-modified";
+import { CurrentVesselRolesModifiedEvent } from "./events/current-vessel-roles-modified";
 
-export interface IApplicationContext {
-    readonly signedInPlayer: IPlayerDto | null;
-    readonly signedInPlayerModified: boolean;
+export interface IAppContext {
     readonly currentGame: IGameDto | null;
-    readonly currentGameModified: boolean;
+    readonly currentPlayer: IPlayerDto | null;
     readonly currentVessel: IVesselDto | null;
-    readonly currentVesselModified: boolean;
     readonly currentVesselRoles: string[];
-    readonly currentVesselRolesModified: boolean;
-    resetModifiedFlags(): void;
 }
 
 const VESSEL_ROLE_CAPTAIN = "Captain";
 const VESSEL_ROLE_RADIOMAN = "Radioman";
 
 @injectable()
-export class ApplicationContext implements IApplicationContext, IDisposable {
+export class AppContext implements IAppContext, IDisposable {
 
     protected readonly _clientOptions: IBallastClientOptions;
     protected readonly _eventBus: IEventBus;
     protected readonly _gameService: IGameService;
     
     protected _game: IGameDto | null;
-    protected _gameModified: boolean;
-
     protected _player: IPlayerDto | null;
-    protected _playerModified: boolean;
-
     protected _vessel: IVesselDto | null;
-    protected _vesselModified: boolean;
-
     protected _vesselRoles: string[];
-    protected _vesselRolesModified: boolean;
 
     public constructor(
         @inject(BallastClient.DependencyInjection.IBallastClientOptions) clientOptions: IBallastClientOptions,
@@ -46,13 +38,9 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         this._eventBus = eventBus;
         this._gameService = gameService;
         this._game = null;
-        this._gameModified = false;
         this._player = null;
-        this._playerModified = false;
         this._vessel = null;
-        this._vesselModified = false;
         this._vesselRoles = [];
-        this._vesselRolesModified = false;
         this.subscribeAllApplicationEvents();
     }
 
@@ -72,31 +60,8 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         return this._vesselRoles || [];
     }
 
-    public get signedInPlayer(): IPlayerDto | null {
+    public get currentPlayer(): IPlayerDto | null {
         return this._player || null;
-    }
-
-    public get currentGameModified(): boolean {
-        return this._gameModified;
-    }
-
-    public get currentVesselModified(): boolean {
-        return this._vesselModified;
-    }
-
-    public get currentVesselRolesModified(): boolean {
-        return this._vesselRolesModified;
-    }
-
-    public get signedInPlayerModified(): boolean {
-        return this._playerModified;
-    }
-
-    public resetModifiedFlags() {
-        this._playerModified = false;
-        this._gameModified = false;
-        this._vesselModified = false;
-        this._vesselRolesModified = false;
     }
 
     protected rebindAllHandlers() {
@@ -152,88 +117,94 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         return this._clientOptions && this._clientOptions.clientId || Guid.empty;
     }
 
-    protected refreshSignedInPlayer(player: IPlayerDto | null) {
+    protected async refreshSignedInPlayerAsync(player: IPlayerDto | null) {
         // Retain the old player for comparison
         let oldPlayer = this._player;
-        this._playerModified = false;
+        let playerModified = false;
         // Check if we signed in
         if (!oldPlayer && player) {
-            this._playerModified = true;
+            playerModified = true;
         }
         // Check if we signed out
         if (oldPlayer && !player) {
-            this._playerModified = true;
+            playerModified = true;
         }
         // Check if we changed id(s) ???
         if (oldPlayer && player && oldPlayer.id != player.id) {
-            this._playerModified = true;
+            playerModified = true;
         }
         // Update the locally saved player
         this._player = player;
+        if (playerModified) {
+            await this._eventBus.publishAsync(CurrentPlayerModifiedEvent.create());
+        }
     }
 
-    protected refreshGame(game: IGameDto | null) {
+    protected async refreshGameAsync(game: IGameDto | null) {
         // Retain the old game for comparison
         let oldGame = this._game;
-        this._gameModified = false;
+        let gameModified = false;
         // Check if we joined the game
         if (!oldGame && game) {
-            this._gameModified = true;
+            gameModified = true;
         }
         // Check if we left the game
         if (oldGame && !game) {
-            this._gameModified = true;
+            gameModified = true;
         }
         // Check if we have a new game
         if (oldGame && game && oldGame.id != game.id) {
-            this._gameModified = true;
+            gameModified = true;
         }
         // Check if game got a new board
         if (oldGame && game && oldGame.board.id != game.board.id) {
-            this._gameModified = true;
+            gameModified = true;
         }
         // Check if players changed
         if (oldGame && game && oldGame.players && game.players) {
             if (oldGame.players.length != game.players.length) {
-                this._gameModified = true;
+                gameModified = true;
             }
             let i = oldGame.players.length;
             while (i--) {
                 if (oldGame.players[i].id != game.players[i].id) {
-                    this._gameModified = true;
+                    gameModified = true;
                 }
             }
         }
         // Check if vessels changed
         if (oldGame && game && oldGame.vessels && game.vessels) {
             if (oldGame.vessels.length != game.vessels.length) {
-                this._gameModified = true;
+                gameModified = true;
             }
             let i = oldGame.vessels.length;
             while (i--) {
                 if (oldGame.vessels[i].id != game.vessels[i].id) {
-                    this._gameModified = true;
+                    gameModified = true;
                 }
                 if (oldGame.vessels[i].captainId != game.vessels[i].captainId) {
-                    this._gameModified = true;
+                    gameModified = true;
                 }
                 if (oldGame.vessels[i].radiomanId != game.vessels[i].radiomanId) {
-                    this._gameModified = true;
+                    gameModified = true;
                 }
             }
         }
         // Update the local game
         this._game = game;
+        if (gameModified) {
+            await this._eventBus.publishAsync(CurrentGameModifiedEvent.create());
+        }
         // Always refresh vessel roles when game changes
-        this.refreshVesselAndVesselRoles();
+        this.refreshVesselAndVesselRolesAsync();
     }
 
-    protected refreshVesselAndVesselRoles() {
+    protected async refreshVesselAndVesselRolesAsync() {
         // Retain the old vessel info for comparison
         let oldVessel = this._vessel;
-        this._vesselModified = false;
+        let vesselModified = false;
         let oldVesselRoles = this._vesselRoles;
-        this._vesselRolesModified = false;
+        let vesselRolesModified = false;
         let playerId = this.getClientId();
         let vessel = null;
         let vesselRoles = [];
@@ -255,48 +226,54 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
         }
         // Check if we joined a vessel
         if (!oldVessel && vessel) {
-            this._vesselModified = true;
+            vesselModified = true;
         }
         // Check if we left a vessel
         if (oldVessel && !vessel) {
-            this._vesselModified = true;
+            vesselModified = true;
         }
         // Check if we have a new vessel
         if (oldVessel && vessel && oldVessel.id != vessel.id) {
-            this._vesselModified = true;
+            vesselModified = true;
         }
         // Check if the vessel moved
         if (oldVessel && vessel && oldVessel.orderedTriple.toString() != vessel.orderedTriple.toString()) {
-            this._vesselModified = true;
+            vesselModified = true;
         }
         // Check if vessel roles changed
         if (oldVesselRoles.length != vesselRoles.length) {
-            this._vesselRolesModified = true;
+            vesselRolesModified = true;
         }
         let i = oldVesselRoles.length;
         while (i--) {
             if (oldVesselRoles[i] != vesselRoles[i]) {
-                this._vesselRolesModified = true;
+                vesselRolesModified = true;
             }
         }
         // Update the local vessel & vessel roles
         this._vessel = vessel;
+        if (vesselModified) {
+            await this._eventBus.publishAsync(CurrentVesselModifiedEvent.create());
+        }
         this._vesselRoles = vesselRoles;
+        if (vesselRolesModified) {
+            await this._eventBus.publishAsync(CurrentVesselRolesModifiedEvent.create());
+        }
     }
 
     protected async onPlayerSignedInEventAsync(evt: IPlayerSignedInEvent) {
         if (evt.player.id != this.getClientId()) {
             return;
         }
-        this.refreshSignedInPlayer(evt.player);
+        await this.refreshSignedInPlayerAsync(evt.player);
     }
 
     protected async onPlayerSignedOutEventAsync(evt: IPlayerSignedOutEvent) {
         if (!evt.player || evt.player.id != this.getClientId()) {
             return;
         }
-        this.refreshSignedInPlayer(null);
-        this.refreshGame(null);
+        await this.refreshSignedInPlayerAsync(null);
+        await this.refreshGameAsync(null);
     }
 
     protected async onGameStateChangedEventAsync(evt: IGameStateChangedEvent) {
@@ -323,43 +300,43 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
                 return; // Short circuit without clearing any game / vessel / role info
             }
         }
-        this.refreshGame(newGame);
+        await this.refreshGameAsync(newGame);
     }
 
     protected async onPlayerJoinedGameEventAsync(evt: IPlayerJoinedGameEvent) {
         if (evt.player.id != this.getClientId()) {
             return;
         }
-        this.refreshSignedInPlayer(evt.player); // Just in case
+        await this.refreshSignedInPlayerAsync(evt.player); // Just in case
         let game = await this._gameService.getGameAsync(evt.gameId);
-        this.refreshGame(game);
+        await this.refreshGameAsync(game);
     }
 
     protected async onPlayerLeftGameEventAsync(evt: IPlayerLeftGameEvent) {
         if (evt.player.id != this.getClientId()) {
             return;
         }
-        this.refreshSignedInPlayer(evt.player); // Just in case
+        await this.refreshSignedInPlayerAsync(evt.player); // Just in case
         // We assume the player can only belong to one game at a time, so event is treated as if we left the current game
-        this.refreshGame(null);
+        await this.refreshGameAsync(null);
     }
 
     protected async onPlayerAddedToVesselRoleEventAsync(evt: IPlayerAddedToVesselRoleEvent) {
         if (evt.player.id != this.getClientId()) {
             return;
         }
-        this.refreshSignedInPlayer(evt.player); // Just in case
+        await this.refreshSignedInPlayerAsync(evt.player); // Just in case
         let game = await this._gameService.getGameAsync(evt.gameId);
-        this.refreshGame(game);
+        await this.refreshGameAsync(game);
     }
 
     protected async onPlayerRemovedFromVesselRoleEventAsync(evt: IPlayerRemovedFromVesselRoleEvent) {
         if (evt.player.id != this.getClientId()) {
             return;
         }
-        this.refreshSignedInPlayer(evt.player); // Just in case
+        await this.refreshSignedInPlayerAsync(evt.player); // Just in case
         let game = await this._gameService.getGameAsync(evt.gameId);
-        this.refreshGame(game);
+        await this.refreshGameAsync(game);
     }
 
     protected async onVesselStateChangedEventAsync(evt: IVesselStateChangedEvent) {
@@ -367,7 +344,7 @@ export class ApplicationContext implements IApplicationContext, IDisposable {
             return;
         }
         let game = await this._gameService.getGameAsync(evt.gameId);
-        this.refreshGame(game);
+        await this.refreshGameAsync(game);
     }
 
 }

@@ -1,15 +1,15 @@
 import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
-import { IApplicationContext } from '../../app/application-context';
+import { IAppContext } from "../../app-context";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
 import { RenderingComponentBase } from "../rendering-component";
-import { IRenderingContext } from '../rendering-context';
+import { IRenderingContext } from "../rendering-context";
 
 @injectable()
 export class ChatComponent extends RenderingComponentBase {
 
-    private readonly _applicationContext: IApplicationContext;
+    private readonly _app: IAppContext;
     private readonly _eventBus: IEventBus;
     private readonly _chatService: IChatService;
     private readonly _keyboardWatcher: KeyboardWatcher;
@@ -20,21 +20,21 @@ export class ChatComponent extends RenderingComponentBase {
     private _chatInput?: HTMLInputElement;
 
     public constructor(
-        @inject(BallastUi.App.IApplicationContext) applicationContext: IApplicationContext,
+        @inject(BallastUi.IAppContext) app: IAppContext,
         @inject(BallastUi.Input.KeyboardWatcher) keyboardWatcher: KeyboardWatcher,
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus,
         @inject(BallastCore.Application.Services.IChatService) chatService: IChatService
     ) {
         super();
         this.rebindAllHandlers();
-        this._applicationContext = applicationContext;
+        this._app = app;
         this._eventBus = eventBus;
         this._chatService = chatService;
         this._keyboardWatcher = keyboardWatcher;
     }
      
     protected onDisposing() {
-        this.unsubscribeAllApplicationEvents();
+        this.subscribeAll();
         this._chatWindow = undefined;
         this._chatHistory = undefined;
         this._chatForm = undefined;
@@ -50,13 +50,13 @@ export class ChatComponent extends RenderingComponentBase {
         this.onChatFormSubmit = this.onChatFormSubmit.bind(this);
     }
 
-    private subscribeAllApplicationEvents() {
+    private subscribeAll() {
         this._eventBus.subscribe(ChatMessageSentEvent.id, this.onChatMessageSentAsync);
         this._eventBus.subscribe(PlayerJoinedGameEvent.id, this.onPlayerJoinedGameEventAsync);
         this._eventBus.subscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
     }
 
-    private unsubscribeAllApplicationEvents() {
+    private unsubscribeAll() {
         this._eventBus.unsubscribe(ChatMessageSentEvent.id, this.onChatMessageSentAsync);
         this._eventBus.unsubscribe(PlayerJoinedGameEvent.id, this.onPlayerJoinedGameEventAsync);
         this._eventBus.unsubscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
@@ -87,22 +87,22 @@ export class ChatComponent extends RenderingComponentBase {
             this._chatInput = chatElements["3"];
         }
         // Add dom event listeners
-        this._chatInput && this._chatInput.addEventListener('focus', this.onChatInputFocus);
-        this._chatInput && this._chatInput.addEventListener('blur', this.onChatInputBlur);
-        this._chatForm && this._chatForm.addEventListener('submit', this.onChatFormSubmit);
+        this._chatInput && this._chatInput.addEventListener("focus", this.onChatInputFocus);
+        this._chatInput && this._chatInput.addEventListener("blur", this.onChatInputBlur);
+        this._chatForm && this._chatForm.addEventListener("submit", this.onChatFormSubmit);
         // Add chat window onto parent element
         parent.appendChild(this._chatWindow);
         // Subscribe to all application events
-        this.subscribeAllApplicationEvents();
+        this.subscribeAll();
     }
 
     protected onDetaching(parent: HTMLElement) {
         // Unsubscribe from all application events
-        this.unsubscribeAllApplicationEvents();
+        this.unsubscribeAll();
         // Remove dom event listeners
-        this._chatInput && this._chatInput.removeEventListener('focus', this.onChatInputFocus);
-        this._chatInput && this._chatInput.removeEventListener('blur', this.onChatInputBlur);
-        this._chatForm && this._chatForm.removeEventListener('submit', this.onChatFormSubmit);
+        this._chatInput && this._chatInput.removeEventListener("focus", this.onChatInputFocus);
+        this._chatInput && this._chatInput.removeEventListener("blur", this.onChatInputBlur);
+        this._chatForm && this._chatForm.removeEventListener("submit", this.onChatFormSubmit);
         // Remove the chat window from the page
         if (this._chatWindow) {
             parent.removeChild(this._chatWindow);
@@ -126,53 +126,53 @@ export class ChatComponent extends RenderingComponentBase {
     ] {
 
         let chatWindow = ownerDocument.createElement("div");
-        chatWindow.style.cssFloat = 'right';
-        chatWindow.style.position = 'absolute';
-        chatWindow.style.zIndex = '1000';
-        chatWindow.style.right = '12px'; // parent has 2px border
-        chatWindow.style.bottom = '12px'; // parent has 2px border
-        chatWindow.style.height = '66%';
-        chatWindow.style.width = 'calc(40% - 2px)';
-        chatWindow.style.borderWidth = '1px';
-        chatWindow.style.borderStyle = 'none'; //'solid';
-        chatWindow.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        //chatWindow.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+        chatWindow.style.cssFloat = "right";
+        chatWindow.style.position = "absolute";
+        chatWindow.style.zIndex = "1000";
+        chatWindow.style.right = "12px"; // parent has 2px border
+        chatWindow.style.bottom = "12px"; // parent has 2px border
+        chatWindow.style.height = "66%";
+        chatWindow.style.width = "calc(40% - 2px)";
+        chatWindow.style.borderWidth = "1px";
+        chatWindow.style.borderStyle = "none"; //"solid";
+        chatWindow.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        //chatWindow.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
 
         let chatHistory = ownerDocument.createElement("ul");
         chatHistory.style.color = "white";
-        chatHistory.style.textShadow = '1px 1px 2px rgb(0, 0, 0), -1px 1px 2px rgb(0, 0, 0), 1px -1px 2px rgb(0, 0, 0), -1px -1px 2px rgb(0, 0, 0)';
-        chatHistory.style.marginTop = '10px';
-        chatHistory.style.marginBottom = '10px';
-        chatHistory.style.marginLeft = '5px';
-        chatHistory.style.marginRight = '5px';
-        chatHistory.style.padding = '0px';
+        chatHistory.style.textShadow = "1px 1px 2px rgb(0, 0, 0), -1px 1px 2px rgb(0, 0, 0), 1px -1px 2px rgb(0, 0, 0), -1px -1px 2px rgb(0, 0, 0)";
+        chatHistory.style.marginTop = "10px";
+        chatHistory.style.marginBottom = "10px";
+        chatHistory.style.marginLeft = "5px";
+        chatHistory.style.marginRight = "5px";
+        chatHistory.style.padding = "0px";
         chatHistory.style.listStyle = "none";
-        chatHistory.style.position = 'absolute';
-        chatHistory.style.bottom = '26px';
-        chatHistory.style.right = '0px';
-        chatHistory.style.left = '0px';
-        chatHistory.style.overflowY = 'auto';
-        chatHistory.style.maxHeight = 'calc(100% - 46px)';
+        chatHistory.style.position = "absolute";
+        chatHistory.style.bottom = "26px";
+        chatHistory.style.right = "0px";
+        chatHistory.style.left = "0px";
+        chatHistory.style.overflowY = "auto";
+        chatHistory.style.maxHeight = "calc(100% - 46px)";
         chatWindow.appendChild(chatHistory);
 
-        let chatForm = ownerDocument.createElement('form');
+        let chatForm = ownerDocument.createElement("form");
         chatWindow.appendChild(chatForm);
 
         let chatInput = ownerDocument.createElement("input");
-        chatInput.style.cssFloat = 'bottom';
-        chatInput.style.position = 'absolute';
-        chatInput.style.zIndex = '1001';
-        chatInput.style.right = '0px';
-        chatInput.style.bottom = '0px';
-        chatInput.style.height = '25px';
-        chatInput.style.width = '100%';
-        chatInput.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
-        chatInput.style.borderStyle = 'solid';
-        // chatInput.style.borderBottomStyle = 'none';
-        // chatInput.style.borderLeftStyle = 'none';
-        // chatInput.style.borderRightStyle = 'none';
-        chatInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        chatInput.style.color = 'white';
+        chatInput.style.cssFloat = "bottom";
+        chatInput.style.position = "absolute";
+        chatInput.style.zIndex = "1001";
+        chatInput.style.right = "0px";
+        chatInput.style.bottom = "0px";
+        chatInput.style.height = "25px";
+        chatInput.style.width = "100%";
+        chatInput.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+        chatInput.style.borderStyle = "solid";
+        // chatInput.style.borderBottomStyle = "none";
+        // chatInput.style.borderLeftStyle = "none";
+        // chatInput.style.borderRightStyle = "none";
+        chatInput.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        chatInput.style.color = "white";
         chatForm.appendChild(chatInput);
 
         return [chatWindow, chatHistory, chatForm, chatInput];
@@ -204,7 +204,7 @@ export class ChatComponent extends RenderingComponentBase {
 
     private appendGameNotificationToHistory(notification: string) {
         if (this._chatHistory) {
-            let item = this._chatHistory.ownerDocument!.createElement('li');
+            let item = this._chatHistory.ownerDocument!.createElement("li");
             //let timestampDate = new Date(Date.now());
             let messageDisplay = `${notification}`;
             item.innerText = messageDisplay;
@@ -215,8 +215,8 @@ export class ChatComponent extends RenderingComponentBase {
 
     private appendMessageToHistory(message: IChatMessage) {
         if (this._chatHistory) {
-            let item = this._chatHistory.ownerDocument!.createElement('li');
-            //let timestampDate = new Date(message.timestampText + 'Z');
+            let item = this._chatHistory.ownerDocument!.createElement("li");
+            //let timestampDate = new Date(message.timestampText + "Z");
             let messageDisplay = `[${message.fromPlayerName}]:  ${message.text}`;
             item.innerText = messageDisplay;
             this._chatHistory.appendChild(item);
@@ -240,12 +240,12 @@ export class ChatComponent extends RenderingComponentBase {
     }
 
     private async sendMessageFromTextAsync(text: string) {
-        let game = this._applicationContext.currentGame;
-        let player = this._applicationContext.signedInPlayer;
+        let game = this._app.currentGame;
+        let player = this._app.currentPlayer;
         if (!game || !player) {
             return; // Player is not signed into a game
         }
-        let channel = 'global';
+        let channel = "global";
         await this._chatService.sendMessageAsync({
             gameId: game.id,
             channel: channel,

@@ -1,5 +1,5 @@
-import { AxialCoordinates } from './axial-coordinates';
-import { CubicCoordinates } from './cubic-coordinates';
+import { AxialCoordinates } from "./axial-coordinates";
+import { CubicCoordinates } from "./cubic-coordinates";
 
 export class OffsetCoordinates {
 
@@ -31,7 +31,7 @@ export class OffsetCoordinates {
 
     public static fromOrderedPair(orderedPair: number[]) {
         if (orderedPair.length < 2)
-            throw new Error('Length of ordered pair must be 2 (or greater)');
+            throw new Error("Length of ordered pair must be 2 (or greater)");
             let col = orderedPair[0]; // x
             let row = orderedPair[1]; // z
         return new OffsetCoordinates(col, row);

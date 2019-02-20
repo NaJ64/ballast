@@ -1,5 +1,5 @@
-import { IDisposable } from '../interfaces/disposable';
-import { IEvent } from './event';
+import { IDisposable } from "../interfaces/disposable";
+import { IEvent } from "./event";
 
 export type AsyncEventHandler<TEvent extends IEvent> = (event: TEvent) => Promise<void>
 

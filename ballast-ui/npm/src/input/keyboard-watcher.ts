@@ -1,4 +1,4 @@
-import { IDisposable } from 'ballast-core';
+import { IDisposable } from "ballast-core";
 
 const ENTER: number = 13;
 const SHIFT: number = 16;

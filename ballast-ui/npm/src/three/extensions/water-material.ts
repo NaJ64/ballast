@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import './water-shader';
+import * as THREE from "three";
+import "./water-shader";
 
 export interface WaterOptions {
     textureWidth?: number;
@@ -68,7 +68,7 @@ export class Water extends THREE.Object3D {
 
         super();
 
-        this.name = 'water_' + this.id;
+        this.name = "water_" + this.id;
 
         options = options || {};
 
@@ -102,7 +102,7 @@ export class Water extends THREE.Object3D {
             this.camera = camera;
         } else {
             this.camera = new THREE.PerspectiveCamera();
-            console.log(this.name + ': camera is not a Perspective Camera!')
+            console.log(this.name + ": camera is not a Perspective Camera!")
         }
 
         this.textureMatrix = new THREE.Matrix4();

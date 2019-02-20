@@ -1,12 +1,12 @@
 import THREE from "three";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
-import { IRenderingContext } from "../rendering-context";
-import { ThreeApplicationContext } from "./three-application-context";
-import { ThreePerspectiveTracker } from "./three-perspective-tracker";
+import { IRenderingContext } from "../../rendering/rendering-context";
+import { ThreeAppContext } from "../three-app-context";
+import { ThreePerspectiveTracker } from "../three-perspective-tracker";
 
 export class ThreeRenderingContext implements IRenderingContext {
 
-    private readonly _application: ThreeApplicationContext;
+    private readonly _app: ThreeAppContext;
     private readonly _canvas: HTMLCanvasElement;
     private _frameDelta: number;
     private readonly _keyboard: KeyboardWatcher;
@@ -22,10 +22,10 @@ export class ThreeRenderingContext implements IRenderingContext {
         root: HTMLDivElement,
         canvas: HTMLCanvasElement, 
         keyboard: KeyboardWatcher, 
-        application: ThreeApplicationContext
+        app: ThreeAppContext
     ) {
         // Base IRenderingContext types
-        this._application = application;
+        this._app = app;
         this._canvas = canvas;
         this._frameDelta = 0;
         this._keyboard = keyboard;
@@ -40,8 +40,8 @@ export class ThreeRenderingContext implements IRenderingContext {
         this._perspectiveTracker = new ThreePerspectiveTracker(this._threeScene, this._threeCameraPivot);
     }
 
-    public get application(): ThreeApplicationContext {
-        return this._application;
+    public get app(): ThreeAppContext {
+        return this._app;
     }
 
     public get canvas(): HTMLCanvasElement {

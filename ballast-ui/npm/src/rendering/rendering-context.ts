@@ -1,8 +1,8 @@
-import { IApplicationContext } from "../app/application-context";
+import { IAppContext } from "../app-context";
 import { KeyboardWatcher } from "../input/keyboard-watcher";
 
 export interface IRenderingContext {
-    readonly application: IApplicationContext;
+    readonly app: IAppContext;
     readonly canvas: HTMLCanvasElement;
     readonly frameDelta: number;
     readonly keyboard: KeyboardWatcher;

@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { RenderingComponentBase } from '../rendering-component';
-import { IRenderingContext } from '../rendering-context';
+import { RenderingComponentBase } from "../rendering-component";
+import { IRenderingContext } from "../rendering-context";
 
 @injectable()
 export class SignInComponent extends RenderingComponentBase {

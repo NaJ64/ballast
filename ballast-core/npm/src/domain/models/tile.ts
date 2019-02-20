@@ -1,6 +1,6 @@
-import { CubicCoordinates } from './cubic-coordinates';
-import { Terrain } from './terrain';
-import { TileShape } from './tile-shape';
+import { CubicCoordinates } from "./cubic-coordinates";
+import { Terrain } from "./terrain";
+import { TileShape } from "./tile-shape";
 
 export class Tile {
 

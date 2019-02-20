@@ -1,7 +1,5 @@
 export const TYPES = {
-    App: {
-        IApplicationContext: Symbol.for("IApplicationContext")
-    },
+    IAppContext: Symbol.for("IApplicationContext"),
     DependencyInjection: {
         IBallastUiOptions: Symbol.for("IBallastUiOptions")
     },

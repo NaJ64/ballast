@@ -1,6 +1,9 @@
-import { injectable } from "inversify";
+import { IEventBus, TYPES as BallastCore } from "ballast-core";
+import { inject, injectable } from "inversify";
 import { ThreeRenderingComponentBase } from "../three-rendering-component";
 import { ThreeRenderingContext } from "../three-rendering-context";
+import { CurrentDirectionModifiedEvent, ICurrentDirectionModifiedEvent } from '../../events/current-direction-modified';
+import { CurrentVesselModifiedEvent, ICurrentVesselModifiedEvent } from '../../../events/current-vessel-modified';
 
 const TILESHAPE_SQUARE = "Square";
 const TILESHAPE_CIRCLE = "Circle";
@@ -12,18 +15,53 @@ const BOARDTYPE_REGULAR_POLYGON = "Regular Polygon";
 @injectable()
 export class NavigationComponent extends ThreeRenderingComponentBase {
 
+    private readonly _eventBus: IEventBus;
     private _navWindow?: HTMLDivElement;
     private _navCoordinates?: HTMLLabelElement;
     private _navCompass?: HTMLLabelElement;
+    private _directionNeedsUpdate: boolean;
+    private _vesselNeedsUpdate: boolean;
 
-    public constructor() {
+    public constructor(
+        @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus
+    ) {
         super();
+        this._eventBus = eventBus;
+        this._directionNeedsUpdate = false;
+        this._vesselNeedsUpdate = false;
     }
 
     protected onDisposing() {
         this._navWindow = undefined;
         this._navCoordinates = undefined;
         this._navCompass = undefined;
+        this._directionNeedsUpdate = false;
+        this._vesselNeedsUpdate = false;
+    }
+
+    private rebindAllHandlers() {
+        this.onCurrentDirectionModifiedEventAsync = this.onCurrentDirectionModifiedEventAsync.bind(this);
+        this.onCurrentVesselModifiedEventAsync = this.onCurrentVesselModifiedEventAsync.bind(this);
+    }
+
+    private subscribeAll() {
+        this._eventBus.subscribe(CurrentDirectionModifiedEvent.id, this.onCurrentDirectionModifiedEventAsync);
+        this._eventBus.subscribe(CurrentVesselModifiedEvent.id, this.onCurrentVesselModifiedEventAsync);
+    }
+
+    private unsubscribeAll() {
+        this._eventBus.unsubscribe(CurrentDirectionModifiedEvent.id, this.onCurrentDirectionModifiedEventAsync);
+        this._eventBus.unsubscribe(CurrentVesselModifiedEvent.id, this.onCurrentVesselModifiedEventAsync);
+    }
+
+    private onCurrentDirectionModifiedEventAsync(evt: ICurrentDirectionModifiedEvent) {
+        this._directionNeedsUpdate = true;
+        return Promise.resolve();
+    }
+
+    private onCurrentVesselModifiedEventAsync(evt: ICurrentVesselModifiedEvent) {
+        this._vesselNeedsUpdate = true;
+        return Promise.resolve();
     }
 
     protected onAttached(parent: HTMLElement) {
@@ -49,12 +87,12 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
     protected onRender(renderingContext: ThreeRenderingContext) {
 
         // Detect if our vessel moved
-        if (renderingContext.application.currentVesselModified) {
+        if (this._vesselNeedsUpdate) {
             this.updateVesselAndDisplayCoordinates(renderingContext);
         }
 
         // Detect if our compass heading has changed
-        if (renderingContext.application.currentDirectionModified) {
+        if (this._directionNeedsUpdate) {
             this.updateCompass(renderingContext);
         }
 
@@ -116,11 +154,11 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
         if (!this._navCompass) {
             return; // Can't display compass yet
         }
-        if (!renderingContext.application.currentGame) {
+        if (!renderingContext.app.currentGame) {
             this._navCompass.innerText = "";
             return;
         }
-        let tileShape = renderingContext.application.currentGame.board.tileShape;
+        let tileShape = renderingContext.app.currentGame.board.tileShape;
         let direction = renderingContext.perspectiveTracker.getCardinalDirection(tileShape);
         let directionHeadingText = "";
         if (direction.north) {
@@ -140,13 +178,14 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
             symbol = "&uarr; "
         }
         this._navCompass.innerHTML = `${symbol}${directionHeadingText}`;
+        this._directionNeedsUpdate = false; // Reset flag because we just refreshed the direction/heading
     }
 
     private updateVesselAndDisplayCoordinates(renderingContext: ThreeRenderingContext) {
         if (!this._navCoordinates) {
             return; // Can't display coordinates yet
         }
-        let game = renderingContext.application.currentGame;
+        let game = renderingContext.app.currentGame;
         let scalingFactor: number = 1;
         let boardType: string = BOARDTYPE_REGULAR_POLYGON;
         let tileShape: string = TILESHAPE_HEXAGON;
@@ -158,7 +197,7 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
             tileShape = game.board.tileShape;
         }
         let cubicOrderedTriple: number[] = [];
-        let vessel = renderingContext.application.currentVessel;
+        let vessel = renderingContext.app.currentVessel;
         if (vessel) {
             cubicOrderedTriple = vessel.orderedTriple;
         }
@@ -180,6 +219,7 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
             }
         }
         this._navCoordinates.innerText = coordinatesText;
+        this._vesselNeedsUpdate = false; // Reset flag because we just refreshed the vessel
     }
 
     private getAxialCoordinates(cubicOrderedTriple: number[]) {
