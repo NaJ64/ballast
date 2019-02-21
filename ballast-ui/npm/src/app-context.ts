@@ -6,7 +6,7 @@ import { CurrentPlayerModifiedEvent } from "./events/current-player-modified";
 import { CurrentVesselModifiedEvent } from "./events/current-vessel-modified";
 import { CurrentVesselRolesModifiedEvent } from "./events/current-vessel-roles-modified";
 
-export interface IAppContext {
+export interface IBallastAppContext {
     readonly currentGame: IGameDto | null;
     readonly currentPlayer: IPlayerDto | null;
     readonly currentVessel: IVesselDto | null;
@@ -17,7 +17,7 @@ const VESSEL_ROLE_CAPTAIN = "Captain";
 const VESSEL_ROLE_RADIOMAN = "Radioman";
 
 @injectable()
-export class AppContext implements IAppContext, IDisposable {
+export class BallastAppContext implements IBallastAppContext, IDisposable {
 
     protected readonly _clientOptions: IBallastClientOptions;
     protected readonly _eventBus: IEventBus;

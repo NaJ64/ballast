@@ -1,16 +1,15 @@
 import THREE from "three";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
 import { IRenderingContext } from "../../rendering/rendering-context";
-import { ThreeAppContext } from "../three-app-context";
+import { ThreeBallastAppContext } from "../three-app-context";
 import { ThreePerspectiveTracker } from "../three-perspective-tracker";
 
 export class ThreeRenderingContext implements IRenderingContext {
 
-    private readonly _app: ThreeAppContext;
+    private readonly _app: ThreeBallastAppContext;
     private readonly _canvas: HTMLCanvasElement;
     private _frameDelta: number;
     private readonly _keyboard: KeyboardWatcher;
-    private readonly _root: HTMLDivElement;
     private readonly _threeCamera: THREE.PerspectiveCamera;
     private readonly _threeCameraPivot: THREE.Object3D;
     private readonly _threeClock: THREE.Clock;
@@ -19,17 +18,15 @@ export class ThreeRenderingContext implements IRenderingContext {
     private readonly _perspectiveTracker: ThreePerspectiveTracker;
 
     public constructor(
-        root: HTMLDivElement,
         canvas: HTMLCanvasElement, 
         keyboard: KeyboardWatcher, 
-        app: ThreeAppContext
+        app: ThreeBallastAppContext
     ) {
         // Base IRenderingContext types
         this._app = app;
         this._canvas = canvas;
         this._frameDelta = 0;
         this._keyboard = keyboard;
-        this._root = root;
         // THREE.js objects
         this._threeClock = new THREE.Clock();
         this._threeScene = new THREE.Scene();
@@ -40,7 +37,7 @@ export class ThreeRenderingContext implements IRenderingContext {
         this._perspectiveTracker = new ThreePerspectiveTracker(this._threeScene, this._threeCameraPivot);
     }
 
-    public get app(): ThreeAppContext {
+    public get app(): ThreeBallastAppContext {
         return this._app;
     }
 
@@ -62,10 +59,6 @@ export class ThreeRenderingContext implements IRenderingContext {
 
     public get perspectiveTracker(): ThreePerspectiveTracker {
         return this._perspectiveTracker;
-    }
-
-    public get root(): HTMLDivElement {
-        return this._root;
     }
 
     public get threeCamera(): THREE.PerspectiveCamera {

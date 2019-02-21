@@ -26,12 +26,14 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus
     ) {
         super();
+        this.rebindAllHandlers();
         this._eventBus = eventBus;
         this._directionNeedsUpdate = false;
         this._vesselNeedsUpdate = false;
     }
 
     protected onDisposing() {
+        this.unsubscribeAll();
         this._navWindow = undefined;
         this._navCoordinates = undefined;
         this._navCompass = undefined;
@@ -75,9 +77,13 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
         }
         // Add nav window onto parent element
         parent.appendChild(this._navWindow);
+        // Subscribe to all application events
+        this.subscribeAll();
     }
 
     protected onDetaching(parent: HTMLElement) {
+        // Unsubscribe from all application events
+        this.unsubscribeAll();
         // Remove the nav window from the page
         if (this._navWindow) {
             parent.removeChild(this._navWindow);

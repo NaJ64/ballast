@@ -1,14 +1,14 @@
 import { IBallastClientOptions, TYPES as BallastClient } from "ballast-client";
 import { IDirection, IEventBus, IGameService, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
-import { AppContext } from "../app-context";
+import { BallastAppContext } from "../app-context";
 import { CurrentDirectionModifiedEvent } from "./events";
 import { ThreeRenderingContext } from "./rendering/three-rendering-context";
 
 const TILESHAPE_HEXAGON = "Hexagon";
 
 @injectable()
-export class ThreeAppContext extends AppContext {
+export class ThreeBallastAppContext extends BallastAppContext {
 
     protected _direction: IDirection | null;
 

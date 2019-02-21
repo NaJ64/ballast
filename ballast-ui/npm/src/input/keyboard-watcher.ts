@@ -16,14 +16,14 @@ type KeyboardEventListener = (event: KeyboardEvent) => any;
 
 export class KeyboardWatcher implements IDisposable {
 
-    private readonly _root: HTMLDivElement;
+    private readonly _ownerDocument: Document;
     private readonly _pressedKeys: Map<number, Date | undefined>;
     private readonly _keydownListener: KeyboardEventListener;
     private readonly _keyupListener: KeyboardEventListener;
     private _isSuspended: boolean;
 
-    public constructor(root: HTMLDivElement) {
-        this._root = root;
+    public constructor(ownerDocument: Document) {
+        this._ownerDocument = ownerDocument;
         this._pressedKeys = new Map<number, Date | undefined>();
         this._keydownListener = event => this._pressedKeys.set(event.keyCode, new Date(Date.now()));
         this._keyupListener = event => this._pressedKeys.delete(event.keyCode);
@@ -44,7 +44,7 @@ export class KeyboardWatcher implements IDisposable {
     }
 
     private getWindow() {
-        return this._root.ownerDocument!.defaultView!;
+        return this._ownerDocument.defaultView!;
     }
 
     public isDown(keyCode: number) {
