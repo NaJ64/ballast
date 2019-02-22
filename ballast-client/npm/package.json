@@ -24,6 +24,7 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^23.3.13",
+    "@types/node": "^11.9.4",
     "ballast-core": "file:../../ballast-core/npm",
     "cpx": "^1.5.0",
     "inversify": "^5.0.1",
