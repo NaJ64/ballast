@@ -1,9 +1,0 @@
-.vs
-[Bb]in/
-[Oo]bj/
-**/*.csproj.user
-**/[Pp]roperties
-**/coverage
-**/dist
-**/lib
-**/node_modules
