@@ -31,6 +31,7 @@ export class BallastHtmlClient implements IBallastHtmlClient {
         let renderer = this._container.get<IRenderer>(BallastUi.Rendering.IRenderer);
         renderer.attach();
         renderer.startRenderLoop();
+        return this.startTestAsync();
     }
 
     public async startTestAsync() {
