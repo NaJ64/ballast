@@ -1,24 +1,21 @@
 export const TYPES = {
-    IAppContext: Symbol.for("IAppContext"),
+    IBallastAppState: Symbol.for("IBallastAppState"),
     DependencyInjection: {
         IBallastUiOptions: Symbol.for("IBallastUiOptions")
     },
     Input: {
-        KeyboardWatcher:Symbol.for("KeyboardWatcher")
+        KeyboardWatcher: Symbol.for("KeyboardWatcher"),
+        IVesselCompass: Symbol.for("IVesselCompass")
     },
     Rendering: {
-        IRenderingContext: Symbol.for("IRenderingContext"),
-        IRenderer: Symbol.for("IRenderer"),
-        RenderingComponents : {
+        CameraTracker: Symbol.for("CameraTracker"),
+        Components : {
             ChatComponent: Symbol.for("ChatComponent"),
+            NavigationComponent: Symbol.for("NavigationComponent"),
             RootComponent: Symbol.for("RootComponent"),
             SignInComponent: Symbol.for("SignInComponent"),
         },
-        RenderingConstants: Symbol.for("RenderingConstants"),
-        RenderingContextFactory: Symbol.for("RenderingContextFactory"),
-        RenderingMiddleware: Symbol.for("RenderingMiddleware")
-    },
-    Three: {
-        NavigationComponent: Symbol.for("NavigationComponent")
+        IRenderer: Symbol.for("IRenderer"),
+        IRenderingContext: Symbol.for("IRenderingContext")
     }
 };

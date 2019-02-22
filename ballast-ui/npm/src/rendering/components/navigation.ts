@@ -1,19 +1,13 @@
 import { IEventBus, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
-import { ThreeRenderingComponentBase } from "../three-rendering-component";
-import { ThreeRenderingContext } from "../three-rendering-context";
+import { IRenderingContext } from "../rendering-context";
 import { CurrentDirectionModifiedEvent, ICurrentDirectionModifiedEvent } from '../../events/current-direction-modified';
-import { CurrentVesselModifiedEvent, ICurrentVesselModifiedEvent } from '../../../events/current-vessel-modified';
-
-const TILESHAPE_SQUARE = "Square";
-const TILESHAPE_CIRCLE = "Circle";
-const TILESHAPE_HEXAGON = "Hexagon";
-const TILESHAPE_OCTAGON = "Octagon";
-const BOARDTYPE_RECTANGLE = "Rectangle";
-const BOARDTYPE_REGULAR_POLYGON = "Regular Polygon";
+import { CurrentVesselModifiedEvent, ICurrentVesselModifiedEvent } from '../../events/current-vessel-modified';
+import { RenderingComponentBase } from '../rendering-component';
+import { BallastAppConstants } from "../../app-constants";
 
 @injectable()
-export class NavigationComponent extends ThreeRenderingComponentBase {
+export class NavigationComponent extends RenderingComponentBase {
 
     private readonly _eventBus: IEventBus;
     private _navWindow?: HTMLDivElement;
@@ -90,7 +84,7 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
         }
     }
 
-    protected onRender(renderingContext: ThreeRenderingContext) {
+    protected onRender(renderingContext: IRenderingContext) {
 
         // Detect if our vessel moved
         if (this._vesselNeedsUpdate) {
@@ -156,7 +150,7 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
 
     }
 
-    private updateCompass(renderingContext: ThreeRenderingContext) {
+    private updateCompass(renderingContext: IRenderingContext) {
         if (!this._navCompass) {
             return; // Can't display compass yet
         }
@@ -165,7 +159,7 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
             return;
         }
         let tileShape = renderingContext.app.currentGame.board.tileShape;
-        let direction = renderingContext.perspectiveTracker.getCardinalDirection(tileShape);
+        let direction = renderingContext.cameraTracker.getDirection(tileShape);
         let directionHeadingText = "";
         if (direction.north) {
             directionHeadingText += "N";
@@ -187,14 +181,14 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
         this._directionNeedsUpdate = false; // Reset flag because we just refreshed the direction/heading
     }
 
-    private updateVesselAndDisplayCoordinates(renderingContext: ThreeRenderingContext) {
+    private updateVesselAndDisplayCoordinates(renderingContext: IRenderingContext) {
         if (!this._navCoordinates) {
             return; // Can't display coordinates yet
         }
         let game = renderingContext.app.currentGame;
         let scalingFactor: number = 1;
-        let boardType: string = BOARDTYPE_REGULAR_POLYGON;
-        let tileShape: string = TILESHAPE_HEXAGON;
+        let boardType: string = BallastAppConstants.BOARD_TYPE_REGULAR_POLYGON;
+        let tileShape: string = BallastAppConstants.TILE_SHAPE_HEXAGON;
         if (game) {
             if (game.board.doubleIncrement) {
                 scalingFactor = 2;
@@ -209,12 +203,12 @@ export class NavigationComponent extends ThreeRenderingComponentBase {
         }
         let coordinatesText = "";
         let northSouthInversion = -1;
-        if (boardType.toLocaleLowerCase() == BOARDTYPE_RECTANGLE.toLocaleLowerCase()) {
+        if (boardType.toLocaleLowerCase() == BallastAppConstants.BOARD_TYPE_RECTANGLE.toLocaleLowerCase()) {
             northSouthInversion = 1;
         }
-        let useOffset = boardType.toLocaleLowerCase() == BOARDTYPE_RECTANGLE.toLocaleLowerCase() 
-            || tileShape.toLocaleLowerCase() == TILESHAPE_SQUARE.toLocaleLowerCase() 
-            || tileShape.toLocaleLowerCase() == TILESHAPE_OCTAGON.toLocaleLowerCase();
+        let useOffset = boardType.toLocaleLowerCase() == BallastAppConstants.BOARD_TYPE_RECTANGLE.toLocaleLowerCase() 
+            || tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_SQUARE.toLocaleLowerCase() 
+            || tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_OCTAGON.toLocaleLowerCase();
         if (cubicOrderedTriple.length) {
             if (useOffset) {
                 let offset = this.getOffsetCoordinates(cubicOrderedTriple)

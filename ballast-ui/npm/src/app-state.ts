@@ -1,23 +1,24 @@
 import { IBallastClientOptions, TYPES as BallastClient } from "ballast-client";
-import { GameStateChangedEvent, Guid, IDisposable, IEventBus, IGameDto, IGameService, IGameStateChangedEvent, IPlayerAddedToVesselRoleEvent, IPlayerDto, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IPlayerRemovedFromVesselRoleEvent, IPlayerSignedInEvent, IPlayerSignedOutEvent, IVesselDto, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, PlayerRemovedFromVesselRoleEvent, PlayerSignedInEvent, PlayerSignedOutEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
+import { GameStateChangedEvent, Guid, IDirection, IDisposable, IEventBus, IGameDto, IGameService, IGameStateChangedEvent, IPlayerAddedToVesselRoleEvent, IPlayerDto, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IPlayerRemovedFromVesselRoleEvent, IPlayerSignedInEvent, IPlayerSignedOutEvent, IVesselDto, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, PlayerRemovedFromVesselRoleEvent, PlayerSignedInEvent, PlayerSignedOutEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
 import { inject, injectable } from "inversify";
+import { CurrentDirectionModifiedEvent } from './events/current-direction-modified';
 import { CurrentGameModifiedEvent } from "./events/current-game-modified";
 import { CurrentPlayerModifiedEvent } from "./events/current-player-modified";
 import { CurrentVesselModifiedEvent } from "./events/current-vessel-modified";
 import { CurrentVesselRolesModifiedEvent } from "./events/current-vessel-roles-modified";
+import { IVesselCompass } from "./input/vessel-compass";
+import { BallastAppConstants } from "./app-constants";
 
-export interface IBallastAppContext {
+export interface IBallastAppState {
     readonly currentGame: IGameDto | null;
     readonly currentPlayer: IPlayerDto | null;
     readonly currentVessel: IVesselDto | null;
     readonly currentVesselRoles: string[];
+    readonly currentDirection: IDirection | null;
 }
 
-const VESSEL_ROLE_CAPTAIN = "Captain";
-const VESSEL_ROLE_RADIOMAN = "Radioman";
-
 @injectable()
-export class BallastAppContext implements IBallastAppContext, IDisposable {
+export class BallastAppState implements IBallastAppState, IDisposable {
 
     protected readonly _clientOptions: IBallastClientOptions;
     protected readonly _eventBus: IEventBus;
@@ -27,6 +28,7 @@ export class BallastAppContext implements IBallastAppContext, IDisposable {
     protected _player: IPlayerDto | null;
     protected _vessel: IVesselDto | null;
     protected _vesselRoles: string[];
+    protected _direction: IDirection | null;
 
     public constructor(
         @inject(BallastClient.DependencyInjection.IBallastClientOptions) clientOptions: IBallastClientOptions,
@@ -41,6 +43,7 @@ export class BallastAppContext implements IBallastAppContext, IDisposable {
         this._player = null;
         this._vessel = null;
         this._vesselRoles = [];
+        this._direction = null;
         this.subscribeAllApplicationEvents();
     }
 
@@ -62,6 +65,10 @@ export class BallastAppContext implements IBallastAppContext, IDisposable {
 
     public get currentPlayer(): IPlayerDto | null {
         return this._player || null;
+    }
+
+    public get currentDirection(): IDirection | null {
+        return this._direction || null;
     }
 
     protected rebindAllHandlers() {
@@ -212,11 +219,11 @@ export class BallastAppContext implements IBallastAppContext, IDisposable {
             for(let vesselInGame of this._game.vessels) {
                 if (vesselInGame.captainId == playerId) {
                     vessel = vesselInGame;
-                    vesselRoles.push(VESSEL_ROLE_CAPTAIN);
+                    vesselRoles.push(BallastAppConstants.VESSEL_ROLE_CAPTAIN);
                 }
                 if (vesselInGame.radiomanId == playerId) {
                     vessel = vesselInGame;
-                    vesselRoles.push(VESSEL_ROLE_RADIOMAN);
+                    vesselRoles.push(BallastAppConstants.VESSEL_ROLE_RADIOMAN);
                 }
                 if (vessel && vessel.id == vesselInGame.id) {
                     // If we found the player on one vessel, no need to continue looking
@@ -258,6 +265,41 @@ export class BallastAppContext implements IBallastAppContext, IDisposable {
         this._vesselRoles = vesselRoles;
         if (vesselRolesModified) {
             await this._eventBus.publishAsync(CurrentVesselRolesModifiedEvent.create());
+        }
+    }
+
+    public async refreshDirectionAsync(vesselCompass: IVesselCompass) {
+        // Retain old direction for comparison
+        let oldDirection = this._direction;
+        let directionModified = false;
+        // If we don't have a game anymore (but we previously had a direction) assume it changed
+        if (oldDirection && !this._game) {
+            directionModified = true; 
+        }
+        // If we don't have a direction yet (but we previously had a game) it's safe to assume we have a new direction
+        if (!oldDirection && this._game) {
+            directionModified = true; 
+        }
+        // Get the tile shape to assist with calculating cardinal direction off the perspective tracker
+        let tileShape = this._game && this._game.board.tileShape || BallastAppConstants.TILE_SHAPE_HEXAGON;
+        let direction = vesselCompass.getDirection(tileShape);
+        // If we didn't used to have a direction but we do now, it changed
+        if (!oldDirection && direction) {
+            directionModified = true; 
+        }
+        // Check if the direction changed
+        if (oldDirection && (
+            oldDirection.north != direction.north ||
+            oldDirection.south != direction.south ||
+            oldDirection.east != direction.east ||
+            oldDirection.west != direction.west
+        )) {
+            directionModified = true;
+        }
+        // Update locally stored direction
+        this._direction = direction;
+        if (directionModified) {
+            await this._eventBus.publishAsync(CurrentDirectionModifiedEvent.create());
         }
     }
 

@@ -1,4 +1,4 @@
-import { Guid, ISignInService, TYPES as BallastCore, IPlayerDto, IGameService, IAddPlayerOptions } from "ballast-core";
+import { Guid, IAddPlayerOptions, IGameService, IPlayerDto, ISignInService, TYPES as BallastCore } from "ballast-core";
 import { Container } from "inversify";
 import { BallastUiContainerModule } from "./dependency-injection/container-module";
 import { TYPES as BallastUi } from "./dependency-injection/types";

@@ -1,13 +1,10 @@
 import { IDirection } from "ballast-core";
 import * as THREE from "three";
+import { BallastAppConstants } from "../app-constants";
+import { IVesselCompass } from "../input/vessel-compass";
 import { RenderingConstants } from "../rendering/rendering-constants";
 
-const TILE_SHAPE_CIRCLE: string = "Circle";
-const TILE_SHAPE_HEXAGON: string = "Hexagon";
-const TILE_SHAPE_SQUARE: string = "Square";
-const TILE_SHAPE_OCTAGON: string = "Octagon";
-
-export class ThreePerspectiveTracker {
+export class CameraTracker implements IVesselCompass {
 
     private readonly _threeCameraPivot: THREE.Object3D;
     private readonly _threeScene: THREE.Scene;
@@ -81,7 +78,7 @@ export class ThreePerspectiveTracker {
         return turns;
     }
 
-    public getCardinalDirection(tileShape: string, subject?: THREE.Object3D): IDirection {
+    public getDirection(tileShape: string, subject?: THREE.Object3D): IDirection {
         let turns = this.getTurns(subject);
         /* Square
                 N
@@ -90,7 +87,7 @@ export class ThreePerspectiveTracker {
              |____|
                 S
         */
-        if (tileShape.toLocaleLowerCase() == TILE_SHAPE_SQUARE) {
+        if (tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_SQUARE) {
             if (turns > 0.5 && turns < 1) {
                 return { east: false, north: false, west: false, south: true };
             } else if (turns > 0.25) {
@@ -110,7 +107,7 @@ export class ThreePerspectiveTracker {
             \______/
          SW     S    SE
         */
-        if (tileShape.toLocaleLowerCase() == TILE_SHAPE_OCTAGON) {
+        if (tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_OCTAGON) {
             if (turns > 0.75 && turns < 1) {
                 return { east: true, north: false, west: false, south: true };
             } else if (turns > 0.625) {
@@ -137,8 +134,8 @@ export class ThreePerspectiveTracker {
            SW      SE
         */
         // if (
-        //     tileShape.toLocaleLowerCase() == TILE_SHAPE_CIRCLE ||
-        //     tileShape.toLocaleLowerCase() == TILE_SHAPE_HEXAGON
+        //     tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_CIRCLE ||
+        //     tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_HEXAGON
         // ) {
         if (turns > (.67) && turns < 1) { // TODO:  Fix rounding error for .67 (4/6)
             return { east: true, north: false, west: false, south: true };
@@ -156,7 +153,7 @@ export class ThreePerspectiveTracker {
         // }
     }
 
-    public getTurns(subject?: THREE.Object3D) {
+    public getTurns(subject?: THREE.Object3D): number {
         return this.getHalfTurns(subject) / 2;
     }
 

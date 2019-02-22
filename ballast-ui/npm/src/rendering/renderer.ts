@@ -1,10 +1,10 @@
-import { IRenderingContext, RenderingContextFactory, RenderingStep } from "./rendering-context";
-import { RenderingMiddleware } from "./rendering-middleware";
-import { ThreeRenderingContext } from '../three/rendering/three-rendering-context';
+import { IRootComponentFactory, RootComponent } from "./components/root";
+import { IRenderingContext, IRenderingContextFactory } from "./rendering-context";
+import { RenderingMiddleware, RenderingStep } from "./rendering-middleware";
 
 export interface IRenderer {
+    renderingContext: IRenderingContext;
     attach(): void;
-    detach(): void;
     startRenderLoop(): void;
 }
 
@@ -17,27 +17,36 @@ export class Renderer implements IRenderer {
     private readonly _canvas: HTMLCanvasElement;
     private readonly _renderingMiddleware: RenderingMiddleware;
     private readonly _renderingContext: IRenderingContext
+    private readonly _rootComponentFactory: IRootComponentFactory;
 
-    public constructor(host: HTMLElement, clientId: string, renderingContextFactory: RenderingContextFactory) {
+    public constructor(
+        host: HTMLElement, 
+        clientId: string, 
+        renderingContextFactory: IRenderingContextFactory,
+        rootComponentFactory: IRootComponentFactory
+    ) {
         this._host = host;
         this._clientId = clientId;
         this._root = this.createRoot(this._host, this._clientId);
         this._gameStyle = this.createGameStyle(this._root);
         this._canvas = this.createCanvas(this._root);
         this._renderingMiddleware = new RenderingMiddleware();
-        this._renderingContext = renderingContextFactory(this._canvas);
+        this._renderingContext = renderingContextFactory.create(this._canvas);
+        this._rootComponentFactory = rootComponentFactory;
     }
 
     public attach() {
+        let rootComponent = this._rootComponentFactory.create();
+        rootComponent.attach(this._root, this._renderingMiddleware);
         this._host.appendChild(this._root);
-    }
-
-    public detach() {
-        this._host.removeChild(this._root);
     }
 
     public startRenderLoop() {
         this.renderLoop();
+    }
+
+    public get renderingContext(): IRenderingContext {
+        return this._renderingContext;
     }
 
     public addRenderingStep(renderingStep: RenderingStep) {
@@ -91,33 +100,27 @@ export class Renderer implements IRenderer {
     private prerender = (renderingContext: IRenderingContext) => {
         // Always try to resize the canvas (in case user has resized their window)
         this.resizeCanvas(renderingContext.canvas);
-        // Type guard for ThreeRenderingContext
-        if ((<ThreeRenderingContext>renderingContext).isThreeRenderingContext) {
-            // Resize the renderer to match the new canvas size
-            (<ThreeRenderingContext>renderingContext).threeRenderer.setSize(
-                renderingContext.canvas.clientWidth, 
-                renderingContext.canvas.clientHeight,
-                false
-            ); 
-            // Check if we need to update the camera aspect ratio / projection matrix as well
-            var originalAspect = (<ThreeRenderingContext>renderingContext).threeCamera.aspect;
-            var newAspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
-            if (originalAspect != newAspect) {
-                (<ThreeRenderingContext>renderingContext).threeCamera.aspect = newAspect;
-                (<ThreeRenderingContext>renderingContext).threeCamera.updateProjectionMatrix();
-            }
+        // Resize the renderer to match the new canvas size
+        renderingContext.threeRenderer.setSize(
+            renderingContext.canvas.clientWidth, 
+            renderingContext.canvas.clientHeight,
+            false
+        ); 
+        // Check if we need to update the camera aspect ratio / projection matrix as well
+        var originalAspect = renderingContext.threeCamera.aspect;
+        var newAspect = renderingContext.canvas.clientWidth / renderingContext.canvas.clientHeight;
+        if (originalAspect != newAspect) {
+            renderingContext.threeCamera.aspect = newAspect;
+            renderingContext.threeCamera.updateProjectionMatrix();
         }
     };
 
     private postrender = (renderingContext: IRenderingContext) => { 
-        // Type guard for ThreeRenderingContext
-        if ((<ThreeRenderingContext>renderingContext).isThreeRenderingContext) {
-            // End the current render loop
-            (<ThreeRenderingContext>renderingContext).threeRenderer.render(
-                (<ThreeRenderingContext>renderingContext).threeScene, 
-                (<ThreeRenderingContext>renderingContext).threeCamera
-            );
-        }
+        // End the current render loop
+        renderingContext.threeRenderer.render(
+            renderingContext.threeScene, 
+            renderingContext.threeCamera
+        );
     };
 
     private resizeCanvas(canvas: HTMLCanvasElement) {

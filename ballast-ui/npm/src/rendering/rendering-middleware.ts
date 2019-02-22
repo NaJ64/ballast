@@ -1,5 +1,7 @@
 import { compose } from "throwback";
-import { IRenderingContext, RenderingStep } from "./rendering-context";
+import { IRenderingContext } from "./rendering-context";
+
+export type RenderingStep = (renderingContext: IRenderingContext, next: () => void) => void;
 
 export class RenderingMiddleware {
 

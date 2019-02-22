@@ -1,12 +1,13 @@
 import { IDisposable } from "ballast-core";
 import { injectable } from "inversify";
 import { IRenderingContext } from "./rendering-context";
+import { RenderingStep, RenderingMiddleware } from "./rendering-middleware";
 
 export interface IRenderingComponent extends IDisposable {
     readonly isAttached: boolean;
     readonly isEnabled: boolean;
     readonly parent: HTMLElement | null;
-    attach(parent: HTMLElement): void;
+    attach(parent: HTMLElement, middleware: RenderingMiddleware): void;
     detach(): void;
     disable(): void;
     enable(): void;
@@ -19,7 +20,7 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
     protected _isEnabled: boolean;
     protected _isFirstRender: boolean;
     protected _parent: HTMLElement | null;
-    protected onAttached(parent: HTMLElement): void { }
+    protected onAttached(parent: HTMLElement, middleware: RenderingMiddleware): void { }
     protected onDetaching(parent: HTMLElement): void { }
     protected onEnabled(): void { }
     protected onDisabling(): void { }
@@ -58,12 +59,20 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         return this._parent || null;
     }
 
-    public attach(parent: HTMLElement) {
+    protected createRenderingStep(): RenderingStep {
+        return (renderingContext, next) => {
+            this.render(renderingContext);
+            return next();
+        }
+    }
+
+    public attach(parent: HTMLElement, middleware: RenderingMiddleware) {
         if (this._parent) {
             throw new Error("Component is already attached to a parent element");
         }
         this._parent = parent;
-        this.onAttached(this._parent);
+        middleware.use(this.createRenderingStep());
+        this.onAttached(this._parent, middleware);
     }
 
     public detach() {

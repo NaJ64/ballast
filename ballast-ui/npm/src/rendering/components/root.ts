@@ -4,6 +4,11 @@ import { RenderingComponentBase } from '../rendering-component';
 import { IRenderingContext } from "../rendering-context";
 import { ChatComponent } from "./chat";
 import { SignInComponent } from "./sign-in";
+import { RenderingMiddleware } from "../rendering-middleware";
+
+export interface IRootComponentFactory { 
+    create(): RootComponent;
+}
 
 @injectable()
 export class RootComponent extends RenderingComponentBase {
@@ -14,21 +19,21 @@ export class RootComponent extends RenderingComponentBase {
     private readonly _signIn: SignInComponent;
 
     public constructor(
-        //@inject(BallastUi.Rendering.RenderingComponents.CameraComponent) camera: CameraComponent,
-        @inject(BallastUi.Rendering.RenderingComponents.ChatComponent) chat: ChatComponent,
-        //@inject(BallastUi.Rendering.RenderingComponents.GameComponent) game: GameComponent,
-        @inject(BallastUi.Rendering.RenderingComponents.SignInComponent) signIn: SignInComponent
+        //@inject(BallastUi.Rendering.Components.CameraComponent) camera: CameraComponent,
+        @inject(BallastUi.Rendering.Components.ChatComponent) chat: ChatComponent,
+        //@inject(BallastUi.Rendering.Components.GameComponent) game: GameComponent,
+        @inject(BallastUi.Rendering.Components.SignInComponent) signIn: SignInComponent
     ) {
         super();
         this._chat = chat;
         this._signIn = signIn;
     }
 
-    protected onAttached(parent: HTMLElement) {
-        this._signIn.attach(parent);
+    protected onAttached(parent: HTMLElement, middleware: RenderingMiddleware) {
+        this._signIn.attach(parent, middleware);
         //this._game.attach(parent);
         //this._camera.attach(parent);
-        this._chat.attach(parent);
+        this._chat.attach(parent, middleware);
     }
 
     protected onDetaching(parent: HTMLElement) {

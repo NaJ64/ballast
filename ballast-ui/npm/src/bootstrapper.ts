@@ -1,10 +1,10 @@
-import { IBallastHtmlClient, BallastHtmlClient } from './html-client';
+import { IBallastHtmlClient, BallastHtmlClient } from "./html-client";
 
 export interface IBallastBootstrapper {
     bootstrapAsync(serverUrl: string, host?: HTMLElement): Promise<IBallastHtmlClient>;
 }
 
-export class Bootstrapper {
+export class BallastBootstrapper {
 
     private readonly document: Document;
 

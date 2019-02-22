@@ -1,6 +1,6 @@
 import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
-import { IBallastAppContext } from "../../app-context";
+import { IBallastAppState } from "../../app-state";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
 import { RenderingComponentBase } from "../rendering-component";
@@ -9,7 +9,7 @@ import { IRenderingContext } from "../rendering-context";
 @injectable()
 export class ChatComponent extends RenderingComponentBase {
 
-    private readonly _app: IBallastAppContext;
+    private readonly _app: IBallastAppState;
     private readonly _eventBus: IEventBus;
     private readonly _chatService: IChatService;
     private readonly _keyboardWatcher: KeyboardWatcher;
@@ -20,7 +20,7 @@ export class ChatComponent extends RenderingComponentBase {
     private _chatInput?: HTMLInputElement;
 
     public constructor(
-        @inject(BallastUi.IAppContext) app: IBallastAppContext,
+        @inject(BallastUi.IBallastAppState) app: IBallastAppState,
         @inject(BallastUi.Input.KeyboardWatcher) keyboardWatcher: KeyboardWatcher,
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus,
         @inject(BallastCore.Application.Services.IChatService) chatService: IChatService
