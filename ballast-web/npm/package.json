@@ -15,6 +15,7 @@
     "copy-dist:img": "node ./node_modules/cpx/bin \"lib/**/*.{jpg,png}\" \"dist\"",
     "copy-dist": "npm run copy-dist:img",
     "copy-lib": "npm run copy-lib:img && npm run copy-lib:js",
+    "copy-lib:ballast-ui": "node ./node_modules/cpx/bin \"node_modules/ballast-ui/dist/**/*.{jpg,png}\" \"lib\"",
     "copy-lib:img": "node ./node_modules/cpx/bin \"src/**/*.{jpg,png}\" \"lib\"",
     "copy-lib:js": "node ./node_modules/cpx/bin \"src/**/*.{js,json}\" \"lib\"",
     "prepare": "npm run build"
