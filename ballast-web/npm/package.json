@@ -1,0 +1,36 @@
+{
+  "name": "ballast-web",
+  "version": "1.0.0",
+  "description": "Single page web application client for Ballast",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "npm run compile && npm run bundle",
+    "bundle": "npm run clean-dist && npm run copy-dist && node ./node_modules/webpack-cli/bin/cli",
+    "bundle-watch": "npm run clean-dist && npm run copy-dist && node ./node_modules/webpack-cli/bin/cli --watch",
+    "clean-dist": "node ./node_modules/rimraf/bin \"dist\"",
+    "clean-lib": "node ./node_modules/rimraf/bin \"lib\"",
+    "compile": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build",
+    "compile-watch": "npm run clean && npm run copy && node ./node_modules/typescript/lib/tsc --build --watch",
+    "copy-dist:img": "node ./node_modules/cpx/bin \"lib/**/*.{jpg,png}\" \"dist\"",
+    "copy-dist": "npm run copy-dist:img",
+    "copy-lib": "npm run copy-lib:img && npm run copy-lib:js",
+    "copy-lib:img": "node ./node_modules/cpx/bin \"src/**/*.{jpg,png}\" \"lib\"",
+    "copy-lib:js": "node ./node_modules/cpx/bin \"src/**/*.{js,json}\" \"lib\"",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "ballast"
+  ],
+  "author": "NaJ64 <njudice@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "ballast-ui": "file:../../ballast-ui/npm",
+    "cpx": "^1.5.0",
+    "rimraf": "^2.6.3",
+    "typescript": "^3.3.1",
+    "webpack": "^4.29.4",
+    "webpack-cli": "^3.2.3"
+  }
+}

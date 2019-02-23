@@ -1,3 +1,4 @@
 import "reflect-metadata";
 
-export { BallastBootstrapper as Bootstrapper } from "./bootstrapper";
+export { BallastBootstrapper } from "./bootstrapper";
+export { IBallastHtmlClient } from "./html-client"
