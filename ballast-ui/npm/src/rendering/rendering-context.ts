@@ -1,4 +1,4 @@
-import THREE from "three";
+import * as THREE from "three";
 import { IBallastAppState } from "../app-state";
 import { KeyboardWatcher } from "../input/keyboard-watcher";
 import { CameraTracker } from "./camera-tracker";

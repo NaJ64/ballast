@@ -3,6 +3,7 @@ import { Container } from "inversify";
 import { BallastUiContainerModule } from "./dependency-injection/container-module";
 import { TYPES as BallastUi } from "./dependency-injection/types";
 import { IRenderer } from "./rendering/renderer";
+import { IClientBootstrapper, TYPES as BallastClient } from "ballast-client";
 
 export interface IBallastHtmlClient {
     startAsync(): Promise<void>;
@@ -31,7 +32,9 @@ export class BallastHtmlClient implements IBallastHtmlClient {
         let renderer = this._container.get<IRenderer>(BallastUi.Rendering.IRenderer);
         renderer.attach();
         renderer.startRenderLoop();
-        return this.startTestAsync();
+        let clientBootstrapper = this._container.get<IClientBootstrapper>(BallastClient.IClientBootstrapper);
+        await clientBootstrapper.connectAsync();
+        await this.startTestAsync();
     }
 
     public async startTestAsync() {

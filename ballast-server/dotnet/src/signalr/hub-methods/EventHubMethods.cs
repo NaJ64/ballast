@@ -16,7 +16,6 @@ namespace Ballast.Server.SignalR.HubMethods
     {
 
         private readonly IEventBus _eventBus;
-        private readonly IDictionary<Type, Delegate> _handlers;
 
         public EventHubMethods(
             IHubContext<EventHub> hubContext, 
@@ -25,7 +24,6 @@ namespace Ballast.Server.SignalR.HubMethods
         ) : base(hubContext, playerConnections) 
         { 
             _eventBus = eventBus;
-            _handlers = new Dictionary<Type, Delegate>();
             SubscribeAll();
         }
 
@@ -34,83 +32,50 @@ namespace Ballast.Server.SignalR.HubMethods
             UnsubscribeAll();
         }
 
-        private IEnumerable<Type> GetApplicationEventTypes()
-        {
-            Assembly a = typeof(IApplicationEvent).Assembly;
-            var applicationEventTypes = a.GetTypes()
-                .Where(type => 
-                    type != typeof(IApplicationEvent) && 
-                    typeof(IApplicationEvent).IsAssignableFrom(type))
-                .ToList();
-            return applicationEventTypes;
-            // return new List<Type> 
-            // {
-            //     typeof(ChatMessageSentEvent),
-            //     typeof(GameStateChangedEvent),
-            //     typeof(PlayerAddedToVesselRoleEvent),
-            //     typeof(PlayerJoinedGameEvent),
-            //     typeof(PlayerLeftGameEvent),
-            //     typeof(PlayerRemovedFromVesselRoleEvent),
-            //     typeof(PlayerSignedInEvent),
-            //     typeof(PlayerSignedOutEvent),
-            //     typeof(VesselStateChangedEvent)
-            // };
-        }
-
         private void SubscribeAll()
         {
-            var applicationEventTypes = GetApplicationEventTypes();
-            foreach(var eventType in applicationEventTypes)
-            {
-                var eventId = GetEventId(eventType);
-                var subscribeForEventType = GetSubscribeMethod(eventType);
-                var onTypedEventAsync = GetTypedEventHandler(eventType);
-                subscribeForEventType.Invoke(_eventBus, new object[] { eventId, onTypedEventAsync });
-                _handlers[eventType] = onTypedEventAsync;
-            }
+            _eventBus.Subscribe<ChatMessageSentEvent>(ChatMessageSentEvent.GetId(), OnChatMessageSentEventAsync);
+            _eventBus.Subscribe<GameStateChangedEvent>(GameStateChangedEvent.GetId(), OnGameStateChangedEventAsync);
+            _eventBus.Subscribe<PlayerAddedToVesselRoleEvent>(PlayerAddedToVesselRoleEvent.GetId(), OnPlayerAddedToVesselRoleEventAsync);
+            _eventBus.Subscribe<PlayerJoinedGameEvent>(PlayerJoinedGameEvent.GetId(), OnPlayerJoinedGameEventAsync);
+            _eventBus.Subscribe<PlayerLeftGameEvent>(PlayerLeftGameEvent.GetId(), OnPlayerLeftGameEventAsync);
+            _eventBus.Subscribe<PlayerRemovedFromVesselRoleEvent>(PlayerRemovedFromVesselRoleEvent.GetId(), OnPlayerRemovedFromVesselRoleEventAsync);
+            _eventBus.Subscribe<PlayerSignedInEvent>(PlayerSignedInEvent.GetId(), OnPlayerSignedInEventAsync);
+            _eventBus.Subscribe<PlayerSignedOutEvent>(PlayerSignedOutEvent.GetId(), OnPlayerSignedOutEventAsync);
+            _eventBus.Subscribe<VesselStateChangedEvent>(VesselStateChangedEvent.GetId(), OnVesselStateChangedEventAsync);
         }
 
         private void UnsubscribeAll()
         {
-            var applicationEventTypes = GetApplicationEventTypes();
-            foreach(var eventType in applicationEventTypes)
-            {
-                var eventId = GetEventId(eventType);
-                var unsubscribeForEventType = GetSubscribeMethod(eventType);
-                var onTypedEventAsync = _handlers[eventType];
-                unsubscribeForEventType.Invoke(_eventBus, new object[] { eventId, onTypedEventAsync });
-                _handlers.Remove(eventType);
-            }            
+            _eventBus.Unsubscribe<ChatMessageSentEvent>(ChatMessageSentEvent.GetId(), OnChatMessageSentEventAsync);
+            _eventBus.Unsubscribe<GameStateChangedEvent>(GameStateChangedEvent.GetId(), OnGameStateChangedEventAsync);
+            _eventBus.Unsubscribe<PlayerAddedToVesselRoleEvent>(PlayerAddedToVesselRoleEvent.GetId(), OnPlayerAddedToVesselRoleEventAsync);
+            _eventBus.Unsubscribe<PlayerJoinedGameEvent>(PlayerJoinedGameEvent.GetId(), OnPlayerJoinedGameEventAsync);
+            _eventBus.Unsubscribe<PlayerLeftGameEvent>(PlayerLeftGameEvent.GetId(), OnPlayerLeftGameEventAsync);
+            _eventBus.Unsubscribe<PlayerRemovedFromVesselRoleEvent>(PlayerRemovedFromVesselRoleEvent.GetId(), OnPlayerRemovedFromVesselRoleEventAsync);
+            _eventBus.Unsubscribe<PlayerSignedInEvent>(PlayerSignedInEvent.GetId(), OnPlayerSignedInEventAsync);
+            _eventBus.Unsubscribe<PlayerSignedOutEvent>(PlayerSignedOutEvent.GetId(), OnPlayerSignedOutEventAsync);
+            _eventBus.Unsubscribe<VesselStateChangedEvent>(VesselStateChangedEvent.GetId(), OnVesselStateChangedEventAsync);
         }
 
-        private string GetEventId(Type eventType)
-        {
-            var getEventIdMethod = eventType.GetMethod("GetId");
-            if (getEventIdMethod == null)
-                throw new MissingMemberException($"Event type ${eventType.Name} is missing static method 'GetId'");
-            return getEventIdMethod.Invoke(null, null) as string;
-        }
-
-        private MethodInfo GetSubscribeMethod(Type eventType)
-        {
-            var subscribeMethod = _eventBus.GetType().GetMethod(nameof(IEventBus.Subscribe));
-            return subscribeMethod.MakeGenericMethod(eventType);
-        }
-
-        private MethodInfo GetUnsubscribeMethod(Type eventType)
-        {
-            var subscribeMethod = _eventBus.GetType().GetMethod(nameof(IEventBus.Unsubscribe));
-            return subscribeMethod.MakeGenericMethod(eventType);
-        }
-
-        private Delegate GetTypedEventHandler(Type eventType)
-        {
-            var eventHandlerMethod = typeof(EventHubMethods).GetMethod(nameof(OnTypedEventAsync));
-            var eventHandlerForEventType = eventHandlerMethod.MakeGenericMethod(eventType);
-            return Delegate.CreateDelegate(typeof(EventHubMethods), this, eventHandlerForEventType);
-        }
-
-        private Task OnTypedEventAsync<TEvent>(TEvent evt) where TEvent : IApplicationEvent => OnEventAsync(evt);
+        protected async Task OnChatMessageSentEventAsync(ChatMessageSentEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnGameStateChangedEventAsync(GameStateChangedEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnPlayerAddedToVesselRoleEventAsync(PlayerAddedToVesselRoleEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnPlayerJoinedGameEventAsync(PlayerJoinedGameEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnPlayerLeftGameEventAsync(PlayerLeftGameEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnPlayerRemovedFromVesselRoleEventAsync(PlayerRemovedFromVesselRoleEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnPlayerSignedInEventAsync(PlayerSignedInEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnPlayerSignedOutEventAsync(PlayerSignedOutEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnVesselStateChangedEventAsync(VesselStateChangedEvent evt) =>
+            await OnEventAsync(evt);
 
         private async Task OnEventAsync(IApplicationEvent evt)
         {

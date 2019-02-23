@@ -23,6 +23,7 @@ export class SignalRClientApplicationEventEmitter extends SignalRClientServiceBa
         super(serviceOptions);
         this._eventBus = eventBus;
         this._isEnabled = false;
+        this.rebindHandlers();
     }
 
     public get isEnabled(): boolean {
@@ -35,6 +36,10 @@ export class SignalRClientApplicationEventEmitter extends SignalRClientServiceBa
 
     public stop(): void {
         this._isEnabled = false;
+    }
+
+    protected rebindHandlers() {
+        this.onApplicationEvent = this.onApplicationEvent.bind(this);
     }
 
     protected afterSubscribe(hubConnection: HubConnection) {

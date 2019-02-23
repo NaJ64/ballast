@@ -17,7 +17,7 @@ namespace Ballast.Server.SignalR.Hubs
         private readonly IEventBus _eventBus;
 
         public EventHub(
-            IPlayerConnectionRepository<ChatHub> playerConnections, 
+            IPlayerConnectionRepository<EventHub> playerConnections, 
             EventHubMethods hubMethods,
             IEventBus eventBus
         ) : base(playerConnections)

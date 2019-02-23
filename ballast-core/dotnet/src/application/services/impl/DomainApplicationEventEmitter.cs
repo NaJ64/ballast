@@ -78,7 +78,7 @@ namespace Ballast.Core.Application.Services.Impl
                 OnVesselStateChangedDomainEventAsync);
         }
 
-        private Task PublishIfEnabledAsync(IApplicationEvent evt)
+        private Task PublishIfEnabledAsync<TEvent>(TEvent evt) where TEvent : IApplicationEvent
         {
             if (!_isEnabled) // TODO: Make it so we don't even create application events if the flag is false
                 return Task.CompletedTask; 

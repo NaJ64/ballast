@@ -27,4 +27,15 @@
     <Content Update="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Always" />
   </ItemGroup>
 
+  <ItemGroup>
+    <BallastWebNpmDist Include="..\npm\dist\**\*.*"/>
+  </ItemGroup>
+
+  <Target Name="CopyBallastWebNpmDist" AfterTargets="AfterBuild">
+    <Copy
+      SourceFiles="@(BallastWebNpmDist)"
+      DestinationFiles="@(BallastWebNpmDist->'.\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
+    />
+  </Target>
+
 </Project>
