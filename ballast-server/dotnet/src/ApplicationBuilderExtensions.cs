@@ -21,12 +21,12 @@ namespace Ballast.Server
                     routes.MapHub<GameHub>("/gamehub");
                     routes.MapHub<SignInHub>("/signinhub");
                 });
+                // Resolve EventHubMethods to trigger subscription(s) to application events
+                var eventHubMethods = (EventHubMethods)serviceProvider.GetService(typeof(EventHubMethods));
             }
             // Start listening for domain events to emit application events
             var applicationEventEmitter = (IApplicationEventEmitter)serviceProvider.GetService(typeof(IApplicationEventEmitter));
             applicationEventEmitter.Start();
-            // Resolve EventHubMethods to subscribe to application events
-            var eventHubMethods = (EventHubMethods)serviceProvider.GetService(typeof(EventHubMethods));
             return app;
         }
 
