@@ -73,6 +73,7 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         this._parent = parent;
         middleware.use(this.createRenderingStep());
         this.onAttached(this._parent, middleware);
+        this._isFirstRender = true;
     }
 
     public detach() {

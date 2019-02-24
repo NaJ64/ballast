@@ -13,6 +13,7 @@ import { IRenderer, Renderer } from "../rendering/renderer";
 import { IRenderingContext, RenderingContext } from "../rendering/rendering-context";
 import { BallastUiOptions, IBallastUiOptions } from "./options";
 import { TYPES as BallastUi } from "./types";
+import { WorldComponent } from "../rendering/components/world";
 
 type ConfigureOptions = (options: IBallastUiOptions) => void;
 
@@ -85,6 +86,9 @@ export class BallastUiContainerModule extends ContainerModule {
                 .inSingletonScope();
             bind<SignInComponent>(BallastUi.Rendering.Components.SignInComponent)
                 .to(SignInComponent)
+                .inSingletonScope();
+            bind<WorldComponent>(BallastUi.Rendering.Components.WorldComponent)
+                .to(WorldComponent)
                 .inSingletonScope();
 
             // IRenderer

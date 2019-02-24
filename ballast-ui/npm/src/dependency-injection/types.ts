@@ -15,6 +15,7 @@ export const TYPES = {
             NavigationComponent: Symbol.for("NavigationComponent"),
             RootComponent: Symbol.for("RootComponent"),
             SignInComponent: Symbol.for("SignInComponent"),
+            WorldComponent: Symbol.for("WorldComponent")
         },
         IRenderer: Symbol.for("IRenderer"),
         IRenderingContext: Symbol.for("IRenderingContext")
