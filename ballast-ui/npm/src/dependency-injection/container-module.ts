@@ -4,17 +4,18 @@ import { BallastAppState, IBallastAppState } from "../app-state";
 import { KeyboardWatcher } from "../input/keyboard-watcher";
 import { IVesselCompass } from "../input/vessel-compass";
 import { CameraTracker } from "../rendering/camera-tracker";
+import { BoardComponent } from "../rendering/components/board";
 import { CameraComponent } from "../rendering/components/camera";
 import { ChatComponent } from "../rendering/components/chat";
+import { GameComponent } from "../rendering/components/game";
 import { NavigationComponent } from "../rendering/components/navigation";
 import { RootComponent } from "../rendering/components/root";
 import { SignInComponent } from "../rendering/components/sign-in";
+import { WorldComponent } from "../rendering/components/world";
 import { IRenderer, Renderer } from "../rendering/renderer";
 import { IRenderingContext, RenderingContext } from "../rendering/rendering-context";
 import { BallastUiOptions, IBallastUiOptions } from "./options";
 import { TYPES as BallastUi } from "./types";
-import { WorldComponent } from "../rendering/components/world";
-import { GameComponent } from "../rendering/components/game";
 
 type ConfigureOptions = (options: IBallastUiOptions) => void;
 
@@ -73,6 +74,9 @@ export class BallastUiContainerModule extends ContainerModule {
                 ).inSingletonScope();
 
             // Components
+            bind<BoardComponent>(BallastUi.Rendering.Components.BoardComponent)
+                .to(BoardComponent)
+                .inSingletonScope();
             bind<CameraComponent>(BallastUi.Rendering.Components.CameraComponent)
                 .to(CameraComponent)
                 .inSingletonScope();
