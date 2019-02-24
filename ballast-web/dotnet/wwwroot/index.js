@@ -105,7 +105,7 @@ eval("module.exports =\n/******/ (function(modules) { // webpackBootstrap\n/****
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst ballast_ui_1 = __webpack_require__(/*! ballast-ui */ \"../../ballast-ui/npm/dist/index.js\");\r\nlet serverUrl = window.location.origin;\r\nlet bootstrapper = new ballast_ui_1.BallastBootstrapper(document).bootstrapAsync(serverUrl)\r\n    .then(client => client.startAsync())\r\n    .then(() => console.log('ballast loaded!'))\r\n    .catch((error) => console.log('error loading ballast: ' + error.message));\r\n\n\n//# sourceURL=webpack:///./lib/index.js?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst ballast_ui_1 = __webpack_require__(/*! ballast-ui */ \"../../ballast-ui/npm/dist/index.js\");\r\nlet serverUrl = window.location.origin;\r\nnew ballast_ui_1.BallastBootstrapper(document)\r\n    .bootstrapAsync(serverUrl)\r\n    .then(client => client.startAsync())\r\n    .then(() => console.log('ballast loaded!'))\r\n    .catch((error) => console.log('error loading ballast: ' + error.message));\r\n\n\n//# sourceURL=webpack:///./lib/index.js?");
 
 /***/ })
 
