@@ -1,11 +1,10 @@
 import { inject, injectable } from "inversify";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
 import { RenderingComponentBase } from '../rendering-component';
-import { IRenderingContext } from "../rendering-context";
-import { ChatComponent } from "./chat";
-import { SignInComponent } from "./sign-in";
 import { RenderingMiddleware } from "../rendering-middleware";
 import { CameraComponent } from "./camera";
+import { ChatComponent } from "./chat";
+import { SignInComponent } from "./sign-in";
 
 export interface IRootComponentFactory { 
     create(): RootComponent;

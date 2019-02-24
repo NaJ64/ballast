@@ -1,27 +1,29 @@
-import { compose } from "throwback";
+import { compose, Composed } from "throwback";
 import { IRenderingContext } from "./rendering-context";
 
 export type RenderingStep = (renderingContext: IRenderingContext, next: () => void) => void;
 
 export class RenderingMiddleware {
 
-    private readonly renderingSteps: RenderingStep[];
+    private readonly _renderingSteps: RenderingStep[];
+    private _composedRenderAll?: Composed<IRenderingContext, void>;
 
     public constructor() {
-        this.renderingSteps = [];
+        this._renderingSteps = [];
     }
 
     public use(renderingStep: RenderingStep) {
-        this.renderingSteps.push(renderingStep);
+        this._renderingSteps.push(renderingStep);
     }
 
     public renderAll(renderingContext: IRenderingContext, postRender: (renderingContext: IRenderingContext) => void) {
-        var renderAll = compose(this.renderingSteps);
-        var doneMethod = ((renderingContext: IRenderingContext) => {
+        if (!this._composedRenderAll) {
+            this._composedRenderAll = compose(this._renderingSteps);
+        }
+        this._composedRenderAll(renderingContext, (() => {
             postRender(renderingContext)
             return Promise.resolve();
-        }).bind(this);
-        renderAll(renderingContext, doneMethod);
+        }).bind(this));
     }
 
 }
