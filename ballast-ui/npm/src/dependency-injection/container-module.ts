@@ -4,6 +4,7 @@ import { BallastAppState, IBallastAppState } from "../app-state";
 import { KeyboardWatcher } from "../input/keyboard-watcher";
 import { IVesselCompass } from "../input/vessel-compass";
 import { CameraTracker } from "../rendering/camera-tracker";
+import { CameraComponent } from "../rendering/components/camera";
 import { ChatComponent } from "../rendering/components/chat";
 import { NavigationComponent } from "../rendering/components/navigation";
 import { RootComponent } from "../rendering/components/root";
@@ -70,6 +71,9 @@ export class BallastUiContainerModule extends ContainerModule {
                 ).inSingletonScope();
 
             // Components
+            bind<CameraComponent>(BallastUi.Rendering.Components.CameraComponent)
+                .to(CameraComponent)
+                .inSingletonScope();
             bind<ChatComponent>(BallastUi.Rendering.Components.ChatComponent)
                 .to(ChatComponent)
                 .inSingletonScope();
