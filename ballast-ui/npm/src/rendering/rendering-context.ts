@@ -17,13 +17,14 @@ export interface IRenderingContext {
 }
 
 export interface IRenderingContextFactory {
-    create(canvas: HTMLCanvasElement): IRenderingContext;
+    create(canvas: HTMLCanvasElement, gameStyle: HTMLStyleElement): IRenderingContext;
 };
 
 export class RenderingContext implements IRenderingContext {
 
     private readonly _app: IBallastAppState;
     private readonly _canvas: HTMLCanvasElement;
+    private readonly _gameStyle: HTMLStyleElement;
     private _frameDelta: number;
     private readonly _keyboard: KeyboardWatcher;
     private readonly _threeCamera: THREE.PerspectiveCamera;
@@ -35,12 +36,14 @@ export class RenderingContext implements IRenderingContext {
 
     public constructor(
         canvas: HTMLCanvasElement, 
+        gameStyle: HTMLStyleElement,
         keyboard: KeyboardWatcher, 
         app: IBallastAppState
     ) {
         // Base IRenderingContext types
         this._app = app;
         this._canvas = canvas;
+        this._gameStyle =gameStyle;
         this._frameDelta = 0;
         this._keyboard = keyboard;
         // THREE.js objects
@@ -59,6 +62,10 @@ export class RenderingContext implements IRenderingContext {
 
     public get canvas(): HTMLCanvasElement {
         return this._canvas;
+    }
+
+    public get gameStyle() :HTMLStyleElement {
+        return this._gameStyle;
     }
 
     public get frameDelta(): number {

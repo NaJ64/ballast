@@ -10,8 +10,10 @@ export const TYPES = {
     Rendering: {
         CameraTracker: Symbol.for("CameraTracker"),
         Components : {
+            BoardComponent: Symbol.for("BoardComponent"),
             CameraComponent: Symbol.for("CameraComponent"),
             ChatComponent: Symbol.for("ChatComponent"),
+            GameComponent: Symbol.for("GameComponent"),
             NavigationComponent: Symbol.for("NavigationComponent"),
             RootComponent: Symbol.for("RootComponent"),
             SignInComponent: Symbol.for("SignInComponent"),

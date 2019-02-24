@@ -14,6 +14,7 @@ import { IRenderingContext, RenderingContext } from "../rendering/rendering-cont
 import { BallastUiOptions, IBallastUiOptions } from "./options";
 import { TYPES as BallastUi } from "./types";
 import { WorldComponent } from "../rendering/components/world";
+import { GameComponent } from "../rendering/components/game";
 
 type ConfigureOptions = (options: IBallastUiOptions) => void;
 
@@ -78,6 +79,9 @@ export class BallastUiContainerModule extends ContainerModule {
             bind<ChatComponent>(BallastUi.Rendering.Components.ChatComponent)
                 .to(ChatComponent)
                 .inSingletonScope();
+            bind<GameComponent>(BallastUi.Rendering.Components.GameComponent)
+                .to(GameComponent)
+                .inSingletonScope();
             bind<NavigationComponent>(BallastUi.Rendering.Components.NavigationComponent)
                 .to(NavigationComponent)
                 .inSingletonScope();
@@ -97,7 +101,8 @@ export class BallastUiContainerModule extends ContainerModule {
                     let keyboardWatcher = ctx.container.get<KeyboardWatcher>(BallastUi.Input.KeyboardWatcher);
                     let appState = ctx.container.get<IBallastAppState>(BallastUi.IBallastAppState);
                     let renderingContextFactory = {
-                        create: (canvas: HTMLCanvasElement) => new RenderingContext(canvas, keyboardWatcher, appState)
+                        create: (canvas: HTMLCanvasElement, gameStyle: HTMLStyleElement) => 
+                            new RenderingContext(canvas, gameStyle, keyboardWatcher, appState)
                     };
                     let rootComponentFactory = {
                         create: () => ctx.container.get<RootComponent>(BallastUi.Rendering.Components.RootComponent)

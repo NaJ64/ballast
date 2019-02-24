@@ -31,7 +31,7 @@ export class Renderer implements IRenderer {
         this._gameStyle = this.createGameStyle(this._root);
         this._canvas = this.createCanvas(this._root);
         this._renderingMiddleware = new RenderingMiddleware();
-        this._renderingContext = renderingContextFactory.create(this._canvas);
+        this._renderingContext = renderingContextFactory.create(this._canvas, this._gameStyle);
         this._rootComponentFactory = rootComponentFactory;
     }
 
