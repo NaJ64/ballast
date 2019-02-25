@@ -1,10 +1,9 @@
 import { RenderingComponentBase } from "../rendering-component";
-import { IRenderingContext } from "../rendering-context";
+import * as THREE from "three";
 
-export class BoardComponent extends RenderingComponentBase {
-    
-    protected onRender(renderingContext: IRenderingContext): void {
-        //throw new Error("Method not implemented.");
+export class BoardComponent extends RenderingComponentBase { 
+
+    public getTilePosition(orderedTriple: number[]): THREE.Vector3 {
+        throw new Error("Method not implemented");
     }
-
 }

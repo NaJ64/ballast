@@ -28,9 +28,7 @@ export class NavigationComponent extends RenderingComponentBase {
 
     protected onDisposing() {
         this.unsubscribeAll();
-        this._navWindow = undefined;
-        this._navCoordinates = undefined;
-        this._navCompass = undefined;
+        this.destroyDomElements();
         this._directionNeedsUpdate = false;
         this._vesselNeedsUpdate = false;
     }
@@ -50,6 +48,19 @@ export class NavigationComponent extends RenderingComponentBase {
         this._eventBus.unsubscribe(CurrentVesselModifiedEvent.id, this.onCurrentVesselModifiedEventAsync);
     }
 
+    private createDomElements(ownerDocument: Document) {
+        let navElements = this.createNavElements(ownerDocument);
+        this._navWindow = navElements["0"];
+        this._navCoordinates = navElements["1"];
+        this._navCompass = navElements["2"];
+    }
+
+    private destroyDomElements() {
+        this._navWindow = undefined;
+        this._navCoordinates = undefined;
+        this._navCompass = undefined;
+    }
+
     private onCurrentDirectionModifiedEventAsync(evt: ICurrentDirectionModifiedEvent) {
         this._directionNeedsUpdate = true;
         return Promise.resolve();
@@ -60,42 +71,37 @@ export class NavigationComponent extends RenderingComponentBase {
         return Promise.resolve();
     }
 
-    protected onAttached(parent: HTMLElement) {
+    protected onAttached(ownerDocument: Document, parent: HTMLElement) {
         // Check if we need to create the navigation window (and other elements)
         if (!this._navWindow) {
-            let ownerDocument = parent.ownerDocument!;
-            let navElements = this.createNavElements(ownerDocument);
-            this._navWindow = navElements["0"];
-            this._navCoordinates = navElements["1"];
-            this._navCompass = navElements["2"];
+            this.createDomElements(ownerDocument);
         }
-        // Add nav window onto parent element
-        parent.appendChild(this._navWindow);
+        // Attach to parent DOM element
+        if (this._navWindow) {
+            parent.appendChild(this._navWindow);
+        }
         // Subscribe to all application events
         this.subscribeAll();
     }
 
-    protected onDetaching(parent: HTMLElement) {
+    protected onDetaching() {
         // Unsubscribe from all application events
         this.unsubscribeAll();
-        // Remove the nav window from the page
-        if (this._navWindow) {
-            parent.removeChild(this._navWindow);
+        // Remove from parent DOM element
+        if (this._parent && this._navWindow) {
+            this._parent.removeChild(this._navWindow);
         }
     }
 
     protected onRender(renderingContext: IRenderingContext) {
-
         // Detect if our vessel moved
         if (this._vesselNeedsUpdate) {
             this.updateVesselAndDisplayCoordinates(renderingContext);
         }
-
         // Detect if our compass heading has changed
         if (this._directionNeedsUpdate) {
             this.updateCompass(renderingContext);
         }
-
     }
 
     private createNavElements(ownerDocument: Document): [

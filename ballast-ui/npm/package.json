@@ -11,7 +11,7 @@
     "clean-dist": "node ./node_modules/rimraf/bin \"dist\"",
     "clean-lib": "node ./node_modules/rimraf/bin \"lib\"",
     "compile": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build",
-    "compile-watch": "npm run clean && npm run copy && node ./node_modules/typescript/lib/tsc --build --watch",
+    "compile-watch": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build --watch",
     "copy-dist:img": "node ./node_modules/cpx/bin \"lib/**/*.{jpg,png}\" \"dist\"",
     "copy-dist": "npm run copy-dist:img",
     "copy-lib": "npm run copy-lib:img && npm run copy-lib:js",

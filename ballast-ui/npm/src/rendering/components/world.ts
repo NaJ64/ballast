@@ -21,7 +21,7 @@ export class WorldComponent extends RenderingComponentBase {
     }
 
     private createSkybox(): THREE.Mesh {
-
+        // Load the cube image texture sides
         let cubeTextureLoader = new THREE.CubeTextureLoader();
         let cubeMap = cubeTextureLoader.load([
             'assets/images/skybox/px.jpg',
@@ -32,12 +32,12 @@ export class WorldComponent extends RenderingComponentBase {
             'assets/images/skybox/nz.jpg'
         ]);
         cubeMap.format = THREE.RGBFormat;
-
+        // Create shader for cube using texture map
         let cubeShader = THREE.ShaderLib['cube'];
         cubeShader.uniforms['tCube'].value = cubeMap;
-
+        // Create geometry of skybox
         let skyBoxGeometry = new THREE.BoxGeometry(1000000, 1000000, 1000000);
-        
+        // Create material for skybox using the shader
         let skyBoxMaterial = new THREE.ShaderMaterial({
             fragmentShader: cubeShader.fragmentShader,
             vertexShader: cubeShader.vertexShader,
@@ -45,12 +45,11 @@ export class WorldComponent extends RenderingComponentBase {
             depthWrite: false,
             side: THREE.BackSide
         });
-
+        // Create new mesh from geometry / material
         return new THREE.Mesh(
             skyBoxGeometry,
             skyBoxMaterial
         );
-
     }
 
     private createDirectionalLight(): THREE.DirectionalLight {
@@ -108,9 +107,8 @@ export class WorldComponent extends RenderingComponentBase {
         return [water, meshMirror];
 
     }
-
+    
     public onFirstRender(renderingContext: IRenderingContext) {
-
         // Create the water object/mesh using the renderer
         let water = this.createWater(
             this._directionalLight, 
@@ -122,29 +120,22 @@ export class WorldComponent extends RenderingComponentBase {
         );
         this._water = water["0"];
         this._waterMesh = water["1"];
-
         // Add skybox into the scene
         renderingContext.threeScene.add(this._skybox);
-        
         // Add the lighting into the scene
         renderingContext.threeScene.add(this._directionalLight);
-
         // Add the water into the scene
         renderingContext.threeScene.add(this._waterMesh);
-
         // Proceed with normal render
-        this.onRender(renderingContext);
-
+        this.onRender();
     }
 
-    public onRender(renderingContext: IRenderingContext) {
-        
+    public onRender() {
         // Animate/render water for the current frame
         if (this._water) {
             this._water!.material.uniforms.time.value += (1.0 / 60.0);
             this._water!.render();
         }
-        
     }
 
 }

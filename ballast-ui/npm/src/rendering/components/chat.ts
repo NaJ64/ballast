@@ -35,10 +35,7 @@ export class ChatComponent extends RenderingComponentBase {
      
     protected onDisposing() {
         this.unsubscribeAll();
-        this._chatWindow = undefined;
-        this._chatHistory = undefined;
-        this._chatForm = undefined;
-        this._chatInput = undefined;
+        this.destroyDomElements();
     }
 
     private rebindAllHandlers() {
@@ -62,6 +59,35 @@ export class ChatComponent extends RenderingComponentBase {
         this._eventBus.unsubscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
     }
 
+    private createDomElements(ownerDocument: Document) {
+        let chatElements = this.createChatElements(ownerDocument);
+        this._chatWindow = chatElements["0"];
+        this._chatHistory = chatElements["1"];
+        this._chatForm = chatElements["2"];
+        this._chatForm.addEventListener("submit", this.onChatFormSubmit);
+        this._chatInput = chatElements["3"];
+        this._chatInput.addEventListener("focus", this.onChatInputFocus);
+        this._chatInput.addEventListener("blur", this.onChatInputBlur);
+    }
+
+    private destroyDomElements() {
+        if (this._chatForm) {
+            this._chatForm.removeEventListener("submit", this.onChatFormSubmit);
+            this._chatForm = undefined;
+        }
+        if (this._chatInput) {
+            this._chatInput.removeEventListener("focus", this.onChatInputFocus);
+            this._chatInput.removeEventListener("blur", this.onChatInputBlur);
+            this._chatInput = undefined;
+        }
+        if (this._chatHistory) {
+            this._chatHistory = undefined;
+        }
+        if (this._chatWindow) {
+            this._chatWindow = undefined;
+        }
+    }
+
     private async onChatMessageSentAsync(evt: IChatMessageSentEvent) {
         this.appendMessageToHistory(evt.message);
     }
@@ -76,37 +102,26 @@ export class ChatComponent extends RenderingComponentBase {
         this.appendGameNotificationToHistory(messageText);
     }
 
-    protected onAttached(parent: HTMLElement) {
+    protected onAttached(ownerDocument: Document, parent: HTMLElement) {
         // Check if we need to create the chat window (and other elements)
         if (!this._chatWindow) {
-            let ownerDocument = parent.ownerDocument!;
-            let chatElements = this.createChatElements(ownerDocument);
-            this._chatWindow = chatElements["0"];
-            this._chatHistory = chatElements["1"];
-            this._chatForm = chatElements["2"];
-            this._chatInput = chatElements["3"];
+            this.createDomElements(ownerDocument);
         }
-        // Add dom event listeners
-        this._chatInput && this._chatInput.addEventListener("focus", this.onChatInputFocus);
-        this._chatInput && this._chatInput.addEventListener("blur", this.onChatInputBlur);
-        this._chatForm && this._chatForm.addEventListener("submit", this.onChatFormSubmit);
-        // Add chat window onto parent element
-        parent.appendChild(this._chatWindow);
+        // Attach to parent DOM element
+        if (this._chatWindow) {
+            parent.appendChild(this._chatWindow);
+        }
         // Subscribe to all application events
         this.subscribeAll();
     }
 
-    protected onDetaching(parent: HTMLElement) {
+    protected onDetaching() {
         // Unsubscribe from all application events
         this.unsubscribeAll();
-        // Remove dom event listeners
-        this._chatInput && this._chatInput.removeEventListener("focus", this.onChatInputFocus);
-        this._chatInput && this._chatInput.removeEventListener("blur", this.onChatInputBlur);
-        this._chatForm && this._chatForm.removeEventListener("submit", this.onChatFormSubmit);
-        // Remove the chat window from the page
-        if (this._chatWindow) {
-            parent.removeChild(this._chatWindow);
-        }
+        // Remove from parent DOM element
+        if (this._parent && this._chatWindow) {
+            this._parent.removeChild(this._chatWindow);
+        }            
     }
 
     protected onRender(renderingContext: IRenderingContext) {

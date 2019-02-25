@@ -37,7 +37,7 @@ export class Renderer implements IRenderer {
 
     public attach() {
         let rootComponent = this._rootComponentFactory.create();
-        rootComponent.attach(this._root, this._renderingMiddleware);
+        rootComponent.attach(this._host.ownerDocument!, this._root, this._gameStyle, this._renderingMiddleware);
         this._host.appendChild(this._root);
     }
 

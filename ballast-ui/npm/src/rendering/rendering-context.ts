@@ -14,8 +14,9 @@ export interface IRenderingContext {
     readonly threeRenderer: THREE.WebGLRenderer;
     readonly threeScene: THREE.Scene;
     refreshFrameDelta(): void;
+    attachCameraToObject(attachToObj: THREE.Object3D): THREE.Object3D;
+    detachCameraFromObject(detachFromObj: THREE.Object3D): THREE.Object3D;
 }
-
 export interface IRenderingContextFactory {
     create(canvas: HTMLCanvasElement, gameStyle: HTMLStyleElement): IRenderingContext;
 };

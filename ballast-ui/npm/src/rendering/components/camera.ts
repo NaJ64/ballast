@@ -1,14 +1,12 @@
 import { IEventBus, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
 import * as THREE from "three";
-import { BallastAppConstants } from "../../app-constants";
 import { CurrentDirectionModifiedEvent } from "../../events/current-direction-modified";
 import { CurrentGameModifiedEvent } from "../../events/current-game-modified";
 import { CurrentPlayerModifiedEvent } from "../../events/current-player-modified";
 import { CurrentVesselModifiedEvent } from "../../events/current-vessel-modified";
 import { CurrentVesselRolesModifiedEvent } from "../../events/current-vessel-roles-modified";
 import { RenderingComponentBase } from "../rendering-component";
-import { RenderingConstants } from "../rendering-constants";
 import { IRenderingContext } from "../rendering-context";
 
 @injectable()
@@ -16,15 +14,8 @@ export class CameraComponent extends RenderingComponentBase {
 
     private readonly _eventBus: IEventBus;
     private readonly _cameraPosition: THREE.Vector3;
-    private readonly _orbitTarget: THREE.Object3D;
-    private readonly _orbitAnimationDuration: number;
     private _cameraNeedsReset: boolean;
     private _cameraResetForGameId: string | null;
-    private _orbitRadians: number;
-    private _orbitClock?: THREE.Clock;
-    private _orbitClockwise?: boolean;
-    private _triggerClockwiseOrbit?: number;
-    private _triggerCounterClockwiseOrbit?: number;
 
     public constructor(
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus
@@ -34,10 +25,7 @@ export class CameraComponent extends RenderingComponentBase {
         this._eventBus = eventBus;
         this._cameraPosition = new THREE.Vector3();
         this._cameraResetForGameId = null;
-        this._cameraNeedsReset = true;
-        this._orbitTarget = this.createOrbitTarget();
-        this._orbitAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
-        this._orbitRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default
+        this._cameraNeedsReset = false;
     }
 
     protected onDisposing() {
@@ -68,22 +56,23 @@ export class CameraComponent extends RenderingComponentBase {
         this._eventBus.unsubscribe(CurrentVesselRolesModifiedEvent.id, this.onCurrentVesselRolesModifiedAsync);
     }
 
-    private createOrbitTarget(): THREE.Object3D {
-        let cameraOrbitTarget = new THREE.Object3D();
-        cameraOrbitTarget.rotation.reorder("YXZ");
-        return cameraOrbitTarget;
-    }
-
     private updateCamera(newOrbitRadius: number, newOrbitHeight: number) {
         this._cameraPosition.set(0, newOrbitHeight, newOrbitRadius);
     }
 
     protected onAttached() {
+        // Subscribe to all application events
         this.subscribeAll();
     }
 
     protected onDetaching() {
+        // Unsubscribe from all application events
         this.unsubscribeAll();
+    }
+
+    protected onFirstRender(renderingContext: IRenderingContext) {
+        this._cameraNeedsReset = true;
+        this.onRender(renderingContext);
     }
 
     protected onRender(renderingContext: IRenderingContext) {
@@ -91,8 +80,6 @@ export class CameraComponent extends RenderingComponentBase {
         if (this._cameraNeedsReset) {
             this.resetCamera(renderingContext);
         }
-        // // Apply orbit animation
-        // this.applyOrbit(renderingContext, false, false);
     }
 
     private resetCamera(renderingContext: IRenderingContext) {
@@ -106,22 +93,13 @@ export class CameraComponent extends RenderingComponentBase {
         }
         // Reset camera pivot and orbit target
         renderingContext.threeCameraPivot.rotation.set(0, 0, 0);
-        this._orbitTarget.rotation.set(0, 0, 0);
         // Store new orbit radians for future animations
         let game = renderingContext.app.currentGame;
         if (!game) {
             this._cameraResetForGameId = null;
-            this._orbitRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default
             return; // Nothing else we can do
         } else {
             this._cameraResetForGameId = game.id;
-            if (game.board.tileShape == BallastAppConstants.TILE_SHAPE_OCTAGON) {
-                this._orbitRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
-            } else if (game.board.tileShape == BallastAppConstants.TILE_SHAPE_SQUARE) {
-                this._orbitRadians = RenderingConstants.QUARTER_TURN_RADIANS;
-            } else {
-                this._orbitRadians = RenderingConstants.SIXTH_TURN_RADIANS;
-            }
         }
         // Set initial camera height/distance and re-point at subject
         this.updateCamera(10, 5); // TODO: get these values from somewhere else
@@ -133,79 +111,29 @@ export class CameraComponent extends RenderingComponentBase {
         }
     }
 
-    private applyOrbit(renderingContext: IRenderingContext, left: boolean, right: boolean) {
-
-        // Determine if we are mid-orbit
-        let inOrbit = !!this._orbitClock;
-
-        // Get elapsed time since last orbit adjustment (if applicable)
-        let orbitDelta = 0;
-        if (inOrbit) {
-            orbitDelta = this._orbitClock!.getDelta();
-        }
-
-        // Check if we need to trigger a new orbit
-        let triggerNewOrbit = !inOrbit && (!right && left || !left && right);
-        if (triggerNewOrbit) {
-            this._orbitClockwise = left; // Reverse direction
-            let thetaRadians = this._orbitRadians;
-            if (!this._orbitClockwise) {
-                thetaRadians *= -1;
-            }
-            this._orbitClock = new THREE.Clock();
-            this._orbitTarget.rotateY(thetaRadians);
-            if (!!this._triggerClockwiseOrbit && !this._orbitClockwise) {
-                this._triggerClockwiseOrbit--;
-            }
-            if (!!this._triggerCounterClockwiseOrbit && this._orbitClockwise) {
-                this._triggerCounterClockwiseOrbit--;
-            }
-        }
-
-        // If we need to adjust for seconds elapsed while in orbit state
-        if (orbitDelta > 0) {
-            // Check if we have reached the end of the orbit
-            let totalOrbitDelta = this._orbitClock!.getElapsedTime();
-            if (totalOrbitDelta >= this._orbitAnimationDuration) {
-                // Move directly to final orientation
-                renderingContext.threeCameraPivot.rotation.setFromVector3(
-                    this._orbitTarget!.rotation.toVector3()
-                );
-                // Finished rotating
-                this._orbitClockwise = undefined;
-                this._orbitClock = undefined;
-            } else {
-                // Calculate how much of a partial turn we need to rotate by
-                let partialTurns = (1 / this._orbitAnimationDuration) * orbitDelta;
-                // Convert partial turns to radians
-                let thetaRadians = partialTurns * this._orbitRadians;
-                if (!this._orbitClockwise) {
-                    thetaRadians *= -1;
-                }
-                // Rotate the camera pivot object
-                renderingContext.threeCameraPivot.rotateY(thetaRadians);
-            }
-        }
-    }
-
-    private async onCurrentDirectionModifiedAsync() {
+    private onCurrentDirectionModifiedAsync() {
         this._cameraNeedsReset = true;
+        return Promise.resolve();
     }
 
-    private async onCurrentGameModifiedAsync() {
+    private onCurrentGameModifiedAsync() {
         this._cameraNeedsReset = true;
+        return Promise.resolve();
     }
 
-    private async onCurrentPlayerModifiedAsync() {
+    private onCurrentPlayerModifiedAsync() {
         // Do something here
+        return Promise.resolve();
     }
 
-    private async onCurrentVesselModifiedAsync() {
+    private onCurrentVesselModifiedAsync() {
         // Do something here
+        return Promise.resolve();
     }
 
-    private async onCurrentVesselRolesModifiedAsync() {
+    private onCurrentVesselRolesModifiedAsync() {
         // Do something here
+        return Promise.resolve();
     }
 
 }

@@ -36,24 +36,22 @@ export class RootComponent extends RenderingComponentBase {
         this._world = world;
     }
 
-    protected onAttached(parent: HTMLElement, middleware: RenderingMiddleware) {
-        this._signIn.attach(parent, middleware);
-        this._game.attach(parent, middleware);
-        this._camera.attach(parent, middleware);
-        this._world.attach(parent, middleware);
-        this._chat.attach(parent, middleware);
+    protected onAttached(ownerDocument: Document, parent: HTMLElement, gameStyle: HTMLStyleElement, middleware: RenderingMiddleware) {
+        // Attach child components
+        this._signIn.attach(ownerDocument, parent, gameStyle, middleware);
+        this._game.attach(ownerDocument, parent, gameStyle, middleware);
+        this._camera.attach(ownerDocument, parent, gameStyle, middleware);
+        this._world.attach(ownerDocument, parent, gameStyle, middleware);
+        this._chat.attach(ownerDocument, parent, gameStyle, middleware);
     }
 
     protected onDetaching() {
+        // Detach child components
         this._chat.detach();
         this._world.detach();
         this._camera.detach();
         this._game.detach();
         this._signIn.detach();
     }
-
-    protected onRender(): void {
-        // Root component does not enlist in render loop
-    }
-
+    
 }

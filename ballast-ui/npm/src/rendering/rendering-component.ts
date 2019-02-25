@@ -7,7 +7,8 @@ export interface IRenderingComponent extends IDisposable {
     readonly isAttached: boolean;
     readonly isEnabled: boolean;
     readonly parent: HTMLElement | null;
-    attach(parent: HTMLElement, middleware: RenderingMiddleware): void;
+    readonly gameStyle: HTMLStyleElement | null;
+    attach(ownerDocument: Document, parent: HTMLElement, gameStyle: HTMLStyleElement, middleware: RenderingMiddleware): void;
     detach(): void;
     disable(): void;
     enable(): void;
@@ -20,12 +21,13 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
     protected _isEnabled: boolean;
     protected _isFirstRender: boolean;
     protected _parent: HTMLElement | null;
-    protected onAttached(parent: HTMLElement, middleware: RenderingMiddleware): void { }
-    protected onDetaching(parent: HTMLElement): void { }
+    protected _gameStyle: HTMLStyleElement | null;
+    protected onAttached(ownerDocument: Document, parent: HTMLElement, gameStyle: HTMLStyleElement, middleware: RenderingMiddleware): void { }
+    protected onDetaching(): void { }
     protected onEnabled(): void { }
     protected onDisabling(): void { }
     protected onDisposing(): void { }
-    protected abstract onRender(renderingContext: IRenderingContext): void;
+    protected onRender(renderingContext: IRenderingContext): void { }
     protected onFirstRender(renderingContext: IRenderingContext): void { 
         this.onRender(renderingContext); 
     }
@@ -34,6 +36,7 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         this._isEnabled = false;
         this._isFirstRender = false;
         this._parent = null;
+        this._gameStyle = null;
     }
 
     public dispose() {
@@ -59,6 +62,10 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         return this._parent || null;
     }
 
+    public get gameStyle(): HTMLStyleElement | null {
+        return this._gameStyle || null;
+    }
+
     protected createRenderingStep(): RenderingStep {
         return (renderingContext, next) => {
             this.render(renderingContext);
@@ -66,13 +73,14 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         }
     }
 
-    public attach(parent: HTMLElement, middleware: RenderingMiddleware) {
+    public attach(ownerDocument: Document, parent: HTMLElement, gameStyle: HTMLStyleElement, middleware: RenderingMiddleware) {
         if (this._parent) {
             throw new Error("Component is already attached to a parent element");
         }
         this._parent = parent;
+        this._gameStyle = gameStyle;
         middleware.use(this.createRenderingStep());
-        this.onAttached(this._parent, middleware);
+        this.onAttached(ownerDocument, parent, gameStyle, middleware);
         this._isFirstRender = true;
     }
 
@@ -80,7 +88,7 @@ export abstract class RenderingComponentBase implements IRenderingComponent {
         if (!this._parent) {
             throw new Error("Component is not attached to a parent element");
         }
-        this.onDetaching(this._parent);
+        this.onDetaching();
         this._parent = null;
         this._isFirstRender = true;
     }
