@@ -1,4 +1,6 @@
 const BallastAppConstants = {
+    TERRAIN_COAST: "Coast",
+    TERRAIN_LAND: "Land",
     TILE_SHAPE_CIRCLE: "Circle",
     TILE_SHAPE_HEXAGON: "Hexagon",
     TILE_SHAPE_SQUARE: "Square",
