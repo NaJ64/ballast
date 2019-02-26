@@ -12,8 +12,14 @@ import { CurrentVesselModifiedEvent } from "../../events/current-vessel-modified
 import { RenderingConstants } from "../rendering-constants";
 import { RenderingMiddleware } from "../rendering-middleware";
 import { IBallastAppState } from "../../app-state";
+import { KeyboardWatcher } from "../../input/keyboard-watcher";
 
-type GameAnimationType = 'rotateVesselCounterClockwise' | 'rotateVesselClockwise' | 'moveVesselForward';
+type GameAnimationType = 
+    'rotateVesselCounterClockwise' | 
+    'rotateVesselClockwise' | 
+    'moveVesselForward' | 
+    'correctVesselPosition' | 
+    'correctVesselDirection';
 type GameAnimation = { type: GameAnimationType, timestamp: number };
 
 @injectable()
@@ -23,6 +29,8 @@ export class GameComponent extends RenderingComponentBase {
     private readonly _gameService: IGameService;
     private readonly _board: BoardComponent;
     private readonly _navigation: NavigationComponent;
+    private _gameNeedsReset: boolean;
+    private _gameResetForId: string | null;
 
     // Buttons
     private _moveVesselForwardButton?: HTMLButtonElement;
@@ -33,13 +41,14 @@ export class GameComponent extends RenderingComponentBase {
     // Vessel
     private readonly _vessel: THREE.Mesh;
     private readonly _vesselPivot: THREE.Object3D;
+    private _removeCameraFromVessel?: () => void;
 
     // Animation(s)
     private readonly _gameAnimationQueue: GameAnimation[];
-    private readonly _forwardMovementTarget: THREE.Object3D;
-    private readonly _forwardMovementSource: THREE.Object3D;
-    private readonly _forwardMovementAnimationDuration: number;
-    private _forwardMovementClock?: THREE.Clock;
+    private readonly _movementTarget: THREE.Object3D;
+    private readonly _movementSource: THREE.Object3D;
+    private readonly _movementAnimationDuration: number;
+    private _movementClock?: THREE.Clock;
     private _waitingOnMovementRequest: boolean;
     private readonly _rotationTarget: THREE.Object3D;
     private readonly _rotationAnimationDuration: number;
@@ -69,13 +78,15 @@ export class GameComponent extends RenderingComponentBase {
         this._gameAnimationQueue = [];
         this._waitingOnMovementRequest = false;
         let vesselForwardMovementObjects = this.createVesselForwardMovementObjects();
-        this._forwardMovementTarget = vesselForwardMovementObjects["0"];
-        this._forwardMovementSource = vesselForwardMovementObjects["1"];
-        this._forwardMovementAnimationDuration = RenderingConstants.MOVEMENT_DURATION_SECONDS;
+        this._movementTarget = vesselForwardMovementObjects["0"];
+        this._movementSource = vesselForwardMovementObjects["1"];
+        this._movementAnimationDuration = RenderingConstants.MOVEMENT_DURATION_SECONDS;
         this._rotationTarget = this.createVesselRotationTargetObject();
         this._rotationAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
         this._rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default to 8 directions
         this._rotationDirections = 8; // Default to 8 directions
+        this._gameResetForId = null;
+        this._gameNeedsReset = false;
     }
 
     protected onDisposing() {
@@ -83,14 +94,6 @@ export class GameComponent extends RenderingComponentBase {
         this.destroyDomElements();
     }
 
-    private get isMidAnimation(): boolean {
-        return (!!this._rotationClock || !!this._forwardMovementClock);
-    }
-
-    private get hasQueuedAnimation(): boolean {
-        return (!!this._gameAnimationQueue.length);
-    }
-    
     private rebindHandlers() {
         this.onCurrentDirectionModifiedAsync = this.onCurrentDirectionModifiedAsync.bind(this);
         this.onCurrentGameModifiedAsync = this.onCurrentGameModifiedAsync.bind(this);
@@ -275,10 +278,20 @@ export class GameComponent extends RenderingComponentBase {
         if (this._gameStyle && this._rotateVesselClockwiseButton) {
             this._gameStyle.removeChild(this._rotateVesselClockwiseButton!);
         }
-        // TODO: Figure out how we can remove camera pivot from the vessel obj
-        // renderingContext.detachCameraFromObject(this._vesselPivot);
+        // Try to remove camera pivot from the vessel obj
+        if (this._removeCameraFromVessel) {
+            this._removeCameraFromVessel();
+        }
     }
 
+    private get isMidAnimation(): boolean {
+        return (!!this._rotationClock || !!this._movementClock);
+    }
+
+    private get hasQueuedAnimation(): boolean {
+        return (!!this._gameAnimationQueue.length);
+    }
+    
     private queueNewAnimation(animationType: GameAnimationType) {
         // If we already have more than one animation, check to see if the new animation cancels out the last one
         let cancelLastAnimation = false;
@@ -295,6 +308,7 @@ export class GameComponent extends RenderingComponentBase {
             this._gameAnimationQueue.pop();
             return;
         }
+        // TODO: Decide if we need to cancel all queued animations before vessel correction(s)
         // Queue the animation
         let timestamp = Date.now();
         this._gameAnimationQueue.push({ type: animationType, timestamp: timestamp });
@@ -324,38 +338,163 @@ export class GameComponent extends RenderingComponentBase {
     protected onFirstRender(renderingContext: IRenderingContext) {
         // Add camera as child of vessel & add vessel into secene
         renderingContext.threeScene.add(renderingContext.attachCameraToObject(this._vesselPivot));
+        // Create a corresponding revert method to remove the camera later
+        this._removeCameraFromVessel = () => {
+            renderingContext.detachCameraFromObject(this._vesselPivot);
+        }
+        // Set flag for initial rendering
+        this._gameNeedsReset = true;
         // Proceed with normal render
         this.onRender(renderingContext);
     }
 
-    // TODO:  Finish implementing this from old game component
-
     protected onRender(renderingContext: IRenderingContext) {
-        //throw new Error("Method not implemented.");
+        // Synchronize with current game state by queueing movement animation(s)
+        let correctDirection = false;
+        let correctPosition = false;
+        if (this._gameNeedsReset) {
+            this.resetGame(renderingContext);
+        }
+        // Collect keyboard input for new animation/movement requests
+        let left = false;
+        let right = false;
+        let forward = false;
+        let ignoreKeyboard = 
+            this._waitingOnMovementRequest || 
+            this.isMidAnimation || 
+            this.hasQueuedAnimation;
+        if (ignoreKeyboard) {
+            left = false;
+            right = false;
+            forward = false;
+        } else {
+            let keyboardInput = this.getKeyboardInput(renderingContext.keyboard);
+            left = keyboardInput["0"];
+            right = keyboardInput["1"];
+            forward = keyboardInput["2"];
+        }
+        // If we are not mid-animation or waiting on a movement request, but we do have a queued animation...
+        let startQueuedAnimation = !this._waitingOnMovementRequest && !this.isMidAnimation && this.hasQueuedAnimation;
+        if (startQueuedAnimation) {
+            // Set flags from the queued animation 
+            let nextAnimation = <GameAnimation>this.dequeueNextAnimation();
+            if (nextAnimation && nextAnimation.type == 'rotateVesselCounterClockwise') {
+                left = true;
+            }
+            if (nextAnimation && nextAnimation.type == 'rotateVesselClockwise') {
+                right = true;
+            }
+            if (nextAnimation && nextAnimation.type == 'moveVesselForward') {
+                forward = true;
+            }
+            if (nextAnimation && nextAnimation.type == 'correctVesselDirection') {
+                correctDirection = true;
+            }
+            if (nextAnimation && nextAnimation.type == 'correctVesselPosition') {
+                correctPosition = true;
+            }
+        }
+        // Create rotation animation target data to be applied on next render loop
+        if (left || right) {
+            this.createNewRotationTarget(renderingContext, left, right, correctDirection);
+        }
+        // Create forward movement target data to be applied on next render loop
+        if (forward) {
+            this.createNewMovementTarget(renderingContext, forward, correctPosition);
+        }
+        // Apply current movement animation
+        this.applyVesselMovement(renderingContext);
+        // Apply current rotation animation
+        this.applyVesselRotation(renderingContext);
     }
 
-    private async onRotateVesselClockwiseButtonClickAsync() {
-        //throw new Error("Method not implemented.");
+    private getKeyboardInput(keyboardWatcher: KeyboardWatcher): [boolean, boolean, boolean] {
+        if (!keyboardWatcher) {
+            return [false, false, false];
+        }
+        let leftIsDown = keyboardWatcher.leftArrowIsDown();
+        let rightIsDown = keyboardWatcher.rightArrowIsDown();
+        let aIsDown = keyboardWatcher.aIsDown();
+        let dIsDown = keyboardWatcher.dIsDown();
+        let upArrowIsDown = keyboardWatcher.upArrowIsDown();
+        let wIsDown = keyboardWatcher.wIsDown();
+        let left = leftIsDown || aIsDown;
+        let right = rightIsDown || dIsDown;
+        let rotate = (left && !right) || (right && !left); // Rotation only triggers if left/right not cancelling each other out
+        if (!rotate) {
+            left = false;
+            right = false;
+        }
+        let forward = !rotate && (upArrowIsDown || wIsDown); // Rotation takes precedence over forward movement
+        return [left, right, forward];
     }
 
-    private async onRotateVesselCounterClockwiseButtonClickAsync() {
-        //throw new Error("Method not implemented.");
+    private resetGame(renderingContext: IRenderingContext) {
+
+        // Remove flag(s)
+        this._gameNeedsReset = false;
+        this._gameResetForId = 
+            renderingContext.app.currentGame && 
+            renderingContext.app.currentGame.id || null;
+
+        // TODO: Implement this from old component
+        // throw new Error("Method not implemented");
+
     }
 
-    private async onMoveVesselForwardButtonClickAsync() {
-        //throw new Error("Method not implemented.");
+    private createNewMovementTarget(renderingContext: IRenderingContext, forward: boolean, correction: boolean) {
+
+        // TODO: Implement this from old component
+        // throw new Error("Method not implemented");
+        
+    }
+    
+    private createNewRotationTarget(renderingContext: IRenderingContext, left: boolean, right: boolean, correction: boolean) {
+
+        // TODO: Implement this from old component
+        // throw new Error("Method not implemented");
+        
     }
 
-    private async onCurrentDirectionModifiedAsync() {
-        //throw new Error("Method not implemented.");
+    private applyVesselMovement(renderingContext: IRenderingContext) {
+
+        // TODO: Implement this from old component
+        // throw new Error("Method not implemented");
+        
+    }
+
+    private applyVesselRotation(renderingContext: IRenderingContext) {
+
+        // TODO: Implement this from old component
+        // throw new Error("Method not implemented");
+        
+    }
+    
+    private onRotateVesselClockwiseButtonClickAsync() {
+        this.queueNewAnimation('rotateVesselClockwise');
+    }
+
+    private onRotateVesselCounterClockwiseButtonClickAsync() {
+        this.queueNewAnimation('rotateVesselCounterClockwise');
+    }
+
+    private onMoveVesselForwardButtonClickAsync() {
+        this.queueNewAnimation('moveVesselForward');
+    }
+
+    private onCurrentDirectionModifiedAsync() {
+        this._gameNeedsReset = true;
+        return Promise.resolve();
     }
 
     private async onCurrentGameModifiedAsync() {
-        //throw new Error("Method not implemented.");
+        this._gameNeedsReset = true;
+        return Promise.resolve();
     }
 
     private async onCurrentVesselModifiedAsync() {
-        //throw new Error("Method not implemented.");
+        this._gameNeedsReset = true;
+        return Promise.resolve();
     }
 
 }
