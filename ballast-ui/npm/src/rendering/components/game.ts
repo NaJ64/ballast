@@ -1,18 +1,18 @@
-import { RenderingComponentBase } from "../rendering-component";
-import { IRenderingContext } from "../rendering-context";
+import { IEventBus, IGameService, IVesselDto, TYPES as BallastCore } from "ballast-core";
+import { inject, injectable } from "inversify";
 import * as THREE from "three";
-import { injectable, inject } from "inversify";
+import { BallastAppConstants } from "../../app-constants";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
-import { BoardComponent } from "./board";
-import { NavigationComponent } from "./navigation";
-import { TYPES as BallastCore, IEventBus, IGameService } from "ballast-core";
 import { CurrentDirectionModifiedEvent } from "../../events/current-direction-modified";
 import { CurrentGameModifiedEvent } from "../../events/current-game-modified";
 import { CurrentVesselModifiedEvent } from "../../events/current-vessel-modified";
-import { RenderingConstants } from "../rendering-constants";
-import { RenderingMiddleware } from "../rendering-middleware";
-import { IBallastAppState } from "../../app-state";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
+import { RenderingComponentBase } from "../rendering-component";
+import { RenderingConstants } from "../rendering-constants";
+import { IRenderingContext } from "../rendering-context";
+import { RenderingMiddleware } from "../rendering-middleware";
+import { BoardComponent } from "./board";
+import { NavigationComponent } from "./navigation";
 
 type GameAnimationType = 
     'rotateVesselCounterClockwise' | 
@@ -47,11 +47,11 @@ export class GameComponent extends RenderingComponentBase {
     private readonly _gameAnimationQueue: GameAnimation[];
     private readonly _movementTarget: THREE.Object3D;
     private readonly _movementSource: THREE.Object3D;
-    private readonly _movementAnimationDuration: number;
+    private _movementAnimationDuration: number;
     private _movementClock?: THREE.Clock;
     private _waitingOnMovementRequest: boolean;
     private readonly _rotationTarget: THREE.Object3D;
-    private readonly _rotationAnimationDuration: number;
+    private _rotationAnimationDuration: number;
     private _rotationDirections: number;
     private _rotationRadians: number;
     private _rotationClock?: THREE.Clock;
@@ -308,7 +308,15 @@ export class GameComponent extends RenderingComponentBase {
             this._gameAnimationQueue.pop();
             return;
         }
-        // TODO: Decide if we need to cancel all queued animations before vessel correction(s)
+        // If the new animation type is a correction, we want to scrap all other non-correction animations ahead of it
+        if (animationType == "correctVesselDirection" || animationType == "correctVesselPosition") {
+            // Find index of last queued "correction" game animation
+            let corrections = this._gameAnimationQueue
+                .map(x => x.type == "correctVesselDirection" || x.type == "correctVesselPosition");
+            let mostRecentCorrection = corrections.lastIndexOf(true);
+            // Remove everything afterward
+            this._gameAnimationQueue.splice(mostRecentCorrection);
+        }
         // Queue the animation
         let timestamp = Date.now();
         this._gameAnimationQueue.push({ type: animationType, timestamp: timestamp });
@@ -322,11 +330,7 @@ export class GameComponent extends RenderingComponentBase {
         return nextAnimation;
     }
 
-    private getVesselVector3(app: IBallastAppState, vesselId: string | undefined): THREE.Vector3 {
-        if (!app.currentGame || !vesselId) {
-            return new THREE.Vector3(0, 0, 0);
-        }
-        let vessel = app.currentGame.vessels.find(x => x.id == vesselId);
+    private getVesselVector3(vessel?: IVesselDto | null): THREE.Vector3 {
         if (!vessel) {
             return new THREE.Vector3(0, 0, 0);
         }
@@ -355,7 +359,7 @@ export class GameComponent extends RenderingComponentBase {
         if (this._gameNeedsReset) {
             this.resetGame(renderingContext);
         }
-        // Collect keyboard input for new animation/movement requests
+        // Collect keyboard input (for new animation/movement requests)
         let left = false;
         let right = false;
         let forward = false;
@@ -395,12 +399,12 @@ export class GameComponent extends RenderingComponentBase {
             }
         }
         // Create rotation animation target data to be applied on next render loop
-        if (left || right) {
-            this.createNewRotationTarget(renderingContext, left, right, correctDirection);
+        if (left || right || correctDirection) {
+            this.rotate(renderingContext, left, right, correctDirection);
         }
         // Create forward movement target data to be applied on next render loop
-        if (forward) {
-            this.createNewMovementTarget(renderingContext, forward, correctPosition);
+        if (forward || correctPosition) {
+            this.move(renderingContext, forward, correctPosition);
         }
         // Apply current movement animation
         this.applyVesselMovement(renderingContext);
@@ -431,35 +435,136 @@ export class GameComponent extends RenderingComponentBase {
 
     private resetGame(renderingContext: IRenderingContext) {
 
+        // TODO: Implement this from old component
+        // throw new Error("Method not implemented");
+
         // Remove flag(s)
         this._gameNeedsReset = false;
         this._gameResetForId = 
             renderingContext.app.currentGame && 
             renderingContext.app.currentGame.id || null;
 
-        // TODO: Implement this from old component
-        // throw new Error("Method not implemented");
-
     }
 
-    private createNewMovementTarget(renderingContext: IRenderingContext, forward: boolean, correction: boolean) {
+    private move(renderingContext: IRenderingContext, forward: boolean, correction: boolean) {
 
-        // TODO: Implement this from old component
-        // throw new Error("Method not implemented");
-        
+        // Get current vessel Vector3
+        let currentV3 = this._vesselPivot.position;
+
+        // Sync vessel pivot v3 with app context vessel coordinates
+        if (correction) {
+            let targetV3 = this.getVesselVector3(renderingContext.app.currentVessel);
+            if (!currentV3.equals(targetV3)) {
+                this.startVesselMovementAnimation(currentV3, targetV3);
+            }
+        } 
+
+        // Ask server to perform forward movement and get resulting position
+        if (forward) { 
+            // Set flag so that we don't try any other animations until this one finishes
+            this._waitingOnMovementRequest = true;
+            // Get new position (async)
+            this.requestNewPositionAsync(renderingContext, currentV3)
+                .then(targetV3 => {
+                    if (!currentV3.equals(targetV3)) {
+                        this.startVesselMovementAnimation(currentV3, targetV3);
+                    }
+                    return Promise.resolve();
+                })
+                .catch(err => console.log(err))
+                .then(() => {
+                    // Remove flag so new animations can be queued in render loop
+                    this._waitingOnMovementRequest = false;
+                    return Promise.resolve();
+                });
+        }
+
     }
     
-    private createNewRotationTarget(renderingContext: IRenderingContext, left: boolean, right: boolean, correction: boolean) {
+    private startVesselMovementAnimation(currentPosition: THREE.Vector3, targetPosition: THREE.Vector3, isCorrection: boolean = false) {
+        this._movementClock = new THREE.Clock();
+        this._movementSource.position.set(currentPosition.x, currentPosition.y, currentPosition.z);
+        this._movementTarget.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
+        this._movementAnimationDuration = isCorrection ? RenderingConstants.CORRECTION_DURATION_SECONDS : RenderingConstants.MOVEMENT_DURATION_SECONDS;
+    }
 
-        // TODO: Implement this from old component
-        // throw new Error("Method not implemented");
+    private endVesselMovementAnimation(finalPosition: THREE.Vector3) {
+        this._movementClock = undefined;
+        this._movementSource.position.set(finalPosition.x, finalPosition.y, finalPosition.z);
+        this._movementTarget.position.set(finalPosition.x, finalPosition.y, finalPosition.z);
+        this._movementAnimationDuration = RenderingConstants.MOVEMENT_DURATION_SECONDS;
+    }
+
+    private rotate(renderingContext: IRenderingContext, left: boolean, right: boolean, correction: boolean) {
+
+        if (correction) {
+            let targetDirection = renderingContext.app.currentDirection;
+            if (!targetDirection) {
+                return; // Can't correct the direction if the app context doesn't have one yet
+            }
+            let rotationRadians = 0;
+
+            // TODO:  1) Convert the target direction into a Y-axis radian measurement
+            //        2) Get the difference between the target direction/radians and "this._vesselPivot.rotation"
+            //        3) Determine if clockwise or counter-clockwise is most prudent
+
+            this.startVesselRotationAnimation(rotationRadians);
+        }
+
+        if (right || left) {
+            let rotationRadians = this._rotationRadians;
+            this.startVesselRotationAnimation(rotationRadians, left);
+        }
         
+    }
+
+    private startVesselRotationAnimation(rotationRadians: number, counterClockwise: boolean = false, isCorrection: boolean = false) {
+        this._rotationClockwise = !counterClockwise;
+        let thetaRadians = rotationRadians;
+        if (this._rotationClockwise)
+            thetaRadians *= -1;
+        this._rotationClock = new THREE.Clock();
+        this._rotationTarget.rotateY(thetaRadians);
+        this._rotationAnimationDuration = isCorrection ? RenderingConstants.CORRECTION_DURATION_SECONDS : RenderingConstants.PIVOT_DURATION_SECONDS;
+    }
+
+    private endVesselRotationAnimation() {
+        this._rotationClock = undefined;
+        this._rotationAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
+    }
+
+    private async requestNewPositionAsync(renderingContext: IRenderingContext, currentVesselVector3?: THREE.Vector3): Promise<THREE.Vector3> {
+        // Check current props to see if it's okay to proceed with movement request
+        let vessel = renderingContext.app.currentVessel;
+        if (!vessel) {
+            return new THREE.Vector3(0, 0, 0);
+        }
+        let player = renderingContext.app.currentPlayer;
+        let game = renderingContext.app.currentGame;
+        let isCaptain = !!renderingContext.app.currentVesselRoles.find(x => x == BallastAppConstants.VESSEL_ROLE_CAPTAIN);
+        // Can't move forward if player is not the captain of a vessel within the current game
+        if (!player || !game || !isCaptain) {
+            return currentVesselVector3 || this.getVesselVector3(vessel); // Just return current coordinates as v3
+        }
+        // Create a delayed movement request
+        let vesselDirection = renderingContext.cameraTracker.getDirection(game.board.tileShape, this._vesselPivot);
+        vessel = await this._gameService.moveVesselAsync({
+            gameId: game.id,
+            vesselId: vessel.id,
+            sentOnDateIsoString: new Date(Date.now()).toISOString(),
+            sourceOrderedTriple: vessel.orderedTriple,
+            targetOrderedTriple: [],
+            direction: vesselDirection
+        });
+        return this.getVesselVector3(vessel); // Convert vessel coordinates to v3
     }
 
     private applyVesselMovement(renderingContext: IRenderingContext) {
 
         // TODO: Implement this from old component
         // throw new Error("Method not implemented");
+
+        // TODO:  Call "this.endMovementAnimation(targetPosition)" after the movement animation clock is finished
         
     }
 
@@ -467,9 +572,11 @@ export class GameComponent extends RenderingComponentBase {
 
         // TODO: Implement this from old component
         // throw new Error("Method not implemented");
+
+        // TODO:  Call "this.endRotationAnimation(targetPosition)" after the rotation animation clock is finished
         
     }
-    
+
     private onRotateVesselClockwiseButtonClickAsync() {
         this.queueNewAnimation('rotateVesselClockwise');
     }
