@@ -1,4 +1,4 @@
-import { IEventBus, IGameService, IVesselDto, TYPES as BallastCore } from "ballast-core";
+import { IBoardDto, IEventBus, IGameService, IVesselDto, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
 import * as THREE from "three";
 import { BallastAppConstants } from "../../app-constants";
@@ -253,15 +253,13 @@ export class GameComponent extends RenderingComponentBase {
         }
         // Subscribe to all application events
         this.subscribeAll();
-        // Attach child components
-        this._board.attach(ownerDocument, parent, gameStyle, middleware);
+        // Attach child component(s)
         this._navigation.attach(ownerDocument, parent, gameStyle, middleware);
     }
 
     protected onDetaching() {
-        // Detach child components
+        // Detach child component(s)
         this._navigation.detach();
-        this._board.detach();
         // Unsubscribe from all application events
         this.unsubscribeAll();
         // Detach from parent DOM element
@@ -430,15 +428,74 @@ export class GameComponent extends RenderingComponentBase {
 
     private resetGame(renderingContext: IRenderingContext) {
 
-        // TODO: Implement this from old component
-        // throw new Error("Method not implemented");
-
-        // Remove flag(s)
+        // Remove flag
         this._gameNeedsReset = false;
-        this._gameResetForId = 
-            renderingContext.app.currentGame && 
-            renderingContext.app.currentGame.id || null;
 
+        // Check if we changed games
+        let currentGame = renderingContext.app.currentGame;
+        let currentGameId =  currentGame && currentGame.id || "";
+        if (currentGameId != (this._gameResetForId || "")) {
+            // Store the game id
+            this._gameResetForId = currentGameId || null;
+            // Reset rotation according to the new game's board
+            this.resetRotationsForBoard(currentGame && currentGame.board);
+            // Set initial orientation for the vessel
+            this.resetVesselRotation();
+            // Move vessel back to origin (or whatever starting position)
+            this.queueNewAnimation("correctVesselPosition");
+            // Don't need to do anything else on new game
+            return;
+        }
+
+        // If we did not change games but we still don't have a game / vessel
+        let currentVessel = renderingContext.app.currentVessel;
+        if (!currentGame || !currentVessel) {
+            // Nothing else we can really do
+            return;
+        }
+
+        // Check if app state and current vessel position are not in sync
+        let vesselShouldBeHereV3 = this.getVesselVector3(currentVessel);
+        if (!vesselShouldBeHereV3.equals(this._vesselPivot.position)) {
+            // Correct the vessel position
+            this.queueNewAnimation("correctVesselPosition");
+            return;
+        }
+
+    }
+
+    private resetRotationsForBoard(board: IBoardDto | null) {
+        this._rotationDirections = 6;
+        this._rotationRadians = RenderingConstants.SIXTH_TURN_RADIANS;
+        let tileShape = board && board.tileShape || BallastAppConstants.TILE_SHAPE_OCTAGON;
+        switch (tileShape) {
+            case BallastAppConstants.TILE_SHAPE_SQUARE:
+                this._rotationDirections = 4;
+                this._rotationRadians = RenderingConstants.QUARTER_TURN_RADIANS;
+                break;
+            case BallastAppConstants.TILE_SHAPE_OCTAGON:
+                this._rotationDirections = 8;
+                this._rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private resetVesselPosition(targetPosition?: THREE.Vector3) {
+        if (!targetPosition) {
+            this._vesselPivot.position.set(0, 0, 0);
+        } else {
+            this._vesselPivot.position.fromArray(targetPosition.toArray()); 
+            this._movementTarget.position.fromArray(targetPosition.toArray());
+        }
+    }
+
+    private resetVesselRotation() {
+        // Set initial orientation for the vessel
+        let initialY = RenderingConstants.INITIAL_ORIENTATION_RADIANS;
+        this._vesselPivot.rotation.set(0, initialY, 0);
+        this._rotationTarget.rotation.set(0, initialY, 0);
     }
 
     private move(renderingContext: IRenderingContext, forward: boolean, correction: boolean) {
@@ -459,7 +516,7 @@ export class GameComponent extends RenderingComponentBase {
             // Set flag so that we don't try any other animations until this one finishes
             this._waitingOnMovementRequest = true;
             // Get new position (async)
-            this.requestNewPositionAsync(renderingContext, currentV3)
+            this.requestMoveForwardAsync(renderingContext, currentV3)
                 .then(targetV3 => {
                     if (!currentV3.equals(targetV3)) {
                         this.startVesselMovementAnimation(currentV3, targetV3);
@@ -512,7 +569,7 @@ export class GameComponent extends RenderingComponentBase {
         this._rotationAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
     }
 
-    private async requestNewPositionAsync(renderingContext: IRenderingContext, currentVesselVector3?: THREE.Vector3): Promise<THREE.Vector3> {
+    private async requestMoveForwardAsync(renderingContext: IRenderingContext, currentVesselVector3?: THREE.Vector3): Promise<THREE.Vector3> {
         // Check current props to see if it's okay to proceed with movement request
         let vessel = renderingContext.app.currentVessel;
         if (!vessel) {
@@ -540,19 +597,92 @@ export class GameComponent extends RenderingComponentBase {
 
     private applyVesselMovement(renderingContext: IRenderingContext) {
 
-        // TODO: Implement this from old component
-        // throw new Error("Method not implemented");
+        // Determine if we are mid-movement
+        let midMovement = !!this._movementClock;
 
-        // TODO:  Call "this.endMovementAnimation(targetPosition)" after the movement animation clock is finished
-        
+        // Get time since last movement adjustment (if applicable)
+        let movementDelta = 0;
+        if (midMovement) {
+            movementDelta = this._movementClock!.getDelta();
+        }
+
+        // If we need to adjust for seconds elapsed while mid-orbit
+        if (movementDelta <= 0) {
+            return;
+        }
+
+        // Check if we have reached the end of the movement animation (time)
+        let totalMovementDelta = this._movementClock!.getElapsedTime();
+        if (totalMovementDelta < this._movementAnimationDuration) {
+
+            // Calculate how far into the movement animation we are (%)
+            let partialMovementPercentage = totalMovementDelta / this._movementAnimationDuration;
+
+            // Clone the beginning (source) of forward movement to use as the start of linear interpolation
+            let nextPosition = this._movementSource.clone()
+                .position.lerp(this._movementTarget.position, partialMovementPercentage);
+            
+            // Move the vessel pivot along the track (set to lerp'd position)
+            this._vesselPivot.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
+
+        } else {
+
+            // Move directly to final position
+            this._vesselPivot.position.set(
+                this._movementTarget.position.x,
+                this._movementTarget.position.y,
+                this._movementTarget.position.z
+            );
+
+            // finished movement
+            this.endVesselMovementAnimation(this._movementTarget.position);
+
+        }
+
     }
 
     private applyVesselRotation(renderingContext: IRenderingContext) {
 
-        // TODO: Implement this from old component
-        // throw new Error("Method not implemented");
+        // Determine if we are mid-rotation
+        let midRotation = !!this._rotationClock;
 
-        // TODO:  Call "this.endRotationAnimation(targetPosition)" after the rotation animation clock is finished
+        // Get time since last orbit adjustment (if applicable)
+        let rotationDelta = 0;
+        if (midRotation) {
+            rotationDelta = this._rotationClock!.getDelta();
+        }
+
+        // If we need to adjust for seconds elapsed while mid-orbit
+        if (rotationDelta <= 0) {
+            return;
+        }
+
+        // Check if we have reached the end of the rotation animation (time)
+        let totalOrbitDelta = this._rotationClock!.getElapsedTime();
+        if (totalOrbitDelta < this._rotationAnimationDuration) {
+
+            // Calculate how much of a partial turn we need to rotate by
+            let partialTurns = rotationDelta * (1 / this._rotationAnimationDuration);
+
+            // Convert partial turns to radians
+            let thetaRadians = partialTurns * this._rotationRadians;
+            if (this._rotationClockwise)
+                thetaRadians *= -1;
+
+            // Rotate our vessel pivot object
+            this._vesselPivot.rotateY(thetaRadians);
+
+        } else {
+
+            // Move directly to final orientation
+            this._vesselPivot.rotation.setFromVector3(
+                this._rotationTarget.rotation.toVector3()
+            );
+
+            // finished rotating
+            this.endVesselRotationAnimation();
+
+        }
         
     }
 
@@ -573,12 +703,12 @@ export class GameComponent extends RenderingComponentBase {
         return Promise.resolve();
     }
 
-    private async onCurrentGameModifiedAsync() {
+    private onCurrentGameModifiedAsync() {
         this._gameNeedsReset = true;
         return Promise.resolve();
     }
 
-    private async onCurrentVesselModifiedAsync() {
+    private onCurrentVesselModifiedAsync() {
         this._gameNeedsReset = true;
         return Promise.resolve();
     }

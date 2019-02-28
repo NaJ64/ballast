@@ -86,9 +86,8 @@ export class CameraComponent extends RenderingComponentBase {
         // Remove flag
         this._cameraNeedsReset = false;
         // Check if we changed game(s)
-        let lastResetForGameId = this._cameraResetForGameId || "";
         let currentGameId = renderingContext.app.currentGame && renderingContext.app.currentGame.id || "";
-        if (lastResetForGameId == currentGameId) {
+        if (currentGameId == (this._cameraResetForGameId || "")) {
             return; // Do nothing
         }
         // Reset camera pivot and orbit target
