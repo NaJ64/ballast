@@ -18,9 +18,9 @@ namespace Ballast.Web
             services.AddBallastServer(options => 
             {
                 options.UseSignalR = true;
-                options.DefaultBoardSize = 5; // odd number for "Regular Polygon" & must be greater than 3
-                options.DefaultBoardType = "Rectangle"; // "Rectangle", "RegularPolygon"
-                options.DefaultTileShape = "Square"; // "Hexagon", "Circle", "Square", "Octagon"
+                options.DefaultBoardSize = 7; // Must be an odd number for "Regular Polygon"; Must be greater than 3
+                options.DefaultBoardType = "RegularPolygon"; // "Rectangle", "RegularPolygon"
+                options.DefaultTileShape = "Hexagon"; // "Hexagon", "Circle", "Square", "Octagon"
                 options.DefaultLandToWaterRatio = 0.33;
             });
         }
