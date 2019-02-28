@@ -63,13 +63,6 @@ export class DomainGameService implements IGameService {
         this._eventBus = eventBus;
         this._boardGenerator = boardGenerator;
         this._games = new Map<string, Game>();
-        this.createDefaultGameAsync().then(x => this._defaultGame = x);
-        this.onPlayerSignedOutAsync = this.onPlayerSignedOutAsync.bind(this);
-        this._eventBus.subscribe<PlayerSignedOutDomainEvent>(
-            PlayerSignedOutDomainEvent.id,
-            this.onPlayerSignedOutAsync
-        );
-
         if (this._options && this._options.defaultBoardSize) {
             DomainGameService.DEFAULT_BOARD_SIZE = this._options.defaultBoardSize || 0;
         }
@@ -85,7 +78,12 @@ export class DomainGameService implements IGameService {
         if (this._options && this._options.defaultVessels) {
             DomainGameService.DEFAULT_VESSEL_NAMES = this._options.defaultVessels.slice(0);
         }
-
+        this.createDefaultGameAsync().then(x => this._defaultGame = x);
+        this.onPlayerSignedOutAsync = this.onPlayerSignedOutAsync.bind(this);
+        this._eventBus.subscribe<PlayerSignedOutDomainEvent>(
+            PlayerSignedOutDomainEvent.id,
+            this.onPlayerSignedOutAsync
+        );
     }
 
     public dispose() {

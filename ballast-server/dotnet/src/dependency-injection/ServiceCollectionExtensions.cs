@@ -27,6 +27,11 @@ namespace Ballast.Server.DependencyInjection
             services.AddBallastCore(options => {
                 options.UseDomain = true;
                 options.UseLocalEventBus = true;
+                options.DefaultBoardSize = ballastServerOptions.DefaultBoardSize;
+                options.DefaultBoardType = ballastServerOptions.DefaultBoardType;
+                options.DefaultLandToWaterRatio = ballastServerOptions.DefaultLandToWaterRatio;
+                options.DefaultTileShape = ballastServerOptions.DefaultTileShape;
+                options.DefaultVessels = ballastServerOptions.DefaultVessels;
             });
 
             // SignalR Server service implementations

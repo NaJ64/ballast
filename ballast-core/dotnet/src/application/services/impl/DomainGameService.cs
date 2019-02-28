@@ -13,11 +13,11 @@ namespace Ballast.Core.Application.Services.Impl
 {
     public interface IDomainGameServiceOptions
     {
-        string DefaultBoardType { get; }
-        string DefaultTileShape { get; }
-        int? DefaultBoardSize { get; }
-        double? DefaultLandToWaterRatio { get; }
-        IEnumerable<string> DefaultVessels { get; }
+        string DefaultBoardType { get; set; }
+        string DefaultTileShape { get; set; }
+        int? DefaultBoardSize { get; set; }
+        double? DefaultLandToWaterRatio { get; set; }
+        IEnumerable<string> DefaultVessels { get; set; }
     }
 
     public class DomainGameService : IGameService
@@ -41,8 +41,6 @@ namespace Ballast.Core.Application.Services.Impl
             _eventBus = eventBus;
             _boardGenerator = boardGenerator;
             _games = new Dictionary<Guid, Game>();
-            _defaultGame = CreateDefaultGameAsync().GetAwaiter().GetResult();
-            _eventBus.Subscribe<PlayerSignedOutDomainEvent>(nameof(PlayerSignedOutDomainEvent), OnPlayerSignedOutAsync);
             
             if (_options?.DefaultBoardSize != null && _options.DefaultBoardSize.GetValueOrDefault() >= 3)
                 DEFAULT_BOARD_SIZE = _options.DefaultBoardSize.GetValueOrDefault();
@@ -54,6 +52,9 @@ namespace Ballast.Core.Application.Services.Impl
                 DEFAULT_LAND_TO_WATER_RATIO = _options.DefaultLandToWaterRatio.GetValueOrDefault();
             if (_options?.DefaultVessels?.Any() ?? false)
                 DEFAULT_VESSEL_NAMES = _options?.DefaultVessels.ToArray();
+                
+            _defaultGame = CreateDefaultGameAsync().GetAwaiter().GetResult();
+            _eventBus.Subscribe<PlayerSignedOutDomainEvent>(nameof(PlayerSignedOutDomainEvent), OnPlayerSignedOutAsync);
         }
 
         public void Dispose()

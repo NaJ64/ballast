@@ -15,7 +15,11 @@ namespace Ballast.Web
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddBallastServer(options => options.UseSignalR = true);
+            services.AddBallastServer(options => 
+            {
+                options.UseSignalR = true;
+                options.DefaultTileShape = "Octagon";
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
