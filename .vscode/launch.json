@@ -13,6 +13,7 @@
             "cwd": "${workspaceFolder}/ballast-web/dotnet",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
+            "preLaunchTask": "web-dotnet-build",
             "launchBrowser": {
                 "enabled": false,
                 "args": "${auto-detect-url}",
