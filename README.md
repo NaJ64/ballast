@@ -15,13 +15,13 @@ Browser-based multiplayer game using ASP.NET Core, SignalR, TypeScript, and thre
 
 ---
 
-### Building with NPM and DOTNET
+### Building with NPM and .NET Core CLI
 
 - TODO:  Instructions for building with npm and dotnet cli
 
 ---
 
-### Building / Running the web app
+### Debugging / Running the web app
 
 - Launch the following configuration to start the .NET application using Visual Studio Code's built-in debugger:
 
