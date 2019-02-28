@@ -1,4 +1,4 @@
-import "reflect-metadatat";
+import "reflect-metadata";
 
 import "jest";
 import { IEvent } from "../event";

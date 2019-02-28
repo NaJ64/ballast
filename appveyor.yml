@@ -12,36 +12,37 @@ install:
   - cmd: npm -g install npm@5.7.1
   - cmd: npm -v
   # Install repo specific stuff here
-  - cmd: cd ./ballast-core
+  - cmd: cd ./ballast-core/npm
   - cmd: npm install
-  - cmd: cd ../ballast-client
+  - cmd: cd ../../ballast-client/npm
   - cmd: npm install
-  - cmd: cd ../ballast-web
+  - cmd: cd ../../ballast-web/npm
   - cmd: npm install
-  - cmd: cd ../
+  - cmd: cd ../../
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
   # Display minimal restore text
-  - cmd: dotnet restore ./ballast-core/Ballast.Core.csproj --verbosity m
-  - cmd: dotnet restore ./ballast-web/Ballast.Web.csproj --verbosity m
+  - cmd: dotnet restore ./ballast-core/dotnet/Ballast.Core.csproj --verbosity m
+  - cmd: dotnet restore ./ballast-server/dotnet/Ballast.Server.csproj --verbosity m
+  - cmd: dotnet restore ./ballast-web/dotnet/Ballast.Web.csproj --verbosity m
 build_script:
-  # output will be in ./Ballast.Web/bin/debug/netcoreapp2.1/publish
-  - cmd: dotnet publish ./ballast-web/Ballast.Web.csproj
+  # output will be in ./Ballast.Web/bin/debug/netcoreapp2.2/publish
+  - cmd: dotnet publish ./ballast-web/dotnet/Ballast.Web.csproj
 after_build:
   # For once the build has completed
 artifacts:
- - path: '\ballast-web\bin\Debug\netcoreapp2.1\publish'
+ - path: '\ballast-web\dotnet\bin\Debug\netcoreapp2.2\publish'
    name: Ballast
    type: Zip
 clone_depth: 1
 test_script:
   # restore packages for our unit tests
-  - cmd: cd ./ballast-core
-  - cmd: npm test
+  - cmd: cd ./ballast-core/npm
+  - cmd: npm test local-event-bus # TODO:  Run all tests
   # - cmd: cd ../ballast-client
   # - cmd: npm test
-  - cmd: cd ../
+  - cmd: cd ../../
 on_finish :
   # any cleanup in here
 deploy: off

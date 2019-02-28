@@ -1,14 +1,14 @@
 import "reflect-metadata";
 
 import "jest";
-import * as uuid from "uuid";
+import { Guid } from "../../utility/guid";
 import { BoardType } from "../models/board-type";
 import { TileShape } from "../models/tile-shape";
 import { BoardGenerator } from "./board-generator";
 
 // Rectangle of squares
 let boardGenerator = new BoardGenerator();
-let boardId = uuid.v4();
+let boardId = Guid.newGuid();
 
 test('rejects board dimensions less than 3x3', () => {
     expect(() => { boardGenerator.createBoard(boardId, BoardType.Rectangle, TileShape.Square, 2, 3); }).toThrowError();
