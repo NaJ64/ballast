@@ -93,6 +93,12 @@ export class NavigationComponent extends RenderingComponentBase {
         }
     }
 
+    protected onFirstRender(renderingContext: IRenderingContext) {
+        //this._vesselNeedsUpdate = true;
+        this._directionNeedsUpdate = true;
+        this.onRender(renderingContext);
+    }
+
     protected onRender(renderingContext: IRenderingContext) {
         // Detect if our vessel moved
         if (this._vesselNeedsUpdate) {

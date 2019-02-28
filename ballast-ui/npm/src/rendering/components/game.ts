@@ -51,7 +51,6 @@ export class GameComponent extends RenderingComponentBase {
     private _waitingOnMovementRequest: boolean;
     private readonly _rotationTarget: THREE.Object3D;
     private _rotationAnimationDuration: number;
-    private _rotationDirections: number;
     private _rotationRadians: number;
     private _rotationClock?: THREE.Clock;
     private _rotationClockwise?: boolean;
@@ -83,7 +82,6 @@ export class GameComponent extends RenderingComponentBase {
         this._rotationTarget = this.createVesselRotationTargetObject();
         this._rotationAnimationDuration = RenderingConstants.PIVOT_DURATION_SECONDS;
         this._rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS; // Default to 8 directions
-        this._rotationDirections = 8; // Default to 8 directions
         this._gameResetForId = null;
         this._gameNeedsReset = false;
     }
@@ -94,7 +92,6 @@ export class GameComponent extends RenderingComponentBase {
     }
 
     private rebindHandlers() {
-        this.onCurrentDirectionModifiedAsync = this.onCurrentDirectionModifiedAsync.bind(this);
         this.onCurrentGameModifiedAsync = this.onCurrentGameModifiedAsync.bind(this);
         this.onCurrentVesselModifiedAsync =this.onCurrentVesselModifiedAsync.bind(this);
         this.onMoveVesselForwardButtonClickAsync = this.onMoveVesselForwardButtonClickAsync.bind(this);
@@ -103,13 +100,11 @@ export class GameComponent extends RenderingComponentBase {
     }
 
     private subscribeAll() {
-        this._eventBus.subscribe(CurrentDirectionModifiedEvent.id, this.onCurrentDirectionModifiedAsync);
         this._eventBus.subscribe(CurrentGameModifiedEvent.id, this.onCurrentGameModifiedAsync);
         this._eventBus.subscribe(CurrentVesselModifiedEvent.id, this.onCurrentVesselModifiedAsync);
     }
 
     private unsubscribeAll() {
-        this._eventBus.unsubscribe(CurrentDirectionModifiedEvent.id, this.onCurrentDirectionModifiedAsync);
         this._eventBus.unsubscribe(CurrentGameModifiedEvent.id, this.onCurrentGameModifiedAsync);
         this._eventBus.unsubscribe(CurrentVesselModifiedEvent.id, this.onCurrentVesselModifiedAsync);
     }
@@ -465,16 +460,13 @@ export class GameComponent extends RenderingComponentBase {
     }
 
     private resetRotationsForBoard(board: IBoardDto | null) {
-        this._rotationDirections = 6;
         this._rotationRadians = RenderingConstants.SIXTH_TURN_RADIANS;
         let tileShape = board && board.tileShape || BallastAppConstants.TILE_SHAPE_OCTAGON;
         switch (tileShape) {
             case BallastAppConstants.TILE_SHAPE_SQUARE:
-                this._rotationDirections = 4;
                 this._rotationRadians = RenderingConstants.QUARTER_TURN_RADIANS;
                 break;
             case BallastAppConstants.TILE_SHAPE_OCTAGON:
-                this._rotationDirections = 8;
                 this._rotationRadians = RenderingConstants.EIGHTH_TURN_RADIANS;
                 break;
             default:
@@ -681,6 +673,8 @@ export class GameComponent extends RenderingComponentBase {
 
             // finished rotating
             this.endVesselRotationAnimation();
+            renderingContext.app.refreshDirectionAsync(renderingContext.cameraTracker)
+                .catch(err => console.log(err)); // Fire and forget (but catch exceptions)
 
         }
         
@@ -696,11 +690,6 @@ export class GameComponent extends RenderingComponentBase {
 
     private onMoveVesselForwardButtonClickAsync() {
         this.queueNewAnimation('moveVesselForward');
-    }
-
-    private onCurrentDirectionModifiedAsync() {
-        this._gameNeedsReset = true;
-        return Promise.resolve();
     }
 
     private onCurrentGameModifiedAsync() {

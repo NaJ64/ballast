@@ -87,7 +87,7 @@ export class CameraTracker implements IVesselCompass {
              |____|
                 S
         */
-        if (tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_SQUARE) {
+        if (tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_SQUARE.toLocaleLowerCase()) {
             if (turns > 0.5 && turns < 1) {
                 return { east: false, north: false, west: false, south: true };
             } else if (turns > 0.25) {
@@ -107,7 +107,7 @@ export class CameraTracker implements IVesselCompass {
             \______/
          SW     S    SE
         */
-        if (tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_OCTAGON) {
+        if (tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_OCTAGON.toLocaleLowerCase()) {
             if (turns > 0.75 && turns < 1) {
                 return { east: true, north: false, west: false, south: true };
             } else if (turns > 0.625) {
@@ -134,8 +134,8 @@ export class CameraTracker implements IVesselCompass {
            SW      SE
         */
         // if (
-        //     tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_CIRCLE ||
-        //     tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_HEXAGON
+        //     tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_CIRCLE.toLocaleLowerCase() ||
+        //     tileShape.toLocaleLowerCase() == BallastAppConstants.TILE_SHAPE_HEXAGON.toLocaleLowerCase()
         // ) {
         if (turns > (.67) && turns < 1) { // TODO:  Fix rounding error for .67 (4/6)
             return { east: true, north: false, west: false, south: true };

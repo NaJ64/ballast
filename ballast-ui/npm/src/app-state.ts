@@ -15,6 +15,7 @@ export interface IBallastAppState {
     readonly currentVessel: IVesselDto | null;
     readonly currentVesselRoles: string[];
     readonly currentDirection: IDirection | null;
+    refreshDirectionAsync(vesselCompass: IVesselCompass): Promise<void>;
 }
 
 @injectable()
