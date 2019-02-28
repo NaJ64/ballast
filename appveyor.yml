@@ -15,11 +15,13 @@ install:
   - cmd: cd ./ballast-core/npm
   - cmd: npm install
   - cmd: cd ../../ballast-client/npm
-  - cmd: npm install ../../ballast-core/npm
+  - cmd: npm install
+  - cmd: cd ../../ballast-ui/npm
   - cmd: npm install
   - cmd: cd ../../ballast-web/npm
-  - cmd: npm install ../../ballast-client/npm
   - cmd: npm install
+  - cmd: cd ../dotnet
+  - cmd: dotnet build
   - cmd: cd ../../
 before_build:
   # Display .NET Core version
