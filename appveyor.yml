@@ -8,15 +8,17 @@ init:
   - cmd: git config --global core.autocrlf true
 install:
   # Get a later version of Node.js
-  - ps: Install-Product node 9.9.0
-  - cmd: npm -g install npm@5.7.1
+  - ps: Install-Product node 11.9.0
+  - cmd: npm -g install npm@6.7.0
   - cmd: npm -v
   # Install repo specific stuff here
   - cmd: cd ./ballast-core/npm
   - cmd: npm install
   - cmd: cd ../../ballast-client/npm
+  - cmd: npm install ../../ballast-core/npm
   - cmd: npm install
   - cmd: cd ../../ballast-web/npm
+  - cmd: npm install ../../ballast-client/npm
   - cmd: npm install
   - cmd: cd ../../
 before_build:
