@@ -31,22 +31,35 @@ import { IBoardDto } from "../../models/board-dto";
 import { ITileDto } from "../../models/tile-dto";
 import { IPlayerDto } from "../../models/player-dto";
 
+export interface IDomainGameServiceOptions {
+    defaultBoardType: string | null;
+    defaultTileShape: string | null;
+    defaultBoardSize: number | null;
+    defaultLandToWaterRatio: number | null;
+    defaultVessels: string[] | null;
+}
+
 @injectable()
 export class DomainGameService implements IGameService {
 
-    private static DEFAULT_BOARD_SIZE: number = 5;
+    private static DEFAULT_BOARD_SIZE: number = 7;
+    private static DEFAULT_LAND_TO_WATER_RATIO = 0.33;
     private static DEFAULT_BOARD_TYPE: BoardType = BoardType.RegularPolygon;
     private static DEFAULT_TILE_SHAPE: TileShape = TileShape.Hexagon;
+    private static DEFAULT_VESSEL_NAMES =  [ "U-571", "Red October", "The Nautilus" ];
 
+    private readonly _options: IDomainGameServiceOptions;
     private readonly _eventBus: IEventBus;
     private readonly _boardGenerator: IBoardGenerator;
     private readonly _games: Map<string, Game>;
     private _defaultGame!: Game;
 
     public constructor(
+        @inject(BallastCore.Application.Services.Impl.IDomainGameServiceOptions) options: IDomainGameServiceOptions,
         @inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus,
         @inject(BallastCore.Domain.Services.IBoardGenerator) boardGenerator: IBoardGenerator
     ) {
+        this._options = options;
         this._eventBus = eventBus;
         this._boardGenerator = boardGenerator;
         this._games = new Map<string, Game>();
@@ -56,6 +69,23 @@ export class DomainGameService implements IGameService {
             PlayerSignedOutDomainEvent.id,
             this.onPlayerSignedOutAsync
         );
+
+        if (this._options && this._options.defaultBoardSize) {
+            DomainGameService.DEFAULT_BOARD_SIZE = this._options.defaultBoardSize || 0;
+        }
+        if (this._options && this._options.defaultBoardType) {
+            DomainGameService.DEFAULT_BOARD_TYPE = BoardType.fromName(this._options.defaultBoardType);
+        }
+        if (this._options && this._options.defaultTileShape) {
+            DomainGameService.DEFAULT_TILE_SHAPE = TileShape.fromName(this._options.defaultTileShape);
+        }
+        if (this._options && this._options.defaultLandToWaterRatio) {
+            DomainGameService.DEFAULT_LAND_TO_WATER_RATIO = this._options.defaultLandToWaterRatio || 0;;
+        }
+        if (this._options && this._options.defaultVessels) {
+            DomainGameService.DEFAULT_VESSEL_NAMES = this._options.defaultVessels.slice(0);
+        }
+
     }
 
     public dispose() {
@@ -131,15 +161,15 @@ export class DomainGameService implements IGameService {
 
     private async createDefaultGameAsync(): Promise<Game> {
         let gameOptions: ICreateGameOptions = {
-            boardShape: TileShape.Hexagon.name,
-            boardType: BoardType.RegularPolygon.name,
-            boardSize: 7,
-            landToWaterRatio: 0.333,
-            vesselOptions: [
-                { requestedName: "U-571" } as ICreateVesselOptions,
-                { requestedName: "Red October" } as ICreateVesselOptions,
-                { requestedName: "The Nautilus" } as ICreateVesselOptions
-            ]
+            boardShape: DomainGameService.DEFAULT_TILE_SHAPE.name,
+            boardType: DomainGameService.DEFAULT_BOARD_TYPE.name,
+            boardSize: DomainGameService.DEFAULT_BOARD_SIZE,
+            landToWaterRatio: DomainGameService.DEFAULT_LAND_TO_WATER_RATIO,
+            vesselOptions: DomainGameService.DEFAULT_VESSEL_NAMES
+                .map(x => { return { 
+                    requestedName: x,
+                    startOrderedTriple: []
+                } })
         };
         let defaultGame = await this.createGameInternalAsync(gameOptions);
         return defaultGame;

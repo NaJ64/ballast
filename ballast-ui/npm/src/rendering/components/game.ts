@@ -18,8 +18,7 @@ type GameAnimationType =
     'rotateVesselCounterClockwise' | 
     'rotateVesselClockwise' | 
     'moveVesselForward' | 
-    'correctVesselPosition' | 
-    'correctVesselDirection';
+    'correctVesselPosition';
 type GameAnimation = { type: GameAnimationType, timestamp: number };
 
 @injectable()
@@ -309,10 +308,10 @@ export class GameComponent extends RenderingComponentBase {
             return;
         }
         // If the new animation type is a correction, we want to scrap all other non-correction animations ahead of it
-        if (animationType == "correctVesselDirection" || animationType == "correctVesselPosition") {
+        if (animationType == "correctVesselPosition") {
             // Find index of last queued "correction" game animation
             let corrections = this._gameAnimationQueue
-                .map(x => x.type == "correctVesselDirection" || x.type == "correctVesselPosition");
+                .map(x => x.type == "correctVesselPosition");
             let mostRecentCorrection = corrections.lastIndexOf(true);
             // Remove everything afterward
             this._gameAnimationQueue.splice(mostRecentCorrection);
@@ -354,7 +353,6 @@ export class GameComponent extends RenderingComponentBase {
 
     protected onRender(renderingContext: IRenderingContext) {
         // Synchronize with current game state by queueing movement animation(s)
-        let correctDirection = false;
         let correctPosition = false;
         if (this._gameNeedsReset) {
             this.resetGame(renderingContext);
@@ -391,16 +389,13 @@ export class GameComponent extends RenderingComponentBase {
             if (nextAnimation && nextAnimation.type == 'moveVesselForward') {
                 forward = true;
             }
-            if (nextAnimation && nextAnimation.type == 'correctVesselDirection') {
-                correctDirection = true;
-            }
             if (nextAnimation && nextAnimation.type == 'correctVesselPosition') {
                 correctPosition = true;
             }
         }
         // Create rotation animation target data to be applied on next render loop
-        if (left || right || correctDirection) {
-            this.rotate(renderingContext, left, right, correctDirection);
+        if (left || right) {
+            this.rotate(renderingContext, left, right);
         }
         // Create forward movement target data to be applied on next render loop
         if (forward || correctPosition) {
@@ -495,27 +490,11 @@ export class GameComponent extends RenderingComponentBase {
         this._movementAnimationDuration = RenderingConstants.MOVEMENT_DURATION_SECONDS;
     }
 
-    private rotate(renderingContext: IRenderingContext, left: boolean, right: boolean, correction: boolean) {
-
-        if (correction) {
-            let targetDirection = renderingContext.app.currentDirection;
-            if (!targetDirection) {
-                return; // Can't correct the direction if the app context doesn't have one yet
-            }
-            let rotationRadians = 0;
-
-            // TODO:  1) Convert the target direction into a Y-axis radian measurement
-            //        2) Get the difference between the target direction/radians and "this._vesselPivot.rotation"
-            //        3) Determine if clockwise or counter-clockwise is most prudent
-
-            this.startVesselRotationAnimation(rotationRadians);
-        }
-
+    private rotate(renderingContext: IRenderingContext, left: boolean, right: boolean) {
         if (right || left) {
             let rotationRadians = this._rotationRadians;
             this.startVesselRotationAnimation(rotationRadians, left);
         }
-        
     }
 
     private startVesselRotationAnimation(rotationRadians: number, counterClockwise: boolean = false, isCorrection: boolean = false) {

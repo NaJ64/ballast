@@ -4,7 +4,7 @@ import { IChatService } from "../application/services/chat-service";
 import { IGameService } from "../application/services/game-service";
 import { DomainApplicationEventEmitter } from "../application/services/impl/domain-application-event-emitter";
 import { DomainChatService } from "../application/services/impl/domain-chat-service";
-import { DomainGameService } from "../application/services/impl/domain-game-service";
+import { DomainGameService, IDomainGameServiceOptions } from "../application/services/impl/domain-game-service";
 import { DomainSignInService } from "../application/services/impl/domain-sign-in-service";
 import { ISignInService } from "../application/services/sign-in-service";
 import { BoardGenerator, IBoardGenerator } from "../domain/services/board-generator";
@@ -41,6 +41,8 @@ export class BallastCoreContainerModule extends ContainerModule {
 
             // Domain service implementations
             if (ballastCoreOptions.useDomain) {
+                bind<IDomainGameServiceOptions>(BallastCore.Application.Services.Impl.IDomainGameServiceOptions)
+                    .toConstantValue(ballastCoreOptions);
                 bind<IBoardGenerator>(BallastCore.Domain.Services.IBoardGenerator)
                     .to(BoardGenerator)
                     .inTransientScope();

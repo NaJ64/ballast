@@ -11,25 +11,49 @@ using Ballast.Core.Utilities;
 
 namespace Ballast.Core.Application.Services.Impl
 {
+    public interface IDomainGameServiceOptions
+    {
+        string DefaultBoardType { get; }
+        string DefaultTileShape { get; }
+        int? DefaultBoardSize { get; }
+        double? DefaultLandToWaterRatio { get; }
+        IEnumerable<string> DefaultVessels { get; }
+    }
+
     public class DomainGameService : IGameService
     {
 
-        private static int DEFAULT_BOARD_SIZE = 5;
+        private static int DEFAULT_BOARD_SIZE = 7;
+        private static double DEFAULT_LAND_TO_WATER_RATIO = 0.33;
         private static BoardType DEFAULT_BOARD_TYPE = BoardType.RegularPolygon;
         private static TileShape DEFAULT_TILE_SHAPE = TileShape.Hexagon;
+        private static string[] DEFAULT_VESSEL_NAMES = new string[] { "U-571", "Red October", "The Nautilus" };
 
+        private readonly IDomainGameServiceOptions _options;
         private readonly IEventBus _eventBus;
         private readonly IBoardGenerator _boardGenerator;
         private readonly IDictionary<Guid, Game> _games;
         private readonly Game _defaultGame;
 
-        public DomainGameService(IEventBus eventBus, IBoardGenerator boardGenerator)
+        public DomainGameService(IDomainGameServiceOptions options, IEventBus eventBus, IBoardGenerator boardGenerator)
         {
+            _options = options;
             _eventBus = eventBus;
             _boardGenerator = boardGenerator;
             _games = new Dictionary<Guid, Game>();
             _defaultGame = CreateDefaultGameAsync().GetAwaiter().GetResult();
             _eventBus.Subscribe<PlayerSignedOutDomainEvent>(nameof(PlayerSignedOutDomainEvent), OnPlayerSignedOutAsync);
+            
+            if (_options?.DefaultBoardSize != null && _options.DefaultBoardSize.GetValueOrDefault() >= 3)
+                DEFAULT_BOARD_SIZE = _options.DefaultBoardSize.GetValueOrDefault();
+            if (_options?.DefaultBoardType != null)
+                DEFAULT_BOARD_TYPE = BoardType.FromName(_options.DefaultBoardType);
+            if (_options?.DefaultTileShape != null)
+                DEFAULT_TILE_SHAPE = TileShape.FromName(_options.DefaultTileShape);
+            if (_options?.DefaultLandToWaterRatio != null)
+                DEFAULT_LAND_TO_WATER_RATIO = _options.DefaultLandToWaterRatio.GetValueOrDefault();
+            if (_options?.DefaultVessels?.Any() ?? false)
+                DEFAULT_VESSEL_NAMES = _options?.DefaultVessels.ToArray();
         }
 
         public void Dispose()
@@ -96,16 +120,13 @@ namespace Ballast.Core.Application.Services.Impl
         {
             var gameOptions = new CreateGameOptions()
             {
-                BoardShape = TileShape.Hexagon.Name,
-                BoardType = BoardType.RegularPolygon.Name,
-                BoardSize = 7,
-                LandToWaterRatio = 0.333,
-                VesselOptions = new CreateVesselOptions[]
-                {
-                    new CreateVesselOptions() { RequestedName = "U-571" },
-                    new CreateVesselOptions() { RequestedName = "Red October" },
-                    new CreateVesselOptions() { RequestedName = "The Nautilus" }
-                }
+                BoardShape = DEFAULT_TILE_SHAPE.Name,
+                BoardType = DEFAULT_BOARD_TYPE.Name,
+                BoardSize = DEFAULT_BOARD_SIZE,
+                LandToWaterRatio = DEFAULT_LAND_TO_WATER_RATIO,
+                VesselOptions = DEFAULT_VESSEL_NAMES
+                    .Select(x => new CreateVesselOptions() { RequestedName = x })
+                    .ToArray()
             };
             var defaultGame = await CreateGameInternalAsync(gameOptions);
             return defaultGame;
