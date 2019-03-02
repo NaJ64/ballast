@@ -1,4 +1,4 @@
-import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore } from "ballast-core";
+import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerAddedToVesselRoleEvent, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { IBallastAppState } from "../../app-state";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
@@ -40,6 +40,8 @@ export class ChatComponent extends RenderingComponentBase {
 
     private rebindAllHandlers() {
         this.onChatMessageSentAsync = this.onChatMessageSentAsync.bind(this);
+        this.onPlayerAddedToVesselRoleEventAsync = this.onPlayerAddedToVesselRoleEventAsync.bind(this);
+        this.onVesselStateChangedEventAsync = this.onVesselStateChangedEventAsync.bind(this);
         this.onPlayerJoinedGameEventAsync = this.onPlayerJoinedGameEventAsync.bind(this);
         this.onPlayerLeftGameEventAsync = this.onPlayerLeftGameEventAsync.bind(this);
         this.onChatInputFocus = this.onChatInputFocus.bind(this);
@@ -49,12 +51,16 @@ export class ChatComponent extends RenderingComponentBase {
 
     private subscribeAll() {
         this._eventBus.subscribe(ChatMessageSentEvent.id, this.onChatMessageSentAsync);
+        this._eventBus.subscribe(PlayerAddedToVesselRoleEvent.id, this.onPlayerAddedToVesselRoleEventAsync);
+        this._eventBus.subscribe(VesselStateChangedEvent.id, this.onVesselStateChangedEventAsync);
         this._eventBus.subscribe(PlayerJoinedGameEvent.id, this.onPlayerJoinedGameEventAsync);
         this._eventBus.subscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
     }
 
     private unsubscribeAll() {
         this._eventBus.unsubscribe(ChatMessageSentEvent.id, this.onChatMessageSentAsync);
+        this._eventBus.unsubscribe(PlayerAddedToVesselRoleEvent.id, this.onPlayerAddedToVesselRoleEventAsync);
+        this._eventBus.unsubscribe(VesselStateChangedEvent.id, this.onVesselStateChangedEventAsync);
         this._eventBus.unsubscribe(PlayerJoinedGameEvent.id, this.onPlayerJoinedGameEventAsync);
         this._eventBus.unsubscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
     }
@@ -99,6 +105,17 @@ export class ChatComponent extends RenderingComponentBase {
 
     private async onPlayerLeftGameEventAsync(evt: IPlayerLeftGameEvent) {
         let messageText = `${evt.player.name} has left the game`;
+        this.appendGameNotificationToHistory(messageText);
+    }
+
+    private async onPlayerAddedToVesselRoleEventAsync(evt: IPlayerAddedToVesselRoleEvent) {
+        let messageText = `${evt.player.name} is now ${evt.vesselRole} for ${evt.vessel.name}`;
+        this.appendGameNotificationToHistory(messageText);
+    }
+
+    private async onVesselStateChangedEventAsync(evt: IVesselStateChangedEvent) {
+        //evt.vessel.orderedTriple
+        let messageText = `${evt.vessel.name} traveled`;
         this.appendGameNotificationToHistory(messageText);
     }
 
@@ -217,6 +234,20 @@ export class ChatComponent extends RenderingComponentBase {
         this._keyboardWatcher.resume();
     }
 
+    private appendTextToChatHistory(text: string, noFade?: boolean) {
+        if (!this._chatHistory) {
+            console.log("Chat history could not be displayed", text);
+            return;
+        }
+        let item = this._chatHistory.ownerDocument!.createElement("li");
+        item.innerText = text;
+        this._chatHistory.appendChild(item);
+        this._chatHistory.scrollTop = this._chatHistory.scrollHeight;
+        if (!noFade) {
+            this.fadeOutChildElement(this._chatHistory, item, 7.5);
+        }
+    }
+
     private fadeOutChildElement(parent: HTMLElement, item: HTMLElement, fadeSeconds: number) {
         var itemStyle = item.style;
         itemStyle.opacity = "1";
@@ -235,27 +266,11 @@ export class ChatComponent extends RenderingComponentBase {
     }
 
     private appendGameNotificationToHistory(notification: string) {
-        if (this._chatHistory) {
-            let item = this._chatHistory.ownerDocument!.createElement("li");
-            //let timestampDate = new Date(Date.now());
-            let messageDisplay = `${notification}`;
-            item.innerText = messageDisplay;
-            this._chatHistory.appendChild(item);
-            this._chatHistory.scrollTop = this._chatHistory.scrollHeight;
-            this.fadeOutChildElement(this._chatHistory, item, 10);
-        }
+        this.appendTextToChatHistory(`${notification}`);
     }
 
     private appendMessageToHistory(message: IChatMessage) {
-        if (this._chatHistory) {
-            let item = this._chatHistory.ownerDocument!.createElement("li");
-            //let timestampDate = new Date(message.timestampText + "Z");
-            let messageDisplay = `[${message.fromPlayerName}]:  ${message.text}`;
-            item.innerText = messageDisplay;
-            this._chatHistory.appendChild(item);
-            this._chatHistory.scrollTop = this._chatHistory.scrollHeight;
-            this.fadeOutChildElement(this._chatHistory, item, 10);
-        }
+        this.appendTextToChatHistory(`[${message.fromPlayerName}]:  ${message.text}`);
     }
 
     private submitMessage() {
@@ -280,14 +295,18 @@ export class ChatComponent extends RenderingComponentBase {
             return; // Player is not signed into a game
         }
         let channel = "global";
-        await this._chatService.sendMessageAsync({
-            gameId: game.id,
-            channel: channel,
-            fromPlayerId: player.id,
-            fromPlayerName: player.name || null,
-            sentOnDateIsoString: this.getNowISOString(),
-            text: text
-        });
+        try {
+            await this._chatService.sendMessageAsync({
+                gameId: game.id,
+                channel: channel,
+                fromPlayerId: player.id,
+                fromPlayerName: player.name || null,
+                sentOnDateIsoString: this.getNowISOString(),
+                text: text
+            });
+        } catch {
+            // TODO:  Display error that message could not be delivered
+        }
     }
 
 }
