@@ -217,6 +217,23 @@ export class ChatComponent extends RenderingComponentBase {
         this._keyboardWatcher.resume();
     }
 
+    private fadeOutChildElement(parent: HTMLElement, item: HTMLElement, fadeSeconds: number) {
+        var itemStyle = item.style;
+        itemStyle.opacity = "1";
+        var increment = (fadeSeconds * 1000) / 20;
+        let fade = () => {
+            var opacity = parseFloat(itemStyle.opacity || "0") - 0.05;
+            itemStyle.opacity = opacity.toString();
+            if (opacity < 0) {
+                itemStyle.display="none";
+                parent.removeChild(item);
+            } else {
+                setTimeout(fade, increment);
+            }
+        };
+        fade();
+    }
+
     private appendGameNotificationToHistory(notification: string) {
         if (this._chatHistory) {
             let item = this._chatHistory.ownerDocument!.createElement("li");
@@ -225,6 +242,7 @@ export class ChatComponent extends RenderingComponentBase {
             item.innerText = messageDisplay;
             this._chatHistory.appendChild(item);
             this._chatHistory.scrollTop = this._chatHistory.scrollHeight;
+            this.fadeOutChildElement(this._chatHistory, item, 10);
         }
     }
 
@@ -236,6 +254,7 @@ export class ChatComponent extends RenderingComponentBase {
             item.innerText = messageDisplay;
             this._chatHistory.appendChild(item);
             this._chatHistory.scrollTop = this._chatHistory.scrollHeight;
+            this.fadeOutChildElement(this._chatHistory, item, 10);
         }
     }
 
