@@ -43,7 +43,7 @@ clone_depth: 1
 test_script:
   # restore packages for our unit tests
   - cmd: cd ./ballast-core/npm
-  - cmd: npm test local-event-bus # TODO:  Run all tests
+  - cmd: npm test
   # - cmd: cd ../ballast-client
   # - cmd: npm test
   - cmd: cd ../../

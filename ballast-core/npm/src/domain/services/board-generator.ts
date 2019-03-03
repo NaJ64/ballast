@@ -144,7 +144,7 @@ export class BoardGenerator implements IBoardGenerator {
             for (let colIndex = 0; colIndex < columnCount; colIndex++) {
                 let col = colIndex * increment;
                 let cubicCoordinates = CubicCoordinates.fromOffset(
-                    OffsetCoordinates.fromOrderedPair([row, col])
+                    OffsetCoordinates.fromOrderedPair([col, row])
                 );
                 rectangle.push(new Tile(
                     cubicCoordinates,
@@ -168,7 +168,7 @@ export class BoardGenerator implements IBoardGenerator {
             for (let colIndex = 0; colIndex < sideLength; colIndex++) {
                 let col = (colIndex * increment) - centerOffset;
                 let cubicCoordinates = CubicCoordinates.fromOffset(
-                    OffsetCoordinates.fromOrderedPair([row, col])
+                    OffsetCoordinates.fromOrderedPair([col, row])
                 );
                 square.push(new Tile(
                     cubicCoordinates,
@@ -202,7 +202,7 @@ export class BoardGenerator implements IBoardGenerator {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 octagon.push(new Tile(
                      CubicCoordinates.fromOffset(
-                        OffsetCoordinates.fromOrderedPair([row, col])
+                        OffsetCoordinates.fromOrderedPair([col, row])
                     ),
                     TileShape.Octagon,
                     Terrain.Water
@@ -220,7 +220,7 @@ export class BoardGenerator implements IBoardGenerator {
                 let col = (colIndex * increment) - centerOffset;
                 octagon.push(new Tile(
                     CubicCoordinates.fromOffset(
-                        OffsetCoordinates.fromOrderedPair([row, col])
+                        OffsetCoordinates.fromOrderedPair([col, row])
                     ),
                     TileShape.Octagon,
                     Terrain.Water
@@ -239,7 +239,7 @@ export class BoardGenerator implements IBoardGenerator {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 octagon.push(new Tile(
                     CubicCoordinates.fromOffset(
-                        OffsetCoordinates.fromOrderedPair([row, col])
+                        OffsetCoordinates.fromOrderedPair([col, row])
                     ),
                     TileShape.Octagon,
                     Terrain.Water
@@ -274,7 +274,7 @@ export class BoardGenerator implements IBoardGenerator {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(new Tile(
                     CubicCoordinates.fromOffset(
-                        OffsetCoordinates.fromOrderedPair([row, col])
+                        OffsetCoordinates.fromOrderedPair([col, row])
                     ),
                     tileShape,
                     Terrain.Water
@@ -290,7 +290,7 @@ export class BoardGenerator implements IBoardGenerator {
             let col = (colIndex * increment) - centerOffset;
             hexagon.push(new Tile(
                 CubicCoordinates.fromOffset(
-                    OffsetCoordinates.fromOrderedPair([row, col])
+                    OffsetCoordinates.fromOrderedPair([col, row])
                 ),
                 tileShape,
                 Terrain.Water
@@ -307,7 +307,7 @@ export class BoardGenerator implements IBoardGenerator {
                 let col = ((colIndex + colOffset) * increment) - centerOffset;
                 hexagon.push(new Tile(
                     CubicCoordinates.fromOffset(
-                        OffsetCoordinates.fromOrderedPair([row, col])
+                        OffsetCoordinates.fromOrderedPair([col, row])
                     ),
                     tileShape,
                     Terrain.Water

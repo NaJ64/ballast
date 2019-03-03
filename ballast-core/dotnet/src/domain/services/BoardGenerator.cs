@@ -166,7 +166,7 @@ namespace Ballast.Core.Domain.Services
                 {
                     var col = colIndex * increment;
                     var cubicCoordinates = CubicCoordinates.FromOffset(
-                        new OffsetCoordinates(row: row, col: col)
+                        new OffsetCoordinates(col: col, row: row)
                     );
                     rectangle.Add(new Tile(
                         cubicCoordinates: cubicCoordinates,
