@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ballast.Core.Application.Events;
 using Ballast.Core.Application.Models;
 using Ballast.Core.Domain.Events;
 using Ballast.Core.Domain.Models;
@@ -722,6 +723,7 @@ namespace Ballast.Core.Application.Services.Impl
             CubicCoordinates targetCoordinates = null;
             var doubleIncrement = game.Board.TileShape.DoubleIncrement;
             var useCardinalDirections = !request.TargetOrderedTriple.Any();
+            Direction direction = null;
             if (!useCardinalDirections)
             {
                 // Get actual cubic coordinates
@@ -735,16 +737,19 @@ namespace Ballast.Core.Application.Services.Impl
                 // Can't move multiple units and also must move at least 1 unit
                 if (totalUnitDistance != 1)
                     throw new InvalidOperationException("Vessel movement must target a tile that is 1 unit away from current position");
+                // Determine cardinal direction (for event publishing)
+                direction = GetDirectionFromTileMovement(game.Board, actualStartCoordinates, requestTargetCoordinates);
                 // Use target coordinates from request
                 targetCoordinates = requestTargetCoordinates;
             }
             else
             {
                 // Get directions/movements
-                var north = request.Direction?.North ?? false;
-                var south = request.Direction?.South ?? false;
-                var west = request.Direction?.West ?? false;
-                var east = request.Direction?.East ?? false;
+                direction = request.Direction ?? new Direction();
+                var north = direction?.North ?? false;
+                var south = direction?.South ?? false;
+                var west = direction?.West ?? false;
+                var east = direction?.East ?? false;
                 // Determine movement based on cardinal direction(s)
                 bool hasMovement = north || south || west || east;
                 // If no movement (must move at least 1 unit), throw error
@@ -809,6 +814,7 @@ namespace Ballast.Core.Application.Services.Impl
             game.UpdateVesselCoordinates(vesselId, targetCoordinates);
             vessel = game.Vessels.FirstOrDefault(x => x.Id.Equals(vesselId));
             await _eventBus.PublishAsync(VesselStateChangedDomainEvent.FromVesselInGame(game, vessel));
+            await _eventBus.PublishAsync(VesselMovedInDirectionEvent.FromVesselDirectionInGame(game.Id, MapToVesselDto(vessel), direction));
 
             // Finished changing game state
             await _eventBus.PublishAsync(GameStateChangedDomainEvent.FromGame(game));
@@ -955,6 +961,44 @@ namespace Ballast.Core.Application.Services.Impl
             if (getTile == null)
                 throw new Exception("No tile exists for the requested position/cordinates");
             return getTile;
+        }
+
+        private Direction GetDirectionFromTileMovement(Board board, CubicCoordinates fromTileCoordinates, CubicCoordinates toTileCoordinates) 
+        {
+            // TODO: Fix this dirty, shameful code
+            if (board.TileShape.HasDirectionEast.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetEastTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { East = true };
+            }
+            if (board.TileShape.HasDirectionNorth.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetNorthTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { North = true };
+            }
+            if (board.TileShape.HasDirectionNorthEast.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetNorthEastTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { East = true, North = true };
+            }
+            if (board.TileShape.HasDirectionNorthWest.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetNorthWestTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { North = true, West = true };
+            }
+            if (board.TileShape.HasDirectionSouth.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetSouthTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { South = true };
+            }
+            if (board.TileShape.HasDirectionSouthEast.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetSouthEastTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { East = true, South = true };
+            }
+            if (board.TileShape.HasDirectionSouthWest.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetSouthWestTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { South = true, West = true };
+            }
+            if (board.TileShape.HasDirectionWest.GetValueOrDefault() && 
+                toTileCoordinates.Equals(GetWestTile(board, fromTileCoordinates).CubicCoordinates)) {
+                    return new Direction() { West = true };
+            }
+            throw new InvalidOperationException("Movement does not appear to be directional");
         }
 
     }

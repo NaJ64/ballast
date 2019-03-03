@@ -1,10 +1,11 @@
-import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerAddedToVesselRoleEvent, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IVesselStateChangedEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore, VesselStateChangedEvent } from "ballast-core";
+import { ChatMessageSentEvent, IChatMessage, IChatMessageSentEvent, IChatService, IEventBus, IPlayerAddedToVesselRoleEvent, IPlayerJoinedGameEvent, IPlayerLeftGameEvent, IVesselMovedInDirectionEvent, PlayerAddedToVesselRoleEvent, PlayerJoinedGameEvent, PlayerLeftGameEvent, TYPES as BallastCore, VesselMovedInDirectionEvent, IDirection } from "ballast-core";
 import { inject, injectable } from "inversify";
 import { IBallastAppState } from "../../app-state";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
 import { RenderingComponentBase } from "../rendering-component";
 import { IRenderingContext } from "../rendering-context";
+import { BallastAppConstants } from "../../app-constants";
 
 @injectable()
 export class ChatComponent extends RenderingComponentBase {
@@ -41,9 +42,9 @@ export class ChatComponent extends RenderingComponentBase {
     private rebindAllHandlers() {
         this.onChatMessageSentAsync = this.onChatMessageSentAsync.bind(this);
         this.onPlayerAddedToVesselRoleEventAsync = this.onPlayerAddedToVesselRoleEventAsync.bind(this);
-        this.onVesselStateChangedEventAsync = this.onVesselStateChangedEventAsync.bind(this);
         this.onPlayerJoinedGameEventAsync = this.onPlayerJoinedGameEventAsync.bind(this);
         this.onPlayerLeftGameEventAsync = this.onPlayerLeftGameEventAsync.bind(this);
+        this.onVesselMovedInDirectionEventAsync = this.onVesselMovedInDirectionEventAsync.bind(this);
         this.onChatInputFocus = this.onChatInputFocus.bind(this);
         this.onChatInputBlur = this.onChatInputBlur.bind(this);
         this.onChatFormSubmit = this.onChatFormSubmit.bind(this);
@@ -52,17 +53,17 @@ export class ChatComponent extends RenderingComponentBase {
     private subscribeAll() {
         this._eventBus.subscribe(ChatMessageSentEvent.id, this.onChatMessageSentAsync);
         this._eventBus.subscribe(PlayerAddedToVesselRoleEvent.id, this.onPlayerAddedToVesselRoleEventAsync);
-        this._eventBus.subscribe(VesselStateChangedEvent.id, this.onVesselStateChangedEventAsync);
         this._eventBus.subscribe(PlayerJoinedGameEvent.id, this.onPlayerJoinedGameEventAsync);
         this._eventBus.subscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
+        this._eventBus.subscribe(VesselMovedInDirectionEvent.id, this.onVesselMovedInDirectionEventAsync);
     }
 
     private unsubscribeAll() {
         this._eventBus.unsubscribe(ChatMessageSentEvent.id, this.onChatMessageSentAsync);
         this._eventBus.unsubscribe(PlayerAddedToVesselRoleEvent.id, this.onPlayerAddedToVesselRoleEventAsync);
-        this._eventBus.unsubscribe(VesselStateChangedEvent.id, this.onVesselStateChangedEventAsync);
         this._eventBus.unsubscribe(PlayerJoinedGameEvent.id, this.onPlayerJoinedGameEventAsync);
         this._eventBus.unsubscribe(PlayerLeftGameEvent.id, this.onPlayerLeftGameEventAsync);
+        this._eventBus.unsubscribe(VesselMovedInDirectionEvent.id, this.onVesselMovedInDirectionEventAsync);
     }
 
     private createDomElements(ownerDocument: Document) {
@@ -109,14 +110,42 @@ export class ChatComponent extends RenderingComponentBase {
     }
 
     private async onPlayerAddedToVesselRoleEventAsync(evt: IPlayerAddedToVesselRoleEvent) {
-        let messageText = `${evt.player.name} is now ${evt.vesselRole} for ${evt.vessel.name}`;
+        let messageText = `${evt.player.name} is ${evt.vesselRole.toLocaleLowerCase()} of ${evt.vessel.name}`;
         this.appendGameNotificationToHistory(messageText);
     }
 
-    private async onVesselStateChangedEventAsync(evt: IVesselStateChangedEvent) {
-        //evt.vessel.orderedTriple
-        let messageText = `${evt.vessel.name} traveled`;
+    private async onVesselMovedInDirectionEventAsync(evt: IVesselMovedInDirectionEvent) {
+        if (this._app.currentVessel && evt.vessel.id == this._app.currentVessel.id) {
+            return; // Don't display movemenents for our own vessel
+        }
+        if (this._app.currentVesselRoles.lastIndexOf(BallastAppConstants.VESSEL_ROLE_RADIOMAN) < 0) {
+            return; // Don't display movements unless the player has the "Radioman" role
+        }
+        let directionalText = this.getDirectionalText(evt.direction);
+        let messageText = `${evt.vessel.name} ⟴ ${directionalText}`;
         this.appendGameNotificationToHistory(messageText);
+    }
+
+    private getDirectionalText(direction: IDirection) {
+        if (direction.north && direction.east) {
+            return "NE";
+        } else if (direction.north && direction.west) {
+            return "NW";
+        } else if (direction.north) {
+            return "N";
+        } else if (direction.south && direction.east) {
+            return "SE";
+        } else if (direction.south && direction.west) {
+            return "SW";
+        } else if(direction.south) {
+            return "S";
+        } else if (direction.east) {
+            return "E";
+        } else if (direction.west) {
+            return "W";
+        } else {
+            return "";
+        }
     }
 
     protected onAttached(ownerDocument: Document, parent: HTMLElement) {

@@ -19,17 +19,19 @@ import { VesselRole } from "../../../domain/models/vessel-role";
 import { IBoardGenerator } from "../../../domain/services/board-generator";
 import { IEventBus } from "../../../messaging/event-bus";
 import { Guid } from "../../../utility/guid";
-import { ICreateVesselOptions } from "../../models/create-vessel-options";
+import { VesselMovedInDirectionEvent } from "../../events/vessel-moved-in-direction";
 import { IAddPlayerOptions } from "../../models/add-player-options";
+import { IBoardDto } from "../../models/board-dto";
 import { ICreateGameOptions } from "../../models/create-game-options";
+import { ICreateVesselOptions } from "../../models/create-vessel-options";
+import { IDirection } from "../../models/direction";
 import { IGameDto } from "../../models/game-dto";
+import { IPlayerDto } from "../../models/player-dto";
 import { IRemovePlayerOptions } from "../../models/remove-player-options";
+import { ITileDto } from "../../models/tile-dto";
 import { IVesselDto } from "../../models/vessel-dto";
 import { IVesselMoveRequest } from "../../models/vessel-move-request";
 import { IGameService } from "../game-service";
-import { IBoardDto } from "../../models/board-dto";
-import { ITileDto } from "../../models/tile-dto";
-import { IPlayerDto } from "../../models/player-dto";
 
 export interface IDomainGameServiceOptions {
     defaultBoardType: string | null;
@@ -794,6 +796,7 @@ export class DomainGameService implements IGameService {
         let targetCoordinates: CubicCoordinates | null = null;
         let doubleIncrement = !!game.board.tileShape.doubleIncrement;
         let useCardinalDirections = !!request.targetOrderedTriple && Array.isArray(request.targetOrderedTriple) && !!request.targetOrderedTriple.length;
+        let direction: IDirection;
         if (!useCardinalDirections) {
             // Get actual cubic coordinates
             let requestTargetCoordinates = CubicCoordinates.fromOrderedTriple(request.targetOrderedTriple);
@@ -807,14 +810,17 @@ export class DomainGameService implements IGameService {
             if (totalUnitDistance != 1) {
                 throw new Error(`Vessel movement must target a tile that is 1 unit away from current position`);
             }
+            // Determine cardinal direction (for event publishing)
+            direction = this.getDirectionFromTileMovement(game.board, actualStartCoordinates, requestTargetCoordinates);
             // Use target coordinates from request
             targetCoordinates = requestTargetCoordinates;
         } else {
             // Get directions/movements
-            let north = request.direction && request.direction.north || false;
-            let south = request.direction && request.direction.south || false;
-            let west = request.direction && request.direction.west || false;
-            let east = request.direction && request.direction.east || false;
+            direction = request.direction || { north: false, south: false, west: false, east: false };
+            let north = direction && direction.north || false;
+            let south = direction && direction.south || false;
+            let west = direction && direction.west || false;
+            let east = direction && direction.east || false;
             // Determine movement based on cardinal direction(s)
             let hasMovement = north || south || west || east;
             // If no movement (must move at least 1 unit), throw error
@@ -888,6 +894,11 @@ export class DomainGameService implements IGameService {
         game.updateVesselCoordinates(vesselId, targetCoordinates);
         vessel = game.vessels.find(x => x.id == vesselId) as Vessel;
         await this._eventBus.publishAsync(VesselStateChangedDomainEvent.fromVesselInGame(game, vessel));
+        await this._eventBus.publishAsync(VesselMovedInDirectionEvent.fromVesselDirectionInGame(
+            game.id,
+            DomainGameService.mapToVesselDto(vessel),
+            direction
+        ));
 
         // Finished changing game state
         await this._eventBus.publishAsync(GameStateChangedDomainEvent.fromGame(game));
@@ -1027,6 +1038,44 @@ export class DomainGameService implements IGameService {
         if (getTile == null)
             throw new Error("No tile exists for the requested position/cordinates");
         return getTile;
+    }
+
+    private getDirectionFromTileMovement(board: Board, fromTileCoordinates: CubicCoordinates, toTileCoordinates: CubicCoordinates): IDirection
+    {
+        // TODO: Fix this dirty, shameful code
+        if (board.tileShape.hasDirectionEast && 
+            toTileCoordinates.equals(this.getEastTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: true, north: false, south: false, west: false };
+        }
+        if (board.tileShape.hasDirectionNorth && 
+            toTileCoordinates.equals(this.getNorthTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: false, north: true, south: false, west: false };
+        }
+        if (board.tileShape.hasDirectionNorthEast && 
+            toTileCoordinates.equals(this.getNorthEastTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: true, north: true, south: false, west: false };
+        }
+        if (board.tileShape.hasDirectionNorthWest && 
+            toTileCoordinates.equals(this.getNorthWestTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: false, north: true, south: false, west: true };
+        }
+        if (board.tileShape.hasDirectionSouth && 
+            toTileCoordinates.equals(this.getSouthTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: false, north: false, south: true, west: false };
+        }
+        if (board.tileShape.hasDirectionSouthEast && 
+            toTileCoordinates.equals(this.getSouthEastTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: true, north: false, south: true, west: false };
+        }
+        if (board.tileShape.hasDirectionSouthWest && 
+            toTileCoordinates.equals(this.getSouthWestTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: false, north: false, south: true, west: true };
+        }
+        if (board.tileShape.hasDirectionWest && 
+            toTileCoordinates.equals(this.getWestTile(board, fromTileCoordinates).cubicCoordinates)) {
+                return { east: false, north: false, south: false, west: true };
+        }
+        throw new Error("Movement does not appear to be directional");
     }
     
 }

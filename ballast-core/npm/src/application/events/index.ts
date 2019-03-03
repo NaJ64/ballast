@@ -7,4 +7,5 @@ export * from "./player-left-game";
 export * from "./player-removed-from-vessel-role";
 export * from "./player-signed-in";
 export * from "./player-signed-out";
+export * from "./vessel-moved-in-direction";
 export * from "./vessel-state-changed";

@@ -42,6 +42,7 @@ namespace Ballast.Server.SignalR.HubMethods
             _eventBus.Subscribe<PlayerRemovedFromVesselRoleEvent>(PlayerRemovedFromVesselRoleEvent.GetId(), OnPlayerRemovedFromVesselRoleEventAsync);
             _eventBus.Subscribe<PlayerSignedInEvent>(PlayerSignedInEvent.GetId(), OnPlayerSignedInEventAsync);
             _eventBus.Subscribe<PlayerSignedOutEvent>(PlayerSignedOutEvent.GetId(), OnPlayerSignedOutEventAsync);
+            _eventBus.Subscribe<VesselMovedInDirectionEvent>(VesselMovedInDirectionEvent.GetId(), OnVesselMovedInDirectionEventAsync);
             _eventBus.Subscribe<VesselStateChangedEvent>(VesselStateChangedEvent.GetId(), OnVesselStateChangedEventAsync);
         }
 
@@ -55,6 +56,7 @@ namespace Ballast.Server.SignalR.HubMethods
             _eventBus.Unsubscribe<PlayerRemovedFromVesselRoleEvent>(PlayerRemovedFromVesselRoleEvent.GetId(), OnPlayerRemovedFromVesselRoleEventAsync);
             _eventBus.Unsubscribe<PlayerSignedInEvent>(PlayerSignedInEvent.GetId(), OnPlayerSignedInEventAsync);
             _eventBus.Unsubscribe<PlayerSignedOutEvent>(PlayerSignedOutEvent.GetId(), OnPlayerSignedOutEventAsync);
+            _eventBus.Unsubscribe<VesselMovedInDirectionEvent>(VesselMovedInDirectionEvent.GetId(), OnVesselMovedInDirectionEventAsync);
             _eventBus.Unsubscribe<VesselStateChangedEvent>(VesselStateChangedEvent.GetId(), OnVesselStateChangedEventAsync);
         }
 
@@ -73,6 +75,8 @@ namespace Ballast.Server.SignalR.HubMethods
         protected async Task OnPlayerSignedInEventAsync(PlayerSignedInEvent evt) =>
             await OnEventAsync(evt);
         protected async Task OnPlayerSignedOutEventAsync(PlayerSignedOutEvent evt) =>
+            await OnEventAsync(evt);
+        protected async Task OnVesselMovedInDirectionEventAsync(VesselMovedInDirectionEvent evt) =>
             await OnEventAsync(evt);
         protected async Task OnVesselStateChangedEventAsync(VesselStateChangedEvent evt) =>
             await OnEventAsync(evt);
