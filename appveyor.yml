@@ -9,7 +9,7 @@ init:
 install:
   # Get a later version of Node.js
   - ps: Install-Product node 11.9.0
-  - cmd: npm -g install npm@6.7.0
+  - cmd: npm -g install npm@6.8.0
   - cmd: npm -v
   # Install repo specific stuff here
   - cmd: cd ./ballast-core/npm

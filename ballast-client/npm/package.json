@@ -22,6 +22,9 @@
   "author": "NaJ64 <njudice@gmail.com>",
   "license": "MIT",
   "private": true,
+  "dependencies": {
+    "@aspnet/signalr": "^1.1.2"
+  },
   "devDependencies": {
     "@types/jest": "^23.3.13",
     "@types/node": "^11.9.4",
@@ -55,8 +58,5 @@
       "/lib/"
     ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
-  },
-  "dependencies": {
-    "@aspnet/signalr": "^1.1.0"
   }
 }
