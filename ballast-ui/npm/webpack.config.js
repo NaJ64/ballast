@@ -1,5 +1,6 @@
 var watch = (process.argv.indexOf("--watch") >= 0)
 const path = require("path");
+const ThreeWebpackPlugin = require("@wildpeaks/three-webpack-plugin");
 const config = {
     entry: "./lib/index.js",
     output: {
@@ -9,6 +10,9 @@ const config = {
         libraryTarget: "commonjs2"
     },
     mode: "development",
+    plugins: [
+		new ThreeWebpackPlugin()
+	],
     watch: watch,
     watchOptions: {
         aggregateTimeout: 300,

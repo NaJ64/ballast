@@ -7,6 +7,7 @@ using Ballast.Server.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballast.Web
@@ -27,6 +28,10 @@ namespace Ballast.Web
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // Set up custom content type for GLTF (GLB) files
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            contentTypeProvider.Mappings[".gltf"] = "model/gltf+json";
+            // Configure request pipeline
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
@@ -34,7 +39,7 @@ namespace Ballast.Web
             app.UseHttpsRedirection();
             app.UseBallastServer();
             app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypeProvider });
         }
     }
 }

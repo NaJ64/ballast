@@ -1,9 +1,9 @@
 import { IBoardDto, IEventBus, IGameService, IVesselDto, TYPES as BallastCore } from "ballast-core";
 import { inject, injectable } from "inversify";
 import * as THREE from "three";
+import "three/examples/js/loaders/GLTFLoader";
 import { BallastAppConstants } from "../../app-constants";
 import { TYPES as BallastUi } from "../../dependency-injection/types";
-import { CurrentDirectionModifiedEvent } from "../../events/current-direction-modified";
 import { CurrentGameModifiedEvent } from "../../events/current-game-modified";
 import { CurrentVesselModifiedEvent } from "../../events/current-vessel-modified";
 import { KeyboardWatcher } from "../../input/keyboard-watcher";
@@ -14,10 +14,10 @@ import { RenderingMiddleware } from "../rendering-middleware";
 import { BoardComponent } from "./board";
 import { NavigationComponent } from "./navigation";
 
-type GameAnimationType = 
-    'rotateVesselCounterClockwise' | 
-    'rotateVesselClockwise' | 
-    'moveVesselForward' | 
+type GameAnimationType =
+    'rotateVesselCounterClockwise' |
+    'rotateVesselClockwise' |
+    'moveVesselForward' |
     'correctVesselPosition';
 type GameAnimation = { type: GameAnimationType, timestamp: number };
 
@@ -38,8 +38,13 @@ export class GameComponent extends RenderingComponentBase {
     private _vesselButtonsStyle?: Text;
 
     // Vessel
-    private readonly _vessel: THREE.Mesh;
     private readonly _vesselPivot: THREE.Object3D;
+    private _tempVessel: THREE.Mesh;
+    private _tempVesselNeedsReplace: boolean;
+    private _loadedVessel?: THREE.GLTF;
+    private _vesselAnimateX: number = 0;
+    private _vesselAnimateY: number = 0;
+    private _vesselAnimateZ: number = 0;
     private _removeCameraFromVessel?: () => void;
 
     // Animation(s)
@@ -60,7 +65,7 @@ export class GameComponent extends RenderingComponentBase {
         @inject(BallastCore.Application.Services.IGameService) gameService: IGameService,
         @inject(BallastUi.Rendering.Components.BoardComponent) board: BoardComponent,
         @inject(BallastUi.Rendering.Components.NavigationComponent) navigation: NavigationComponent
-    
+
     ) {
         super();
         this.rebindHandlers();
@@ -70,8 +75,14 @@ export class GameComponent extends RenderingComponentBase {
         this._navigation = navigation;
         // Vessel
         let vesselObjects = this.createVesselObjects();
-        this._vessel = vesselObjects["0"];
+        this._tempVessel = vesselObjects["0"];
         this._vesselPivot = vesselObjects["1"];
+        this._tempVesselNeedsReplace = false;
+        this.loadSubmarineAsync()
+            .then(submarine => {
+                this._loadedVessel = submarine;
+                this._tempVesselNeedsReplace = true;
+            });
         // Animation(s)
         this._gameAnimationQueue = [];
         this._waitingOnMovementRequest = false;
@@ -93,7 +104,7 @@ export class GameComponent extends RenderingComponentBase {
 
     private rebindHandlers() {
         this.onCurrentGameModifiedAsync = this.onCurrentGameModifiedAsync.bind(this);
-        this.onCurrentVesselModifiedAsync =this.onCurrentVesselModifiedAsync.bind(this);
+        this.onCurrentVesselModifiedAsync = this.onCurrentVesselModifiedAsync.bind(this);
         this.onMoveVesselForwardButtonClickAsync = this.onMoveVesselForwardButtonClickAsync.bind(this);
         this.onRotateVesselClockwiseButtonClickAsync = this.onRotateVesselClockwiseButtonClickAsync.bind(this);
         this.onRotateVesselCounterClockwiseButtonClickAsync = this.onRotateVesselCounterClockwiseButtonClickAsync.bind(this);
@@ -110,7 +121,7 @@ export class GameComponent extends RenderingComponentBase {
     }
 
     private createDomElements(ownerDocument: Document) {
-        let vesselButtonsAndStyle= this.createVesselButtonsAndStyle(ownerDocument);
+        let vesselButtonsAndStyle = this.createVesselButtonsAndStyle(ownerDocument);
         this._moveVesselForwardButton = vesselButtonsAndStyle["0"];
         this._moveVesselForwardButton.addEventListener('click', this.onMoveVesselForwardButtonClickAsync);
         this._rotateVesselCounterClockwiseButton = vesselButtonsAndStyle["1"];
@@ -135,10 +146,26 @@ export class GameComponent extends RenderingComponentBase {
         }
         if (this._vesselButtonsStyle) {
             this._vesselButtonsStyle = undefined;
-        }    
+        }
     }
 
-    private createVesselObjects() :[THREE.Mesh, THREE.Object3D] {
+    private loadSubmarineAsync(): Promise<THREE.GLTF> {
+        let gltfLoader = new THREE.GLTFLoader();
+        return new Promise<THREE.GLTF>((resolve, reject) => {
+            try {
+                gltfLoader.load("assets/models/submarine/scene.gltf", (gltf) => {
+                    gltf.scene.scale.set(0.25, 0.25, 0.25);
+                    gltf.scene.position.setY(-1);
+                    resolve(gltf);
+                }, undefined, err => reject(err.error));
+            } catch (err) {
+                reject(err as Error);
+            }
+        });
+    }
+
+    private createVesselObjects(): [THREE.Mesh, THREE.Object3D] {
+
         // Create vessel mesh
         let vesselGeometry = new THREE.DodecahedronGeometry(1);
         let vesselMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
@@ -221,8 +248,8 @@ export class GameComponent extends RenderingComponentBase {
         rotateVesselClockwiseButton.style.right = '5.63%';
         // Return all buttons and style text node
         return [
-            moveVesselForwardButton, 
-            rotateVesselCounterClockwiseButton, 
+            moveVesselForwardButton,
+            rotateVesselCounterClockwiseButton,
             rotateVesselClockwiseButton,
             vesselButtonsStyle
         ];
@@ -283,7 +310,7 @@ export class GameComponent extends RenderingComponentBase {
     private get hasQueuedAnimation(): boolean {
         return (!!this._gameAnimationQueue.length);
     }
-    
+
     private queueNewAnimation(animationType: GameAnimationType) {
         // If we already have more than one animation, check to see if the new animation cancels out the last one
         let cancelLastAnimation = false;
@@ -345,6 +372,14 @@ export class GameComponent extends RenderingComponentBase {
     }
 
     protected onRender(renderingContext: IRenderingContext) {
+        // Replace the temp vessel object with loaded asset(s)
+        if (this._tempVesselNeedsReplace) {
+            this.replaceTempVessel(renderingContext);
+        }
+        // Animate vessel (if loaded)
+        if (this._loadedVessel) {
+            this.animateVessel(renderingContext);
+        }
         // Synchronize with current game state by queueing movement animation(s)
         let correctPosition = false;
         if (this._gameNeedsReset) {
@@ -354,9 +389,9 @@ export class GameComponent extends RenderingComponentBase {
         let left = false;
         let right = false;
         let forward = false;
-        let ignoreKeyboard = 
-            this._waitingOnMovementRequest || 
-            this.isMidAnimation || 
+        let ignoreKeyboard =
+            this._waitingOnMovementRequest ||
+            this.isMidAnimation ||
             this.hasQueuedAnimation;
         if (ignoreKeyboard) {
             left = false;
@@ -421,6 +456,18 @@ export class GameComponent extends RenderingComponentBase {
         return [left, right, forward];
     }
 
+    private replaceTempVessel(renderingContext: IRenderingContext) {
+        // Remove flag
+        this._tempVesselNeedsReplace = false;
+        // Make sure we actually have a vessel
+        if (!this._loadedVessel) {
+            throw new Error("Flag was set to replace temp vessel before assets were finished loading!");
+        }
+        // Remove the temp vessel object from the pivot
+        this._vesselPivot.remove(this._tempVessel);
+        this._vesselPivot.add(this._loadedVessel.scene);
+    }
+
     private resetGame(renderingContext: IRenderingContext) {
 
         // Remove flag
@@ -428,7 +475,7 @@ export class GameComponent extends RenderingComponentBase {
 
         // Check if we changed games
         let currentGame = renderingContext.app.currentGame;
-        let currentGameId =  currentGame && currentGame.id || "";
+        let currentGameId = currentGame && currentGame.id || "";
         if (currentGameId != (this._gameResetForId || "")) {
             // Store the game id
             this._gameResetForId = currentGameId || null;
@@ -478,7 +525,7 @@ export class GameComponent extends RenderingComponentBase {
         if (!targetPosition) {
             this._vesselPivot.position.set(0, 0, 0);
         } else {
-            this._vesselPivot.position.fromArray(targetPosition.toArray()); 
+            this._vesselPivot.position.fromArray(targetPosition.toArray());
             this._movementTarget.position.fromArray(targetPosition.toArray());
         }
     }
@@ -488,6 +535,46 @@ export class GameComponent extends RenderingComponentBase {
         let initialY = RenderingConstants.INITIAL_ORIENTATION_RADIANS;
         this._vesselPivot.rotation.set(0, initialY, 0);
         this._rotationTarget.rotation.set(0, initialY, 0);
+    }
+
+    private animateVessel(renderingContext: IRenderingContext) {
+        if (!this._loadedVessel) {
+            return;
+        }
+        // TODO: fix this to use sinusoidal movement
+        if (this._vesselAnimateX <= 0) {
+            this._loadedVessel.scene.position.x += 0.001;
+            this._vesselAnimateX++;
+        }
+        if (this._vesselAnimateX > 0) {
+            this._loadedVessel.scene.position.x -= 0.001;
+            this._vesselAnimateX++;
+        }
+        if (this._vesselAnimateX > 100) {
+            this._vesselAnimateX = -100;
+        }
+        if (this._vesselAnimateY <= 0) {
+            this._loadedVessel.scene.position.y += 0.005;
+            this._vesselAnimateY++;
+        }
+        if (this._vesselAnimateY > 0) {
+            this._loadedVessel.scene.position.y -= 0.005;
+            this._vesselAnimateY++;
+        }
+        if (this._vesselAnimateY > 50) {
+            this._vesselAnimateY = -50;
+        }
+        if (this._vesselAnimateZ <= 0) {
+            this._loadedVessel.scene.position.z += 0.003;
+            this._vesselAnimateZ++;
+        }
+        if (this._vesselAnimateZ > 0) {
+            this._loadedVessel.scene.position.z -= 0.003;
+            this._vesselAnimateZ++;
+        }
+        if (this._vesselAnimateZ > 25) {
+            this._vesselAnimateZ = -25;
+        }
     }
 
     private move(renderingContext: IRenderingContext, forward: boolean, correction: boolean) {
@@ -501,10 +588,10 @@ export class GameComponent extends RenderingComponentBase {
             if (!currentV3.equals(targetV3)) {
                 this.startVesselMovementAnimation(currentV3, targetV3);
             }
-        } 
+        }
 
         // Ask server to perform forward movement and get resulting position
-        if (forward) { 
+        if (forward) {
             // Set flag so that we don't try any other animations until this one finishes
             this._waitingOnMovementRequest = true;
             // Get new position (async)
@@ -524,7 +611,7 @@ export class GameComponent extends RenderingComponentBase {
         }
 
     }
-    
+
     private startVesselMovementAnimation(currentPosition: THREE.Vector3, targetPosition: THREE.Vector3, isCorrection: boolean = false) {
         this._movementClock = new THREE.Clock();
         this._movementSource.position.set(currentPosition.x, currentPosition.y, currentPosition.z);
@@ -613,7 +700,7 @@ export class GameComponent extends RenderingComponentBase {
             // Clone the beginning (source) of forward movement to use as the start of linear interpolation
             let nextPosition = this._movementSource.clone()
                 .position.lerp(this._movementTarget.position, partialMovementPercentage);
-            
+
             // Move the vessel pivot along the track (set to lerp'd position)
             this._vesselPivot.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
 
@@ -677,7 +764,7 @@ export class GameComponent extends RenderingComponentBase {
                 .catch(err => console.log(err)); // Fire and forget (but catch exceptions)
 
         }
-        
+
     }
 
     private onRotateVesselClockwiseButtonClickAsync() {
