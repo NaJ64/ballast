@@ -465,7 +465,8 @@ export class GameComponent extends RenderingComponentBase {
         }
         // Remove the temp vessel object from the pivot
         this._vesselPivot.remove(this._tempVessel);
-        this._vesselPivot.add(this._loadedVessel.scene);
+        // TODO: Fix this hack 
+        setTimeout(() => this._vesselPivot.add(this._loadedVessel!.scene), 1000);
     }
 
     private resetGame(renderingContext: IRenderingContext) {
@@ -551,7 +552,7 @@ export class GameComponent extends RenderingComponentBase {
             this._vesselAnimateX++;
         }
         if (this._vesselAnimateX > 100) {
-            this._vesselAnimateX = -100;
+            this._vesselAnimateX = -99;
         }
         if (this._vesselAnimateY <= 0) {
             this._loadedVessel.scene.position.y += 0.005;
@@ -562,7 +563,7 @@ export class GameComponent extends RenderingComponentBase {
             this._vesselAnimateY++;
         }
         if (this._vesselAnimateY > 50) {
-            this._vesselAnimateY = -50;
+            this._vesselAnimateY = -49;
         }
         if (this._vesselAnimateZ <= 0) {
             this._loadedVessel.scene.position.z += 0.003;
@@ -573,7 +574,7 @@ export class GameComponent extends RenderingComponentBase {
             this._vesselAnimateZ++;
         }
         if (this._vesselAnimateZ > 25) {
-            this._vesselAnimateZ = -25;
+            this._vesselAnimateZ = -24;
         }
     }
 
