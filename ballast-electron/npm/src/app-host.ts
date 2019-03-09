@@ -25,7 +25,7 @@ export class AppHost {
     public constructor(options: IAppHostOptions) {
         // Save options/defaults
         this._contentRoot = path.resolve(options.contentRootDirectory);
-        this._startPage = this._contentRoot || path.resolve(path.join(this._contentRoot, options.startPage)) || "";
+        this._startPage = this._contentRoot && path.resolve(path.join(this._contentRoot, options.startPage)) || "";
         this._showDev = options.displayDev;
         this._showMenu = options.displayMenu;
         this._winHeight = options.height;

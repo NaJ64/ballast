@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch 'Ballast.Web' (.NET Core)",
+            "name": "Debug 'ballast-web' (.NET Core)",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/ballast-web/dotnet/bin/Debug/netcoreapp2.2/Ballast.Web.dll",
@@ -33,5 +33,17 @@
                 "ASPNETCORE_URLS": "http://localhost:80;https://localhost:443"
             }
         },
+        {
+            "name": "Debug 'ballast-electron' (Node.js)",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/ballast-electron/npm",
+            "runtimeExecutable": "${workspaceFolder}/ballast-electron/npm/node_modules/.bin/electron",
+            "windows": {
+              "runtimeExecutable": "${workspaceFolder}/ballast-electron/npm/node_modules/.bin/electron.cmd"
+            },
+            "args" : ["."],
+            "outputCapture": "std"
+          }
     ]
 }
