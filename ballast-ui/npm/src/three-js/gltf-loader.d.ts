@@ -1,3 +1,4 @@
 declare module 'three/examples/js/loaders/GLTFLoader' {
-	export const GLTFLoader: typeof THREE.GLTFLoader;
+	import * as THREE from "three";
+	export const GLTFLoader: THREE.GLTFLoader
 }

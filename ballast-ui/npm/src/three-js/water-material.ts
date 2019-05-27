@@ -276,10 +276,13 @@ export class Water extends THREE.Object3D {
             this.material.visible = false;
 
             var renderTexture = (isTempTexture !== undefined && isTempTexture) ? this.tempTexture : this.texture;
-            if (this.renderer instanceof THREE.WebGLRenderer) { // Added this check for narrowing renderer type
-                this.renderer.render(this.scene, this.mirrorCamera, renderTexture, true);
-            } else {
-                this.renderer.render(this.scene, this.mirrorCamera);
+            if (this.renderer instanceof THREE.WebGLRenderer) {
+                this.renderer.setRenderTarget(renderTexture);
+                this.renderer.clear();
+            }
+            this.renderer.render(this.scene, this.mirrorCamera);
+            if (this.renderer instanceof THREE.WebGLRenderer) {
+                this.renderer.setRenderTarget(null);
             }
 
             this.material.visible = true;
