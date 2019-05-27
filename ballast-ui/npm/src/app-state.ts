@@ -175,7 +175,7 @@ export class BallastAppState implements IBallastAppState, IDisposable {
             }
             let i = oldGame.players.length;
             while (i--) {
-                if (oldGame.players[i].id != game.players[i].id) {
+                if (game.players[i] == null || oldGame.players[i].id != game.players[i].id) {
                     gameModified = true;
                 }
             }
@@ -187,14 +187,18 @@ export class BallastAppState implements IBallastAppState, IDisposable {
             }
             let i = oldGame.vessels.length;
             while (i--) {
-                if (oldGame.vessels[i].id != game.vessels[i].id) {
+                if (game.vessels[i].id == null) {
                     gameModified = true;
-                }
-                if (oldGame.vessels[i].captainId != game.vessels[i].captainId) {
-                    gameModified = true;
-                }
-                if (oldGame.vessels[i].radiomanId != game.vessels[i].radiomanId) {
-                    gameModified = true;
+                } else {
+                    if (oldGame.vessels[i].id != game.vessels[i].id) {
+                        gameModified = true;
+                    }
+                    if (oldGame.vessels[i].captainId != game.vessels[i].captainId) {
+                        gameModified = true;
+                    }
+                    if (oldGame.vessels[i].radiomanId != game.vessels[i].radiomanId) {
+                        gameModified = true;
+                    }                    
                 }
             }
         }
