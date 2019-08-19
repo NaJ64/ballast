@@ -52,7 +52,7 @@ export class SignalRClientApplicationEventEmitter extends SignalRClientServiceBa
     
     private onApplicationEvent(evt: IApplicationEvent) {
         if (!this._isEnabled) {
-            return Promise.resolve();
+            return;
         }
         this._eventBus.publishAsync(evt); // Fire and forget
     }
