@@ -1,7 +1,8 @@
 {
   "packages": [
     "ballast-client/npm",
-    "ballast-core/npm"
+    "ballast-core/npm",
+    "ballast-ui/npm"
   ],
   "version": "1.0.0"
 }
