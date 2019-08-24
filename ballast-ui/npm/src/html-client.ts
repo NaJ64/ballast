@@ -61,6 +61,7 @@ export class BallastHtmlClient implements IBallastHtmlClient {
             vesselRoles: []
         };
         let testGameWithPlayer = await gameService.addPlayerToGameAsync(addPlayerOptions);
+        console.log(testGameWithPlayer);
     }
 
 }
