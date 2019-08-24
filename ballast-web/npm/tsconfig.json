@@ -21,10 +21,5 @@
   "exclude": [
     "dist",
     "lib"
-  ],
-  "references": [
-    {
-      "path": "../../ballast-ui/npm"
-    }
   ]
 }
