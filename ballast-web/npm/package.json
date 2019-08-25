@@ -14,7 +14,7 @@
     "compile-watch": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build --watch",
     "copy-dist": "node ./node_modules/cpx/bin \"lib/**/*.!(js)\" \"dist\"",
     "copy-lib": "npm run copy-lib:img && npm run copy-lib:js && npm run copy-lib:html && npm run copy-lib:css && npm run copy-lib:ballast-ui",
-    "copy-lib:ballast-ui": "node ./node_modules/cpx/bin \"node_modules/ballast-ui/dist/**/*.!(js)\" \"lib\"",
+    "copy-lib:ballast-ui": "node ./node_modules/cpx/bin \"node_modules/ballast-ui/dist/assets/**/*.!(js)\" \"lib/assets\"",
     "copy-lib:css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"lib\"",
     "copy-lib:html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"lib\"",
     "copy-lib:img": "node ./node_modules/cpx/bin \"src/**/*.{jpg,png}\" \"lib\"",
