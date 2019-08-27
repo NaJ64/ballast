@@ -2,24 +2,12 @@
   "name": "ballast-web",
   "version": "1.0.0",
   "description": "Single page web application client for Ballast",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "npm run compile && npm run bundle",
-    "bundle": "npm run clean-dist && npm run copy-dist && node ./node_modules/webpack-cli/bin/cli",
-    "bundle-watch": "npm run clean-dist && npm run copy-dist && node ./node_modules/webpack-cli/bin/cli --watch",
-    "clean-dist": "node ./node_modules/rimraf/bin \"dist\"",
-    "clean-lib": "node ./node_modules/rimraf/bin \"lib\"",
-    "compile": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build",
-    "compile-watch": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build --watch",
-    "copy-dist": "node ./node_modules/cpx/bin \"lib/**/*.!(js)\" \"dist\"",
-    "copy-lib": "npm run copy-lib:img && npm run copy-lib:js && npm run copy-lib:html && npm run copy-lib:css && npm run copy-lib:ballast-ui",
-    "copy-lib:ballast-ui": "node ./node_modules/cpx/bin \"node_modules/ballast-ui/dist/assets/**/*.!(js)\" \"lib/assets\"",
-    "copy-lib:css": "node ./node_modules/cpx/bin \"src/**/*.css\" \"lib\"",
-    "copy-lib:html": "node ./node_modules/cpx/bin \"src/**/*.html\" \"lib\"",
-    "copy-lib:img": "node ./node_modules/cpx/bin \"src/**/*.{jpg,png}\" \"lib\"",
-    "copy-lib:js": "node ./node_modules/cpx/bin \"src/**/*.{js,json}\" \"lib\"",
-    "prepare": "npm run build"
+    "build": "gulp",
+    "prepare": "npm run build",
+    "test": "node ./node_modules/jest/bin/jest --passWithNoTests",
+    "test-single": "node ./node_modules/jest/bin/jest -- --args"
   },
   "keywords": [
     "ballast"
@@ -28,9 +16,14 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "ballast-ui": "file:../../ballast-ui/npm",
-    "cpx": "^1.5.0",
-    "rimraf": "^2.6.3",
+    "@types/jest": "^24.0.13",
+    "ballast-ui": "^1.0.0",
+    "del": "^5.0.0",
+    "gulp": "^4.0.2",
+    "jest": "^24.8.0",
+    "merge2": "^1.2.3",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.0.4",
     "typescript": "^3.4.5",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2"
