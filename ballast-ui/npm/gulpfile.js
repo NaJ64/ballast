@@ -80,7 +80,6 @@ function watchAssets() {
 
 exports.build = series(clean, parallel(webpack, copyAssets, dts));
 exports.clean = clean;
-exports.watchWebpack = watchWebpack;
 exports.watch = series(
     clean, 
     parallel(dts, copyAssets), // initial webpack occurs in subsequent "watchWebpack" step

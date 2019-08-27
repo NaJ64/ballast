@@ -21,15 +21,3 @@ const config = {
   ]
 };
 module.exports = config;
-// module.exports = Object.assign(config, {
-//   watch: true,
-//   watchOptions: {
-//       aggregateTimeout: 300,
-//       ignored: [
-//           /\ballast-client([\\]+|\/)node_modules/,
-//           /\ballast-core([\\]+|\/)node_modules/,
-//           /node_modules([\\]+|\/)+(?!\ballast-client([\\]+|\/)lib)/,
-//           /node_modules([\\]+|\/)+(?!\ballast-core([\\]+|\/)lib)/ 
-//       ]
-//   }
-// });
