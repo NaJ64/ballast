@@ -9,7 +9,7 @@ init:
   - cmd: git config --global core.autocrlf true
 install:
   # Get a later version of Node.js / npm
-  - ps: Install-Product node 12.9.1
+  - ps: Install-Product node Current
   - cmd: node --version
   - cmd: npm -g install npm@latest
   - cmd: npm -v
