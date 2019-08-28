@@ -29,8 +29,8 @@ before_build:
   # Display minimal restore text
   - cmd: dotnet restore ballast.sln
 build_script:
-  # output will be in ./Ballast.Web/bin/debug/netcoreapp2.2/publish
-  - cmd: dotnet publish ./ballast-web/dotnet/Ballast.Web.csproj
+  # output will be in ./ballast-web/bin/debug/netcoreapp2.2/publish
+  - cmd: dotnet publish ./ballast-web/dotnet/ballast-web.csproj
 after_build:
   # For once the build has completed
 artifacts:
