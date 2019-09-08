@@ -1,38 +1,35 @@
 version: '1.0.{build}'
-image: Visual Studio 2017 Preview
+image: Visual Studio 2017
 branches:
   only:
   - master
 init:
-  # Good practice, because Windows line endings are different from Unix/Linux ones
+  # Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
 install:
-  # Get a later version of Node.js
-  - ps: Install-Product node 11.9.0
-  - cmd: npm -g install npm@6.8.0
+  # Get a later version of Node.js / npm
+  - ps: Install-Product node Current
+  - cmd: node --version
+  - cmd: npm -g install npm@latest
   - cmd: npm -v
-  # Install repo specific stuff here
-  - cmd: cd ./ballast-core/npm
-  - cmd: npm install
-  - cmd: cd ../../ballast-client/npm
-  - cmd: npm install
-  - cmd: cd ../../ballast-ui/npm
-  - cmd: npm install
-  - cmd: cd ../../ballast-web/npm
-  - cmd: npm install
-  - cmd: cd ../dotnet
+  # Install build tooling
+  - cmd: npm -g install lerna gulp
+  - cmd: lerna -v
+  - cmd: gulp -v
+  # Build npm
+  - cmd: lerna bootstrap
+  # Build dotnet (web)
+  - cmd: cd ./ballast-web/dotnet
   - cmd: dotnet build
   - cmd: cd ../../
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
   # Display minimal restore text
-  - cmd: dotnet restore ./ballast-core/dotnet/Ballast.Core.csproj --verbosity m
-  - cmd: dotnet restore ./ballast-server/dotnet/Ballast.Server.csproj --verbosity m
-  - cmd: dotnet restore ./ballast-web/dotnet/Ballast.Web.csproj --verbosity m
+  - cmd: dotnet restore ballast.sln
 build_script:
-  # output will be in ./Ballast.Web/bin/debug/netcoreapp2.2/publish
-  - cmd: dotnet publish ./ballast-web/dotnet/Ballast.Web.csproj
+  # output will be in ./ballast-web/bin/debug/netcoreapp2.2/publish
+  - cmd: dotnet publish ./ballast-web/dotnet/ballast-web.csproj
 after_build:
   # For once the build has completed
 artifacts:
@@ -41,11 +38,14 @@ artifacts:
    type: Zip
 clone_depth: 1
 test_script:
-  # restore packages for our unit tests
   - cmd: cd ./ballast-core/npm
   - cmd: npm test
-  # - cmd: cd ../ballast-client
-  # - cmd: npm test
+  - cmd: cd ../../ballast-client/npm
+  - cmd: npm test
+  - cmd: cd ../../ballast-ui/npm
+  - cmd: npm test
+  - cmd: cd ../../ballast-web/npm
+  - cmd: npm test
   - cmd: cd ../../
 on_finish :
   # any cleanup in here

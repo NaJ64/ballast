@@ -123,7 +123,7 @@ export class BoardComponent extends RenderingComponentBase {
             throw new Error("Cannot convert ordered triple to offset coordinates");
         }
         let x = orderedTriple[0];
-        let y = orderedTriple[1];
+        //let y = orderedTriple[1];
         let z = orderedTriple[2];
         // Bitwise AND (& 1) to get 0 for even or 1 for odd column offset
         let col = x + (z - (z & 1)) / 2;

@@ -30,7 +30,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://localhost:80;https://localhost:443"
+                "ASPNETCORE_URLS": "http://192.168.0.226:80;https://localhost:443"
             }
         },
         {

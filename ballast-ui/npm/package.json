@@ -3,26 +3,12 @@
   "version": "1.0.0",
   "description": "Client HTML and DOM/Canvas-based UI for Ballast",
   "main": "dist/index.js",
-  "types": "lib/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm run compile && npm run bundle",
-    "bundle": "npm run clean-dist && npm run copy-dist && node ./node_modules/webpack-cli/bin/cli",
-    "bundle-watch": "npm run clean-dist && npm run copy-dist && node ./node_modules/webpack-cli/bin/cli --watch",
-    "clean-dist": "node ./node_modules/rimraf/bin \"dist\"",
-    "clean-lib": "node ./node_modules/rimraf/bin \"lib\"",
-    "compile": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build",
-    "compile-watch": "npm run clean-lib && npm run copy-lib && node ./node_modules/typescript/lib/tsc --build --watch",
-    "copy-dist": "npm run copy-dist:img && npm run copy-dist:models",
-    "copy-dist:img": "node ./node_modules/cpx/bin \"lib/**/*.{jpg,png}\" \"dist\"",
-    "copy-dist:models": "node ./node_modules/cpx/bin \"lib/assets/models/**/*.{gltf,bin}\" \"dist/assets/models\"",
-    "copy-lib": "npm run copy-lib:img && npm run copy-lib:js && npm run copy-lib:models",
-    "copy-lib:img": "node ./node_modules/cpx/bin \"src/**/*.{jpg,png}\" \"lib\"",
-    "copy-lib:js": "node ./node_modules/cpx/bin \"src/**/*.{js,json}\" \"lib\"",
-    "copy-lib:models": "node ./node_modules/cpx/bin \"src/assets/models/**/*.{gltf,bin}\" \"lib/assets/models\"",
+    "build": "gulp",
     "prepare": "npm run build",
-    "test": "node ./node_modules/jest/bin/jest",
-    "test-single": "node ./node_modules/jest/bin/jest -- --args",
-    "test-full": "npm run build && npm test"
+    "test": "node ./node_modules/jest/bin/jest --passWithNoTests",
+    "test-single": "node ./node_modules/jest/bin/jest -- --args"
   },
   "keywords": [
     "ballast"
@@ -33,23 +19,25 @@
   "devDependencies": {
     "@types/jest": "^24.0.13",
     "@wildpeaks/three-webpack-plugin": "^2.0.0",
-    "ballast-client": "file:../../ballast-client/npm",
-    "cpx": "^1.5.0",
+    "ballast-client": "^1.0.0",
+    "ballast-core": "^1.0.0",
+    "del": "^5.0.0",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-filter": "^6.0.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-typescript": "^5.0.1",
     "inversify": "^5.0.1",
     "jest": "^24.8.0",
     "reflect-metadata": "^0.1.13",
-    "rimraf": "^2.6.3",
     "three": "^0.104.0",
     "throwback": "^4.0.0",
     "ts-jest": "^24.0.2",
-    "tslib": "^1.9.3",
+    "ts-loader": "^6.0.4",
+    "tslib": "^1.10.0",
     "typescript": "^3.4.5",
-    "webpack": "^4.32.2",
-    "webpack-cli": "^3.3.2"
-  },
-  "peerDependencies": {
-    "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13"
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -60,15 +48,11 @@
       "json"
     ],
     "transform": {
-      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      "^.+\\.tsx?$": "ts-jest"
     },
     "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/lib/"
+      "/node_modules/"
     ],
     "testRegex": "src/.*\\.test\\.(jsx?|tsx?)$"
-  },
-  "dependencies": {
-    "ballast-core": "file:../../ballast-core/npm"
   }
 }

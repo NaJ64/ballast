@@ -13,7 +13,7 @@ export interface IAppHostOptions {
 
 export class AppHost {
 
-    private readonly _menu: Menu;
+    //private readonly _menu: Menu;
     private readonly _contentRoot: string;
     private readonly _startPage: string;
     private readonly _winHeight: number;
@@ -31,7 +31,7 @@ export class AppHost {
         this._winHeight = options.height;
         this._winWidth = options.width;
         // Create a menu to use when spawning browser window(s)
-        this._menu = this.createMenu();
+        this.createMenu(); //this._menu = this.createMenu();
         // Hook into electron app lifecycle
         app.on("ready", this.onAppReady.bind(this));
         app.on("activate", this.onAppActivate.bind(this));

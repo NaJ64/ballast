@@ -1,6 +1,6 @@
 import { AppHost } from './app-host';
 
-let appHost = new AppHost({ 
+new AppHost({ 
     contentRootDirectory: './dist',
     startPage: 'index.html',
     displayMenu: true,

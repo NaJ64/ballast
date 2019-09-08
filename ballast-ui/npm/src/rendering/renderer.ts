@@ -1,4 +1,4 @@
-import { IRootComponentFactory, RootComponent } from "./components/root";
+import { IRootComponentFactory } from "./components/root";
 import { IRenderingContext, IRenderingContextFactory } from "./rendering-context";
 import { RenderingMiddleware, RenderingStep } from "./rendering-middleware";
 

@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ballast-core\dotnet\Ballast.Core.csproj" />
+    <ProjectReference Include="..\..\ballast-core\dotnet\ballast-core.csproj" />
   </ItemGroup>
 
 </Project>

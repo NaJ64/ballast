@@ -240,7 +240,7 @@ export class DomainGameService implements IGameService {
 
     private async removeGameByIdAsync(gameId: string): Promise<void> {
         let game = await this.retrieveGameByIdAsync(gameId);
-        this._games.delete(gameId);
+        this._games.delete(game.id);
     }
 
     private getDefaultVesselRolesForPlayer(vessel: Vessel, player: Player): VesselRole[] {

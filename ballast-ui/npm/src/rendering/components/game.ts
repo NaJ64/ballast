@@ -522,14 +522,14 @@ export class GameComponent extends RenderingComponentBase {
         }
     }
 
-    private resetVesselPosition(targetPosition?: THREE.Vector3) {
-        if (!targetPosition) {
-            this._vesselPivot.position.set(0, 0, 0);
-        } else {
-            this._vesselPivot.position.fromArray(targetPosition.toArray());
-            this._movementTarget.position.fromArray(targetPosition.toArray());
-        }
-    }
+    // private resetVesselPosition(targetPosition?: THREE.Vector3) {
+    //     if (!targetPosition) {
+    //         this._vesselPivot.position.set(0, 0, 0);
+    //     } else {
+    //         this._vesselPivot.position.fromArray(targetPosition.toArray());
+    //         this._movementTarget.position.fromArray(targetPosition.toArray());
+    //     }
+    // }
 
     private resetVesselRotation() {
         // Set initial orientation for the vessel

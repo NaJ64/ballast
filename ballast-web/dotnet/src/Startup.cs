@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Ballast.Server;
+﻿using Ballast.Server;
 using Ballast.Server.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +16,7 @@ namespace Ballast.Web
                 options.UseSignalR = true;
                 options.DefaultBoardSize = 7; // Must be an odd number for "Regular Polygon"; Must be greater than 3
                 options.DefaultBoardType = "RegularPolygon"; // "Rectangle", "RegularPolygon"
-                options.DefaultTileShape = "Hexagon"; // "Hexagon", "Circle", "Square", "Octagon"
+                options.DefaultTileShape = "Octagon"; // "Hexagon", "Circle", "Square", "Octagon"
                 options.DefaultLandToWaterRatio = 0.33;
             });
         }
