@@ -14,7 +14,7 @@
             "command": "dotnet",
             "args": [
                 "build",
-                "Ballast.Web.csproj"
+                "ballast-web.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
