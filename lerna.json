@@ -2,6 +2,7 @@
   "packages": [
     "ballast-client/npm",
     "ballast-core/npm",
+    "ballast-electron/npm",
     "ballast-ui/npm",
     "ballast-web/npm"
   ],
