@@ -14,6 +14,7 @@ export const TYPES = {
             CameraComponent: Symbol.for("CameraComponent"),
             ChatComponent: Symbol.for("ChatComponent"),
             GameComponent: Symbol.for("GameComponent"),
+            MiniMapComponent: Symbol.for("MiniMapComponent"),
             NavigationComponent: Symbol.for("NavigationComponent"),
             RootComponent: Symbol.for("RootComponent"),
             SignInComponent: Symbol.for("SignInComponent"),

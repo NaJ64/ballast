@@ -6,6 +6,7 @@ import { BoardComponent } from "./board";
 import { CameraComponent } from "./camera";
 import { ChatComponent } from "./chat";
 import { GameComponent } from "./game";
+import { MiniMapComponent } from "./mini-map";
 import { SignInComponent } from "./sign-in";
 import { WorldComponent } from "./world";
 
@@ -20,6 +21,7 @@ export class RootComponent extends RenderingComponentBase {
     private readonly _camera: CameraComponent;
     private readonly _chat: ChatComponent;
     private readonly _game: GameComponent;
+    private readonly _miniMap: MiniMapComponent;
     private readonly _signIn: SignInComponent;
     private readonly _world: WorldComponent;
 
@@ -28,6 +30,7 @@ export class RootComponent extends RenderingComponentBase {
         @inject(BallastUi.Rendering.Components.CameraComponent) camera: CameraComponent,
         @inject(BallastUi.Rendering.Components.ChatComponent) chat: ChatComponent,
         @inject(BallastUi.Rendering.Components.GameComponent) game: GameComponent,
+        @inject(BallastUi.Rendering.Components.MiniMapComponent) miniMap: MiniMapComponent,
         @inject(BallastUi.Rendering.Components.SignInComponent) signIn: SignInComponent,
         @inject(BallastUi.Rendering.Components.WorldComponent) world: WorldComponent
     ) {
@@ -36,6 +39,7 @@ export class RootComponent extends RenderingComponentBase {
         this._camera = camera;
         this._chat = chat;
         this._game = game;
+        this._miniMap = miniMap;
         this._signIn = signIn;
         this._world = world;
     }
@@ -47,12 +51,14 @@ export class RootComponent extends RenderingComponentBase {
         this._game.attach(ownerDocument, parent, gameStyle, middleware);
         this._camera.attach(ownerDocument, parent, gameStyle, middleware);
         this._world.attach(ownerDocument, parent, gameStyle, middleware);
+        this._miniMap.attach(ownerDocument, parent, gameStyle, middleware);
         this._chat.attach(ownerDocument, parent, gameStyle, middleware);
     }
 
     protected onDetaching() {
         // Detach child components
         this._chat.detach();
+        this._miniMap.detach();
         this._world.detach();
         this._camera.detach();
         this._game.detach();

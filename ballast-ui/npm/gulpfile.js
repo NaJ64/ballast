@@ -29,7 +29,7 @@ function dts() {
 }
 
 function watchTs() {
-    watch("src/**/*.ts", compileDts);
+    watch("src/**/*.ts", dts);
 }
 
 function webpack() {
@@ -64,6 +64,7 @@ function watchWebpack() {
             if (stats.hasErrors()) {
                 return reject(new Error(stats.compilation.errors.join('\n')));
             }
+            console.log(stats.toString())
             //resolve(); // Do not resolve promise (so that we don't stop watching)
         });
     });

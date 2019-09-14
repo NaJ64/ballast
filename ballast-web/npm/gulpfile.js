@@ -25,7 +25,7 @@ function webpack() {
 function watchWebpack() {
     return new Promise((resolve, reject) => {
         doWebpack(webpackConfig).watch({
-            aggregateTimeout: 300,
+            aggregateTimeout: 1500,
             poll: undefined,
             ignored: [
                 /\ballast-ui([\\]+|\/)node_modules/,
@@ -38,6 +38,7 @@ function watchWebpack() {
             if (stats.hasErrors()) {
                 return reject(new Error(stats.compilation.errors.join('\n')));
             }
+            console.log(stats.toString())
             //resolve(); // Do not resolve promise (so that we don't stop watching)
         });
     });

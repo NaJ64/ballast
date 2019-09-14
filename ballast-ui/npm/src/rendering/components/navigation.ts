@@ -120,7 +120,7 @@ export class NavigationComponent extends RenderingComponentBase {
         navWindow.style.cssFloat = 'left';
         navWindow.style.position = 'absolute';
         navWindow.style.zIndex = '1000';
-        navWindow.style.left = '12px';
+        navWindow.style.left = 'calc(20% + 22px)';
         navWindow.style.bottom = '12px';
         navWindow.style.height = '49px';
         navWindow.style.width = 'calc(15% - 2px)';

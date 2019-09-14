@@ -8,6 +8,7 @@ import { BoardComponent } from "../rendering/components/board";
 import { CameraComponent } from "../rendering/components/camera";
 import { ChatComponent } from "../rendering/components/chat";
 import { GameComponent } from "../rendering/components/game";
+import { MiniMapComponent } from "../rendering/components/mini-map";
 import { NavigationComponent } from "../rendering/components/navigation";
 import { RootComponent } from "../rendering/components/root";
 import { SignInComponent } from "../rendering/components/sign-in";
@@ -85,6 +86,9 @@ export class BallastUiContainerModule extends ContainerModule {
                 .inSingletonScope();
             bind<GameComponent>(BallastUi.Rendering.Components.GameComponent)
                 .to(GameComponent)
+                .inSingletonScope();
+            bind<MiniMapComponent>(BallastUi.Rendering.Components.MiniMapComponent)
+                .to(MiniMapComponent)
                 .inSingletonScope();
             bind<NavigationComponent>(BallastUi.Rendering.Components.NavigationComponent)
                 .to(NavigationComponent)
