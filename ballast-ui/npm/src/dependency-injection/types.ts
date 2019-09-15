@@ -20,7 +20,7 @@ export const TYPES = {
             SignInComponent: Symbol.for("SignInComponent"),
             WorldComponent: Symbol.for("WorldComponent")
         },
-        IRenderer: Symbol.for("IRenderer"),
+        IRenderingController: Symbol.for("IRenderingController"),
         IRenderingContext: Symbol.for("IRenderingContext")
     }
 };

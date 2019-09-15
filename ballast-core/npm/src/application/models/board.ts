@@ -1,11 +1,12 @@
-import { ITileDto } from "./tile-dto";
+import { ITileDto } from "./tile";
+import { TileShapeName } from "./tile-shape";
 
 export interface IBoardDto {
     id: string;
     type: string;
     centerOrigin: boolean;
     tiles: ITileDto[];
-    tileShape: string;
+    tileShape: TileShapeName;
     applyHexRowScaling: boolean;
     doubleIncrement: boolean;
     hasDirectionNorth: boolean;

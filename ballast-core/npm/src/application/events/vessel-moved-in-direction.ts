@@ -1,6 +1,6 @@
 import { EventBase } from "../../messaging/event-base";
 import { IApplicationEvent } from "../application-event";
-import { IVesselDto } from "../models/vessel-dto";
+import { IVesselDto } from "../models/vessel";
 import { IDirection } from "../models/direction";
 
 export interface IVesselMovedInDirectionEvent extends IApplicationEvent {

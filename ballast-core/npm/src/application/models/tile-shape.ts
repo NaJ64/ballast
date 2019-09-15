@@ -1,0 +1,1 @@
+export type TileShapeName = "Square" | "Octagon" | "Hexagon" | "Circle";

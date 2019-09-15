@@ -7,6 +7,7 @@ import { CurrentGameModifiedEvent } from "../../events/current-game-modified";
 import { CurrentPlayerModifiedEvent } from "../../events/current-player-modified";
 import { CurrentVesselModifiedEvent } from "../../events/current-vessel-modified";
 import { CurrentVesselRolesModifiedEvent } from "../../events/current-vessel-roles-modified";
+import { Canvas2dRenderer } from "../canvas-2d-renderer";
 
 // Render an overhead view (camera) of the board with toggle-able full-screen
 
@@ -17,7 +18,7 @@ export class MiniMapComponent extends RenderingComponentBase {
     private _cameraNeedsReset: boolean;
     private _miniMapWindow?: HTMLDivElement;
     private _miniMapCanvas?: HTMLCanvasElement;
-    private _miniMapCanvasContext?: CanvasRenderingContext2D;
+    private _canvas2dRenderer?: Canvas2dRenderer;
 
     public constructor(@inject(BallastCore.Messaging.IEventBus) eventBus: IEventBus) {
         super();
@@ -29,6 +30,10 @@ export class MiniMapComponent extends RenderingComponentBase {
     protected onDisposing() {
         this.unsubscribeAll();
         this.destroyDomElements();
+        if (this._canvas2dRenderer) {
+            this._canvas2dRenderer.dispose();
+            this._canvas2dRenderer = undefined;
+        }
     }
 
     private rebindHandlers() {
@@ -59,14 +64,11 @@ export class MiniMapComponent extends RenderingComponentBase {
         let navElements = this.createMiniMapElements(ownerDocument);
         this._miniMapWindow = navElements["0"];
         this._miniMapCanvas = navElements["1"];
-        this._miniMapCanvasContext = this._miniMapCanvas.getContext("2d") as CanvasRenderingContext2D;
-        (<any>window).miniMap = this._miniMapCanvasContext;
     }
 
     private destroyDomElements() {
         this._miniMapWindow = undefined;
         this._miniMapCanvas = undefined;
-        this._miniMapCanvasContext = undefined;
     }
 
     private createMiniMapElements(ownerDocument: Document): [
@@ -102,6 +104,7 @@ export class MiniMapComponent extends RenderingComponentBase {
         // Check if we need to create the navigation window (and other elements)
         if (!this._miniMapWindow) {
             this.createDomElements(ownerDocument);
+            this._canvas2dRenderer = new Canvas2dRenderer(this._miniMapCanvas as HTMLCanvasElement);
         }
         // Attach to parent DOM element
         if (this._miniMapWindow) {
@@ -160,30 +163,8 @@ export class MiniMapComponent extends RenderingComponentBase {
         // Remove flag
         this._cameraNeedsReset = false;
         // Actually reset the camera
-        this.drawSomething();
-        console.log("Minimap camera was reset")
-    }
-
-    private drawSomething()
-    {
-        if (!this._miniMapCanvas || !this._miniMapCanvasContext) {
-            return;
-        }
-        debugger;
-        let height = (Math.random() * this._miniMapCanvas.height);
-        let width = (Math.random() * this._miniMapCanvas.width);
-        let top = (Math.random() * height);
-        let left = (Math.random() * width);
-        let color = "white";
-        let colorRandom = Math.random();
-        if (colorRandom < .25)
-            color = "red";
-        else if (colorRandom < .50)
-            color = "blue";
-        else if (colorRandom < .75)
-            color = "green";
-        this._miniMapCanvasContext.fillStyle = color 
-        this._miniMapCanvasContext.fillRect(top, left, width, height);
+        this._canvas2dRenderer && this._canvas2dRenderer.render(renderingContext);
+        //console.log("Minimap camera was reset")
     }
 
 }

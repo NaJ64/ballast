@@ -5,7 +5,7 @@ import { PlayerSignedOutDomainEvent } from "../../../domain/events/player-signed
 import { Player } from "../../../domain/models/player";
 import { IEventBus } from "../../../messaging/event-bus";
 import { Guid } from "../../../utility/guid";
-import { IPlayerDto } from "../../models/player-dto";
+import { IPlayerDto } from "../../models/player";
 import { IPlayerSignInRequest } from "../../models/player-sign-in-request";
 import { IPlayerSignOutRequest } from "../../models/player-sign-out-request";
 import { ISignInService } from "../sign-in-service";

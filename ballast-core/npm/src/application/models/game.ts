@@ -1,6 +1,6 @@
-import { IBoardDto } from "./board-dto";
-import { IPlayerDto } from "./player-dto";
-import { IVesselDto } from "./vessel-dto";
+import { IBoardDto } from "./board";
+import { IPlayerDto } from "./player";
+import { IVesselDto } from "./vessel";
 
 export interface IGameDto {
     id: string;

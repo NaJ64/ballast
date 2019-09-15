@@ -1,9 +1,9 @@
 import { IDisposable } from "../../interfaces/disposable";
 import { IAddPlayerOptions } from "../models/add-player-options";
 import { ICreateGameOptions } from "../models/create-game-options";
-import { IGameDto } from "../models/game-dto";
+import { IGameDto } from "../models/game";
 import { IRemovePlayerOptions } from "../models/remove-player-options";
-import { IVesselDto } from "../models/vessel-dto";
+import { IVesselDto } from "../models/vessel";
 import { IVesselMoveRequest } from "../models/vessel-move-request";
 
 export interface IGameService extends IDisposable {

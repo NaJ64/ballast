@@ -1,6 +1,6 @@
 import { EventBase } from "../../messaging/event-base";
 import { IApplicationEvent } from "../application-event";
-import { IPlayerDto } from "../models/player-dto";
+import { IPlayerDto } from "../models/player";
 
 export interface IPlayerSignedOutEvent extends IApplicationEvent {
     readonly player: IPlayerDto | null;

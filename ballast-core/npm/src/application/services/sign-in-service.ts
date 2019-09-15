@@ -1,5 +1,5 @@
 import { IDisposable } from "../../interfaces/disposable";
-import { IPlayerDto } from "../models/player-dto";
+import { IPlayerDto } from "../models/player";
 import { IPlayerSignInRequest } from "../models/player-sign-in-request";
 import { IPlayerSignOutRequest } from "../models/player-sign-out-request";
 

@@ -2,8 +2,9 @@ import { IDisposable } from "ballast-core";
 import { injectable } from "inversify";
 import { IRenderingContext } from "./rendering-context";
 import { RenderingStep, RenderingMiddleware } from "./rendering-middleware";
+import { IRenderer } from "./renderer";
 
-export interface IRenderingComponent extends IDisposable {
+export interface IRenderingComponent extends IRenderer, IDisposable {
     readonly isAttached: boolean;
     readonly isEnabled: boolean;
     readonly parent: HTMLElement | null;

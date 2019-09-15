@@ -5,7 +5,7 @@
       "dom"
     ],
     "outDir": "./lib",
-    "rootDir": "./src",
+    "rootDir": "./src"
   },
   "exclude": [
     "dist",

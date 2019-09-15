@@ -2,7 +2,7 @@ import { Guid, IAddPlayerOptions, IGameService, IPlayerDto, ISignInService, TYPE
 import { Container } from "inversify";
 import { BallastUiContainerModule } from "./dependency-injection/container-module";
 import { TYPES as BallastUi } from "./dependency-injection/types";
-import { IRenderer } from "./rendering/renderer";
+import { IRenderingController } from "./rendering/rendering-controller";
 import { IClientBootstrapper, TYPES as BallastClient } from "ballast-client";
 
 export interface IBallastHtmlClient {
@@ -29,9 +29,9 @@ export class BallastHtmlClient implements IBallastHtmlClient {
     }
 
     public async startAsync(): Promise<void> {
-        let renderer = this._container.get<IRenderer>(BallastUi.Rendering.IRenderer);
-        renderer.attach();
-        renderer.startRenderLoop();
+        let renderingController = this._container.get<IRenderingController>(BallastUi.Rendering.IRenderingController);
+        renderingController.attach();
+        renderingController.startRenderLoop();
         let clientBootstrapper = this._container.get<IClientBootstrapper>(BallastClient.IClientBootstrapper);
         await clientBootstrapper.connectAsync();
         await this.startTestAsync();

@@ -1,0 +1,1 @@
+export type TerrainName = "Land" | "Coast" | "Water";

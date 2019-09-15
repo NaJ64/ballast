@@ -13,7 +13,7 @@ import { NavigationComponent } from "../rendering/components/navigation";
 import { RootComponent } from "../rendering/components/root";
 import { SignInComponent } from "../rendering/components/sign-in";
 import { WorldComponent } from "../rendering/components/world";
-import { IRenderer, Renderer } from "../rendering/renderer";
+import { IRenderingController, RenderingController } from "../rendering/rendering-controller";
 import { IRenderingContext, RenderingContext } from "../rendering/rendering-context";
 import { BallastUiOptions, IBallastUiOptions } from "./options";
 import { TYPES as BallastUi } from "./types";
@@ -103,8 +103,8 @@ export class BallastUiContainerModule extends ContainerModule {
                 .to(WorldComponent)
                 .inSingletonScope();
 
-            // IRenderer
-            bind<IRenderer>(BallastUi.Rendering.IRenderer)
+            // IRenderingController
+            bind<IRenderingController>(BallastUi.Rendering.IRenderingController)
                 .toDynamicValue(ctx => {
                     let keyboardWatcher = ctx.container.get<KeyboardWatcher>(BallastUi.Input.KeyboardWatcher);
                     let appState = ctx.container.get<IBallastAppState>(BallastUi.IBallastAppState);
@@ -115,7 +115,7 @@ export class BallastUiContainerModule extends ContainerModule {
                     let rootComponentFactory = {
                         create: () => ctx.container.get<RootComponent>(BallastUi.Rendering.Components.RootComponent)
                     };
-                    return new Renderer(
+                    return new RenderingController(
                         ballastUiOptions.host!, 
                         ballastUiOptions.clientId!, 
                         renderingContextFactory, 
@@ -126,7 +126,7 @@ export class BallastUiContainerModule extends ContainerModule {
             // IRenderingContext
             bind<IRenderingContext>(BallastUi.Rendering.IRenderingContext)
                 .toDynamicValue(ctx => ctx.container
-                    .get<IRenderer>(BallastUi.Rendering.IRenderer)
+                    .get<IRenderingController>(BallastUi.Rendering.IRenderingController)
                     .renderingContext
                 ).inSingletonScope();
             

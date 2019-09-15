@@ -1,6 +1,6 @@
 import { EventBase } from "../../messaging/event-base";
 import { IApplicationEvent } from "../application-event";
-import { IGameDto } from "../models/game-dto";
+import { IGameDto } from "../models/game";
 
 export interface IGameStateChangedEvent extends IApplicationEvent {
     readonly game: IGameDto | null;

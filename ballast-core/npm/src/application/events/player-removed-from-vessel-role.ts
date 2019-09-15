@@ -1,7 +1,7 @@
 import { EventBase } from "../../messaging/event-base";
 import { IApplicationEvent } from "../application-event";
-import { IPlayerDto } from "../models/player-dto";
-import { IVesselDto } from "../models/vessel-dto";
+import { IPlayerDto } from "../models/player";
+import { IVesselDto } from "../models/vessel";
 
 export interface IPlayerRemovedFromVesselRoleEvent extends IApplicationEvent {
     readonly gameId: string;

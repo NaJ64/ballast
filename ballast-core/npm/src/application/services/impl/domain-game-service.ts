@@ -21,15 +21,17 @@ import { IEventBus } from "../../../messaging/event-bus";
 import { Guid } from "../../../utility/guid";
 import { VesselMovedInDirectionEvent } from "../../events/vessel-moved-in-direction";
 import { IAddPlayerOptions } from "../../models/add-player-options";
-import { IBoardDto } from "../../models/board-dto";
+import { IBoardDto } from "../../models/board";
 import { ICreateGameOptions } from "../../models/create-game-options";
 import { ICreateVesselOptions } from "../../models/create-vessel-options";
 import { IDirection } from "../../models/direction";
-import { IGameDto } from "../../models/game-dto";
-import { IPlayerDto } from "../../models/player-dto";
+import { IGameDto } from "../../models/game";
+import { IPlayerDto } from "../../models/player";
 import { IRemovePlayerOptions } from "../../models/remove-player-options";
-import { ITileDto } from "../../models/tile-dto";
-import { IVesselDto } from "../../models/vessel-dto";
+import { TerrainName } from "../../models/terrain";
+import { ITileDto } from "../../models/tile";
+import { TileShapeName } from "../../models/tile-shape";
+import { IVesselDto } from "../../models/vessel";
 import { IVesselMoveRequest } from "../../models/vessel-move-request";
 import { IGameService } from "../game-service";
 
@@ -111,7 +113,7 @@ export class DomainGameService implements IGameService {
     {
         return {
             id: board.id,
-            tileShape: board.tileShape.name,
+            tileShape: board.tileShape.name as TileShapeName,
             type: board.boardType.name,
             tiles: board.tiles.map(x => DomainGameService.mapToTileDto(x)),
             centerOrigin: board.boardType.centerOrigin,
@@ -131,8 +133,8 @@ export class DomainGameService implements IGameService {
     public static mapToTileDto(tile: Tile): ITileDto
     {
         return {
-            tileShape: tile.tileShape.name,
-            terrain: tile.terrain.name,
+            tileShape: tile.tileShape.name as TileShapeName,
+            terrain: tile.terrain.name as TerrainName,
             passable: tile.terrain.passable,
             orderedTriple: tile.cubicCoordinates.toOrderedTriple()
         };
