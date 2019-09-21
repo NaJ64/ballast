@@ -22,6 +22,7 @@ import { Guid } from "../../../utility/guid";
 import { VesselMovedInDirectionEvent } from "../../events/vessel-moved-in-direction";
 import { IAddPlayerOptions } from "../../models/add-player-options";
 import { IBoardDto } from "../../models/board";
+import { BoardTypeName } from "../../models/board-type";
 import { ICreateGameOptions } from "../../models/create-game-options";
 import { ICreateVesselOptions } from "../../models/create-vessel-options";
 import { IDirection } from "../../models/direction";
@@ -114,7 +115,7 @@ export class DomainGameService implements IGameService {
         return {
             id: board.id,
             tileShape: board.tileShape.name as TileShapeName,
-            type: board.boardType.name,
+            type: board.boardType.name as BoardTypeName,
             tiles: board.tiles.map(x => DomainGameService.mapToTileDto(x)),
             centerOrigin: board.boardType.centerOrigin,
             applyHexRowScaling: board.tileShape.applyHexRowScaling,

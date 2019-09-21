@@ -7,8 +7,7 @@ import { IRenderingContext } from "../rendering-context";
 import { BallastAppConstants } from "../../app-constants";
 import { ITileDto, IBoardDto, TYPES as BallastCore, IEventBus } from "ballast-core";
 import { CurrentGameModifiedEvent } from "../../events/current-game-modified";
-
-type OffsetCoordinates = { col: number, row: number };
+import { RenderingUtilities } from "../rendering-utilities";
 
 @injectable()
 export class BoardComponent extends RenderingComponentBase { 
@@ -118,19 +117,6 @@ export class BoardComponent extends RenderingComponentBase {
         return (apothem / Math.cos(Math.PI / sides));
     }
 
-    private getOffsetCoordinatesFromOrderedTriple(orderedTriple: number[]): OffsetCoordinates {
-        if (!orderedTriple || !Array.isArray(orderedTriple) || orderedTriple.length < 3) {
-            throw new Error("Cannot convert ordered triple to offset coordinates");
-        }
-        let x = orderedTriple[0];
-        //let y = orderedTriple[1];
-        let z = orderedTriple[2];
-        // Bitwise AND (& 1) to get 0 for even or 1 for odd column offset
-        let col = x + (z - (z & 1)) / 2;
-        let row = z;
-        return { col: col, row: row };
-    }
-
     private createCircleGeometry(): THREE.RingGeometry {
         let outerRadius = this.getTileOuterRadius(24);
         let innerRadius = this.getTileInnerRadius(outerRadius);
@@ -209,22 +195,11 @@ export class BoardComponent extends RenderingComponentBase {
     }
 
     private addTile(renderingContext: IRenderingContext, board: IBoardDto, tile: ITileDto) {
-        let offsetHex = this.getOffsetCoordinatesFromOrderedTriple(tile.orderedTriple);
-        let x = offsetHex.col;
-        let z = offsetHex.row;
-        if ((z & 1) > 0) {
-            x += 0.5;
-        }
-        let colSpacing = RenderingConstants.TILE_POSITION_SCALAR;
-        if (board.doubleIncrement) {
-            colSpacing *= 0.5;
-        }
-        let rowSpacing = colSpacing;
-        if (board.applyHexRowScaling) {
-            rowSpacing *= RenderingConstants.HEX_ROW_SCALAR;
-        }
-        x *= colSpacing;
-        z *= rowSpacing;
+        const {x, z} = RenderingUtilities.to3dCoordinates(
+            tile.orderedTriple, 
+            board.doubleIncrement, 
+            board.applyHexRowScaling
+        );
         let tileMesh = this.createTileMesh(tile.tileShape);
         tileMesh.position.set(x, 0, z);
         if (!tile.passable) {

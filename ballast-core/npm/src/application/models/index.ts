@@ -1,5 +1,6 @@
 export * from "./add-player-options";
 export * from "./board";
+export * from "./board-type";
 export * from "./chat-message";
 export * from "./create-game-options";
 export * from "./create-vessel-options";
