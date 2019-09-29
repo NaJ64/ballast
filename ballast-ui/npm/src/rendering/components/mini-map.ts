@@ -139,7 +139,7 @@ export class MiniMapComponent extends RenderingComponentBase {
     }
 
     private onCurrentVesselModifiedAsync() {
-        // Do something here
+        this._cameraNeedsReset = true;
         return Promise.resolve();
     }
 

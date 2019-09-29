@@ -1,7 +1,8 @@
-import { IDisposable, IGameDto, IBoardDto, ITileDto } from "ballast-core";
+import { IDisposable, IBoardDto, ITileDto, IVesselDto } from "ballast-core";
 import { IRenderer } from "./renderer";
 import { IRenderingContext } from "./rendering-context";
 import { RenderingUtilities } from "./rendering-utilities";
+import { IBallastAppState } from "../app-state";
 
 interface IPoint {
     x: number;
@@ -10,6 +11,7 @@ interface IPoint {
 
 export class Canvas2dRenderer implements IRenderer, IDisposable {
 
+    private _renderingContext?: IRenderingContext;
     private _isDisposed: boolean = false;
     private _canvasContext: CanvasRenderingContext2D;
 
@@ -19,27 +21,55 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
             throw new Error("Could not get 2d context from canvas argument");
         }
         this._canvasContext = canvasContext;
+        this.onDisplayCanvasResize = this.onDisplayCanvasResize.bind(this);
+        ((this._canvasContext.canvas.ownerDocument as Document)
+            .defaultView as Window)
+            .addEventListener("resize", this.onDisplayCanvasResize);
     }
 
     dispose() {
+        ((this._canvasContext.canvas.ownerDocument as Document)
+            .defaultView as Window)
+            .removeEventListener("resize", this.onDisplayCanvasResize);
         delete this._canvasContext;
         this._isDisposed = true;
+    }
+
+    private onDisplayCanvasResize() {
+        this._renderingContext && this.render(this._renderingContext);
     }
 
     render(renderingContext: IRenderingContext) {
         if (this._isDisposed) {
             return;
         }
-        if (!renderingContext.app.currentGame) {
-            return;
+        this._renderingContext = renderingContext;
+        // Resize display canvas
+        const displayCanvas = this._canvasContext.canvas;
+        const displayComputedStyle = ((this._canvasContext.canvas.ownerDocument as Document).defaultView as Window)
+            .getComputedStyle(displayCanvas);
+        const displayCanvasHeight = parseInt(displayComputedStyle.height as string);
+        const displayCanvasWidth = parseInt(displayComputedStyle.width as string);
+        if (displayCanvasHeight != displayCanvas.height) {
+            displayCanvas.height = displayCanvasHeight;
         }
-        this.draw(renderingContext.app.currentGame)
+        if (displayCanvasWidth != displayCanvas.width) {
+            displayCanvas.width = displayCanvasWidth;
+        }
+        // Render/clear game state onto internal canvas
+        if (renderingContext.app.currentGame) {
+            this.draw(renderingContext.app);
+        } else {
+            this.clear();
+        }
+        // Draw internal canvas onto display canvas
+        //this._displayCanvasCtx.drawImage(this._internalCanvasCtx.canvas, 0, 0);
     }
 
     private getBounds(canvasContext: CanvasRenderingContext2D): IPoint {
         return {
-            x: this._canvasContext.canvas.width,
-            y: this._canvasContext.canvas.height
+            x: canvasContext.canvas.width,
+            y: canvasContext.canvas.height
         };
     }
 
@@ -51,9 +81,9 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
     //     };
     // }
 
-    private draw(game: IGameDto) {
+    private draw(app: IBallastAppState) {
         this.clear();
-        this.drawBoard(game.board);
+        app.currentGame && this.drawBoard(app.currentGame.board, app.currentVessel || null);
     }
 
     private clear() {
@@ -62,7 +92,7 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         ctx.clearRect(0, 0, bounds.x, bounds.y);
     }
 
-    private drawBoard(board: IBoardDto) {
+    private drawBoard(board: IBoardDto, currentVessel: IVesselDto | null) {
         const ctx = this._canvasContext;
         const bounds = this.getBounds(ctx);
         //const origin = this.getOrigin(ctx);
@@ -119,11 +149,11 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         }
         const tilesWithPoints: [ITileDto, IPoint][] = board.tiles.map(tile => [tile, conversion(tile)]);
         for(const item of tilesWithPoints) {
-            this.drawTile(board, item["0"], item["1"]);
+            this.drawTile(ctx, board, item["0"], item["1"], currentVessel);
         }
     }
 
-    private drawTile(board: IBoardDto, tile: ITileDto, canvasPoint: IPoint) {
+    private drawTile(ctx: CanvasRenderingContext2D, board: IBoardDto, tile: ITileDto, canvasPoint: IPoint, currentVessel: IVesselDto | null) {
         // use tile coordinates and bounds to place tile
         let fillStyle = "white";
         switch(tile.terrain) {
@@ -137,8 +167,11 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
                 fillStyle = "blue";
                 break;
         }
-        this._canvasContext.fillStyle = fillStyle;
-        this._canvasContext.fillText(String.fromCharCode(parseInt("25A0", 16)), canvasPoint.x, canvasPoint.y);
+        if (currentVessel && currentVessel.orderedTriple.toString() == tile.orderedTriple.toString()) {
+            fillStyle = "white";
+        }
+        ctx.fillStyle = fillStyle;
+        ctx.fillText(String.fromCharCode(parseInt("2B24", 16)), canvasPoint.x, canvasPoint.y);
         if (board.tileShape == "Square") {
             
         } else if (board.tileShape == "Octagon") {
