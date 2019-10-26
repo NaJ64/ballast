@@ -96,8 +96,10 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         const ctx = this._canvasContext;
         const bounds = this.getBounds(ctx);
         //const origin = this.getOrigin(ctx);
-        const min: IPoint = { x: 0, y:0 };
-        const max: IPoint = { x: 0, y:0 };
+        const min: IPoint = { x: 0, y: 0 };
+        const max: IPoint = { x: 0, y: 0 };
+        const rows: Record<string, number> = {};
+        const cols: Record<string, number> = {};
         board.tiles.forEach(tile => {
             const {x, z} = RenderingUtilities.to3dCoordinates(
                 tile.orderedTriple,
@@ -105,6 +107,8 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
                 board.applyHexRowScaling
             );
             const y = z; // z dimension in 3d is y for our flat board
+            rows[x.toString()] = (rows[x.toString()] || 0) + 1;
+            cols[y.toString()] = (cols[y.toString()] || 0) + 1;
             if (x < min.x) {
                 min.x = x;
             }
@@ -130,8 +134,21 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         max.x = max.x + offsetX;
         min.y = min.y + offsetY;
         max.y = max.y + offsetY;
-        const scalarX = bounds.x / max.x;
-        const scalarY = bounds.y / max.y;
+
+        let maxPer = 0;
+        Object.keys(rows).forEach(row => {
+            if (rows[row] > maxPer) {
+                maxPer = rows[row];
+            }
+        });
+        Object.keys(cols).forEach(col => {
+            if (cols[col] > maxPer) {
+                maxPer = cols[col];
+            }
+        });
+        const radius = 0.5 * (bounds.x > bounds.y ? bounds.x : bounds.y) / maxPer;
+        const scalarX = (bounds.x - radius - radius) / max.x;
+        const scalarY = (bounds.y - radius - radius) / max.y;
         const conversion = (tile: ITileDto) => {
             let {x, z} = RenderingUtilities.to3dCoordinates(
                 tile.orderedTriple,
@@ -149,16 +166,16 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         }
         const tilesWithPoints: [ITileDto, IPoint][] = board.tiles.map(tile => [tile, conversion(tile)]);
         for(const item of tilesWithPoints) {
-            this.drawTile(ctx, board, item["0"], item["1"], currentVessel);
+            this.drawTile(ctx, board, item["0"], item["1"], radius, currentVessel);
         }
     }
 
-    private drawTile(ctx: CanvasRenderingContext2D, board: IBoardDto, tile: ITileDto, canvasPoint: IPoint, currentVessel: IVesselDto | null) {
+    private drawTile(ctx: CanvasRenderingContext2D, board: IBoardDto, tile: ITileDto, canvasPoint: IPoint, radius: number, currentVessel: IVesselDto | null) {
         // use tile coordinates and bounds to place tile
         let fillStyle = "white";
         switch(tile.terrain) {
             case "Coast":
-                fillStyle = "brown";
+                fillStyle = "yellow";
                 break;
             case "Land":
                 fillStyle = "green";
@@ -171,7 +188,10 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
             fillStyle = "white";
         }
         ctx.fillStyle = fillStyle;
-        ctx.fillText(String.fromCharCode(parseInt("2B24", 16)), canvasPoint.x, canvasPoint.y);
+        ctx.beginPath();
+        ctx.arc(canvasPoint.x + radius, canvasPoint.y + radius, radius, 0, 2* Math.PI);
+        ctx.fill();
+        //ctx.fillText(String.fromCharCode(parseInt("2B24", 16)), canvasPoint.x, canvasPoint.y);
         if (board.tileShape == "Square") {
             
         } else if (board.tileShape == "Octagon") {
