@@ -166,41 +166,61 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         }
         const tilesWithPoints: [ITileDto, IPoint][] = board.tiles.map(tile => [tile, conversion(tile)]);
         for(const item of tilesWithPoints) {
-            this.drawTile(ctx, board, item["0"], item["1"], radius, currentVessel);
+            this.drawTile(ctx, board, item["0"], item["1"], radius * 2, currentVessel);
         }
     }
 
-    private drawTile(ctx: CanvasRenderingContext2D, board: IBoardDto, tile: ITileDto, canvasPoint: IPoint, radius: number, currentVessel: IVesselDto | null) {
+    private drawTile(ctx: CanvasRenderingContext2D, board: IBoardDto, tile: ITileDto, canvasPoint: IPoint, size: number, currentVessel: IVesselDto | null) {
         // use tile coordinates and bounds to place tile
-        let fillStyle = "white";
+        const strokeStyle = "rgba(255, 255, 255, 0.75)";
+        let fillStyle = strokeStyle;
         switch(tile.terrain) {
             case "Coast":
-                fillStyle = "yellow";
+                fillStyle = "rgba(255, 255, 153, 0.85)";
                 break;
             case "Land":
-                fillStyle = "green";
+                fillStyle = "rgba(102, 153, 51, 0.85)";
                 break;
             case "Water":
-                fillStyle = "blue";
+                fillStyle = "rgba(43, 43, 204, 0.75)";
                 break;
         }
         if (currentVessel && currentVessel.orderedTriple.toString() == tile.orderedTriple.toString()) {
-            fillStyle = "white";
+            fillStyle = "rgba(255, 255, 255, 0.85)";
         }
-        ctx.fillStyle = fillStyle;
-        ctx.beginPath();
-        ctx.arc(canvasPoint.x + radius, canvasPoint.y + radius, radius, 0, 2* Math.PI);
-        ctx.fill();
         //ctx.fillText(String.fromCharCode(parseInt("2B24", 16)), canvasPoint.x, canvasPoint.y);
         if (board.tileShape == "Square") {
-            
-        } else if (board.tileShape == "Octagon") {
+            this.drawSquare(ctx, canvasPoint, size, fillStyle, strokeStyle);
+        //} else if (board.tileShape == "Octagon") {
 
-        } else if (board.tileShape == "Hexagon") {
+        //} else if (board.tileShape == "Hexagon") {
 
         } else { // Circle
-
+            this.drawCircle(ctx, canvasPoint, size, fillStyle, strokeStyle);
         }
+    }
+
+    private drawCircle(ctx: CanvasRenderingContext2D, origin: IPoint, diameter: number, fillStyle: string, strokeStyle: string) {
+        const radius = diameter / 2;
+        ctx.fillStyle = fillStyle;
+        ctx.beginPath();
+        ctx.arc(origin.x + radius, origin.y + radius, radius, 0, 2* Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(origin.x + radius, origin.y + radius, radius, 0, 2* Math.PI);
+        ctx.strokeStyle = strokeStyle;
+        ctx.stroke();
+    }
+
+    private drawSquare(ctx: CanvasRenderingContext2D, origin: IPoint, size: number, fillStyle: string, strokeStyle: string) {
+        ctx.fillStyle = fillStyle;
+        ctx.beginPath();
+        ctx.fillRect(origin.x, origin.y, size, size);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.strokeRect(origin.x, origin.y, size, size);
+        ctx.strokeStyle = strokeStyle;
+        ctx.stroke();
     }
  
 }
