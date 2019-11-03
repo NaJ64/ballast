@@ -1,8 +1,9 @@
-import { IDisposable, IBoardDto, ITileDto, IVesselDto } from "ballast-core";
+import { IBoardDto, IDisposable, ITileDto, IVesselDto } from "ballast-core";
+import { IBallastAppState } from "../app-state";
 import { IRenderer } from "./renderer";
+import { RenderingConstants } from "./rendering-constants";
 import { IRenderingContext } from "./rendering-context";
 import { RenderingUtilities } from "./rendering-utilities";
-import { IBallastAppState } from "../app-state";
 
 interface IPoint {
     x: number;
@@ -95,6 +96,9 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
     private drawBoard(board: IBoardDto, currentVessel: IVesselDto | null) {
         const ctx = this._canvasContext;
         const bounds = this.getBounds(ctx);
+        if (board.applyHexRowScaling) {
+            bounds.y = RenderingConstants.HEX_ROW_SCALAR * bounds.y;
+        }
         //const origin = this.getOrigin(ctx);
         const min: IPoint = { x: 0, y: 0 };
         const max: IPoint = { x: 0, y: 0 };
@@ -158,7 +162,11 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
             x += offsetX;
             z += offsetY;
             const canvasX = x * scalarX;
-            const canvasY = z * scalarY;
+            let canvasY = z * scalarY;
+            if (board.applyHexRowScaling) {
+                let transformY = ((bounds.y / RenderingConstants.HEX_ROW_SCALAR) - bounds.y) / 2; 
+                canvasY += transformY;
+            }
             return {
                 x: canvasX,
                 y: canvasY
@@ -191,10 +199,10 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
         //ctx.fillText(String.fromCharCode(parseInt("2B24", 16)), canvasPoint.x, canvasPoint.y);
         if (board.tileShape == "Square") {
             this.drawSquare(ctx, canvasPoint, size, fillStyle, strokeStyle);
-        //} else if (board.tileShape == "Octagon") {
-
-        //} else if (board.tileShape == "Hexagon") {
-
+        } else if (board.tileShape == "Octagon") {
+            this.drawOctagon(ctx, canvasPoint, size, fillStyle, strokeStyle);
+        } else if (board.tileShape == "Hexagon") {
+            this.drawHexagon(ctx, canvasPoint, size, fillStyle, strokeStyle);
         } else { // Circle
             this.drawCircle(ctx, canvasPoint, size, fillStyle, strokeStyle);
         }
@@ -203,24 +211,53 @@ export class Canvas2dRenderer implements IRenderer, IDisposable {
     private drawCircle(ctx: CanvasRenderingContext2D, origin: IPoint, diameter: number, fillStyle: string, strokeStyle: string) {
         const radius = diameter / 2;
         ctx.fillStyle = fillStyle;
-        ctx.beginPath();
-        ctx.arc(origin.x + radius, origin.y + radius, radius, 0, 2* Math.PI);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(origin.x + radius, origin.y + radius, radius, 0, 2* Math.PI);
         ctx.strokeStyle = strokeStyle;
+        ctx.beginPath();
+        ctx.arc(origin.x + radius, origin.y + radius, radius, 0, 2* Math.PI);
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
     }
 
     private drawSquare(ctx: CanvasRenderingContext2D, origin: IPoint, size: number, fillStyle: string, strokeStyle: string) {
         ctx.fillStyle = fillStyle;
+        ctx.strokeStyle = strokeStyle;
         ctx.beginPath();
         ctx.fillRect(origin.x, origin.y, size, size);
-        ctx.fill();
-        ctx.beginPath();
         ctx.strokeRect(origin.x, origin.y, size, size);
-        ctx.strokeStyle = strokeStyle;
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
     }
+
+    private drawOctagon(ctx: CanvasRenderingContext2D, origin: IPoint, size: number, fillStyle: string, strokeStyle: string) {
+        this.drawRegularPolygon(ctx, origin, size, fillStyle, strokeStyle, 8);
+    }
  
+    private drawHexagon(ctx: CanvasRenderingContext2D, origin: IPoint, size: number, fillStyle: string, strokeStyle: string) {
+        this.drawRegularPolygon(ctx, origin, size, fillStyle, strokeStyle, 6);
+    }
+
+    private drawRegularPolygon(ctx: CanvasRenderingContext2D, origin: IPoint, size: number, fillStyle: string, strokeStyle: string, sides: number) {
+        const radius = size / 2;
+        const originX = origin.x + radius;
+        const originY = origin.y + radius;
+        ctx.fillStyle = fillStyle;
+        ctx.strokeStyle = strokeStyle;
+        const angle = (Math.PI * 2) / sides;
+        const halfAngle = angle / 2;
+        const startX = originX + (radius * Math.cos(-halfAngle));
+        const startY = originY + (radius * Math.sin(-halfAngle));
+        ctx.beginPath();
+        //ctx.rotate(angle / -2);
+        ctx.moveTo(startX, startY);
+        for(let i = 1; i <= sides; i++) {
+            const toX = originX + (radius * Math.cos(angle * i - halfAngle));
+            const toY = originY + (radius * Math.sin(angle * i - halfAngle));
+            ctx.lineTo(toX, toY);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
 }

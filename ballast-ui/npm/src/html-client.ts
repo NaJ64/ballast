@@ -60,8 +60,7 @@ export class BallastHtmlClient implements IBallastHtmlClient {
             vesselId: nextEmptyVessel ? nextEmptyVessel.id : null,
             vesselRoles: []
         };
-        let testGameWithPlayer = await gameService.addPlayerToGameAsync(addPlayerOptions);
-        console.log(testGameWithPlayer);
+        await gameService.addPlayerToGameAsync(addPlayerOptions);
     }
 
 }
