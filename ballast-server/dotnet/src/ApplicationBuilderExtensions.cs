@@ -14,12 +14,12 @@ namespace Ballast.Server
             var ballastServerOptions = (IBallastServerOptions)serviceProvider.GetService(typeof(IBallastServerOptions));
             if (ballastServerOptions?.UseSignalR ?? false)
             {
-                app.UseSignalR(routes => 
+                app.UseEndpoints(endpoints => 
                 {
-                    routes.MapHub<EventHub>("/eventhub");
-                    routes.MapHub<ChatHub>("/chathub");
-                    routes.MapHub<GameHub>("/gamehub");
-                    routes.MapHub<SignInHub>("/signinhub");
+                    endpoints.MapHub<EventHub>("/eventhub");
+                    endpoints.MapHub<ChatHub>("/chathub");
+                    endpoints.MapHub<GameHub>("/gamehub");
+                    endpoints.MapHub<SignInHub>("/signinhub");
                 });
                 // Resolve EventHubMethods to trigger subscription(s) to application events
                 var eventHubMethods = (EventHubMethods)serviceProvider.GetService(typeof(EventHubMethods));
