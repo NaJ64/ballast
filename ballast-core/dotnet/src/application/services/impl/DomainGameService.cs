@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ballast.Core.Application.Events;
 using Ballast.Core.Application.Models;
+using Ballast.Core.DependencyInjection;
 using Ballast.Core.Domain.Events;
 using Ballast.Core.Domain.Models;
 using Ballast.Core.Domain.Services;
@@ -34,7 +35,7 @@ namespace Ballast.Core.Application.Services.Impl
         private readonly IEventBus _eventBus;
         private readonly IBoardGenerator _boardGenerator;
         private readonly IDictionary<Guid, Game> _games;
-        private readonly Game _defaultGame;
+        private Game _defaultGame;
 
         public DomainGameService(IDomainGameServiceOptions options, IEventBus eventBus, IBoardGenerator boardGenerator)
         {
@@ -42,7 +43,42 @@ namespace Ballast.Core.Application.Services.Impl
             _eventBus = eventBus;
             _boardGenerator = boardGenerator;
             _games = new Dictionary<Guid, Game>();
+
+            SetDefaultGameOptions(options);
+            ResetDefaultGameAsync().GetAwaiter().GetResult();
             
+            _eventBus.Subscribe<PlayerSignedOutDomainEvent>(nameof(PlayerSignedOutDomainEvent), OnPlayerSignedOutAsync);
+        }
+
+        public async Task ResetDefaultGameAsync(
+            int? boardSize = null, 
+            string boardType = null,
+            string tileShape = null,
+            double? landToWaterRatio = null,
+            IEnumerable<string> vesselNames = null
+        )
+        {
+            await EndGameAsync(_defaultGame.Id);
+            await DeleteGameAsync(_defaultGame.Id);
+
+            var newOptions = new BallastCoreOptions();
+            if (boardSize.HasValue) 
+                newOptions.DefaultBoardSize = boardSize;
+            if (!string.IsNullOrEmpty(boardType))
+                newOptions.DefaultBoardType = boardType;
+            if (!string.IsNullOrEmpty(tileShape))
+                newOptions.DefaultTileShape = tileShape;
+            if (landToWaterRatio.HasValue)
+                newOptions.DefaultLandToWaterRatio = landToWaterRatio;
+            if (vesselNames != null && vesselNames.Any())
+                newOptions.DefaultVessels = vesselNames;
+            SetDefaultGameOptions(newOptions);
+            
+            _defaultGame = await CreateDefaultGameAsync();
+        }
+
+        private void SetDefaultGameOptions(IDomainGameServiceOptions options) 
+        {
             if (_options?.DefaultBoardSize != null && _options.DefaultBoardSize.GetValueOrDefault() >= 3)
                 DEFAULT_BOARD_SIZE = _options.DefaultBoardSize.GetValueOrDefault();
             if (_options?.DefaultBoardType != null)
@@ -53,9 +89,6 @@ namespace Ballast.Core.Application.Services.Impl
                 DEFAULT_LAND_TO_WATER_RATIO = _options.DefaultLandToWaterRatio.GetValueOrDefault();
             if (_options?.DefaultVessels?.Any() ?? false)
                 DEFAULT_VESSEL_NAMES = _options?.DefaultVessels.ToArray();
-                
-            _defaultGame = CreateDefaultGameAsync().GetAwaiter().GetResult();
-            _eventBus.Subscribe<PlayerSignedOutDomainEvent>(nameof(PlayerSignedOutDomainEvent), OnPlayerSignedOutAsync);
         }
 
         public void Dispose()
