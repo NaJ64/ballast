@@ -18,6 +18,8 @@ export class RenderingController implements IRenderingController {
     private readonly _renderingMiddleware: RenderingMiddleware;
     private readonly _renderingContext: IRenderingContext
     private readonly _rootComponentFactory: IRootComponentFactory;
+    private _lastRenderTimeStamp: number;
+    private _currentTimeStamp: number;
 
     public constructor(
         host: HTMLElement, 
@@ -33,6 +35,8 @@ export class RenderingController implements IRenderingController {
         this._renderingMiddleware = new RenderingMiddleware();
         this._renderingContext = renderingContextFactory.create(this._canvas, this._gameStyle);
         this._rootComponentFactory = rootComponentFactory;
+        this._lastRenderTimeStamp = 0;
+        this._currentTimeStamp = 0;
     }
 
     public attach() {
@@ -87,8 +91,16 @@ export class RenderingController implements IRenderingController {
     }
 
     private renderLoop() {
-        requestAnimationFrame(() => this.renderLoop());
-        this.render();
+        const frameRate = 1000 / 60; // 60 fps
+        const elapsed = this._currentTimeStamp - this._lastRenderTimeStamp;
+        if (this._lastRenderTimeStamp == 0 || elapsed >= frameRate) {
+            this.render();
+            this._lastRenderTimeStamp = this._currentTimeStamp;
+        }
+        requestAnimationFrame(timestamp => {
+            this._currentTimeStamp = timestamp;
+            this.renderLoop()  
+        });          
     }
 
     private render(): void {
